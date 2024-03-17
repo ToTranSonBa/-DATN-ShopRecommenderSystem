@@ -18,8 +18,8 @@ namespace ShopRe.Data
         public string? Position { get; set; }
         public bool? ShowPreviewImage { get; set; }
         public String? Values { get; set; } // Object chứa các giá trị, có thể là label hoặc một dạng dữ liệu khác
-        public DateTime? Create_at { get; set; } = DateTime.Now;
-        public DateTime? Update_at { get; set; }
-        public DateTime? Delete_at { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

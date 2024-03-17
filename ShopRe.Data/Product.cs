@@ -21,9 +21,9 @@ namespace ShopRe.Data
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? ID_SK { get; set; }
         public string? Name { get; set; }
-        public DateTime? Create_at { get; set; } = DateTime.Now;
-        public DateTime? Update_at { get; set; }
-        public DateTime? Delete_at { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public ProductOption ProductOption { get; set; }
         public Brand? Brand { get; set; }
 

@@ -13,15 +13,14 @@ namespace ShopRe.Data
         [Key]
         public int ID_NK { get; set; } // Chuỗi định danh
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime? Created { get; set; } = DateTime.Now; 
         public string? Image { get; set; } // Đối tượng hình ảnh
         public bool? Is_True { get; set; } // Giá trị boolean
-        public DateTime? CreatedTime { get; set; } // Thời điểm tạo
         public int? Rating { get; set; } // Điểm đánh giá
         public string? Content { get; set; } // Nội dung
-        public string? TimelineContent { get; set; } 
-        public DateTime? Delete_at { get; set; } 
-        public DateTime Update_at { get; set; }
+        public string? TimelineContent { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public Order? Order { get; set; }
         public Ownership? Ownership { get; set; }
     }

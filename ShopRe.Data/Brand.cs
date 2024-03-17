@@ -16,8 +16,8 @@ namespace ShopRe.Data
         public string? ID_SK { get; set; }
         public string? Name { get; set; }
         public string? Slug { get; set; }
-        public DateTime? Create_at { get; set; } = DateTime.Now;
-        public DateTime? Update_at { get; set; }
-        public DateTime? Delete_at { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }
