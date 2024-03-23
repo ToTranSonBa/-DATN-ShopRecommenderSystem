@@ -1,14 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ShopRe.Model.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShopRe.Data
 {
-    public class ShopRecommenderSystemDbContext:DbContext
+    public class ShopRecommenderSystemDbContext : IdentityDbContext<ApplicationUser>
     {
         public ShopRecommenderSystemDbContext(DbContextOptions<ShopRecommenderSystemDbContext> options) : base(options) { }
 
@@ -40,6 +37,8 @@ namespace ShopRe.Data
                 .HasOne(x => x.Product)
                 .WithOne()
                 .OnDelete(DeleteBehavior.NoAction);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

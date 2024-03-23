@@ -1,9 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using ShopRe.Data;
-using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using ShopRe.Service;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +21,36 @@ builder.Services.AddSwaggerGen();
 //Add few package
 //CORS
 builder.Services.AddCors(options=>options.AddDefaultPolicy(policy=>policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
 //DbContext
 builder.Services.AddDbContext<ShopRecommenderSystemDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ShopRecommenderSystem")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ShopRecommenderSystem")));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ShopRecommenderSystemDbContext>()
+                .AddDefaultTokenProviders();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 10;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequiredUniqueChars = 6;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 10;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings
+    options.User.RequireUniqueEmail = true;
+});
+
+//
+builder.Services.AddRazorPages();
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 //
@@ -47,7 +78,25 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
 
+//
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata= false;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
+});
 
 
 var app = builder.Build();

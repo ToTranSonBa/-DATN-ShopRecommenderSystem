@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {}
+    "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {}
   },
   "projects": {
-    "D:\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+    "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
         "projectName": "ShopRe.Model",
-        "projectPath": "D:\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.28, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.28, )"
@@ -58,9 +62,13 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.10, )"
+              "version": "[6.0.28, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.28, )"
+            },
+            "Microsoft.Extensions.Identity.Stores": {
               "target": "Package",
               "version": "[6.0.28, )"
             }

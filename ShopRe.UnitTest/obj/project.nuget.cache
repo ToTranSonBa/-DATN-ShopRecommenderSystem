@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "M3z3GD1uyObLF83uGbVT/K0WupJEPTeUd6MaE2QdlxyYJ0h7GT0alib8pc0jLYbK7qWVFm4A3xX6RdnFgcQIIA==",
+  "dgSpecHash": "VtGErL+uVUcsUDxCxSNgLt2G3IVJQZuwdq2HvyFoHnVfTGOwOK5Jg8K6R85J1bDCEPzvxf5MItEjjypNi9goow==",
   "success": true,
-  "projectFilePath": "D:\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Desktop\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\coverlet.collector\\3.1.2\\coverlet.collector.3.1.2.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.codecoverage\\17.1.0\\microsoft.codecoverage.17.1.0.nupkg.sha512",

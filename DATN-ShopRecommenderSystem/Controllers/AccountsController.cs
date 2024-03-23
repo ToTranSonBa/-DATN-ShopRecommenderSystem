@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ShopRe.Model;
-using ShopRe.Model.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using ShopRe.Model.Authentication;
 using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
@@ -15,50 +14,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             _accountService = accountService;
         }
-
-        // GET: api/Accounts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        [HttpPost("SignUp")]
+        public async Task<ActionResult> SignUp(SignUpModel signUp)
         {
-            var accounts = await _accountService.GetAll();
-            return Ok(accounts);
+            //CODE HERE
+            return Ok();
         }
-
-        //GET: api/Accounts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Account>> GetAccount(int id)
+        [HttpPost("SignIn")]
+        public async Task<ActionResult> SignIn(SignInModel signIn)
         {
-            var account = await _accountService.GetById(id);
-            if (account == null)
-            {
-                return NotFound();
-            }
-            return Ok(account);
-        }
-
-        // POST: api/Accounts
-        [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(Account account)
-        {
-            var res = await _accountService.Update(account);
-
-            return CreatedAtAction(nameof(GetAccount), new { id = account.ID_NK }, account);
-        }
-
-        // DELETE: api/Accounts/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Account>> DeleteAccount(int id)
-        {
-            _accountService.Remove(id);
-            return NoContent();
-        }
-        // PUT: api/Accounts/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(Account account)
-        {
-
-            var res = await _accountService.Update(account);
-            return NoContent();
+            //CODE HERE
+            return Ok();
         }
     }
 }
