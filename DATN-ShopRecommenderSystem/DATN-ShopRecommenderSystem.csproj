@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.28">
@@ -18,12 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Helpers\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\ShopRe.Common\ShopRe.Common.csproj" />
     <ProjectReference Include="..\ShopRe.Data\ShopRe.Data.csproj" />
+    <ProjectReference Include="..\ShopRe.Model\ShopRe.Model.csproj" />
+    <ProjectReference Include="..\ShopRe.Service\ShopRe.Service.csproj" />
+    <ProjectReference Include="..\ShopRe.UnitTest\ShopRe.UnitTest.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,35 @@
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.deps.json
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.dll
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.pdb
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.AssemblyReference.cache
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.GeneratedMSBuildEditorConfig.editorconfig
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfoInputs.cache
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfo.cs
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.CoreCompileInputs.cache
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.dll
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\refint\ShopRe.Data.dll
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.pdb
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ref\ShopRe.Data.dll
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.runtimeconfig.json
-D:\Learning\Đồ án tốt nghiệp\DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.genruntimeconfig.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\bin\Debug\net6.0\ShopRe.Data.deps.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\bin\Debug\net6.0\ShopRe.Data.runtimeconfig.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\bin\Debug\net6.0\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\bin\Debug\net6.0\ShopRe.Data.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\bin\Debug\net6.0\ShopRe.Model.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.csproj.AssemblyReference.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.AssemblyInfoInputs.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.AssemblyInfo.cs
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.csproj.CoreCompileInputs.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.sourcelink.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.D.CA1A3AB9.Up2Date
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\refint\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ShopRe.Data.genruntimeconfig.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Model\obj\Debug\net6.0\ref\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.deps.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.runtimeconfig.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Model.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Model.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.AssemblyReference.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfoInputs.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfo.cs
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.CoreCompileInputs.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.sourcelink.json
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.D.CA1A3AB9.Up2Date
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\refint\ShopRe.Data.dll
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.pdb
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.genruntimeconfig.cache
+D:\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ref\ShopRe.Data.dll
