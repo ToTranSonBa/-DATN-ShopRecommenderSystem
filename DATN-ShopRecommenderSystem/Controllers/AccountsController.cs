@@ -22,7 +22,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return Ok(result.Succeeded);
             }
-            return Unauthorized();
+            return Unauthorized(result.Errors);
         }
         [HttpPost("SignIn")]
         public async Task<ActionResult> SignIn(SignInModel signIn)
