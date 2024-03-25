@@ -27,12 +27,14 @@ namespace ShopRe.Service
         }
         public Task<string> SignInAsync(SignInModel signIn)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return _accountRepository.SignInAsync(signIn);
         }
 
         public Task<IdentityResult> SignUpAsync(SignUpModel signUp)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return _accountRepository.SignUpAsync(signUp);
         }
     }
 }
