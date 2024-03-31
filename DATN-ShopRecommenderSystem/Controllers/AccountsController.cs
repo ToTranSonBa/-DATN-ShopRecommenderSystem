@@ -17,14 +17,22 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
         {
-            //CODE HERE
-            return Ok();
+            var result = await _accountService.SignUpAsync(signUp);
+            if (result.Succeeded)
+            {
+                return Ok(result.Succeeded);
+            }
+            return Unauthorized(result.Errors);
         }
         [HttpPost("SignIn")]
         public async Task<ActionResult> SignIn(SignInModel signIn)
         {
-            //CODE HERE
-            return Ok();
+            var result = await _accountService.SignInAsync(signIn);
+            if (string.IsNullOrEmpty(result))
+            {
+                return Unauthorized();
+            }
+            return Ok(result);
         }
     }
 }
