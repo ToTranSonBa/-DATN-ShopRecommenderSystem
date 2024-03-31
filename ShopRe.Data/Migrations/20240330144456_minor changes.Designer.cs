@@ -12,8 +12,8 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    [Migration("20240323133514_addIdentity")]
-    partial class addIdentity
+    [Migration("20240330144456_minor changes")]
+    partial class minorchanges
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,21 +23,6 @@ namespace ShopRe.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("CategoryProduct", b =>
-                {
-                    b.Property<Guid>("CategoriesID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ProductsID_NK")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesID", "ProductsID_NK");
-
-                    b.HasIndex("ProductsID_NK");
-
-                    b.ToTable("CategoryProduct");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -187,7 +172,6 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CustomerID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -195,6 +179,9 @@ namespace ShopRe.Data.Migrations
 
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ID_SK")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("JoinedTime")
                         .HasColumnType("datetime2");
@@ -309,9 +296,8 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ID_SK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ID_SK")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -329,15 +315,23 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.Category", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<int>("ID_NK")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("ID_SK")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -346,18 +340,21 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID");
+                    b.HasKey("ID_NK");
 
                     b.ToTable("Category");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.DetailComment", b =>
                 {
-                    b.Property<int>("ID_NK")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<int>("AccountID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
@@ -369,19 +366,21 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Image")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("Is_True")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("OrderID_NK")
+                    b.Property<int?>("OrderID")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("OwnershipID")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SellerID")
                         .HasColumnType("int");
 
                     b.Property<string>("TimelineContent")
@@ -390,24 +389,22 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID_NK");
+                    b.HasKey("ID");
 
-                    b.HasIndex("OrderID_NK");
-
-                    b.HasIndex("OwnershipID");
+                    b.HasIndex("OrderID");
 
                     b.ToTable("DetailComments");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Order", b =>
                 {
-                    b.Property<int>("ID_NK")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
-                    b.Property<int?>("AccountID_NK")
+                    b.Property<int>("AccountID_NK")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -416,32 +413,43 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("OwnershipID")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ProductID_NK")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProductOptionPurchased")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SellerID")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID_NK");
+                    b.HasKey("ID");
 
                     b.HasIndex("AccountID_NK");
 
-                    b.HasIndex("OwnershipID");
+                    b.HasIndex("ProductID_NK");
 
                     b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.Ownership", b =>
+            modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
                 {
-                    b.Property<Guid>("ID")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ID_NK")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
 
                     b.Property<int?>("AllTimeQuantitySold")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BrandID_NK")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CategoryID_NK")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -453,8 +461,11 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ID_NK")
+                    b.Property<int?>("ID_SK")
                         .HasColumnType("int");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("ListPrice")
                         .HasColumnType("decimal(18,2)");
@@ -465,14 +476,14 @@ namespace ShopRe.Data.Migrations
                     b.Property<int?>("MinSaleQuantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("OriginalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
@@ -483,7 +494,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<int?>("RatingCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("SellerId")
+                    b.Property<int?>("SellerID_NK")
                         .HasColumnType("int");
 
                     b.Property<string>("ShortDescription")
@@ -492,63 +503,26 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID");
-
-                    b.HasIndex("ID_NK")
-                        .IsUnique();
-
-                    b.ToTable("Ownerships");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
-                {
-                    b.Property<int>("ID_NK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
-
-                    b.Property<int?>("BrandID_NK")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ID_SK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductOptionID_NK")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("ID_NK");
 
                     b.HasIndex("BrandID_NK");
 
-                    b.HasIndex("ProductOptionID_NK");
+                    b.HasIndex("CategoryID_NK");
+
+                    b.HasIndex("SellerID_NK");
 
                     b.ToTable("Product");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
                 {
-                    b.Property<int>("ID_NK")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
                     b.Property<string>("Code")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -563,6 +537,9 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Position")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ProductID_NK")
+                        .HasColumnType("int");
+
                     b.Property<bool?>("ShowPreviewImage")
                         .HasColumnType("bit");
 
@@ -572,16 +549,20 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Values")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ID_NK");
+                    b.HasKey("ID");
+
+                    b.HasIndex("ProductID_NK");
 
                     b.ToTable("ProductOptions");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Seller", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<int>("ID_NK")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_NK"), 1L, 1);
 
                     b.Property<double?>("AvgRatingPoint")
                         .HasColumnType("float");
@@ -592,10 +573,13 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsFollowed")
+                    b.Property<int?>("ID_SK")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsFollowed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsOfficial")
+                    b.Property<bool?>("IsOfficial")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -613,24 +597,9 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID");
+                    b.HasKey("ID_NK");
 
                     b.ToTable("Seller");
-                });
-
-            modelBuilder.Entity("CategoryProduct", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShopRe.Model.Models.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -688,49 +657,28 @@ namespace ShopRe.Data.Migrations
                 {
                     b.HasOne("ShopRe.Model.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderID_NK");
-
-                    b.HasOne("ShopRe.Model.Models.Ownership", "Ownership")
-                        .WithMany()
-                        .HasForeignKey("OwnershipID");
+                        .HasForeignKey("OrderID");
 
                     b.Navigation("Order");
-
-                    b.Navigation("Ownership");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Order", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountID_NK");
-
-                    b.HasOne("ShopRe.Model.Models.Ownership", "Ownership")
-                        .WithMany()
-                        .HasForeignKey("OwnershipID");
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Ownership");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.Ownership", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Seller", "Seller")
-                        .WithOne()
-                        .HasForeignKey("ShopRe.Model.Models.Ownership", "ID")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("AccountID_NK")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithOne()
-                        .HasForeignKey("ShopRe.Model.Models.Ownership", "ID_NK")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .WithMany()
+                        .HasForeignKey("ProductID_NK")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("Account");
 
-                    b.Navigation("Seller");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
@@ -739,15 +687,33 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("BrandID_NK");
 
-                    b.HasOne("ShopRe.Model.Models.ProductOption", "ProductOption")
+                    b.HasOne("ShopRe.Model.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("ProductOptionID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryID_NK");
+
+                    b.HasOne("ShopRe.Model.Models.Seller", null)
+                        .WithMany("Products")
+                        .HasForeignKey("SellerID_NK");
 
                     b.Navigation("Brand");
 
-                    b.Navigation("ProductOption");
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID_NK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.Seller", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

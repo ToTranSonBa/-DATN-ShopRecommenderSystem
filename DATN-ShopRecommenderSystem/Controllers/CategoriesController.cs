@@ -42,7 +42,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             var res = await _categoryService.Add(category);
 
-            return CreatedAtAction(nameof(GetCategory), new { id = category.ID }, category);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.ID_NK }, category);
         }
 
         // DELETE: api/categories/5

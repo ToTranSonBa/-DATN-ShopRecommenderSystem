@@ -42,7 +42,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             var res = await _orderService.Add(order);
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.ID_NK }, order);
+            return CreatedAtAction(nameof(GetOrder), new { id = order.ID }, order);
         }
 
         // DELETE: api/orders/5

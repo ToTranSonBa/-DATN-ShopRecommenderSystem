@@ -10,9 +10,9 @@ namespace ShopRe.Model.Models
 {
     public class Account
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID_NK { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID_SK { get; set; }
         public string? CustomerID { get; set; }
         public string? FullName { get; set; }
         public string? Username { get; set; }

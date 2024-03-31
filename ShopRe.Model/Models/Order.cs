@@ -11,15 +11,16 @@ namespace ShopRe.Model.Models
     [Table("Order")]
     public class Order
     {
-        [Key]
-        public int ID_NK { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
         public string ProductOptionPurchased { get; set; } // Tùy chọn sản phẩm đã mua
+        public int SellerID { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? DeletedAt { get; set; } // Thời điểm đánh dấu đơn hàng đã bị xóa (nếu có)
         public DateTime? UpdatedAt { get; set; }
-        public Account? Account { get; set; }
-        public Ownership? Ownership { get; set; }
+        public Account Account { get; set; }
+        public Product Product { get; set; }
+
 
 
     }

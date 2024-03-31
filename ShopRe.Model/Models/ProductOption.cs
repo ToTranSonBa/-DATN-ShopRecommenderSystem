@@ -10,9 +10,8 @@ namespace ShopRe.Model.Models
 {
     public class ProductOption
     {
-        [Key]
-        public int ID_NK { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
         public string? Code { get; set; }
         public string? Name { get; set; }
         public string? Position { get; set; }
@@ -21,5 +20,6 @@ namespace ShopRe.Model.Models
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
+        public Product Product { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             var res = _sellerService.Add(seller);
 
-            return CreatedAtAction(nameof(GetSeller), new { id = seller.ID }, seller);
+            return CreatedAtAction(nameof(GetSeller), new { id = seller.ID_NK }, seller);
         }
 
         // DELETE: api/sellers/5

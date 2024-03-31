@@ -10,9 +10,11 @@ namespace ShopRe.Model.Models
 {
     public class DetailComment
     {
-        [Key]
-        public int ID_NK { get; set; } // Chuỗi định danh
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; } 
+        public int AccountID { get; set; } //customer id
+        public int SellerID { get; set; }
+        public int ProductID { get; set; }
         public string? Image { get; set; } // Đối tượng hình ảnh
         public bool? Is_True { get; set; } // Giá trị boolean
         public int? Rating { get; set; } // Điểm đánh giá
@@ -22,6 +24,5 @@ namespace ShopRe.Model.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public Order? Order { get; set; }
-        public Ownership? Ownership { get; set; }
     }
 }

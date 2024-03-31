@@ -11,11 +11,12 @@ namespace ShopRe.Model.Models
     [Table("Seller")]
     public class Seller
     {
-        [Key]
-        public Guid ID { get; set; }
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID_NK { get; set; }
+        public int? ID_SK { get; set; }
         public string? Name { get; set; }
-        public bool IsOfficial { get; set; }
-        public bool IsFollowed { get; set; }
+        public bool? IsOfficial { get; set; }
+        public bool? IsFollowed { get; set; }
         public int? StoreLevel { get; set; }
         public double? AvgRatingPoint { get; set; }
         public int? TotalFollower { get; set; }

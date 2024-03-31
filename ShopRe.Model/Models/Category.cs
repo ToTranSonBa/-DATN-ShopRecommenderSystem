@@ -11,16 +11,14 @@ namespace ShopRe.Model.Models
     [Table("Category")]
     public class Category
     {
-        public Category()
-        {
-            Products = new HashSet<Product>();
-        }
-        [Key]
-        public Guid ID { get; set; }
+        
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID_NK { get; set; }
+        public int? ID_SK { get; set; }
         public string Name { get; set; }
+        public string? Image { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
-        public ICollection<Product> Products { get; set; }
     }
 }

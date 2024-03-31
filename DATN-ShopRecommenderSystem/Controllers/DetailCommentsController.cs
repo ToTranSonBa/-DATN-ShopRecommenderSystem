@@ -42,7 +42,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             var res = await _detailCommentService.Add(detailComment);
 
-            return CreatedAtAction(nameof(GetDetailComment), new { id = detailComment.ID_NK }, detailComment);
+            return CreatedAtAction(nameof(GetDetailComment), new { id = detailComment.ID }, detailComment);
         }
 
         // DELETE: api/detailcomments/5

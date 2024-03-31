@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ShopRe.Data.Migrations
 {
-    public partial class addIdentity : Migration
+    public partial class createagain : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,6 +15,7 @@ namespace ShopRe.Data.Migrations
                 {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     CustomerID = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -79,7 +80,7 @@ namespace ShopRe.Data.Migrations
                 {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ID_SK = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ID_SK = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -95,42 +96,27 @@ namespace ShopRe.Data.Migrations
                 name: "Category",
                 columns: table => new
                 {
-                    ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Category", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductOptions",
-                columns: table => new
-                {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Position = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShowPreviewImage = table.Column<bool>(type: "bit", nullable: true),
-                    Values = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductOptions", x => x.ID_NK);
+                    table.PrimaryKey("PK_Category", x => x.ID_NK);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Seller",
                 columns: table => new
                 {
-                    ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ID_NK = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsOfficial = table.Column<bool>(type: "bit", nullable: false),
                     IsFollowed = table.Column<bool>(type: "bit", nullable: false),
@@ -144,7 +130,7 @@ namespace ShopRe.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Seller", x => x.ID);
+                    table.PrimaryKey("PK_Seller", x => x.ID_NK);
                 });
 
             migrationBuilder.CreateTable(
@@ -259,61 +245,11 @@ namespace ShopRe.Data.Migrations
                 {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ID_SK = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ProductOptionID_NK = table.Column<int>(type: "int", nullable: false),
-                    BrandID_NK = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Product", x => x.ID_NK);
-                    table.ForeignKey(
-                        name: "FK_Product_Brands_BrandID_NK",
-                        column: x => x.BrandID_NK,
-                        principalTable: "Brands",
-                        principalColumn: "ID_NK");
-                    table.ForeignKey(
-                        name: "FK_Product_ProductOptions_ProductOptionID_NK",
-                        column: x => x.ProductOptionID_NK,
-                        principalTable: "ProductOptions",
-                        principalColumn: "ID_NK",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CategoryProduct",
-                columns: table => new
-                {
-                    CategoriesID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductsID_NK = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CategoryProduct", x => new { x.CategoriesID, x.ProductsID_NK });
-                    table.ForeignKey(
-                        name: "FK_CategoryProduct_Category_CategoriesID",
-                        column: x => x.CategoriesID,
-                        principalTable: "Category",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CategoryProduct_Product_ProductsID_NK",
-                        column: x => x.ProductsID_NK,
-                        principalTable: "Product",
-                        principalColumn: "ID_NK",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Ownerships",
-                columns: table => new
-                {
-                    ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ShortDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     ListPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
@@ -324,61 +260,99 @@ namespace ShopRe.Data.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: true),
                     AllTimeQuantitySold = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    SellerId = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    ID_NK = table.Column<int>(type: "int", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    BrandID_NK = table.Column<int>(type: "int", nullable: true),
+                    CategoryID_NK = table.Column<int>(type: "int", nullable: true),
+                    SellerID_NK = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ownerships", x => x.ID);
+                    table.PrimaryKey("PK_Product", x => x.ID_NK);
                     table.ForeignKey(
-                        name: "FK_Ownerships_Product_ID_NK",
-                        column: x => x.ID_NK,
-                        principalTable: "Product",
+                        name: "FK_Product_Brands_BrandID_NK",
+                        column: x => x.BrandID_NK,
+                        principalTable: "Brands",
                         principalColumn: "ID_NK");
                     table.ForeignKey(
-                        name: "FK_Ownerships_Seller_ID",
-                        column: x => x.ID,
+                        name: "FK_Product_Category_CategoryID_NK",
+                        column: x => x.CategoryID_NK,
+                        principalTable: "Category",
+                        principalColumn: "ID_NK");
+                    table.ForeignKey(
+                        name: "FK_Product_Seller_SellerID_NK",
+                        column: x => x.SellerID_NK,
                         principalTable: "Seller",
-                        principalColumn: "ID");
+                        principalColumn: "ID_NK");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Order",
                 columns: table => new
                 {
-                    ID_NK = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductOptionPurchased = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SellerID = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountID_NK = table.Column<int>(type: "int", nullable: true),
-                    OwnershipID = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    AccountID_NK = table.Column<int>(type: "int", nullable: false),
+                    ProductID_NK = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order", x => x.ID_NK);
+                    table.PrimaryKey("PK_Order", x => x.ID);
                     table.ForeignKey(
                         name: "FK_Order_Accounts_AccountID_NK",
                         column: x => x.AccountID_NK,
                         principalTable: "Accounts",
-                        principalColumn: "ID_NK");
+                        principalColumn: "ID_NK",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Order_Ownerships_OwnershipID",
-                        column: x => x.OwnershipID,
-                        principalTable: "Ownerships",
-                        principalColumn: "ID");
+                        name: "FK_Order_Product_ProductID_NK",
+                        column: x => x.ProductID_NK,
+                        principalTable: "Product",
+                        principalColumn: "ID_NK",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductOptions",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Position = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShowPreviewImage = table.Column<bool>(type: "bit", nullable: true),
+                    Values = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProductID_NK = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductOptions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_ProductOptions_Product_ProductID_NK",
+                        column: x => x.ProductID_NK,
+                        principalTable: "Product",
+                        principalColumn: "ID_NK",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "DetailComments",
                 columns: table => new
                 {
-                    ID_NK = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountID = table.Column<int>(type: "int", nullable: false),
+                    SellerID = table.Column<int>(type: "int", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Is_True = table.Column<bool>(type: "bit", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: true),
@@ -387,21 +361,15 @@ namespace ShopRe.Data.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    OrderID_NK = table.Column<int>(type: "int", nullable: true),
-                    OwnershipID = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    OrderID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DetailComments", x => x.ID_NK);
+                    table.PrimaryKey("PK_DetailComments", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_DetailComments_Order_OrderID_NK",
-                        column: x => x.OrderID_NK,
+                        name: "FK_DetailComments_Order_OrderID",
+                        column: x => x.OrderID,
                         principalTable: "Order",
-                        principalColumn: "ID_NK");
-                    table.ForeignKey(
-                        name: "FK_DetailComments_Ownerships_OwnershipID",
-                        column: x => x.OwnershipID,
-                        principalTable: "Ownerships",
                         principalColumn: "ID");
                 });
 
@@ -445,19 +413,9 @@ namespace ShopRe.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CategoryProduct_ProductsID_NK",
-                table: "CategoryProduct",
-                column: "ProductsID_NK");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetailComments_OrderID_NK",
+                name: "IX_DetailComments_OrderID",
                 table: "DetailComments",
-                column: "OrderID_NK");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DetailComments_OwnershipID",
-                table: "DetailComments",
-                column: "OwnershipID");
+                column: "OrderID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_AccountID_NK",
@@ -465,15 +423,9 @@ namespace ShopRe.Data.Migrations
                 column: "AccountID_NK");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_OwnershipID",
+                name: "IX_Order_ProductID_NK",
                 table: "Order",
-                column: "OwnershipID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Ownerships_ID_NK",
-                table: "Ownerships",
-                column: "ID_NK",
-                unique: true);
+                column: "ProductID_NK");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_BrandID_NK",
@@ -481,9 +433,19 @@ namespace ShopRe.Data.Migrations
                 column: "BrandID_NK");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_ProductOptionID_NK",
+                name: "IX_Product_CategoryID_NK",
                 table: "Product",
-                column: "ProductOptionID_NK");
+                column: "CategoryID_NK");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_SellerID_NK",
+                table: "Product",
+                column: "SellerID_NK");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductOptions_ProductID_NK",
+                table: "ProductOptions",
+                column: "ProductID_NK");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -504,10 +466,10 @@ namespace ShopRe.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CategoryProduct");
+                name: "DetailComments");
 
             migrationBuilder.DropTable(
-                name: "DetailComments");
+                name: "ProductOptions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -516,28 +478,22 @@ namespace ShopRe.Data.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Category");
-
-            migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
                 name: "Accounts");
 
             migrationBuilder.DropTable(
-                name: "Ownerships");
-
-            migrationBuilder.DropTable(
                 name: "Product");
-
-            migrationBuilder.DropTable(
-                name: "Seller");
 
             migrationBuilder.DropTable(
                 name: "Brands");
 
             migrationBuilder.DropTable(
-                name: "ProductOptions");
+                name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "Seller");
         }
     }
 }

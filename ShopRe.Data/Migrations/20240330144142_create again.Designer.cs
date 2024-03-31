@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240330144142_create again")]
+    partial class createagain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,7 +327,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ID_SK")
+                    b.Property<int>("ID_SK")
                         .HasColumnType("int");
 
                     b.Property<string>("Image")
@@ -459,7 +461,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ID_SK")
+                    b.Property<int>("ID_SK")
                         .HasColumnType("int");
 
                     b.Property<string>("Image")
@@ -571,13 +573,13 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ID_SK")
+                    b.Property<int>("ID_SK")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("IsFollowed")
+                    b.Property<bool>("IsFollowed")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsOfficial")
+                    b.Property<bool>("IsOfficial")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

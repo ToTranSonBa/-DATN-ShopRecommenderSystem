@@ -10,10 +10,9 @@ namespace ShopRe.Model.Models
 {
     public class Brand
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID_NK { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? ID_SK { get; set; }
+        public int? ID_SK { get; set; }
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
