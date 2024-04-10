@@ -12,6 +12,7 @@ namespace ShopRe.Model.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+        public int ID_SK { get; set; }
         public string? Code { get; set; }
         public string? Name { get; set; }
         public string? Position { get; set; }

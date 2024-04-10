@@ -13,6 +13,7 @@ namespace ShopRe.Model.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+        public int ID_SK { get; set; }
         public string ProductOptionPurchased { get; set; } // Tùy chọn sản phẩm đã mua
         public int SellerID { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;

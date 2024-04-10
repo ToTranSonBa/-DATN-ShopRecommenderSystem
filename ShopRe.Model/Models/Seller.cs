@@ -16,11 +16,11 @@ namespace ShopRe.Model.Models
         public int? ID_SK { get; set; }
         public string? Name { get; set; }
         public bool? IsOfficial { get; set; }
-        public bool? IsFollowed { get; set; }
-        public int? StoreLevel { get; set; }
+        public string? StoreLevel { get; set; }
         public double? AvgRatingPoint { get; set; }
         public int? TotalFollower { get; set; }
         public int? ReviewCount { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

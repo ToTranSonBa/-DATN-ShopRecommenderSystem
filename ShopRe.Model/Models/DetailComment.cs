@@ -11,7 +11,8 @@ namespace ShopRe.Model.Models
     public class DetailComment
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; } 
+        public int ID { get; set; }
+        public int ID_SK { get; set; }
         public int AccountID { get; set; } //customer id
         public int SellerID { get; set; }
         public int ProductID { get; set; }

@@ -28,6 +28,7 @@ namespace ShopRe.Model.Models
         public int? MinSaleQuantity { get; set; } // Số lượng bán tối thiểu
         public int? Quantity { get; set; } // Số lượng tồn kho
         public int? AllTimeQuantitySold { get; set; } // Tổng số lượng đã bán từ khi bắt đầu
+        public string? ShortUrl { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; } 
