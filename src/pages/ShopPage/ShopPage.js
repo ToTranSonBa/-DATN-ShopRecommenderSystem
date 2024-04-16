@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import "../ShopPage/ShopPage.scss";
-import {
-    BsSpeakerFill, BsChevronRight,
-    BsCameraReelsFill, BsFillMouse2Fill, BsPostageFill, BsMusicNote, BsFillCalendarFill,
-    BsTv, BsSmartwatch, BsBarChartFill
-} from "react-icons/bs";
-
-import { FaGamepad, FaChartLine } from "react-icons/fa";
+import { BsChevronRight, BsBarChartFill } from "react-icons/bs";
+import { FaChartLine } from "react-icons/fa";
+import Sidebar from '../../components/layout/components/Sidebar/Sidebar'
 
 import ProductData from '../ShopPage/ProductData';
 const ShopPage = () => {
@@ -23,83 +19,7 @@ const ShopPage = () => {
 
 
             <div className="product-section">
-                <div className="category-option">
-                    <div className="category-navbar">
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsSpeakerFill />
-                                <p >Speaker</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsCameraReelsFill />
-                                <p >Equipment</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsFillMouse2Fill />
-                                <p >Control</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsPostageFill />
-                                <p >Accessorios</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsMusicNote />
-                                <p >Audio</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsFillCalendarFill />
-                                <p >Appliances</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsTv />
-                                <p >Television Set</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <BsSmartwatch />
-                                <p >Digital Watch</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                        <div className="navbar-element">
-                            <div className="left-navbar-element">
-                                <FaGamepad />
-                                <p >Video Games</p>
-                            </div>
-                            <BsChevronRight className="right-icon" />
-
-                        </div>
-                    </div>
-                </div>
-
+                <Sidebar />
                 <div className="product-content">
                     <div className="product-content-header">
                         <div className="top-header">
@@ -149,46 +69,7 @@ const ShopPage = () => {
 
             </div>
 
-            <div className="footer">
-                <div className="shop-address">
-                    <p className="page-name">Constructor</p>
-                    <p className="address">12 Water St.vacouver, BC V6B 132 United States</p>
-                </div>
 
-                <div className="footer-menu" >
-                    <p>Corporate sales</p>
-                    <p>Feedback</p>
-                    <p>Job</p>
-                    <p>New</p>
-                    <p>Sales Rules</p>
-                    <p>For partners</p>
-                </div>
-
-                <div className="footer-menu" >
-                    <p>Bonus program</p>
-                    <p>Gift Cards</p>
-                    <p>Bill payment verifications</p>
-                    <p>loans</p>
-                    <p>Delivery</p>
-                    <p>Service centers</p>
-                </div>
-
-                <div className="footer-menu" >
-                    <p>How to place an order</p>
-                    <p>Ways of payment</p>
-                    <p>Exchange and return of goods</p>
-                    <p>Warranty Service</p>
-                    <p>Order status</p>
-                    <p>Knowledge base</p>
-                </div>
-
-                <div className="shop-policy">
-                    <p >2030 Company. All Rights Reserved</p>
-                    <p>Terms & Condition</p>
-                    <p>privacy policy</p>
-                </div>
-
-            </div>
         </div>
     )
 }
