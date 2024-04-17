@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../ShopPage/ShopPage.scss";
+import "../../styles/reset.css";
 import {
     BsSpeakerFill, BsChevronRight,
     BsCameraReelsFill, BsFillMouse2Fill, BsPostageFill, BsMusicNote, BsFillCalendarFill,
@@ -9,17 +10,18 @@ import {
 import { FaGamepad, FaChartLine } from "react-icons/fa";
 
 import ProductData from '../ShopPage/ProductData';
+import Navigation from "../../components/layout/components/Navigation/Navigation";
 const ShopPage = () => {
 
     return (
         <div className="shop-page">
+            <Navigation />
             <div className="header-section">
                 <img class="header-image" src="https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1618927830-Classic-Chuck-vs-Chuck-70s-gear-patrol-70-2.jpg">
                 </img>
                 <h1 className="shop-name">Men's Shoes</h1>
                 <div className="shop-now-button">Shop now</div>
             </div>
-
 
 
             <div className="product-section">
