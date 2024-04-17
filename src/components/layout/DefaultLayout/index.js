@@ -1,10 +1,14 @@
 import Navigation from '../components/Navigation/Navigation';
+import Footer from '../components/Footer/Footer'
+import '../DefaultLayout/DefaultLayout.scss'
+
 
 function DefaultLayout({ children }) {
     return (
-        <div>
+        <div >
             <Navigation />
-            <div>{children}</div>
+            <div className='container'>{children}</div>
+            <Footer />
         </div>
     );
 }
