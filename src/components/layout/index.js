@@ -1,3 +1,3 @@
-import DefaultLayout from './DefaultLayout';
+export { default as DefaultLayout } from './DefaultLayout/index';
 
-export { DefaultLayout };
+export { default as HeaderOnly } from './HeaderOnly/HeaderOnly';
