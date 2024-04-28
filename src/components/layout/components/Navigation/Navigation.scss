@@ -1,9 +1,13 @@
+@import url("../../../../styles/global.css");
+@import url("../../../../styles/reset.css");
+
 .navigation {
-    width: 1600px;
-    height: 110px;
+    width: 100%;
+    margin: 0 auto;
+    height: 50px;
     padding: 0 80px;
     gap: 0px;
-    border-bottom: 2px solid #999;
+    // border-bottom: 1px solid var(--color-text);
     justify-content: space-between;
     display: flex;
     align-items: center;
@@ -11,19 +15,18 @@
     top: 0;
     left: 0;
     z-index: 999;
-    background-color: #EDEFF2;
-
-
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 
     .navigation-content {
-        width: 1440px;
+        width: 100%;
         height: fit-content;
         gap: 0;
         justify-content: space-between;
         position: relative;
         display: flex;
         align-items: center;
-        color: #6B7A99;
+        color: var(--color-text);
 
         .left-option {
             display: flex;
@@ -31,14 +34,11 @@
             gap: 35px;
 
             .left-option-element {
-                font-family: Roboto;
                 font-size: 20px;
                 font-weight: 700;
                 line-height: 30px;
                 text-align: left;
-
             }
-
         }
 
         .menu-option {
@@ -47,14 +47,11 @@
             gap: 60px;
 
             .menu-option-element {
-                font-family: Roboto;
                 font-size: 14px;
                 font-weight: 700;
                 line-height: 30px;
                 text-align: left;
-
             }
-
         }
 
         .search-button {

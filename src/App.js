@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes } from './routes/index';
 
 import { DefaultLayout } from './components/layout/index'
-
+import ShopPage from './pages/ShopPage/ShopPage';
 
 function App() {
   return (
+    // <ShopPage />
     <Router>
       <div className="App">
         <Routes>

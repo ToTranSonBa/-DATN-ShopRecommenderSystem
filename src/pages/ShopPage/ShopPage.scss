@@ -1,10 +1,16 @@
-.header-section img {
+@import url("../../styles/global.css");
+@import url("../../styles/reset.css");
 
+.shop-page {
+    margin: 0 auto;
+    background-color: var(--color-background);
+}
+
+.header-section img {
     height: 430px;
 }
 
 .header-section {
-
     height: 430px;
     display: flex;
     justify-content: center;
@@ -28,7 +34,6 @@
         left: 50%;
         transform: translateX(-50%);
         z-index: 1;
-        font-family: Roboto;
         font-size: 48px;
         font-weight: 500;
         line-height: 70px;
@@ -53,29 +58,62 @@
         font-weight: 700;
         line-height: 30px;
         text-align: center;
-
-
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
-
 }
-
-.shop-page {
-    width: 1600px;
-    background-color: #EDEFF2;
-}
-
 
 
 .product-section {
-    width: 1600px;
+    width: 100%;
     padding: 50px 0px 30px 0px;
     display: flex;
+    margin: 0 auto;
 
 
+    .category-option {
+        padding: 0px 5px 0px 55px;
+        gap: 30px;
+        height: auto;
+        margin: 0 auto;
 
+        .category-navbar {
+            width: 250px;
+            height: auto;
+            padding: 25px;
+            gap: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+
+
+            .navbar-element {
+                display: flex;
+                width: 200px;
+                justify-content: space-between;
+                padding: 12px 0;
+
+                .left-navbar-element {
+                    display: flex;
+                    width: 150px;
+                    gap: 20px;
+
+
+                }
+
+                .right-icon,
+                .left-navbar-element {
+                    font-weight: 600;
+                    line-height: 20px;
+                    text-align: left;
+                    color: #6B7A99;
+                }
+            }
+
+
+        }
+    }
 
     .product-content {
-        width: 1290px;
+        width: 100%;
         height: auto;
         padding: 0 90px;
         gap: 30px;
@@ -179,15 +217,16 @@
 
         .product-list {
             gap: 30px;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+            grid-gap: 1.25rem;
 
             .product-box {
                 width: 255px;
-
                 gap: 50px;
                 border-radius: 10px;
                 background-color: #fff;
+                box-shadow: 0 4px 10px -2px hex(var(--color-text), 1);
 
                 .product-image {
                     width: 100%;

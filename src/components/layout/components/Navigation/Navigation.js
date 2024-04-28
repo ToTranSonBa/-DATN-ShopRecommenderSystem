@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import './Navigation.scss'
+import { Input } from "antd";
+import './Navigation.scss';
 
 import { BsJustify, BsSearch, BsFillPersonFill } from "react-icons/bs";
 
@@ -8,15 +9,15 @@ const Navigation = () => {
         <div className="navigation">
             <div className="navigation-content">
                 <div className="left-option">
-                    <BsJustify className="left-option-element" />
+                    {/* <BsJustify className="left-option-element" /> */}
                     <p className="left-option-element">Constructor</p>
                 </div>
 
-                <div className="menu-option">
+                {/* <div className="menu-option">
                     <p className="menu-option-element">Woman</p>
                     <p className="menu-option-element">Man</p>
                     <p className="menu-option-element">Children</p>
-                </div>
+                </div> */}
 
                 <div className="search-button">
                     < BsSearch className="search-element" />
