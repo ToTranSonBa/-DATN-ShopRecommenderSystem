@@ -28,11 +28,15 @@ namespace ShopRe.Model.Models
         public int? MinSaleQuantity { get; set; } // Số lượng bán tối thiểu
         public int? Quantity { get; set; } // Số lượng tồn kho
         public int? AllTimeQuantitySold { get; set; } // Tổng số lượng đã bán từ khi bắt đầu
-        public string? ShortUrl { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; } 
-        public Brand? Brand { get; set; }
-        public Category? Category { get; set; }
+        public int BrandID_NK { get; set; }
+        public int Category_LV0_NK { get; set; }
+        public int Category_LV1_NK { get; set; }
+        public int Category_LV2_NK { get; set; }
+        public int Category_LV3_NK { get; set; }
+        public int SellerID_NK { get; set; }
+        public string? ShortUrl { get; set; }
     }
 }

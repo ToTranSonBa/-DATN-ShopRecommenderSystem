@@ -17,6 +17,10 @@ namespace ShopRe.Model.Models
         public int? ID_SK { get; set; }
         public string Name { get; set; }
         public string? Image { get; set; }
+        public int ParentId0 { get; set; }
+        public int ParentId1 { get; set; }
+        public int ParentId2 { get; set; }
+        public int Level { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

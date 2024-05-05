@@ -52,3 +52,5 @@ C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\obj\Debug
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\obj\Debug\net6.0\refint\ShopRe.Service.dll
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\obj\Debug\net6.0\ShopRe.Service.pdb
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\obj\Debug\net6.0\ref\ShopRe.Service.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\bin\Debug\net6.0\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Service\bin\Debug\net6.0\ShopRe.Common.pdb

@@ -69,3 +69,5 @@ C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\ne
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.pdb
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.genruntimeconfig.cache
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ref\ShopRe.Data.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.pdb

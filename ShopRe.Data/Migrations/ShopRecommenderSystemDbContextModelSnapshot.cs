@@ -331,9 +331,21 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ParentId0")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ParentId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ParentId2")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -450,10 +462,19 @@ namespace ShopRe.Data.Migrations
                     b.Property<int?>("AllTimeQuantitySold")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BrandID_NK")
+                    b.Property<int>("BrandID_NK")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CategoryID_NK")
+                    b.Property<int>("Category_LV0_NK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Category_LV1_NK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Category_LV2_NK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Category_LV3_NK")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -498,7 +519,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<int?>("RatingCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SellerID_NK")
+                    b.Property<int>("SellerID_NK")
                         .HasColumnType("int");
 
                     b.Property<string>("ShortDescription")
@@ -511,12 +532,6 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID_NK");
-
-                    b.HasIndex("BrandID_NK");
-
-                    b.HasIndex("CategoryID_NK");
-
-                    b.HasIndex("SellerID_NK");
 
                     b.ToTable("Product");
                 });
@@ -691,25 +706,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandID_NK");
-
-                    b.HasOne("ShopRe.Model.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryID_NK");
-
-                    b.HasOne("ShopRe.Model.Models.Seller", null)
-                        .WithMany("Products")
-                        .HasForeignKey("SellerID_NK");
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
@@ -719,11 +715,6 @@ namespace ShopRe.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.Seller", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

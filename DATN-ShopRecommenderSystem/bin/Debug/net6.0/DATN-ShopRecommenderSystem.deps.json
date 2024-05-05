@@ -1397,6 +1397,7 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "6.0.28",
           "Microsoft.EntityFrameworkCore": "6.0.28",
           "Microsoft.Extensions.Identity.Stores": "6.0.28",
+          "ShopRe.Common": "1.0.0",
           "ShopRe.Model": "1.0.0"
         },
         "runtime": {

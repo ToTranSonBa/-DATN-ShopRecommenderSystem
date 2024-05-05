@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ShopRe.Data.Migrations
 {
-    public partial class createagain : Migration
+    public partial class fixProductandCategoryModel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -98,9 +98,13 @@ namespace ShopRe.Data.Migrations
                 {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ID_SK = table.Column<int>(type: "int", nullable: false),
+                    ID_SK = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ParentId0 = table.Column<int>(type: "int", nullable: false),
+                    ParentId1 = table.Column<int>(type: "int", nullable: false),
+                    ParentId2 = table.Column<int>(type: "int", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -111,19 +115,55 @@ namespace ShopRe.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Product",
+                columns: table => new
+                {
+                    ID_NK = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShortDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    ListPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    RatingAverage = table.Column<double>(type: "float", nullable: true),
+                    RatingCount = table.Column<int>(type: "int", nullable: true),
+                    MaxSaleQuantity = table.Column<int>(type: "int", nullable: true),
+                    MinSaleQuantity = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: true),
+                    AllTimeQuantitySold = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    BrandID_NK = table.Column<int>(type: "int", nullable: false),
+                    Category_LV0_NK = table.Column<int>(type: "int", nullable: false),
+                    Category_LV1_NK = table.Column<int>(type: "int", nullable: false),
+                    Category_LV2_NK = table.Column<int>(type: "int", nullable: false),
+                    Category_LV3_NK = table.Column<int>(type: "int", nullable: false),
+                    SellerID_NK = table.Column<int>(type: "int", nullable: false),
+                    ShortUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product", x => x.ID_NK);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Seller",
                 columns: table => new
                 {
                     ID_NK = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ID_SK = table.Column<int>(type: "int", nullable: false),
+                    ID_SK = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsOfficial = table.Column<bool>(type: "bit", nullable: false),
-                    IsFollowed = table.Column<bool>(type: "bit", nullable: false),
-                    StoreLevel = table.Column<int>(type: "int", nullable: true),
+                    IsOfficial = table.Column<bool>(type: "bit", nullable: true),
+                    StoreLevel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AvgRatingPoint = table.Column<double>(type: "float", nullable: true),
                     TotalFollower = table.Column<int>(type: "int", nullable: true),
                     ReviewCount = table.Column<int>(type: "int", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -240,58 +280,12 @@ namespace ShopRe.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Product",
-                columns: table => new
-                {
-                    ID_NK = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ID_SK = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShortDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ListPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RatingAverage = table.Column<double>(type: "float", nullable: true),
-                    RatingCount = table.Column<int>(type: "int", nullable: true),
-                    MaxSaleQuantity = table.Column<int>(type: "int", nullable: true),
-                    MinSaleQuantity = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: true),
-                    AllTimeQuantitySold = table.Column<int>(type: "int", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    BrandID_NK = table.Column<int>(type: "int", nullable: true),
-                    CategoryID_NK = table.Column<int>(type: "int", nullable: true),
-                    SellerID_NK = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Product", x => x.ID_NK);
-                    table.ForeignKey(
-                        name: "FK_Product_Brands_BrandID_NK",
-                        column: x => x.BrandID_NK,
-                        principalTable: "Brands",
-                        principalColumn: "ID_NK");
-                    table.ForeignKey(
-                        name: "FK_Product_Category_CategoryID_NK",
-                        column: x => x.CategoryID_NK,
-                        principalTable: "Category",
-                        principalColumn: "ID_NK");
-                    table.ForeignKey(
-                        name: "FK_Product_Seller_SellerID_NK",
-                        column: x => x.SellerID_NK,
-                        principalTable: "Seller",
-                        principalColumn: "ID_NK");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Order",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     ProductOptionPurchased = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SellerID = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -323,6 +317,7 @@ namespace ShopRe.Data.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Position = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -350,6 +345,7 @@ namespace ShopRe.Data.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ID_SK = table.Column<int>(type: "int", nullable: false),
                     AccountID = table.Column<int>(type: "int", nullable: false),
                     SellerID = table.Column<int>(type: "int", nullable: false),
                     ProductID = table.Column<int>(type: "int", nullable: false),
@@ -428,21 +424,6 @@ namespace ShopRe.Data.Migrations
                 column: "ProductID_NK");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_BrandID_NK",
-                table: "Product",
-                column: "BrandID_NK");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_CategoryID_NK",
-                table: "Product",
-                column: "CategoryID_NK");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_SellerID_NK",
-                table: "Product",
-                column: "SellerID_NK");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductOptions_ProductID_NK",
                 table: "ProductOptions",
                 column: "ProductID_NK");
@@ -466,10 +447,19 @@ namespace ShopRe.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Brands");
+
+            migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
                 name: "DetailComments");
 
             migrationBuilder.DropTable(
                 name: "ProductOptions");
+
+            migrationBuilder.DropTable(
+                name: "Seller");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -485,15 +475,6 @@ namespace ShopRe.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Product");
-
-            migrationBuilder.DropTable(
-                name: "Brands");
-
-            migrationBuilder.DropTable(
-                name: "Category");
-
-            migrationBuilder.DropTable(
-                name: "Seller");
         }
     }
 }

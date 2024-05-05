@@ -1276,6 +1276,16 @@
           }
         }
       },
+      "ShopRe.Common/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/ShopRe.Common.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ShopRe.Common.dll": {}
+        }
+      },
       "ShopRe.Model/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
@@ -2958,6 +2968,11 @@
         "version.txt"
       ]
     },
+    "ShopRe.Common/1.0.0": {
+      "type": "project",
+      "path": "../ShopRe.Common/ShopRe.Common.csproj",
+      "msbuildProject": "../ShopRe.Common/ShopRe.Common.csproj"
+    },
     "ShopRe.Model/1.0.0": {
       "type": "project",
       "path": "../ShopRe.Model/ShopRe.Model.csproj",
@@ -2972,6 +2987,7 @@
       "Microsoft.EntityFrameworkCore >= 6.0.28",
       "Microsoft.EntityFrameworkCore.Design >= 6.0.28",
       "Microsoft.Extensions.Identity.Stores >= 6.0.28",
+      "ShopRe.Common >= 1.0.0",
       "ShopRe.Model >= 1.0.0"
     ]
   },
@@ -3008,6 +3024,9 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
+            "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj"
+            },
             "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
               "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
             }

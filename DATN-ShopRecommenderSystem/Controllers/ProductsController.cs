@@ -83,8 +83,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     Quantity  = product.Quantity,
                     AllTimeQuantitySold  = product.AllTimeQuantitySold,
                     ShortUrl = product.ShortUrl,
-                    Brand = product.Brand,
-                    Category = product.Category,
+                    
                 });
 
                 // Nhập tài liệu vào Elasticsearch
