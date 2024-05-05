@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ShopRe.Common\ShopRe.Common.csproj" />
     <ProjectReference Include="..\ShopRe.Model\ShopRe.Model.csproj" />
   </ItemGroup>
 

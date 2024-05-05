@@ -1,4 +1,6 @@
 ﻿using ShopRe.Data.Infrastructure;
+using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
@@ -9,6 +11,7 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<DetailComment>> GetAll();
         Task<IQueryable<DetailComment>> GetAll(bool trackChanges);
+        Task<(IEnumerable<CommentDto> comments, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
         Task<DetailComment> GetById(int id);
         Task<DetailComment> Add(DetailComment entity);
         Task<int> AddRange(IEnumerable<DetailComment> entities);
@@ -63,6 +66,23 @@ namespace ShopRe.Service
         public Task<DetailComment> Update(DetailComment entity)
         {
             return _detailCommentRepository.Update(entity);
+        }
+        public async Task<(IEnumerable<CommentDto> comments, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
+        {
+            var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters,trackChanges);
+            var commentDTO = commentWithMetadata.Select(e => new CommentDto
+            {
+                ID = e.ID,
+                AccountID = e.AccountID,
+                SellerID = e.SellerID,
+                ProductID = e.ProductID,
+                Image = e.Image,
+                Rating = e.Rating,
+                Content = e.Content,
+                CreatedAt = e.CreatedAt,
+                //userName = e.Order.Account.Username
+            });
+            return (products: commentDTO, metaData: commentWithMetadata.MetaData);
         }
     }
 }

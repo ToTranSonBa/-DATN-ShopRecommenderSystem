@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nest;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
 using System.Xml.Linq;
+using System.Text.Json;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -83,7 +85,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     ShortUrl = product.ShortUrl,
                     Brand = product.Brand,
                     Category = product.Category,
-    });
+                });
 
                 // Nhập tài liệu vào Elasticsearch
                 var response = await _elasticClient.IndexManyAsync(documents);
@@ -112,6 +114,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         //}
 
         // GET: api/products/5
+
+        [HttpGet("asfasdf")]
+        public async Task<ActionResult> GetAllProducts([FromQuery] ProductParameters productParameters)
+        {
+            var pageResult = await _productsService.GetAll(productParameters);
+            Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
+
+            return Ok(pageResult.products);
+        }
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {

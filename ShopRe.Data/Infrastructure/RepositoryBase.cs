@@ -62,6 +62,12 @@ namespace ShopRe.Data.Infrastructure
         {
             throw new NotImplementedException();
         }
+        public IQueryable<T> FindByCondition(System.Linq.Expressions.Expression<Func<T, bool>> expression, bool trackChanges)
+        {
+            return !trackChanges ? _context.Set<T>().Where(expression).AsNoTracking()
+                : _context.Set<T>().Where(expression);
+
+        }
         public Task<IQueryable<T>> GetAll(bool trackChanges)
         {
             throw new NotImplementedException();

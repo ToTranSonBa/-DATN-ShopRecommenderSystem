@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DATN_ShopRecommenderSystem.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
+using System.Text.Json;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -22,6 +25,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             var res = await _detailCommentService.GetAll();
             return Ok(res);
+        }
+        // GET: api/detailcomments
+        [HttpGet("List{id}")]
+        public async Task<ActionResult<IEnumerable<DetailComment>>> GetDetailCommentsForProduct(int id, [FromQuery] CommentParameters commentParameters)
+        {
+            var pageResult = await _detailCommentService.GetAllOnePro(id, commentParameters, false);
+            Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
+
+            return Ok(pageResult.comments);
         }
 
         // GET: api/detailcomments/5
