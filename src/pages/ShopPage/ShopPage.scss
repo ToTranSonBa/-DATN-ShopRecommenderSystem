@@ -6,66 +6,10 @@
     background-color: var(--color-background);
 }
 
-.header-section img {
-    height: 430px;
-}
-
-.header-section {
-    height: 430px;
-    display: flex;
-    justify-content: center;
-    position: relative;
-    overflow: visible;
-
-
-    .header-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 0 0 50% 50% / 0 0 25% 25%;
-    }
-
-    .shop-name {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1;
-        font-size: 48px;
-        font-weight: 500;
-        line-height: 70px;
-        text-align: center;
-        color: #fff;
-    }
-
-    .shop-now-button {
-        position: absolute;
-        display: flex;
-        padding: 15px 35px;
-        width: 135px;
-        height: 60px;
-        gap: 10px;
-        border-radius: 30px;
-
-        color: #7D8FB3;
-        bottom: -30px;
-        background-color: #fff;
-        font-family: Roboto;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 30px;
-        text-align: center;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
-}
-
 
 .product-section {
     width: 100%;
-    padding: 50px 0px 30px 0px;
+    padding: 100px 0px 30px 0px;
     display: flex;
     margin: 0 auto;
 
@@ -119,7 +63,7 @@
         gap: 30px;
 
         .product-content-header {
-            width: 1110px;
+            width: auto;
             height: 175px;
             padding-bottom: 55px;
             gap: 60px;
@@ -139,46 +83,12 @@
                     font-weight: 700;
                     line-height: 20px;
                     color: #7D8FB3;
-
-
-                }
-
-                .right-top-header {
                     display: flex;
                     align-items: center;
 
-
-
-
-                    .statistics {
-                        display: flex;
-                        width: 250px;
-
-                        .statistics-content {
-                            display: flex;
-                            align-items: center;
-                            margin-left: 35px;
-
-
-                        }
-
-                        .statistics-icon {
-                            color: #C3CAD9;
-                        }
-
-                        .statistics-name {
-                            margin-left: 20px;
-                            color: #6B7A99;
-                            font-family: Roboto;
-                            font-size: 12px;
-                            font-weight: 700;
-                            line-height: 20px;
-                            text-align: left;
-                        }
-
-                    }
-
                 }
+
+
             }
 
             .content-header {
@@ -186,18 +96,9 @@
                 justify-content: space-between;
                 height: 100%;
                 align-items: center;
-
-                .header-name {
-                    //styleName: Bold/Bold 24;
-                    font-family: Roboto;
-                    font-size: 24px;
-                    font-weight: 700;
-                    line-height: 30px;
-                    text-align: left;
-                    color: #4D5E80;
+                position: relative;
 
 
-                }
 
                 .sort-method {
 
@@ -210,20 +111,22 @@
                     line-height: 20px;
                     text-align: left;
                     color: #4D5E80;
+                    right: 0;
+                    position: absolute;
                 }
             }
 
         }
 
         .product-list {
+            width: auto;
             gap: 30px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
             grid-gap: 1.25rem;
 
             .product-box {
-                width: 255px;
-                gap: 50px;
+                width: auto;
                 border-radius: 10px;
                 background-color: #fff;
                 box-shadow: 0 4px 10px -2px hex(var(--color-text), 1);
@@ -238,7 +141,7 @@
 
                 .product-infor {
 
-                    width: 255px;
+                    width: auto;
                     height: auto;
                     padding: 35px 25px 25px 25px;
 
@@ -248,13 +151,13 @@
                         font-family: Roboto;
                         font-size: 14px;
                         font-weight: 700;
-                        line-height: 30px;
+                        line-height: 20px;
                         color: #4D5E80;
                     }
 
                     .shop-price-infor {
                         display: flex;
-                        width: 205px;
+                        width: auto;
                         justify-content: space-between;
                         //styleName: Bold/Bold 13;
                         font-family: Roboto;

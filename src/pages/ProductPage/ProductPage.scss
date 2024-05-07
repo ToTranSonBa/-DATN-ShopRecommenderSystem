@@ -1,85 +1,21 @@
 .product-page {
-
-    width: 1600px;
+    margin-top: 30px;
+    width: auto;
     background-color: #EDEFF2;
 
     .product-section {
-        width: 1600px;
+        width: 100%;
         padding: 50px 0px 30px 0px;
         display: flex;
 
         .product-content {
-            width: 1290px;
+            width: 100%;
             height: auto;
             padding: 0 90px;
             gap: 30px;
             display: grid;
 
-            .product-content-header {
-                width: 1110px;
-                height: 60px;
-                padding-bottom: 55px;
-                gap: 60px;
 
-
-
-                .top-header {
-                    display: flex;
-                    justify-content: space-between;
-                    height: 30px;
-
-                    .left-top-header {
-                        font-family: Roboto;
-                        font-size: 12px;
-                        font-weight: 700;
-                        line-height: 20px;
-                        color: #7D8FB3;
-
-
-                    }
-
-                    .right-top-header {
-
-                        display: flex;
-                        align-items: center;
-
-
-
-
-                        .statistics {
-                            display: flex;
-                            width: 250px;
-
-                            .statistics-content {
-                                display: flex;
-                                align-items: center;
-                                margin-left: 35px;
-
-
-                            }
-
-                            .statistics-icon {
-                                color: #C3CAD9;
-                            }
-
-                            .statistics-name {
-                                margin-left: 20px;
-                                color: #6B7A99;
-                                font-family: Roboto;
-                                font-size: 12px;
-                                font-weight: 700;
-                                line-height: 20px;
-                                text-align: left;
-                            }
-
-                        }
-
-                    }
-                }
-
-
-
-            }
 
             .product-details {
                 display: flex;
@@ -362,10 +298,11 @@
 
             .customer-section {
                 display: flex;
-                gap: 30px;
+                justify-content: space-between;
+                width: 100%;
 
                 .customer-content {
-                    width: 540px;
+                    width: 48%;
                     height: 140px;
                     padding: 50px;
                     border-radius: 10px;

@@ -140,26 +140,6 @@ const ShopDashboardPage = () => {
                                 <p className="title-name">Categories</p>
                             </div>
 
-                            <div className="header-option">
-                                <div
-                                    className={`option-name ${activeOption === 0 ? 'active' : ''}`}
-                                    onClick={() => handleOptionClick(0)}
-                                >
-                                    Active
-                                </div>
-                                <div
-                                    className={`option-name ${activeOption === 1 ? 'active' : ''}`}
-                                    onClick={() => handleOptionClick(1)}
-                                >
-                                    Draft
-                                </div>
-                                <div
-                                    className={`option-name ${activeOption === 2 ? 'active' : ''}`}
-                                    onClick={() => handleOptionClick(2)}
-                                >
-                                    Assembly
-                                </div>
-                            </div>
 
                             <div className="add-categories-button">
                                 <FaPlusCircle className="plus-icon" />

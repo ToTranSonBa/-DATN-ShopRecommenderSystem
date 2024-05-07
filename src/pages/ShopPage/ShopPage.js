@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../ShopPage/ShopPage.scss";
 import "../../styles/reset.css";
 import {
@@ -11,17 +11,35 @@ import Sidebar from '../../components/layout/components/Sidebar/Sidebar'
 
 import ProductData from '../ShopPage/ProductData';
 import Navigation from "../../components/layout/components/Navigation/Navigation";
-const ShopPage = () => {
 
+import { ProductsApi } from '../../services/HomeApi/home'
+const ShopPage = () => {
+    const [productsData, setProductsData] = useState([]);
+
+
+    useEffect(() => {
+        console.log("1");
+        fetchData();
+    }, []);
+    const fetchData = async () => {
+        try {
+
+            const response = await ProductsApi();
+            console.log('>>>check response: ', response);
+            if (response) {
+                setProductsData(response);
+            } else {
+                setProductsData([]);
+            }
+
+        } catch (error) {
+            console.error('>>> Error fetching data: ', error);
+        }
+    };
     return (
         <div className="shop-page">
             <Navigation />
-            <div className="header-section">
-                <img class="header-image" src="https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1618927830-Classic-Chuck-vs-Chuck-70s-gear-patrol-70-2.jpg">
-                </img>
-                <h1 className="shop-name">Men's Shoes</h1>
-                <div className="shop-now-button">Shop now</div>
-            </div>
+
 
 
             <div className="product-section">
@@ -30,22 +48,10 @@ const ShopPage = () => {
                     <div className="product-content-header">
                         <div className="top-header">
                             <div className="left-top-header">Main <BsChevronRight />Tablets </div>
-                            <div className="right-top-header">
-                                <div className="statistics">
-                                    <div className="statistics-content">
-                                        <BsBarChartFill className="statistics-icon" />
-                                        <p className="statistics-name">Compare</p>
-                                    </div>
-                                    <div className="statistics-content">
-                                        <FaChartLine className="statistics-icon" />
-                                        <p className="statistics-name">Compare</p>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
 
                         <div className="content-header">
-                            <h2 className="header-name">Apple Pro Display XDR</h2>
                             <div className="sort-method">
                                 <p>Sort by:</p>
                                 <p>Popularity</p>

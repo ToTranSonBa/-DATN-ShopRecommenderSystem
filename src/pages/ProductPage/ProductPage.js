@@ -23,24 +23,7 @@ const ProductPage = () => {
             <div className="product-section">
                 <Sidebar />
                 <div className="product-content">
-                    <div className="product-content-header">
-                        <div className="top-header">
-                            <div className="left-top-header">Main <BsChevronRight />Tablets </div>
-                            <div className="right-top-header">
-                                <div className="statistics">
-                                    <div className="statistics-content">
-                                        <BsBarChartFill className="statistics-icon" />
-                                        <p className="statistics-name">Compare</p>
-                                    </div>
-                                    <div className="statistics-content">
-                                        <FaChartLine className="statistics-icon" />
-                                        <p className="statistics-name">Compare</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                    </div>
 
                     <div className="product-details">
                         <div className="product-details-left">

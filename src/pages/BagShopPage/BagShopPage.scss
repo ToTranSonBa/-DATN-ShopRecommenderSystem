@@ -210,10 +210,6 @@
                         color: #4D5E80;
                     }
 
-                    .up-icon {
-                        color: #C3CAD9;
-                    }
-
                 }
 
                 .bag-orders-content {
@@ -223,7 +219,7 @@
                     .order-content {
                         width: 100%;
                         height: auto;
-                        padding: 25px;
+                        padding: 25px 35px;
                         display: grid;
                         gap: 30px;
                         border-radius: 10px;
@@ -275,11 +271,57 @@
                             display: flex;
                             gap: 20px;
                             flex-wrap: wrap;
-                            padding: 10px;
+                            padding: 10px 0;
 
 
                             .product-order {
                                 flex: 1 1 calc(50% - 20px);
+                                width: 100%;
+                                /* Chiếm 100% chiều rộng khi chỉ có 1 sản phẩm */
+                                padding: 10px 30px 10px 10px;
+                                border-radius: 10px;
+                                background-color: #fff;
+                                border: 2px solid #F5F6F7;
+                                box-shadow: 0px 2px 5px 0px #26334D08;
+                                display: flex;
+                                justify-content: space-between;
+
+                                .left-right-content {
+                                    width: auto;
+                                    height: 70px;
+                                    display: flex;
+                                    gap: 30px;
+                                    align-items: center;
+
+                                    .product-image {
+                                        width: auto;
+                                        height: 100%;
+                                    }
+
+                                    .product-name {
+                                        //styleName: Bold/Bold 13;
+                                        font-family: Roboto;
+                                        font-size: 13px;
+                                        font-weight: 700;
+                                        line-height: 25px;
+                                        text-align: left;
+                                        color: #4D5E80;
+                                    }
+
+                                    .order-information {
+                                        //styleName: Black/Black 14;
+                                        font-family: Roboto;
+                                        font-size: 14px;
+                                        font-weight: 900;
+                                        line-height: 30px;
+                                        text-align: left;
+                                        color: #6B7A99;
+                                    }
+                                }
+                            }
+
+                            .product-cart {
+
                                 width: 100%;
                                 /* Chiếm 100% chiều rộng khi chỉ có 1 sản phẩm */
                                 padding: 10px 30px 10px 10px;
@@ -333,6 +375,84 @@
 
 }
 
+.profile-content {
+    display: flex;
+    width: 100%;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-field {
+    flex: 1 1 calc(25% - 1.5rem);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+}
+
+.profile-label {
+    padding-left: 1rem;
+    //styleName: Bold/Bold 12;
+    font-family: Roboto;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: left;
+    color: #4D5E80;
+
+}
+
+.profile-input {
+    height: auto;
+    padding: 0.8rem 1rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #FFFFFF;
+    box-shadow: 0px 2px 5px 0px #26334D08;
+    //styleName: Bold/Bold 12;
+    font-family: Roboto;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: left;
+    color: #7D8FB3;
+
+
+}
+
+.checkout-btn {
+    height: 8rem;
+
+}
+
+.checkout-text {
+    font-family: Roboto;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 30px;
+    text-align: center;
+
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4.5rem 0 7rem;
+
+}
+
+.total-amount {
+    font-family: Roboto;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 25px;
+    text-align: left;
+    color: #4D5E80;
+}
+
 .style-icon {
     color: #C3CAD9;
+    width: 1.2rem;
+    height: 1.2rem;
 }

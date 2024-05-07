@@ -1,17 +1,33 @@
 import React, { useState } from "react";
 import './BagShopPage.scss';
-
 import { FaAngleUp, FaPen, FaAngleDown } from "react-icons/fa";
+import { BsX } from "react-icons/bs";
+
+import PaymentForm from "./PaymentForm";
+
+import Button from '@mui/material/Button';
 
 const BagShopPage = () => {
 
-
     const [showContent, setShowContent] = useState(true);
+    const [showProfile, setShowProfile] = useState(true);
+    const [showPayment, setShowPayment] = useState(true);
+
+
+
 
 
 
     const toggleContent = () => {
         setShowContent(!showContent);
+    };
+
+    const toggleProfile = () => {
+        setShowProfile(!showProfile);
+    };
+
+    const togglePayment = () => {
+        setShowPayment(!showPayment);
     };
 
 
@@ -51,6 +67,15 @@ const BagShopPage = () => {
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
     };
+
+    const cityData = ["Adamsville", "Bristol", "Canton", "Denton"]; // Mảng dữ liệu thành phố
+
+    // State để lưu trữ giá trị thành phố được chọn
+    const [selectedCity, setSelectedCity] = useState(cityData[0]);
+
+    const handleCityChange = (event) => {
+        setSelectedCity(event.target.value);
+    };
     return (
         <div className="Bag-Shop-Page">
             <div className="header-section">
@@ -65,6 +90,7 @@ const BagShopPage = () => {
                     <div className={`tab-name ${activeTab === 'Main' ? 'active-tab' : ''}`} onClick={() => handleTabClick('Main')}>Main</div>
                     <div className={`tab-name ${activeTab === 'Account' ? 'active-tab' : ''}`} onClick={() => handleTabClick('Account')}>Account</div>
                     <div className={`tab-name ${activeTab === 'Orders' ? 'active-tab' : ''}`} onClick={() => handleTabClick('Orders')}>Orders</div>
+                    <div className={`tab-name ${activeTab === 'Cart' ? 'active-tab' : ''}`} onClick={() => handleTabClick('Cart')}>Cart</div>
                 </div>
 
             </div>
@@ -243,58 +269,89 @@ const BagShopPage = () => {
 
                         {activeTab === 'Orders' && (
                             <div className="orders-section">
-                                <div className="orders-header">
-                                    <p className="orders-title">Orders</p>
-                                    <div className="up-down-icon">
-                                        {showContent ? (
-                                            <FaAngleUp className="style-icon" onClick={toggleContent} />
-                                        ) : (
-                                            <FaAngleDown className="style-icon" onClick={toggleContent} />
-                                        )}
-                                    </div>
-                                </div>
-
-                                {showContent && (
-                                    <div className="bag-orders-content">
-                                        {orders.map(order => (
-                                            <div className="order-content" key={order.id}>
-                                                <div className="order-header">
-                                                    <div className="list-order-header">
-                                                        <div className="left-right-order-header">
-                                                            <p className="order-title">Order:</p>
-                                                            <p className="order-code">{order.orderCode}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="list-order-header">
-                                                        <div className="left-right-order-header">
-                                                            <p className="order-title">Amount:</p>
-                                                            <p className="order-code">{order.amount}</p>
-                                                        </div>
-
-                                                        <div className="left-right-order-header">
-                                                            <p className="order-title">Products:</p>
-                                                            <p className="order-code">{order.products.length}</p>
-                                                        </div>
-
-                                                        <div className="left-right-order-header">
-                                                            <p className="order-title">Status:</p>
-                                                            <p className="order-status">{order.status}</p>
-                                                            <div className="up-down-icon">
-                                                                {isExpanded[order.id] ? (
-                                                                    <FaAngleUp className="style-icon" onClick={() => toggleOrder(order.id)} />
-                                                                ) : (
-                                                                    <FaAngleDown className="style-icon" onClick={() => toggleOrder(order.id)} />
-                                                                )}
-                                                            </div>
-                                                        </div>
+                                <div className="bag-orders-content">
+                                    {orders.map(order => (
+                                        <div className="order-content" key={order.id}>
+                                            <div className="order-header">
+                                                <div className="list-order-header">
+                                                    <div className="left-right-order-header">
+                                                        <p className="order-title">Order:</p>
+                                                        <p className="order-code">{order.orderCode}</p>
                                                     </div>
                                                 </div>
 
-                                                {isExpanded[order.id] && (
+                                                <div className="list-order-header">
+                                                    <div className="left-right-order-header">
+                                                        <p className="order-title">Amount:</p>
+                                                        <p className="order-code">{order.amount}</p>
+                                                    </div>
+
+                                                    <div className="left-right-order-header">
+                                                        <p className="order-title">Products:</p>
+                                                        <p className="order-code">{order.products.length}</p>
+                                                    </div>
+
+                                                    <div className="left-right-order-header">
+                                                        <p className="order-title">Status:</p>
+                                                        <p className="order-status">{order.status}</p>
+                                                        <div>
+                                                            {isExpanded[order.id] ? (
+                                                                <FaAngleUp className="style-icon" onClick={() => toggleOrder(order.id)} />
+                                                            ) : (
+                                                                <FaAngleDown className="style-icon" onClick={() => toggleOrder(order.id)} />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {isExpanded[order.id] && (
+                                                <div className="product-order-list">
+                                                    {order.products.map(product => (
+                                                        <div className="product-order" key={product.id}>
+                                                            <div className="left-right-content">
+                                                                <img className="product-image" src={product.image} alt={product.name} />
+                                                                <p className="product-name">{product.name}</p>
+                                                            </div>
+
+                                                            <div className="left-right-content">
+                                                                <p className="order-information">{product.price}</p>
+                                                                <p className="order-information">{product.quantity}</p>
+                                                                <p className="order-information">{product.total}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+
+                            </div>
+                        )}
+
+                        {activeTab === 'Cart' && (
+                            <div className="orders-section">
+                                <div className="bag-orders-content">
+                                    {orders.length > 0 && (
+                                        <div className="order-content" key={orders[0].id}>
+
+                                            <div className="orders-header">
+                                                <p className="orders-title">Orders</p>
+                                                <div >
+                                                    {isExpanded[orders[0].id] ? (
+                                                        <FaAngleUp className="style-icon" onClick={() => toggleOrder(orders[0].id)} />
+                                                    ) : (
+                                                        <FaAngleDown className="style-icon" onClick={() => toggleOrder(orders[0].id)} />
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {isExpanded[orders[0].id] && (
+                                                <div>
                                                     <div className="product-order-list">
-                                                        {order.products.map(product => (
-                                                            <div className="product-order" key={product.id}>
+                                                        {orders[0].products.map(product => (
+                                                            <div className="product-cart" key={product.id}>
                                                                 <div className="left-right-content">
                                                                     <img className="product-image" src={product.image} alt={product.name} />
                                                                     <p className="product-name">{product.name}</p>
@@ -304,16 +361,137 @@ const BagShopPage = () => {
                                                                     <p className="order-information">{product.price}</p>
                                                                     <p className="order-information">{product.quantity}</p>
                                                                     <p className="order-information">{product.total}</p>
+                                                                    <BsX className=" style-icon" />
                                                                 </div>
                                                             </div>
                                                         ))}
+
                                                     </div>
+                                                    <div className="order-footer">
+                                                        <p className="total-amount">Total Amount</p>
+                                                        <p className="total-amount">{orders[0].amount}    </p>
+                                                    </div>
+                                                </div>
+
+                                            )}
+
+
+                                        </div>
+                                    )}
+
+                                    <div className="order-content">
+
+                                        <div className="orders-header">
+                                            <p className="orders-title">Profile Customer</p>
+                                            <div >
+                                                {showProfile ? (
+                                                    <FaAngleUp className="style-icon" onClick={toggleProfile} />
+                                                ) : (
+                                                    <FaAngleDown className="style-icon" onClick={toggleProfile} />
                                                 )}
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
+                                        </div>
+                                        {showProfile && (
 
+                                            <div className="profile-content">
+                                                <div className="profile-field">
+                                                    <label className="profile-label">First Name</label>
+                                                    <input className="profile-input" type="text" value='Brent' />
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Second Name</label>
+                                                    <input className="profile-input" type="text" value='Cook' />
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Phone</label>
+                                                    <input className="profile-input" type="text" value='+ 1 543 345 22 21' />
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Email</label>
+                                                    <input className="profile-input" type="text" value='brent-cook@gmail.com' />
+                                                </div>
+
+                                            </div>
+
+                                        )}
+
+                                        {showProfile && (
+
+                                            <div className="profile-content">
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Zip Code</label>
+                                                    <input className="profile-input" type="text" value='10001' />
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Country/ Region</label>
+                                                    <select className="profile-input" value={selectedCity} onChange={handleCityChange}>
+                                                        {cityData.map((city, index) => (
+                                                            <option key={index} value={city}>{city}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">State</label>
+                                                    <select className="profile-input" value={selectedCity} onChange={handleCityChange}>
+                                                        {cityData.map((city, index) => (
+                                                            <option key={index} value={city}>{city}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="profile-field">
+                                                    <label className="profile-label">City</label>
+                                                    <select className="profile-input" value={selectedCity} onChange={handleCityChange}>
+                                                        {cityData.map((city, index) => (
+                                                            <option key={index} value={city}>{city}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                            </div>
+
+                                        )}
+                                        {showProfile && (
+
+                                            <div className="profile-content">
+                                                <div className="profile-field">
+                                                    <label className="profile-label">Address</label>
+                                                    <input className="profile-input" type="text" value='121 Blue Hill Rd, Hopewell Junction, NY 12533' />
+                                                </div>
+
+                                            </div>
+
+                                        )}
+
+
+                                    </div>
+
+                                    <div className="order-content">
+
+                                        <div className="orders-header">
+                                            <p className="orders-title">Payment options</p>
+                                            <div >
+                                                {showPayment ? (
+                                                    <FaAngleUp className="style-icon" onClick={togglePayment} />
+                                                ) : (
+                                                    <FaAngleDown className="style-icon" onClick={togglePayment} />
+                                                )}
+                                            </div>
+                                        </div>
+                                        {showPayment && (
+                                            <PaymentForm />
+                                        )}
+
+
+
+
+
+
+                                    </div>
+
+                                    <Button className="checkout-btn" variant="contained" disableElevation>
+                                        <span className="checkout-text">Checkout</span>
+                                    </Button>
+                                </div>
 
                             </div>
                         )}
