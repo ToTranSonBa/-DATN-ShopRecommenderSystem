@@ -187,12 +187,13 @@
             height: 50px;
             padding: 10px;
             border-radius: 50%;
-            background-color: #fff;
+            background-color: #FFFFFF;
             box-shadow: 0px 2px 5px 0px #26334D08;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            opacity: 0.5;
 
             .display-icon {
                 width: 20px;
@@ -210,6 +211,15 @@
                 box-shadow: 0px 2px 10px 0px #26334D08;
                 top: 0;
                 right: 0;
+            }
+
+            &:hover {
+                opacity: 1; // Màu xám nhạt
+            }
+
+            // Thiết lập màu khi click (active)
+            &.active {
+                opacity: 1; // Màu xám nhạt
             }
 
 
@@ -441,123 +451,135 @@
 
         }
 
-        .data-list {
-            width: 100%;
-            height: auto;
 
-
-
-            .list-header,
-            .user-item {
-                width: 100%;
-                height: 60px;
-                display: flex;
-                border-bottom: 2px solid #F5F6F7;
-
-                .checkbox-bg {
-                    width: 60px;
-                    height: auto;
-                    padding: 10px 15px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    .custom-checkbox {
-                        display: none;
-                        /* Ẩn checkbox mặc định */
-                    }
-
-                    .checkbox-label {
-                        width: 20px;
-                        height: 20px;
-                        padding: 10px;
-                        border-radius: 50%;
-                        color: #ffff;
-                        border: 2px solid #F2F3F5;
-                        box-shadow: 0px 2px 10px 0px #26334D08;
-                    }
-
-                    .custom-checkbox:checked+.checkbox-label {
-                        background-color: #7D8FB3;
-                        /* Thay đổi màu nền khi checkbox được chọn */
-                    }
-
-                }
-
-                .header-bg {
-                    height: auto;
-                    padding: 10px 0px;
-                    display: flex;
-                }
-
-                .header-photo {
-                    width: 60px;
-                    justify-content: center;
-                }
-
-                .header-id {
-                    width: 60px;
-                    justify-content: center;
-                }
-
-                .header-name {
-                    min-width: 210px;
-                }
-
-                .header-orders {
-                    width: 80px;
-                    justify-content: center;
-                }
-
-                .header-revenue {
-                    width: 100px;
-                    justify-content: center;
-                }
-
-                .header-earning {
-                    width: 100px;
-                    justify-content: center;
-                }
-
-                .header-location {
-                    width: 150px;
-                }
-
-                .header-email {
-                    min-width: 210px;
-                }
-
-                .header-edit {
-                    min-width: 100px;
-                }
-
-                .text {
-                    align-items: center;
-                    //styleName: Bold/Bold 12;
-                    font-family: Roboto;
-                    font-size: 12px;
-                    font-weight: 700;
-                    line-height: 20px;
-                    text-align: left;
-                    color: #7D8FB3;
-                }
-
-                .user-avatar {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                }
-
-                .edit-icon {
-                    width: 20px;
-                    height: auto;
-                }
-            }
-        }
 
 
     }
 
+}
+
+
+.data-list {
+    max-width: 100%;
+    height: auto;
+
+    overflow-x: auto;
+
+}
+
+.user-item:hover {
+    background-color: #8833FF;
+}
+
+.user-item {
+    background-color: #FAFBFC;
+    margin: 10px 0;
+}
+
+.status-color {
+    width: 7px;
+    height: 7px;
+    margin-right: 1rem;
+    border-radius: 50%;
+}
+
+.expectation-color {
+    background-color: #FF6633;
+}
+
+.assembly-color {
+    background-color: #3361FF;
+}
+
+.delivery-color {
+    background-color: #8833FF;
+}
+
+.done-color {
+    background-color: #29CC39;
+}
+
+.failed-color {
+    background-color: #E62E2E;
+}
+
+.list-header,
+.user-item {
+    width: auto;
+    min-height: 60px;
+    display: flex;
+    border-radius: 15px;
+
+    .checkbox-bg {
+        width: 60px;
+        height: auto;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+
+    }
+
+    .header-bg {
+        height: auto;
+        align-items: center;
+        padding: 10px 0;
+        display: flex;
+
+    }
+
+    .header-center {
+        width: 85px;
+    }
+
+    .header-center-large {
+        min-width: 140px;
+    }
+
+    .header-center-medium {
+        min-width: 100px;
+    }
+
+    .header-name {
+        width: 150px;
+    }
+
+
+    .header-location {
+        width: 120px;
+    }
+
+    .header-email {
+        width: 200px;
+    }
+
+
+    .text {
+
+        font-family: Roboto;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 20px;
+        text-align: left;
+        color: #7D8FB3;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .product-image {
+        width: 90px;
+        height: 90px;
+    }
+
+    .edit-icon {
+        width: 20px;
+        height: auto;
+    }
 }
 
 .dashboard-sidebar {
@@ -799,4 +821,11 @@
 
     }
 
+}
+
+
+
+
+.checkbox-color {
+    color: #FF6633 !important;
 }

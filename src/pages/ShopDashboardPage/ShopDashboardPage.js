@@ -1,27 +1,53 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../ShopDashboardPage/ShopDashboardPage.scss";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import {
     BsJustify, BsThreeDots, BsSearch, BsFillPersonFill, BsBellFill,
     BsFillXCircleFill, BsFillPlusCircleFill, BsGraphUpArrow, BsHospital,
-    BsFilter
+    BsFilter, BsArrowRight
 } from "react-icons/bs";
 
 import {
     FaCompass, FaStar, FaFacebookMessenger, FaGlobeAmericas, FaListUl,
-    FaPlusCircle, FaCheckCircle, FaPen, FaTrashAlt
+    FaPlusCircle, FaPen, FaTrashAlt
 } from "react-icons/fa";
 
-import userdata from '../ShopDashboardPage/userdata';
+import userdata from './userdata';
+import productdata from './productdata';
+import categoriesdata from './categoriesdata';
+import ordersdata from './ordersdata'
+
+import Checkbox from '@material-ui/core/Checkbox';
+import CircleCheckedFilled from '@material-ui/icons/CheckCircle';
+import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
+
+function getStatusColorClass(status) {
+    switch (status) {
+        case 'Expectation':
+            return 'expectation-color';
+        case 'Assembly':
+            return 'assembly-color';
+        case 'Delivery':
+            return 'delivery-color';
+        case 'Done':
+            return 'done-color';
+        case 'Failed':
+            return 'failed-color';
+        default:
+            return '';
+    }
+}
 const ShopDashboardPage = () => {
 
-    const [chartInstance, setChartInstance] = useState(null);
-    const chartRef = useRef(null);
-    const [activeOption, setActiveOption] = useState(0);
     const [selected, setSelected] = useState('');
 
-    const handleOptionClick = (index) => {
-        setActiveOption(index);
+    const [selectedData, setSelectedData] = useState('userdata');
+
+    // Hàm xử lý khi người dùng click vào biểu tượng
+    const handleIconClick = (dataType) => {
+        setSelectedData(dataType);
+        setCheckedItems(new Array(dataType.length).fill(false));
+        setIsAllChecked(false);
     };
 
     const data = [
@@ -33,6 +59,22 @@ const ShopDashboardPage = () => {
         { name: 'June', sales: 350, total: 390 },
         { name: 'July', sales: 300, total: 400 },
     ];
+
+    const [isAllChecked, setIsAllChecked] = useState(false);
+    const [checkedItems, setCheckedItems] = useState(new Array(userdata.length).fill(false));
+
+    const handleAllCheckboxChange = (datatype) => {
+        setIsAllChecked(!isAllChecked); // Đảo ngược trạng thái kiểm tra chung
+        setCheckedItems(new Array(datatype.length).fill(!isAllChecked)); // Cập nhật trạng thái kiểm tra của từng phần tử trong userdata
+    };
+
+    const handleCheckboxChange = (index) => {
+        const newCheckedItems = [...checkedItems]; // Tạo một bản sao của mảng trạng thái kiểm tra hiện tại
+        newCheckedItems[index] = !newCheckedItems[index]; // Đảo ngược trạng thái kiểm tra của phần tử tại index
+        setCheckedItems(newCheckedItems); // Cập nhật mảng trạng thái kiểm tra mới
+        setIsAllChecked(newCheckedItems.every((item) => item === true)); // Cập nhật trạng thái kiểm tra chung dựa trên trạng thái kiểm tra của tất cả các phần tử trong userdata
+    };
+
     return (
         <div className="shop-dashboard-page">
             <div className="top-navigation">
@@ -83,28 +125,18 @@ const ShopDashboardPage = () => {
             <div className="container-section">
                 <div className="left-navigation">
                     <div className="left-navigation-content">
-                        <div className="icon-bg">
+                        <div className={`icon-bg ${selectedData === 'userdata' ? 'active' : ''}`} onClick={() => handleIconClick('userdata')}>
                             <FaCompass className="display-icon" />
                         </div>
-                        <div className="icon-bg">
+                        <div className={`icon-bg ${selectedData === 'productdata' ? 'active' : ''}`} onClick={() => handleIconClick('productdata')}>
                             <FaStar className="display-icon" />
                         </div>
-
-                        <div className="icon-bg">
-                            <div className="Announcement"></div>
-                            <FaFacebookMessenger className="display-icon" />
-                        </div>
-
-                        <div className="icon-bg">
+                        <div className={`icon-bg ${selectedData === 'categoriesdata' ? 'active' : ''}`} onClick={() => handleIconClick('categoriesdata')}>
                             <BsGraphUpArrow className="display-icon" />
                         </div>
-
-                        <div className="icon-bg">
-                            <FaGlobeAmericas className="display-icon" />
-                        </div>
-
-                        <div className="icon-bg">
-                            <BsHospital className="display-icon" />
+                        <div className={`icon-bg ${selectedData === 'ordersdata' ? 'active' : ''}`} onClick={() => handleIconClick('ordersdata')}>
+                            <div className="Announcement"></div>
+                            <FaFacebookMessenger className="display-icon" />
                         </div>
                     </div>
 
@@ -148,10 +180,7 @@ const ShopDashboardPage = () => {
                         </div>
 
                         <div className="filter-section">
-                            <div className="select-all-button">
-                                <FaCheckCircle className="check-icon" />
-                                <p className="select-all-content">Select All</p>
-                            </div>
+
 
                             <div className="filter-container">
                                 <div className="filter-content">
@@ -175,42 +204,211 @@ const ShopDashboardPage = () => {
                         </div>
 
                         <ul className="data-list">
-                            <li className="list-header">
-                                <div className="checkbox-bg">
-                                    <input type="checkbox" id="myCheckbox" class="custom-checkbox" />
-                                    <label for="myCheckbox" class="checkbox-label"></label>
+
+
+                            {selectedData === 'userdata' && (
+                                <div>
+                                    <li className="list-header">
+                                        <div className="checkbox-bg">
+                                            <Checkbox
+                                                className="checkbox-color"
+                                                checked={isAllChecked}
+                                                onChange={() => handleAllCheckboxChange(userdata)}
+                                                icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                            />
+                                        </div>
+
+                                        <div className="header-bg header-center text">Photo</div>
+                                        <div className="header-bg header-center text">ID</div>
+                                        <div className="header-bg header-name text">Name</div>
+                                        <div className="header-bg header-center text">Orders</div>
+                                        <div className="header-bg header-center text">Revenue</div>
+                                        <div className="header-bg header-center text">Earning</div>
+                                        <div className="header-bg header-location text">Location</div>
+                                        <div className="header-bg header-email text">Email</div>
+                                        <div className="header-bg header-center text">Edit</div>
+                                    </li>
+                                    {userdata.map((user, index) => (
+                                        <li key={index} className="user-item">
+                                            <div className="checkbox-bg">
+                                                <Checkbox
+                                                    className="checkbox-color"
+                                                    checked={checkedItems[index]}
+                                                    onChange={() => handleCheckboxChange(index)}
+                                                    icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                    checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                                />
+                                            </div>
+
+                                            <div className="header-bg header-center">
+
+                                                <img className=" user-avatar" src={user.userAvatar} />
+                                            </div>
+                                            <div className="header-bg header-center text">{user.userId}</div>
+                                            <div className="header-bg header-name text">{user.userName}</div>
+                                            <div className="header-bg header-center text">{user.userOrders}</div>
+                                            <div className="header-bg header-center text">${user.userRevenue}</div>
+                                            <div className="header-bg header-center text">${user.userEarning}</div>
+                                            <div className="header-bg header-location text">{user.userLocation}</div>
+                                            <div className="header-bg header-email text">{user.userEmail}</div>
+                                            <div className="header-bg header-center text"><FaPen className="edit-icon" /></div>
+                                        </li>
+                                    ))}
                                 </div>
+                            )}
 
-                                <div className="header-bg header-photo text">Photo</div>
-                                <div className="header-bg header-id text">ID</div>
-                                <div className="header-bg header-name text">Name</div>
-                                <div className="header-bg header-orders text">Orders</div>
-                                <div className="header-bg header-revenue text">Revenue</div>
-                                <div className="header-bg header-earning text">Earning</div>
-                                <div className="header-bg header-location text">Location</div>
-                                <div className="header-bg header-email text">Email</div>
-                                <div className="header-bg header-edit text">Edit</div>
-                            </li>
-                            {userdata.map((user, index) => (
-                                <li key={index} className="user-item">
-                                    <div className="checkbox-bg">
-                                        <input type="checkbox" id={index} class="custom-checkbox" />
-                                        <label for={index} class="checkbox-label"></label>
-                                    </div>
-                                    <div className="header-bg header-photo">
+                            {selectedData === 'productdata' && (
+                                <div>
+                                    <li className="list-header">
+                                        <div className="checkbox-bg">
+                                            <Checkbox
+                                                className="checkbox-color"
+                                                checked={isAllChecked}
+                                                onChange={() => handleAllCheckboxChange(productdata)}
+                                                icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                            />
+                                        </div>
+                                        <div className="header-bg header-center-large text">Image</div>
+                                        <div className="header-bg header-center text">Producer</div>
+                                        <div className="header-bg header-center text">Product</div>
+                                        <div className="header-bg header-center text">ID</div>
+                                        <div className="header-bg header-center text">Cat</div>
+                                        <div className="header-bg header-center text">Link</div>
+                                        <div className="header-bg header-center text">Cost</div>
+                                        <div className="header-bg header-center text">Extra</div>
+                                        <div className="header-bg header-center text">Price</div>
+                                        <div className="header-bg header-center text">Priority</div>
+                                        <div className="header-bg header-center text">Edit</div>
+                                    </li>
+                                    {productdata.map((product, index) => (
+                                        <li key={index} className="user-item">
+                                            <div className="checkbox-bg">
+                                                <Checkbox
+                                                    className="checkbox-color"
+                                                    checked={checkedItems[index]}
+                                                    onChange={() => handleCheckboxChange(index)}
+                                                    icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                    checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                                />
+                                            </div>
 
-                                        <img className=" user-avatar" src={user.userAvatar} />
-                                    </div>
-                                    <div className="header-bg header-id text">{user.userId}</div>
-                                    <div className="header-bg header-name text">{user.userName}</div>
-                                    <div className="header-bg header-orders text">${user.userOrders}</div>
-                                    <div className="header-bg header-revenue text">${user.userRevenue}</div>
-                                    <div className="header-bg header-earning text">${user.userEarning}</div>
-                                    <div className="header-bg header-location text">{user.userLocation}</div>
-                                    <div className="header-bg header-email text">{user.userEmail}</div>
-                                    <div className="header-bg header-edit text"><FaPen className="edit-icon" /></div>
-                                </li>
-                            ))}
+                                            <div className="header-bg header-center-large">
+
+                                                <img className=" product-image" src={product.productImage} />
+                                            </div>
+
+                                            <div className="header-bg header-center text">{product.producer}</div>
+                                            <div className="header-bg header-center text">{product.product}</div>
+                                            <div className="header-bg header-center text">{product.id}</div>
+                                            <div className="header-bg header-center text">{product.cat}</div>
+                                            <div className="header-bg header-center text">{product.link}</div>
+                                            <div className="header-bg header-center text">${product.cost}</div>
+                                            <div className="header-bg header-center text">{product.extra}</div>
+                                            <div className="header-bg header-center text">${product.price}</div>
+                                            <div className="header-bg header-center text">{product.priority}</div>
+                                            <div className="header-bg header-center text"><FaPen className="edit-icon" /></div>
+                                        </li>
+                                    ))}
+                                </div>
+                            )}
+
+                            {selectedData === 'categoriesdata' && (
+                                <div>
+                                    <li className="list-header">
+                                        <div className="checkbox-bg">
+                                            <Checkbox
+                                                className="checkbox-color"
+                                                checked={isAllChecked}
+                                                onChange={() => handleAllCheckboxChange(categoriesdata)}
+                                                icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                            />
+                                        </div>
+                                        <div className="header-bg header-name text">Category</div>
+                                        <div className="header-bg header-center-large  text">ID</div>
+                                        <div className="header-bg header-center-large  text">Products</div>
+                                        <div className="header-bg header-center-large  text">Link</div>
+                                        <div className="header-bg header-center-large  text">Section</div>
+                                        <div className="header-bg header-center-large  text">Priority</div>
+                                        <div className="header-bg header-center  text">Edit</div>
+                                    </li>
+                                    {categoriesdata.map((category, index) => (
+                                        <li key={index} className="user-item">
+                                            <div className="checkbox-bg">
+                                                <Checkbox
+                                                    className="checkbox-color"
+                                                    checked={checkedItems[index]}
+                                                    onChange={() => handleCheckboxChange(index)}
+                                                    icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                    checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                                />
+                                            </div>
+                                            <div className="header-bg header-name  text">{category.category}</div>
+                                            <div className="header-bg header-center-large  text">{category.id}</div>
+                                            <div className="header-bg header-center-large  text">{category.products}</div>
+                                            <div className="header-bg header-center-large  text">{category.link}</div>
+                                            <div className="header-bg header-center-large  text">{category.section}</div>
+                                            <div className="header-bg header-center-large  text">{category.priority}</div>
+                                            <div className="header-bg header-center  text"><FaPen className="edit-icon" /></div>
+                                        </li>
+                                    ))}
+                                </div>
+                            )}
+
+                            {selectedData === 'ordersdata' && (
+                                <div>
+                                    <li className="list-header">
+                                        <div className="checkbox-bg">
+                                            <Checkbox
+                                                className="checkbox-color"
+                                                checked={isAllChecked}
+                                                onChange={() => handleAllCheckboxChange(ordersdata)}
+                                                icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                            />
+                                        </div>
+                                        <div className="header-bg header-center text">ID</div>
+                                        <div className="header-bg header-center  text">Amount</div>
+                                        <div className="header-bg header-center  text">Income</div>
+                                        <div className="header-bg header-center-large  text">Products</div>
+                                        <div className="header-bg header-center-large  text">Client</div>
+                                        <div className="header-bg header-center-large  text">Update</div>
+                                        <div className="header-bg header-center-large  text">Created</div>
+                                        <div className="header-bg header-center-large  text">status</div>
+                                        <div className="header-bg header-center  text">Edit</div>
+                                    </li>
+                                    {ordersdata.map((order, index) => (
+                                        <li key={index} className="user-item">
+                                            <div className="checkbox-bg">
+                                                <Checkbox
+                                                    className="checkbox-color"
+                                                    checked={checkedItems[index]}
+                                                    onChange={() => handleCheckboxChange(index)}
+                                                    icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
+                                                    checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
+                                                />
+                                            </div>
+                                            <div className="header-bg header-center  text">{order.id}</div>
+                                            <div className="header-bg header-center  text">{order.amount}</div>
+                                            <div className="header-bg header-center  text">{order.Income}</div>
+                                            <div className="header-bg header-center-large  text">{order.products}</div>
+                                            <div className="header-bg header-center-large  text">{order.client}</div>
+                                            <div className="header-bg header-center-large  text">{order.update}</div>
+                                            <div className="header-bg header-center-large  text">{order.created}</div>
+                                            <div className="header-bg header-center-large text">
+                                                <div className={`status-color ${getStatusColorClass(order.status)}`}></div>
+                                                {order.status}
+                                            </div>
+                                            <div className="header-bg header-center  text"><BsArrowRight className="edit-icon" /></div>
+                                        </li>
+                                    ))}
+                                </div>
+                            )}
+
+
+
                         </ul>
 
                     </div>
@@ -285,7 +483,7 @@ const ShopDashboardPage = () => {
                                             <AreaChart data={data}>
                                                 <Area type="monotone" dataKey="total" fill="rgba(255, 102, 51, 0.5)" />
                                                 <Area type="monotone" dataKey="sales" fill="rgba(136, 51, 255, 0.5)" />
-" />
+
                                             </AreaChart>
 
 
