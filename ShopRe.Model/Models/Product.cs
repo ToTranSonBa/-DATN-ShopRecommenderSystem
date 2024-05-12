@@ -36,6 +36,12 @@ namespace ShopRe.Model.Models
         public int Category_LV1_NK { get; set; }
         public int Category_LV2_NK { get; set; }
         public int Category_LV3_NK { get; set; }
+        public int Category_LV4_NK { get; set; }
+
+        public int Category_LV5_NK { get; set; }
+
+        public int Category_LV6_NK { get; set; }
+
         public int SellerID_NK { get; set; }
         public string? ShortUrl { get; set; }
     }

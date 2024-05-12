@@ -71,3 +71,23 @@ C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\ne
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\obj\Debug\net6.0\ref\ShopRe.Data.dll
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.dll
 C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.pdb
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.deps.json
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.runtimeconfig.json
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.dll
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Data.pdb
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.dll
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Model.dll
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Common.pdb
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\bin\Debug\net6.0\ShopRe.Model.pdb
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.AssemblyReference.cache
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfoInputs.cache
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.AssemblyInfo.cs
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.csproj.CoreCompileInputs.cache
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.sourcelink.json
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.D.CA1A3AB9.Up2Date
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.dll
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\refint\ShopRe.Data.dll
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.pdb
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ShopRe.Data.genruntimeconfig.cache
+C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Data\obj\Debug\net6.0\ref\ShopRe.Data.dll

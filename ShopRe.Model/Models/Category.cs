@@ -20,6 +20,9 @@ namespace ShopRe.Model.Models
         public int ParentId0 { get; set; }
         public int ParentId1 { get; set; }
         public int ParentId2 { get; set; }
+        public int ParentId3 { get; set; }
+        public int ParentId4 { get; set; }
+        public int ParentId5 { get; set; }
         public int Level { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
