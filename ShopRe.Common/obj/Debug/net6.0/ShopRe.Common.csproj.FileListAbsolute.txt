@@ -33,18 +33,6 @@ C:\Users\Admin\Desktop\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.
 C:\Users\Admin\Desktop\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\refint\ShopRe.Common.dll
 C:\Users\Admin\Desktop\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.pdb
 C:\Users\Admin\Desktop\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ref\ShopRe.Common.dll
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.deps.json
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.dll
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.pdb
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.AssemblyInfoInputs.cache
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.AssemblyInfo.cs
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.csproj.CoreCompileInputs.cache
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.sourcelink.json
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.dll
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\refint\ShopRe.Common.dll
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.pdb
-C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ref\ShopRe.Common.dll
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.deps.json
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.dll
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.pdb
@@ -57,3 +45,15 @@ C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\obj\Debug\net6.0\refint\ShopRe.Common.dll
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.pdb
 C:\Users\taiga\OneDrive - VNU-HCMUS\Learning\Đồ án tốt nghiệp\Code\Back-end\ShopRe.Common\obj\Debug\net6.0\ref\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.deps.json
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\bin\Debug\net6.0\ShopRe.Common.pdb
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.AssemblyInfo.cs
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.sourcelink.json
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\refint\ShopRe.Common.dll
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ShopRe.Common.pdb
+C:\Users\Admin\Desktop\DATN\-DATN-ShopRecommenderSystem\ShopRe.Common\obj\Debug\net6.0\ref\ShopRe.Common.dll

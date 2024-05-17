@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShopRe.Model
+namespace ShopRe.Common.DTOs
 {
     public class Response<T> where T : class
     {
@@ -24,7 +24,8 @@ namespace ShopRe.Model
             Data = data;
             this.token = token;
         }
-        public Response() {
+        public Response()
+        {
             this.message = "";
             this.status = "";
             Data = null;

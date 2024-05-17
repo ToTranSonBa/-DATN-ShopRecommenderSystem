@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
+using ShopRe.Common.DTOs;
 using ShopRe.Model;
 using ShopRe.Model.Authentication;
 using ShopRe.Model.Models;
@@ -15,10 +17,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager)
+        private readonly IShoppingSessionService _shopSessionService;
+        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService)
         {
             _accountService = accountService;
             _userManager = userManager;
+            _shopSessionService = shopSessionService;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
@@ -33,27 +37,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("SignIn")]
         public async Task<ActionResult> SignIn(SignInModel signIn)
         {
-            var result = await _accountService.SignInAsync(signIn);
-            if (string.IsNullOrEmpty(result))
+            var token = await _accountService.SignInAsync(signIn);
+            if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized();
             }
-            var handler = new JwtSecurityTokenHandler();
-            var decoded = handler.ReadJwtToken(result);
 
-            var keyId = decoded.Header.Kid;
-            var audience = decoded.Audiences.ToList();
-            var claims = decoded.Claims.Select(claim => (claim.Type, claim.Value)).ToList();
-            var usermail = claims[0].Value;
+            ApplicationUser user = await _accountService.GetUserFromTokenAsync(token);
+            await _shopSessionService.CreateCart(user);
 
-            ApplicationUser user = await _userManager.FindByEmailAsync(usermail);
-
-            var response = new Response<Account>
-            {
-                message = result,
-                status = "200"
-            };
-            //return Ok(user);
+            var response = new Response<Account>("Login Successfully!", "200", null, token);
             return Ok(response);
         }
     }
