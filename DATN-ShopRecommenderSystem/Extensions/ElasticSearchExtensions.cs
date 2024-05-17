@@ -12,7 +12,7 @@ namespace DATN_ShopRecommenderSystem.Extensions
             var url = configuration["ELKConfiguration:Uri"];
             var defaultIndex = configuration["ELKConfiguration:index"];
 
-            var setting = new ConnectionSettings(new Uri(url)).PrettyJson().DefaultIndex(defaultIndex);
+            var setting = new ConnectionSettings(new Uri(url)).PrettyJson().DefaultIndex(defaultIndex).BasicAuthentication(configuration["ELKConfiguration:username"], configuration["ELKConfiguration:password"]);
 
             AddDefaultMappings(setting);
 
@@ -23,8 +23,13 @@ namespace DATN_ShopRecommenderSystem.Extensions
         }
         private static void AddDefaultMappings(ConnectionSettings connectionSettings)
         {
-            connectionSettings.DefaultMappingFor<Product>(p => p.Ignore(x => x.CreatedAt).Ignore(x => x.UpdatedAt).Ignore(x => x.DeletedAt));
+            connectionSettings.DefaultMappingFor<Product>(p => p
+                .Ignore(x => x.CreatedAt)
+                .Ignore(x => x.UpdatedAt)
+                .Ignore(x => x.DeletedAt)
+            );
         }
+
         private static void CreateIndex(IElasticClient client, string indexName)
         {
             client.Indices.Create(indexName, i => i.Map<Product>(x => x.AutoMap()));

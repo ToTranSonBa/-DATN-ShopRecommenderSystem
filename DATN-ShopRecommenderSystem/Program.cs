@@ -80,6 +80,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
+builder.Services.AddScoped<ICartItemsService, CartItemsService>();
 
 //
 builder.Services.AddAuthentication(options =>

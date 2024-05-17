@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj": {}
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj": {}
   },
   "projects": {
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
         "projectName": "DATN-ShopRecommenderSystem",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\DATN-ShopRecommenderSystem\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,26 +26,27 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\ShopRe.Service.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\ShopRe.Service.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj"
               }
             }
           }
@@ -123,17 +128,21 @@
         }
       }
     },
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj",
         "projectName": "ShopRe.Common",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -141,6 +150,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -183,17 +193,21 @@
         }
       }
     },
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj",
         "projectName": "ShopRe.Data",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -201,17 +215,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Common\\ShopRe.Common.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
               }
             }
           }
@@ -278,17 +293,21 @@
         }
       }
     },
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
         "projectName": "ShopRe.Model",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -296,6 +315,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -362,17 +382,21 @@
         }
       }
     },
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\ShopRe.Service.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\ShopRe.Service.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj",
         "projectName": "ShopRe.Service",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\ShopRe.Service.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Service\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -380,17 +404,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Data\\ShopRe.Data.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj"
               },
-              "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj": {
-                "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.Model\\ShopRe.Model.csproj"
+              "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
               }
             }
           }
@@ -409,6 +434,12 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "dependencies": {
+            "NEST": {
+              "target": "Package",
+              "version": "[7.17.4, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -429,17 +460,21 @@
         }
       }
     },
-    "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
         "projectName": "ShopRe.UnitTest",
-        "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
-        "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -447,6 +482,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

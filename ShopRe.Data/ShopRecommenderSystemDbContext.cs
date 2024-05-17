@@ -19,7 +19,9 @@ namespace ShopRe.Data
         public DbSet<DetailComment> DetailComments { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<ProductOption> ProductOptions { get; set; }
-        #endregion 
-        
+        public DbSet<CartItem>? CartItem { get; set; }
+        public DbSet<ShoppingSession> ShoppingSessions { get; set; }
+        #endregion
+
     }
 }

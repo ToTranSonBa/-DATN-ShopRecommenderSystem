@@ -3968,19 +3968,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\taiga\\.nuget\\packages\\": {}
+    "C:\\Users\\Admin\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
       "projectName": "ShopRe.UnitTest",
-      "projectPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
-      "packagesPath": "C:\\Users\\taiga\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\taiga\\OneDrive - VNU-HCMUS\\Learning\\Đồ án tốt nghiệp\\Code\\Back-end\\ShopRe.UnitTest\\obj\\",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\taiga\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3988,6 +3993,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

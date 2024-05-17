@@ -26,31 +26,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/products
         [HttpGet(Name="GetProducts")]
-        public async Task<ActionResult> Get(string keyWord)
+        public async Task<ActionResult> Get([FromQuery] ProductParameters productParameters, string keyWord)
         {
             try
             {
-                var response = await _elasticClient.SearchAsync<Product>(s => s
-                    .Query(q => q
-                        .Match(m => m
-                            .Field(f => f.Name) // Tìm kiếm theo trường Name
-                            .Query('*'+keyWord+'*') // Từ khóa tìm kiếm
-                        )
-                    )
-                    .Size(1000) // Giới hạn số lượng kết quả trả về
-                );
+                var product = await _productsService.SearchByName(productParameters, keyWord);
 
-                if (!response.IsValid)
-                {
-                    // Xử lý lỗi nếu truy vấn không hợp lệ
-                    return StatusCode(500, "Error searching for products.");
-                }
-
-                return Ok(response.Documents.ToList());
+                return Ok(product);
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi nếu có
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
@@ -67,33 +52,39 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var documents = products.Select(product => new
                 {
                     // Thay thế các thuộc tính dưới đây bằng các thuộc tính thực tế của sản phẩm
-                    ID_NK = product.ID_NK,
-                    ID_SK= product.ID_SK,
-                    Name = product.Name,
-                    ShortDescription = product.ShortDescription,
-                    Description  = product.Description,
-                    Image = product.Image,
-                    Price  = product.Price,
-                    ListPrice = product.ListPrice,
-                    OriginalPrice  = product.OriginalPrice,
-                    RatingAverage  = product.RatingAverage,
-                    RatingCount = product.RatingCount,
-                    MaxSaleQuantity  = product.MaxSaleQuantity,
-                    MinSaleQuantity  = product.MinSaleQuantity,
-                    Quantity  = product.Quantity,
-                    AllTimeQuantitySold  = product.AllTimeQuantitySold,
-                    ShortUrl = product.ShortUrl,
-                    
-                });
+                    ID_NK = product?.ID_NK ?? 0,
+                    ID_SK = product?.ID_SK ?? 0,
+                    Name = product?.Name ?? "",
+                    ShortDescription = product?.ShortDescription ?? "",
+                    Image = product?.Image ?? "",
+                    Price = product?.Price ?? 0,
+                    ListPrice = product?.ListPrice ?? 0,
+                    OriginalPrice = product?.OriginalPrice ?? 0,
+                    RatingAverage = product?.RatingAverage ?? 0,
+                    RatingCount = product?.RatingCount ?? 0,
+                    MaxSaleQuantity = product?.MaxSaleQuantity ?? 0,
+                    MinSaleQuantity = product?.MinSaleQuantity ?? 0,
+                    Quantity = product?.Quantity ?? 0,
+                    AllTimeQuantitySold = product?.AllTimeQuantitySold ?? 0,
+                    ShortUrl = product?.ShortUrl ?? ""
 
-                // Nhập tài liệu vào Elasticsearch
-                var response = await _elasticClient.IndexManyAsync(documents);
+                }); ;
 
-                if (!response.IsValid)
+                var data = documents.ToList();
+
+                var bulkAllObservable = _elasticClient.BulkAll(data, b => b
+                    .Index("product")
+                    .BackOffTime("60s")
+                    .BackOffRetries(5)
+                    .RefreshOnCompleted()
+                    .MaxDegreeOfParallelism(Environment.ProcessorCount)
+                    .Size(10000)
+                );
+
+                bulkAllObservable.Wait(TimeSpan.FromMinutes(15), next =>
                 {
-                    // Xử lý lỗi nếu cần thiết
-                    return StatusCode(500, "Error indexing documents into Elasticsearch.");
-                }
+                    // Xử lý sau mỗi lô tài liệu được nhập
+                });
 
                 return Ok();
             }
@@ -104,16 +95,23 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        // GET: api/products
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        //{
-        //    var res = await _productsService.GetAll();
-        //    return Ok(res);
-        //}
+        //GET: api/products
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] ProductParameters productParameters)
+        {
+            try
+            {
+                var response = await _productsService.GetAllAsync(productParameters);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                // Handle any other exceptions
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
 
         // GET: api/products/5
-
         [HttpGet("asfasdf")]
         public async Task<ActionResult> GetAllProducts([FromQuery] ProductParameters productParameters)
         {

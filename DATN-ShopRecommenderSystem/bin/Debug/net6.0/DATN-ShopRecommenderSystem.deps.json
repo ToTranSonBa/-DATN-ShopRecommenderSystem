@@ -1417,6 +1417,7 @@
       },
       "ShopRe.Service/1.0.0": {
         "dependencies": {
+          "NEST": "7.17.4",
           "ShopRe.Data": "1.0.0",
           "ShopRe.Model": "1.0.0"
         },

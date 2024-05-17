@@ -11,21 +11,24 @@ namespace ShopRe.Model
     {
         public string message { get; set; }
         public string status { get; set; }
+        public string token { get; set; }
         public IEnumerable<T> Data { get; set; }
         public string jsonResponse(Response<T> response)
         {
             return JsonSerializer.Serialize(response);
         }
-        public Response(string message, string status, IEnumerable<T> data)
+        public Response(string message, string status, IEnumerable<T> data, string token)
         {
             this.message = message;
             this.status = status;
             Data = data;
+            this.token = token;
         }
         public Response() {
             this.message = "";
             this.status = "";
             Data = null;
+            token = "";
         }
     }
 }
