@@ -2,7 +2,6 @@
 using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
-using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
@@ -29,16 +28,20 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
         Task<IEnumerable<Product>> SearchByName(ProductParameters productParameters, string keyWord);
+        Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
+
     }
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly ISellerPriorityRepository _sellerPriorityRepository;
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<ProductService> _logger;
 
-        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger, IElasticClient elasticClient)
+        public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository, ILogger<ProductService> logger, IElasticClient elasticClient)
         {
             _productRepository = productRepository;
+            _sellerPriorityRepository = sellerPriorityRepository;
             _elasticClient = elasticClient;
             _logger = logger;
         }
@@ -65,7 +68,8 @@ namespace ShopRe.Service
                     MinSaleQuantity = document.ContainsKey("MinSaleQuantity") ? Convert.ToInt32(document["MinSaleQuantity"]) : 0,
                     Quantity = document.ContainsKey("Quantity") ? Convert.ToInt32(document["Quantity"]) : 0,
                     AllTimeQuantitySold = document.ContainsKey("AllTimeQuantitySold") ? Convert.ToInt32(document["AllTimeQuantitySold"]) : 0,
-                    ShortUrl = document.ContainsKey("ShortUrl") ? document["ShortUrl"].ToString() : ""
+                    ShortUrl = document.ContainsKey("ShortUrl") ? document["ShortUrl"].ToString() : "",
+                    SellerID_NK = document.ContainsKey("SellerID_NK") ? Convert.ToInt32(document["ID_NK"]) : 0,
 
                 };
                 products.Add(product);
@@ -111,6 +115,7 @@ namespace ShopRe.Service
             //    ShortUrl = e.ShortUrl,
             //    RatingAverage = e.RatingAverage
             //});
+
 
             return documents;
         }
@@ -248,5 +253,106 @@ namespace ShopRe.Service
         {
             return await _productRepository.GetPaged(pageSize, pageNumber);
         }
+
+        public async Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user)
+        {
+            //var documents = await SearchByName(productParameters, keyWord);
+            //documents = documents.ToList();
+
+            //var selPrio = (await this.SearchSelprioByUser(user)).ToList();
+
+            //var sortedProducts = documents.OrderBy(d => selPrio.FindIndex(s => s.SellerID == d.SellerID_NK)).ToList();
+
+            //return sortedProducts;
+
+            // Lấy danh sách SellerPriority cho user
+            var sellerPriorityResponse = await _elasticClient.SearchAsync<SellerPriority>(s => s
+                .Query(q => q
+                    .Term(t => t.AccID, user)
+                )
+            );
+
+            if (!sellerPriorityResponse.IsValid || !sellerPriorityResponse.Documents.Any())
+            {
+                // Xử lý lỗi hoặc không tìm thấy SellerPriority
+                return new List<Product>();
+            }
+
+            var sellerPriorities = sellerPriorityResponse.Documents.ToDictionary(sp => sp.SellerID, sp => sp.Idx);
+
+            // Tạo một list các sellerId với độ ưu tiên
+            var sellerIdsWithPriority = sellerPriorities.Keys.ToList();
+
+            // Tìm kiếm sản phẩm theo từ khóa và lọc theo sellerId
+            var productSearchResponse = await _elasticClient.SearchAsync<Product>(s => s
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(m => m
+                            .Match(mm => mm
+                                .Field(f => f.Name)
+                                .Query(keyWord)
+                            )
+                        )
+                        .Filter(f => f
+                            .Terms(t => t
+                                .Field(ff => ff.SellerID_NK)
+                                .Terms(sellerIdsWithPriority)
+                            )
+                        )
+                    )
+                )
+                .Sort(sort => sort
+                    .Script(ss => ss
+                        .Type("number")
+                        .Script(sc => sc
+                            .Source("params.sellerPriorities[doc['sellerId'].value]")
+                            .Params(p => p
+                                .Add("sellerPriorities", sellerPriorities)
+                            )
+                        )
+                        .Order(SortOrder.Descending)
+                    )
+                )
+            );
+
+            if (!productSearchResponse.IsValid)
+            {
+                // Xử lý lỗi
+                return new List<Product>();
+            }
+
+            return productSearchResponse.Documents.ToList();
+
+        }
+        public async Task<IEnumerable<SellerPriority>> SearchSelprioByUser(int user)
+        {
+            var responsesel = await _elasticClient.SearchAsync<SellerPriority>(s => s
+                    .Index("accselpri")
+                    .Query(s => s.Term(t => t.Field(f => f.AccID).Value(user)))
+                    );
+            if (!responsesel.IsValid)
+            {
+                return Enumerable.Empty<SellerPriority>();
+            }
+
+            return responsesel.Documents.ToList();
+        }
+
+        private List<SellerPriority> ConvertToSelPrio(List<object> documents)
+        {
+            var selprios = new List<SellerPriority>();
+            foreach (dynamic document in documents)
+            {
+                var selprio = new SellerPriority
+                {
+                    Idx = document.ContainsKey("IDX") ? Convert.ToInt32(document["IDX"]) : 0,
+                    AccID = document.ContainsKey("ACCOUNTID") ? Convert.ToInt32(document["ACCOUNTID"]) : 0,
+                    SellerID = document.ContainsKey("SELLERID") ? Convert.ToInt32(document["SELLERID"]) : 0
+                };
+                selprios.Add(selprio);
+            }
+            return selprios.OrderBy(s => s.Idx).ToList();
+        }
+
     }
 }

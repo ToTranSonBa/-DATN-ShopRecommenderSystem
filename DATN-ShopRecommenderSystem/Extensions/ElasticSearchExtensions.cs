@@ -1,6 +1,5 @@
 ﻿using Nest;
 using ShopRe.Model.Models;
-using System.Runtime.CompilerServices;
 
 namespace DATN_ShopRecommenderSystem.Extensions
 {
@@ -11,6 +10,7 @@ namespace DATN_ShopRecommenderSystem.Extensions
         {
             var url = configuration["ELKConfiguration:Uri"];
             var defaultIndex = configuration["ELKConfiguration:index"];
+            var defaultIndex2 = configuration["ELKConfiguration:index2"];
 
             var setting = new ConnectionSettings(new Uri(url)).PrettyJson().DefaultIndex(defaultIndex).BasicAuthentication(configuration["ELKConfiguration:username"], configuration["ELKConfiguration:password"]);
 
@@ -19,7 +19,7 @@ namespace DATN_ShopRecommenderSystem.Extensions
             var client = new ElasticClient(setting);
             services.AddSingleton<IElasticClient>(client);
 
-            CreateIndex(client, defaultIndex);
+            CreateIndex(client, defaultIndex, defaultIndex2);
         }
         private static void AddDefaultMappings(ConnectionSettings connectionSettings)
         {
@@ -28,11 +28,71 @@ namespace DATN_ShopRecommenderSystem.Extensions
                 .Ignore(x => x.UpdatedAt)
                 .Ignore(x => x.DeletedAt)
             );
-        }
 
-        private static void CreateIndex(IElasticClient client, string indexName)
+        }
+        private static void CreateIndex(IElasticClient client, string indexName, string indexName2)
         {
             client.Indices.Create(indexName, i => i.Map<Product>(x => x.AutoMap()));
+
+            var indexExistsResponse = client.Indices.Exists(indexName2);
+            if (indexExistsResponse.Exists)
+            {
+                var updateIndexResponse = client.Indices.PutMapping<SellerPriority>(m => m
+                    .Index("accselpri")
+                    .Properties(props => props
+                        .Number(n => n
+                            .Name(p => p.AccID)
+                            .Type(NumberType.Integer)
+                           .Fields(f => f
+                                .Keyword(k => k.Name("ACCOUNTID"))
+                            )
+                        )
+                        .Number(n => n
+                            .Name(p => p.SellerID)
+                            .Type(NumberType.Integer)
+                           .Fields(f => f
+                                .Keyword(k => k.Name("SELLERID"))
+                            )
+                        )
+                        .Number(n => n
+                            .Name(p => p.Idx)
+                            .Type(NumberType.Integer)
+                            .Fields(f => f
+                                .Keyword(k => k.Name("IDX"))
+                            )
+                        )
+                    )
+                );
+            }
+            else
+            {
+                var createIndexResponse = client.Indices.Create(indexName2, c => c
+                .Map<SellerPriority>(m => m
+                    .Properties(props => props
+                        .Number(n => n
+                            .Name(p => p.AccID)
+                            .Type(NumberType.Integer)
+                           .Fields(f => f
+                                .Keyword(k => k.Name("ACCOUNTID"))
+                            )
+                        )
+                        .Number(n => n
+                            .Name(p => p.SellerID)
+                            .Type(NumberType.Integer)
+                           .Fields(f => f
+                                .Keyword(k => k.Name("SELLERID"))
+                            )
+                        )
+                        .Number(n => n
+                            .Name(p => p.Idx)
+                            .Type(NumberType.Integer)
+                            .Fields(f => f
+                                .Keyword(k => k.Name("IDX"))
+                            )
+                        )
+                    )
+                ));
+            }
         }
     }
 

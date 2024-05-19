@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240519085244_add_ProductChildle_and_OptionValue")]
+    partial class add_ProductChildle_and_OptionValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -781,97 +783,6 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("ShoppingSessions");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventParameter", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("DataType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("EventTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventTypeId");
-
-                    b.ToTable("EventParameters");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("template")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EventType");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.Log", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("EventTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventTypeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Log");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.LogDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Detail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("EventParameterId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("LogId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventParameterId");
-
-                    b.HasIndex("LogId");
-
-                    b.ToTable("LogDetail");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1009,45 +920,6 @@ namespace ShopRe.Data.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventParameter", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.user_s_log.EventType", "EventType")
-                        .WithMany()
-                        .HasForeignKey("EventTypeId");
-
-                    b.Navigation("EventType");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.Log", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.user_s_log.EventType", "EventType")
-                        .WithMany()
-                        .HasForeignKey("EventTypeId");
-
-                    b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("EventType");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.LogDetail", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.user_s_log.EventParameter", "EventParameter")
-                        .WithMany()
-                        .HasForeignKey("EventParameterId");
-
-                    b.HasOne("ShopRe.Model.Models.user_s_log.Log", "Log")
-                        .WithMany()
-                        .HasForeignKey("LogId");
-
-                    b.Navigation("EventParameter");
-
-                    b.Navigation("Log");
                 });
 #pragma warning restore 612, 618
         }

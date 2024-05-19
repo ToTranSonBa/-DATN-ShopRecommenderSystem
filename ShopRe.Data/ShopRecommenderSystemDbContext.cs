@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
-using System;
 
 namespace ShopRe.Data
 {
@@ -27,6 +26,21 @@ namespace ShopRe.Data
         public DbSet<LogDetail> LogDetail { get; set; }
         public DbSet<EventParameter> EventParameters { get; set; }
         #endregion
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            base.OnModelCreating(modelBuilder);
+            _ = modelBuilder.Entity<SellerPriority>(s =>
+            {
+                s.ToTable("ACCOUNT_SELLER_PRIORITY");
+                s.HasNoKey();
+                s.Property(o => o.AccID).HasColumnName("ACCOUNTID");
+                s.Property(o => o.SellerID).HasColumnName("SELLERID");
+                s.Property(o => o.Idx).HasColumnName("IDX");
+                s.HasIndex(s => s.AccID);
+            });
+        }
 
     }
 }

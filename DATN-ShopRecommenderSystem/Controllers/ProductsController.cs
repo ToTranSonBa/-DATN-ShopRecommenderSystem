@@ -157,5 +157,19 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return NoContent();
         }
 
+        [HttpGet("abdcde")]
+        public async Task<ActionResult> Get([FromQuery] ProductParameters productParameters, string keyWord, int user)
+        {
+            try
+            {
+                var product = await _productsService.SearchProductByUser(productParameters, keyWord, user);
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
 }

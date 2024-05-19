@@ -71,6 +71,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
+builder.Services.AddScoped<ISellerPriorityRepository, SellerPriorityRepository>();
+
 
 
 builder.Services.AddScoped<IAccountService, AccountService>();
