@@ -12,8 +12,8 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    [Migration("20240519085244_add_ProductChildle_and_OptionValue")]
-    partial class add_ProductChildle_and_OptionValue
+    [Migration("20240519104515_update_productoptionValue_productChild_19052024")]
+    partial class update_productoptionValue_productChild_19052024
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -452,27 +452,6 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("DetailComments");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.Images", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProductID_NK")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductID_NK");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.Order", b =>
                 {
                     b.Property<int>("ID")
@@ -620,8 +599,17 @@ namespace ShopRe.Data.Migrations
                     b.Property<int?>("ProductID_NK")
                         .HasColumnType("int");
 
-                    b.Property<int?>("optionValuesId")
-                        .HasColumnType("int");
+                    b.Property<string>("option1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option4")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("thumbnail_url")
                         .HasColumnType("nvarchar(max)");
@@ -630,18 +618,19 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID_NK");
 
-                    b.HasIndex("optionValuesId");
-
-                    b.ToTable("ProductChildle");
+                    b.ToTable("ProductChild");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
                 {
                     b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -649,22 +638,15 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ID_SK")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductID_NK")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ID");
+                    b.HasKey("ID", "ProductID");
 
-                    b.HasIndex("ProductID_NK");
+                    b.HasIndex("ProductID");
 
                     b.ToTable("ProductOptions");
                 });
@@ -681,12 +663,15 @@ namespace ShopRe.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductOptionID")
+                    b.Property<int>("OptionID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OptionProductID")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductOptionID");
+                    b.HasIndex("OptionID", "OptionProductID");
 
                     b.ToTable("ProductOptionValues");
                 });
@@ -783,6 +768,97 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("ShoppingSessions");
                 });
 
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventParameter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("DataType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EventTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventTypeId");
+
+                    b.ToTable("EventParameters");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("template")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EventType");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("EventTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Log");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.LogDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EventParameterId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LogId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventParameterId");
+
+                    b.HasIndex("LogId");
+
+                    b.ToTable("LogDetail");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -858,15 +934,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.Images", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID_NK");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.Order", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.ApplicationUser", "ApplicationUser")
@@ -882,20 +949,14 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ProductID_NK");
 
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "optionValues")
-                        .WithMany()
-                        .HasForeignKey("optionValuesId");
-
                     b.Navigation("Product");
-
-                    b.Navigation("optionValues");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID_NK")
+                        .WithMany("productOptions")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -904,13 +965,13 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOptionValues", b =>
                 {
-                    b.HasOne("ShopRe.Model.Models.ProductOption", "ProductOption")
+                    b.HasOne("ShopRe.Model.Models.ProductOption", "Option")
                         .WithMany()
-                        .HasForeignKey("ProductOptionID")
+                        .HasForeignKey("OptionID", "OptionProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProductOption");
+                    b.Navigation("Option");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
@@ -920,6 +981,50 @@ namespace ShopRe.Data.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.EventParameter", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.user_s_log.EventType", "EventType")
+                        .WithMany()
+                        .HasForeignKey("EventTypeId");
+
+                    b.Navigation("EventType");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.Log", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.user_s_log.EventType", "EventType")
+                        .WithMany()
+                        .HasForeignKey("EventTypeId");
+
+                    b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("EventType");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.user_s_log.LogDetail", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.user_s_log.EventParameter", "EventParameter")
+                        .WithMany()
+                        .HasForeignKey("EventParameterId");
+
+                    b.HasOne("ShopRe.Model.Models.user_s_log.Log", "Log")
+                        .WithMany()
+                        .HasForeignKey("LogId");
+
+                    b.Navigation("EventParameter");
+
+                    b.Navigation("Log");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
+                {
+                    b.Navigation("productOptions");
                 });
 #pragma warning restore 612, 618
         }

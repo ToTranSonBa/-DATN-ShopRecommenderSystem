@@ -10,9 +10,12 @@ namespace ShopRe.Model.Models
         public int Id { get; set; }
         public int Id_sk { get; set; }
         public string? Name { get; set; }
+        public string? option1 { get; set; }
+        public string? option2 { get; set; }
+        public string? option3 { get; set; }
+        public string? option4 { get; set; }
         public string? thumbnail_url { get; set; }
         public int Price { get; set; }
-        public ProductOptionValues? optionValues { get; set; }
         public Product? Product { get; set; }
     }
 }

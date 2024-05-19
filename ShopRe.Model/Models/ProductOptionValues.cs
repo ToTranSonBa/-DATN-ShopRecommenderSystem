@@ -10,6 +10,6 @@ namespace ShopRe.Model.Models
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public ProductOption ProductOption { get; set; }
+        public ProductOption Option { get; set; }
     }
 }

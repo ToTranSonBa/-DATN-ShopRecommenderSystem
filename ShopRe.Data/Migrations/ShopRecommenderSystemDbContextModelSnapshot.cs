@@ -22,6 +22,25 @@ namespace ShopRe.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("ShopRe.Model.Models.SellerPriority", b =>
+            {
+                b.Property<int>("AccID")
+                    .HasColumnType("int")
+                    .HasColumnName("ACCOUNTID");
+
+                b.Property<int>("Idx")
+                    .HasColumnType("int")
+                    .HasColumnName("IDX");
+
+                b.Property<int>("SellerID")
+                    .HasColumnType("int")
+                    .HasColumnName("SELLERID");
+
+                b.HasIndex("AccID");
+
+                b.ToTable("ACCOUNT_SELLER_PRIORITY", (string)null);
+            });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -577,13 +596,58 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
+            modelBuilder.Entity("ShopRe.Model.Models.ProductChild", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("Id_sk")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductID_NK")
+                        .HasColumnType("int");
+
+                    b.Property<string>("option1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("option4")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("thumbnail_url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductID_NK");
+
+                    b.ToTable("ProductChild");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
+                {
+                    b.Property<int>("ID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -591,27 +655,42 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Image")
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID", "ProductID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("ProductOptions");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ProductOptionValues", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Price")
+                    b.Property<int>("OptionID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductID_NK")
+                    b.Property<int>("OptionProductID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.HasKey("Id");
 
-                    b.HasKey("ID");
+                    b.HasIndex("OptionID", "OptionProductID");
 
-                    b.HasIndex("ProductID_NK");
-
-                    b.ToTable("ProductOptions");
+                    b.ToTable("ProductOptionValues");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Seller", b =>
@@ -881,15 +960,35 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
+            modelBuilder.Entity("ShopRe.Model.Models.ProductChild", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductID_NK")
+                        .HasForeignKey("ProductID_NK");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.Product", "Product")
+                        .WithMany("productOptions")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ProductOptionValues", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.ProductOption", "Option")
+                        .WithMany()
+                        .HasForeignKey("OptionID", "OptionProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Option");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
@@ -938,6 +1037,11 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("EventParameter");
 
                     b.Navigation("Log");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
+                {
+                    b.Navigation("productOptions");
                 });
 #pragma warning restore 612, 618
         }

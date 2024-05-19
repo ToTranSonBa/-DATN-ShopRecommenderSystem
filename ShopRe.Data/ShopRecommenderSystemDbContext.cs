@@ -26,6 +26,8 @@ namespace ShopRe.Data
         public DbSet<LogDetail> LogDetail { get; set; }
         public DbSet<EventParameter> EventParameters { get; set; }
         public DbSet<SellerPriority> SellerPriority { get; set; }
+        public DbSet<ProductOptionValues> ProductOptionValues { get; set; }
+        public DbSet<ProductChild> ProductChild { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,6 +42,14 @@ namespace ShopRe.Data
                 s.Property(o => o.SellerID).HasColumnName("SELLERID");
                 s.Property(o => o.Idx).HasColumnName("IDX");
                 s.HasIndex(s => s.AccID);
+            });
+            _ = modelBuilder.Entity<ProductOption>(s =>
+            {
+                s.HasKey(e => new { e.ID, e.ProductID });
+                s.HasOne<Product>(e => e.Product)
+                .WithMany(p => p.productOptions)
+                .HasForeignKey(e => e.ProductID)
+                ;
             });
         }
 
