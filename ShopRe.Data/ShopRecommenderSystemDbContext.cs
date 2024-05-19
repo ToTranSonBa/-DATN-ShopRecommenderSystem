@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ShopRe.Model.Models;
+using ShopRe.Model.Models.user_s_log;
 using System;
 
 namespace ShopRe.Data
@@ -21,6 +22,10 @@ namespace ShopRe.Data
         public DbSet<ProductOption> ProductOptions { get; set; }
         public DbSet<CartItem>? CartItem { get; set; }
         public DbSet<ShoppingSession> ShoppingSessions { get; set; }
+        public DbSet<Log> Log { get; set; }
+        public DbSet<EventType> EventType { get; set; }
+        public DbSet<LogDetail> LogDetail { get; set; }
+        public DbSet<EventParameter> EventParameters { get; set; }
         #endregion
 
     }
