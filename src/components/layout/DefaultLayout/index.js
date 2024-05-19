@@ -7,7 +7,7 @@ function DefaultLayout({ children }) {
     return (
         <div >
             <Navigation />
-            <div className='container'>{children}</div>
+            <div >{children}</div>
             <Footer />
         </div>
     );

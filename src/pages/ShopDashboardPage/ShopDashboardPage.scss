@@ -1,7 +1,7 @@
 .shop-dashboard-page {
     background-color: #F7F8FA;
     width: 100%;
-
+    position: relative;
 }
 
 
@@ -162,12 +162,12 @@
 
 .container-section {
     display: flex;
-
+    height: auto;
 }
 
 .left-navigation {
     width: 5%;
-    min-height: 800px;
+    min-height: 1000px;
     padding: 35px 0;
     border-right: 2px solid #EDEFF2;
     justify-content: space-between;
@@ -231,11 +231,7 @@
             justify-content: center;
             position: relative;
 
-            .user-avatar {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-            }
+
 
             .Announcement {
                 width: 10px;
@@ -252,11 +248,17 @@
 
 }
 
+
+
 .dashboard-content-section {
     display: flex;
-    padding: 30px;
-    min-height: 500px;
+    padding: 30px 30px 0;
+    max-height: 1100px;
     width: 75%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow-x: auto;
 
     .management-content {
         width: 100%;
@@ -264,7 +266,7 @@
         border-radius: 20px;
         background-color: #fff;
         box-shadow: 0px 2px 5px 0px #26334D08;
-        overflow-x: auto;
+
 
         .header-section {
             width: 100%;
@@ -451,9 +453,6 @@
 
         }
 
-
-
-
     }
 
 }
@@ -469,7 +468,12 @@
 
 .user-item:hover {
     background-color: #8833FF;
+    cursor: pointer;
+    color: #fff !important;
+
 }
+
+
 
 .user-item {
     background-color: #FAFBFC;
@@ -565,6 +569,8 @@
         color: #7D8FB3;
     }
 
+
+
     .user-avatar {
         width: 40px;
         height: 40px;
@@ -582,250 +588,96 @@
     }
 }
 
-.dashboard-sidebar {
-    width: 20%;
-    min-height: 500px;
-    min-height: 1170px;
-    padding: 30px;
-    display: flex;
-
-    gap: 10px;
-    background-color: #F7F8FA;
-    border-left: 2px solid #EDEFF2;
-    align-items: center;
-    justify-content: center;
-
-    .dashboard-sidebar-container {
-        width: auto;
-        height: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-
-        .total-section {
-            width: auto;
-            height: auto;
-            border-radius: 15px;
-            border: 2px solid #EDEFF2;
-            display: flex;
-            flex-direction: column;
-
-            .total-content {
-                width: 100%;
-                height: auto;
-                padding: 30px 20px;
-                display: flex;
-                gap: 10px;
-                border-radius: 15px 15px 0px 0px;
-                border-bottom: 2px solid #EDEFF2;
-
-                .total-main-content {
-                    width: auto;
-                    height: auto;
-                    display: flex;
-                    gap: 30px;
-
-                    .total-name-number {
-                        width: auto;
-                        height: auto;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 20px;
-
-                        .total-name {
-                            //styleName: Bold/Bold 12;
-                            font-family: Roboto;
-                            font-size: 12px;
-                            font-weight: 700;
-                            line-height: 20px;
-                            text-align: left;
-                            color: #6B7A99;
-                        }
-
-                        .total-number {
-                            //styleName: Bold/Bold 24;
-                            font-family: Roboto;
-                            font-size: 24px;
-                            font-weight: 700;
-                            line-height: 30px;
-                            text-align: left;
-                            color: #4D5E80;
-                        }
-
-                    }
-
-                    .chart-section {
-                        display: flex;
-                        width: 100px;
-                        height: auto;
-                        position: relative;
-
-                        .custom-chart {
-                            position: absolute;
-                            bottom: 0;
-
-                        }
-                    }
-
-
-
-                }
-
-            }
-
-            .total-footer {
-                width: 100%;
-                height: auto;
-                width: Fill (270px)px;
-                height: Fill (60px)px;
-                padding: 20px;
-                display: flex;
-                justify-content: space-between;
-
-                .footer-text {
-                    //styleName: Bold/Bold 12;
-                    width: auto;
-                    height: auto;
-                    padding: 5px 10px;
-                    display: flex;
-                    font-family: Roboto;
-                    font-size: 12px;
-                    font-weight: 700;
-                    line-height: 20px;
-                    text-align: left;
-                    color: #6B7A99;
-                    align-items: center;
-                    justify-content: center;
-
-                    .circle-purple {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background-color: #8833FF;
-                        margin-right: 15px;
-                    }
-
-                    .circle-orange {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background-color: #FF6633;
-                        margin-right: 15px;
-                    }
-                }
-
-                .selected {
-                    background-color: #8833FF1A;
-                    color: #8833FF;
-                }
-            }
-
-        }
-
-        .action-orders-section {
-            width: auto;
-            height: auto;
-            display: flex;
-            flex-direction: column;
-            padding: 25px 25px 0px 25px;
-            gap: 30px;
-            border-radius: 15px;
-            border: 2px solid #EDEFF2;
-            align-items: center;
-            justify-content: center;
-
-            .action-orders-header {
-                width: 100%;
-                height: auto;
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                justify-content: center;
-
-                .tile-name {
-                    //styleName: Bold/Bold 13;
-                    font-family: Roboto;
-                    font-size: 13px;
-                    font-weight: 700;
-                    line-height: 25px;
-                    text-align: left;
-                    color: #4D5E80;
-
-                }
-
-            }
-
-            .schedule-container {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                height: auto;
-
-                .schedule-content {
-                    display: flex;
-                    width: 100%;
-                    height: auto;
-                    position: relative;
-
-                    .left-schedule {
-                        display: flex;
-                        flex-direction: column;
-                        width: auto;
-                        height: auto;
-                        align-items: center;
-                        justify-content: center;
-
-                        .schedule-time {
-                            display: flex;
-                            width: auto;
-                            height: auto;
-                            padding: 5px 20px;
-                            gap: 10px;
-                            border-radius: 15px;
-                            border: 2px solid #EDEFF2;
-                            //styleName: Black/Black 10;
-                            font-family: Roboto;
-                            font-size: 10px;
-                            font-weight: 900;
-                            line-height: 20px;
-                            text-align: center;
-                            color: #7D8FB3;
-
-
-                        }
-
-                        .connect-column {
-                            width: 2px;
-                            height: 35px;
-                            background-color: #EDEFF2;
-                        }
-                    }
-
-                    .schedule-information {
-                        width: auto;
-                        height: auto;
-                        padding: 5px 0px 0px 20px;
-                        //styleName: Bold/Bold 12;
-                        font-family: Roboto;
-                        font-size: 12px;
-                        font-weight: 700;
-                        line-height: 20px;
-                        text-align: left;
-                        color: #6B7A99;
-
-                    }
-                }
-            }
-
-        }
-
-    }
-
-}
-
-
 
 
 .checkbox-color {
     color: #FF6633 !important;
+}
+
+.infor-section {
+    padding: 45px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.infor-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+}
+
+.infor-box {
+
+    height: auto;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #FAFBFC;
+
+}
+
+.user-avatar-detail {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 2rem;
+}
+
+.infor-detail {
+    display: grid;
+    gap: 15px;
+    font-family: Roboto;
+    text-align: center;
+}
+
+.user-text {
+    color: #6B7A99;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 30px;
+}
+
+.infor-text {
+    //styleName: Medium/Medium 24;
+    font-family: Roboto;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 30px;
+    text-align: center;
+    color: #4D5E80;
+}
+
+.infor-label {
+    color: #ADB8CC;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+.label-box {
+    //styleName: Bold/Bold 13;
+    font-family: Roboto;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 25px;
+    text-align: left;
+    color: #7D8FB3;
+}
+
+.column-label {
+    //styleName: Bold/Bold 14;
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 30px;
+    text-align: left;
+    color: #6B7A99;
+}
+
+.w-98 {
+    width: 25rem;
+}
+
+.w-45p {
+    width: 49%;
 }
