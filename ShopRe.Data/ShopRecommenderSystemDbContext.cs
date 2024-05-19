@@ -25,6 +25,7 @@ namespace ShopRe.Data
         public DbSet<EventType> EventType { get; set; }
         public DbSet<LogDetail> LogDetail { get; set; }
         public DbSet<EventParameter> EventParameters { get; set; }
+        public DbSet<SellerPriority> SellerPriority { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
