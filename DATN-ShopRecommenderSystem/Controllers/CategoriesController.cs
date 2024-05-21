@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.DTOs;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
@@ -18,10 +19,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int level)
         {
-            var res = await _categoryService.GetAll();
-            return Ok(res);
+            var res = await _categoryService.GetCategoryLevel(level);
+            return Ok(new Response<CategoryDTO>
+            {
+                message = "Success!",
+                status = "200",
+                token = null,
+                Data = res
+            });
         }
 
         // GET: api/categories/5

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShopRe.UnitTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8bd7b490b92a6f3771edbaac9e7ee540e961336b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb129692a5a6e0f4261453c0bd6353a0f6ffce60")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShopRe.UnitTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShopRe.UnitTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -844,6 +844,9 @@
         }
       },
       "ShopRe.Common/1.0.0": {
+        "dependencies": {
+          "ShopRe.Model": "1.0.0"
+        },
         "runtime": {
           "ShopRe.Common.dll": {}
         }

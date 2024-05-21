@@ -165,7 +165,7 @@ namespace ShopRe.Service
                 _dbContext.CartItem.Remove(cartItem);
             }
             // Cập nhật tiền của session
-            session.Total += product.Price;
+            session.Total -= product.Price;
             _dbContext.ShoppingSessions.Update(session);
 
             await _dbContext.SaveChangesAsync();

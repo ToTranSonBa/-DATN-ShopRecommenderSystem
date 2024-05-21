@@ -1279,6 +1279,9 @@
       "ShopRe.Common/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "ShopRe.Model": "1.0.0"
+        },
         "compile": {
           "bin/placeholder/ShopRe.Common.dll": {}
         },
