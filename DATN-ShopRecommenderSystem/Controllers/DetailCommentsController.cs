@@ -1,4 +1,5 @@
 ﻿using DATN_ShopRecommenderSystem.Service;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.Text.Json;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
+    [EnableCors]
     [Route("api/[controller]")]
     [ApiController]
     public class DetailCommentsController : ControllerBase

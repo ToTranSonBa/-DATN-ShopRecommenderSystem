@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShopRe.Common.DTOs;
@@ -7,6 +8,7 @@ using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
+    [EnableCors]
     [Route("api/[controller]")]
     [ApiController]
     public class CartItemsController : ControllerBase

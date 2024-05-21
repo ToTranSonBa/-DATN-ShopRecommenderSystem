@@ -8,9 +8,11 @@ using ShopRe.Model.Models;
 using ShopRe.Service;
 using System.Xml.Linq;
 using System.Text.Json;
+using Microsoft.AspNetCore.Cors;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
+    [EnableCors]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
