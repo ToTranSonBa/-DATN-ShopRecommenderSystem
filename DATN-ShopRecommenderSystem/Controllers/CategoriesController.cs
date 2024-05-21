@@ -9,7 +9,6 @@ using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
-    [EnableCors]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -20,6 +19,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _categoryService = categoryService;
         }
         // GET: api/categories
+
+        [EnableCors]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int level)
         {

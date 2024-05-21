@@ -8,7 +8,7 @@ using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
-    [EnableCors]
+    [EnableCors()]
     [Route("api/[controller]")]
     [ApiController]
     public class SellersController : ControllerBase
