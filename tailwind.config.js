@@ -5,8 +5,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#8833FF',
+        primary: '#1D4ED8',
         secondary: '#FF6633',
+        background: '#F7F8FA',
       },
       fontFamily: {
         lexendeca: ['Lexend Deca', 'sans-serif'],

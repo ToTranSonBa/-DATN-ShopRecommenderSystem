@@ -57,5 +57,9 @@
   },
   "devDependencies": {
     "tailwindcss": "^3.4.3"
-  }
+  },
+  "rules": {
+    "no-unused-vars": 0
+  },
+  "proxy": "https://localhost:7016"
 }

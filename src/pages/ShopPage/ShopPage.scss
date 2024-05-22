@@ -4,7 +4,7 @@
 .shop-page {
     margin: 0 auto;
     background-color: var(--color-background);
-    width: 1440px;
+    width: auto;
 }
 
 
@@ -65,11 +65,8 @@
 
         .product-content-header {
             width: auto;
-            height: 175px;
             padding-bottom: 55px;
             gap: 60px;
-
-
 
             .top-header {
                 display: flex;
