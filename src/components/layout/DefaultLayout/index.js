@@ -6,9 +6,9 @@ import '../DefaultLayout/DefaultLayout.scss'
 function DefaultLayout({ children }) {
     return (
         <div >
-            <Navigation />
+            {/* <Navigation /> */}
             <div >{children}</div>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 }

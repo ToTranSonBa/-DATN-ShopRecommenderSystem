@@ -7,8 +7,10 @@ module.exports = {
       colors: {
         primary: '#1D4ED8',
         secondary: '#FF6633',
-        background: '#F7F8FA',
+
+        background: '#F7F8FA'
       },
+
       fontFamily: {
         lexendeca: ['Lexend Deca', 'sans-serif'],
       },
@@ -35,5 +37,8 @@ module.exports = {
     },
   },
 
-  plugins: [require('flowbite/plugin')],
+  plugins: [require('flowbite/plugin'),
+  require('@tailwindcss/typography'),
+  require('@tailwindcss/aspect-ratio'),
+  ],
 };
