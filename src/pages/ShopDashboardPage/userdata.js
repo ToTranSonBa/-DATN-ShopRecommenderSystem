@@ -7,8 +7,7 @@ const userdata = [
         userRevenue: 3200,
         userEarning: 600,
         userLocation: 'Sweden',
-        userEmail: 'maryse_murphy@yahoo.com'
-
+        userEmail: 'maryse_murphy@yahoo.com',
     },
     {
         userAvatar: 'https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain',
@@ -19,7 +18,6 @@ const userdata = [
         userEarning: 600,
         userLocation: 'Sweden',
         userEmail: 'maryse_murphy@yahoo.com',
-
     },
     {
         userAvatar: 'https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain',
@@ -29,8 +27,7 @@ const userdata = [
         userRevenue: 3200,
         userEarning: 600,
         userLocation: 'Sweden',
-        userEmail: 'maryse_murphy@yahoo.com'
-
+        userEmail: 'maryse_murphy@yahoo.com',
     },
     {
         userAvatar: 'https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain',
@@ -40,8 +37,7 @@ const userdata = [
         userRevenue: 3200,
         userEarning: 600,
         userLocation: 'Sweden',
-        userEmail: 'maryse_murphy@yahoo.com'
-
+        userEmail: 'maryse_murphy@yahoo.com',
     },
     {
         userAvatar: 'https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain',
@@ -51,9 +47,8 @@ const userdata = [
         userRevenue: 3200,
         userEarning: 600,
         userLocation: 'Sweden',
-        userEmail: 'maryse_murphy@yahoo.com'
-
-    }
-]
+        userEmail: 'maryse_murphy@yahoo.com',
+    },
+];
 
 export default userdata;

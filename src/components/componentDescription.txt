@@ -1,3 +1,0 @@
-src
-----------------------------------------------------------------------------
-    components: chứa các components dùng chung của các trang

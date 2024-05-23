@@ -96,23 +96,23 @@ const ProductPage = () => {
 
     const [selectedColor, setSelectedColor] = useState(product.colors[0])
     return (
-        <div class="font-sans bg-background grid justify-center pt-20">
+        <div class="lg:pt-36 font-sans bg-background grid justify-center pt-20">
             <div class="p-6 lg:max-w-5xl max-w-2xl max-lg:mx-auto  bg-white " >
                 <div class="grid items-start grid-cols-1 lg:grid-cols-9 gap-12">
                     <div class="lg:col-span-4">
                         <div className="flex flex-col-reverse">
                             {/* Image selector */}
-                            <div className="hidden mt-6 w-full max-w-2xl mx-auto sm:block lg:max-w-none">
+                            <div className="hidden w-full max-w-2xl mx-auto mt-6 sm:block lg:max-w-none">
                                 <div className="grid grid-cols-4 gap-6">
                                     {product.images.map((image, index) => (
                                         <button
                                             key={image.id}
-                                            className="relative h-16 bg-white rounded-md flex items-center justify-center text-sm font-medium uppercase text-gray-900 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
+                                            className="relative flex items-center justify-center h-16 text-sm font-medium text-gray-900 uppercase bg-white rounded-md cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
                                             onClick={() => setSelectedImageIndex(index)}
                                         >
                                             <span className="sr-only">{image.name}</span>
-                                            <span className="absolute inset-0 rounded-md overflow-hidden">
-                                                <img src={image.src} alt={image.alt} className="w-full h-full object-center object-cover" />
+                                            <span className="absolute inset-0 overflow-hidden rounded-md">
+                                                <img src={image.src} alt={image.alt} className="object-cover object-center w-full h-full" />
                                             </span>
                                             <span
                                                 className={classNames(
@@ -131,7 +131,7 @@ const ProductPage = () => {
                                 <img
                                     src={product.images[selectedImageIndex].src}
                                     alt={product.images[selectedImageIndex].alt}
-                                    className="w-full h-full object-center object-cover sm:rounded-lg"
+                                    className="object-cover object-center w-full h-full sm:rounded-lg"
                                 />
                             </div>
                         </div>
@@ -145,35 +145,35 @@ const ProductPage = () => {
                             <p class="text-gray-400 text-xl"><strike>$16</strike> <span class="text-sm ml-1">Tax included</span></p>
                         </div>
 
-                        <div className="flex space-x-2 mt-4 items-center">
+                        <div className="flex items-center mt-4 space-x-2">
                             {renderStars(ratingStar)}
-                            <h4 className="text-gray-700 text-base">1000 đánh giá</h4>
-                            <h4 className="text-gray-700 text-base">1234 đã mua</h4>
+                            <h4 className="text-base text-gray-700">1000 đánh giá</h4>
+                            <h4 className="text-base text-gray-700">1234 đã mua</h4>
                         </div>
 
 
-                        <form className="max-w-full mt-8 flex gap-5 items-center">
-                            <label htmlFor="quantity-input" className="block text-xs font-medium text-gray-500 dark:text-white mr-2">Số Lượng:</label>
+                        <form className="flex items-center max-w-full gap-5 mt-8">
+                            <label htmlFor="quantity-input" className="block mr-2 text-xs font-medium text-gray-500 dark:text-white">Số Lượng:</label>
                             <div className="relative flex items-center max-w-[8rem]">
-                                <button type="button" onClick={handleDecrement} className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
+                                <button type="button" onClick={handleDecrement} className="p-3 bg-gray-100 border border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 rounded-s-lg h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h16" />
                                     </svg>
                                 </button>
                                 <input type="text" id="quantity-input" value={quantity} onChange={handleChange} className="bg-gray-50 border-x-0 border-gray-300 h-9 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-1/3 py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
-                                <button type="button" onClick={handleIncrement} className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
+                                <button type="button" onClick={handleIncrement} className="p-3 bg-gray-100 border border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 rounded-e-lg h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 1v16M1 9h16" />
                                     </svg>
                                 </button>
                             </div>
-                            <label htmlFor="quantity-input" className="block text-xs font-medium text-gray-500 dark:text-white mr-2">1245 sản phẩm có sẵn</label>
+                            <label htmlFor="quantity-input" className="block mr-2 text-xs font-medium text-gray-500 dark:text-white">1245 sản phẩm có sẵn</label>
                         </form>
 
                         <div className="max-w-full mt-8">
                             <h3 className="text-xs font-medium text-gray-600">Color</h3>
 
-                            <div className="mt-2 flex items-center space-x-3">
+                            <div className="flex items-center mt-2 space-x-3">
                                 {product.colors.map((color) => (
                                     <div
                                         key={color.name}
@@ -197,9 +197,9 @@ const ProductPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 mt-8 items-center">
-                            <p className="text-gray-700 text-2xl font-semibold">Tạm Tính: </p>
-                            <p className="text-gray-700 text-4xl font-semibold">${totalPrice}</p>
+                        <div className="flex flex-wrap items-center gap-4 mt-8">
+                            <p className="text-2xl font-semibold text-gray-700">Tạm Tính: </p>
+                            <p className="text-4xl font-semibold text-gray-700">${totalPrice}</p>
                         </div>
 
 
@@ -233,7 +233,7 @@ const ProductPage = () => {
                     </div>
                 </div>
 
-                <div className=' lg:grid hidden lg:col-span-2 h-20 items-center '>
+                <div className='items-center hidden h-20 lg:grid lg:col-span-2'>
                     <div className='flex justify-between'>
                         <p className='text-sm !ml-2 font-semibold text-gray-400'>Đánh giá</p>
                         <p className='text-sm !ml-2 font-semibold text-blue-700'>123432</p>
@@ -243,7 +243,7 @@ const ProductPage = () => {
                         <p className='text-sm !ml-2 font-semibold text-blue-700'>444</p>
                     </div>
                 </div>
-                <div className=' lg:grid hidden lg:col-span-2 h-20 items-center '>
+                <div className='items-center hidden h-20 lg:grid lg:col-span-2'>
                     <div className='flex justify-between'>
                         <p className='text-sm !ml-2 font-semibold text-gray-400'>Người theo dõi</p>
                         <p className='text-sm !ml-2 font-semibold text-blue-700'>123432</p>

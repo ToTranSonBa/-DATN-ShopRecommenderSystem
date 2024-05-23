@@ -1,5 +1,5 @@
-@import url("../../styles/global.css");
-@import url("../../styles/reset.css");
+@import url('../../styles/global.css');
+@import url('../../styles/reset.css');
 
 .shop-page {
     margin: 0 auto;
@@ -7,13 +7,11 @@
     width: auto;
 }
 
-
 .product-section {
     width: 100%;
     padding: 100px 0px 30px 0px;
     display: flex;
     margin: 0 auto;
-
 
     .category-option {
         padding: 0px 5px 0px 55px;
@@ -29,7 +27,6 @@
             border-radius: 10px;
             background-color: #fff;
 
-
             .navbar-element {
                 display: flex;
                 width: 200px;
@@ -40,8 +37,6 @@
                     display: flex;
                     width: 150px;
                     gap: 20px;
-
-
                 }
 
                 .right-icon,
@@ -49,11 +44,9 @@
                     font-weight: 600;
                     line-height: 20px;
                     text-align: left;
-                    color: #6B7A99;
+                    color: #6b7a99;
                 }
             }
-
-
         }
     }
 
@@ -74,19 +67,15 @@
                 align-items: center;
                 height: 30px;
 
-
                 .left-top-header {
                     font-family: Roboto;
                     font-size: 12px;
                     font-weight: 700;
                     line-height: 20px;
-                    color: #7D8FB3;
+                    color: #7d8fb3;
                     display: flex;
                     align-items: center;
-
                 }
-
-
             }
 
             .content-header {
@@ -96,10 +85,7 @@
                 align-items: center;
                 position: relative;
 
-
-
                 .sort-method {
-
                     display: flex;
                     gap: 40px;
                     //styleName: Bold/Bold 12;
@@ -108,12 +94,11 @@
                     font-weight: 700;
                     line-height: 20px;
                     text-align: left;
-                    color: #4D5E80;
+                    color: #4d5e80;
                     right: 0;
                     position: absolute;
                 }
             }
-
         }
 
         .product-list {
@@ -134,15 +119,12 @@
                     height: 220px;
                     border-radius: 10px 10px 0px 0px;
                     object-fit: cover;
-
                 }
 
                 .product-infor {
-
                     width: auto;
                     height: auto;
                     padding: 35px 25px 25px 25px;
-
 
                     .product-name {
                         //styleName: Bold/Bold 14;
@@ -150,7 +132,7 @@
                         font-size: 14px;
                         font-weight: 700;
                         line-height: 20px;
-                        color: #4D5E80;
+                        color: #4d5e80;
                     }
 
                     .shop-price-infor {
@@ -163,15 +145,11 @@
                         font-weight: 700;
                         line-height: 25px;
                         text-align: center;
-                        color: #7D8FB3;
+                        color: #7d8fb3;
                         margin-top: 15px;
-
                     }
-
                 }
             }
         }
-
-
     }
 }

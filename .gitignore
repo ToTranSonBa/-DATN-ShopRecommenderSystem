@@ -21,3 +21,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# code format
+.prettierrc
+
+# .vscode
+.vscode
+
+# package-lock
+package-lock.json
