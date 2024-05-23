@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Nest;
+using ShopRe.Common.DTOs;
 using ShopRe.Data;
 using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
@@ -9,7 +11,7 @@ namespace ShopRe.Service
 {
     public interface IBrandService
     {
-        Task<IEnumerable<Brand>> GetAll();
+        Task<IEnumerable<BrandDTO>> GetAll();
         Task<IQueryable<Brand>> GetAll(bool trackChanges);
         Task<Brand> GetById(int id);
         Task<Brand> Add(Brand entity);
@@ -21,16 +23,58 @@ namespace ShopRe.Service
     public class BrandService : IBrandService
     {
         private readonly IBrandRepository _brandRepository;
+        private readonly IElasticClient _elasticClient;
 
-        public BrandService(IBrandRepository brandRepository)
+        public BrandService(IBrandRepository brandRepository, IElasticClient elasticClient)
         {
+            _elasticClient = elasticClient;
             _brandRepository = brandRepository;
         }
 
-        public async Task<IEnumerable<Brand>> GetAll()
+        private async Task<int> GetTotalProductCountForBrand(int brandId)
         {
-            return await _brandRepository.GetAll();
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("BrandID_NK").Value(brandId))
+                        )
+                    )
+                )
+            );
+
+            if (!response.IsValid)
+            {
+                return 0;
+            }
+
+            return Convert.ToInt32(response.Total);
         }
+
+        public async Task<IEnumerable<BrandDTO>> GetAll()
+        {
+            var brands = await _brandRepository.GetAll();
+            var brandsResponse = new List<BrandDTO>();
+
+            foreach (var brand in brands)
+            {
+                var totalProductOfBrand = await GetTotalProductCountForBrand(brand.ID_NK);
+                var brandItem = new BrandDTO()
+                {
+                    Brand = brand,
+                    TotalProduct = totalProductOfBrand
+                };
+                brandsResponse.Add(brandItem);
+            }
+
+            // Order the brands by total product count in descending order and take top 15
+            var orderedBrands = brandsResponse.OrderByDescending(b => b.TotalProduct).Take(15).ToList();
+
+            return orderedBrands;
+        }
+
+
 
         public Task<Brand> Add(Brand entity)
         {
