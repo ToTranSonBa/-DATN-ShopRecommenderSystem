@@ -28,6 +28,7 @@ namespace ShopRe.Data
         public DbSet<SellerPriority> SellerPriority { get; set; }
         public DbSet<ProductOptionValues> ProductOptionValues { get; set; }
         public DbSet<ProductChild> ProductChild { get; set; }
+        public DbSet<Images> Images { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

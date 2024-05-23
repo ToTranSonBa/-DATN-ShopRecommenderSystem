@@ -86,6 +86,7 @@ builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
 builder.Services.AddScoped<ICartItemsService, CartItemsService>();
 builder.Services.AddScoped<IShoppingSessionService, ShoppingSessionsService>();
+builder.Services.AddScoped<IElasticSearchService, ElasticSearchsService>();
 
 //
 builder.Services.AddAuthentication(options =>

@@ -2444,6 +2444,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
+          "Microsoft.EntityFrameworkCore": "6.0.28",
           "NEST": "7.17.4",
           "ShopRe.Data": "1.0.0",
           "ShopRe.Model": "1.0.0"
