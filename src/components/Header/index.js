@@ -10,7 +10,7 @@ function Header() {
     const [classNameBg, setClassNameBg] = useState('bg-transparent');
     const [classNameTextColor, setClassNameTextColor] = useState('text-white');
     const [classNameDropShadow, setClassNameDropShadow] = useState('');
-
+    const [currentPage, setCurrentPage] = useState(window.location.pathname);
     const handleHover = () => {
         setIsHovered(true);
         setClassNameBg('bg-white');
@@ -31,9 +31,15 @@ function Header() {
             setClassNameTextColor('text-black');
             setClassNameDropShadow('drop-shadow-md');
         } else {
-            setClassNameBg('bg-transparent');
-            setClassNameTextColor('text-white');
-            setClassNameDropShadow('');
+            if (currentPage !== '/') {
+                setClassNameBg('bg-white');
+                setClassNameTextColor('text-black');
+                setClassNameDropShadow('drop-shadow-md');
+            } else {
+                setClassNameBg('bg-transparent');
+                setClassNameTextColor('text-white');
+                setClassNameDropShadow('');
+            }
         }
     };
 
@@ -43,7 +49,14 @@ function Header() {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [isHovered]);
-
+    useEffect(() => {
+        setCurrentPage(window.location.pathname);
+        if (window.location.pathname !== '/') {
+            setClassNameBg('bg-white');
+            setClassNameTextColor('text-black');
+            setClassNameDropShadow('drop-shadow-md');
+        }
+    }, []);
     return (
         <div className="fixed z-50 w-screen bg-black">
             <HeaderNotificationBar
@@ -51,6 +64,7 @@ function Header() {
                 className_textcolor={classNameTextColor}
                 content="30% off storewide"
             />
+
             <Navigation className_bg={classNameBg} className_textcolor={classNameTextColor} />
             <NavbarCustom
                 className_bg={classNameBg}
