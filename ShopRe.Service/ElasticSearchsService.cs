@@ -19,7 +19,7 @@ namespace ShopRe.Service
     {
         Task<ProductResponse> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
-        Task<List<dynamic>> ProductAfterTraining(ProductParameters productParameters, string keyWord);
+        Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -88,55 +88,55 @@ namespace ShopRe.Service
         }
         //
         //
-        public async Task<List<dynamic>> ProductAfterTraining(ProductParameters productParameters, string keyWord)
+        public async Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters)
         {
-            // Step 2.1: Fetch products matching the search term
+            // Bước 2.1: Tìm kiếm sản phẩm khớp chính xác với từ khóa
             var response = await _elasticClient.SearchAsync<object>(s => s
-                                .Index("shoprecommend")
-                                .From(productParameters.PageNumber * productParameters.PageSize)
-                                .Size(productParameters.PageSize)
-                                .Query(q => q
-                                        .Match(m => m
-                                            .Field("Name")
-                                            .Query(keyWord)
-                                        )
-                                    )
-                            );
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Term(t => t
+                        .Field("Name") // Sử dụng .keyword để tìm kiếm chính xác
+                        .Value(productParameters.ProductName)
+                    )
+                )
+                .Size(10000) 
+            );
 
             if (!response.IsValid)
             {
-                Console.WriteLine($"Error: {response.ServerError.Error.Reason}");
-                return new List<dynamic>();
+                Console.WriteLine($"Lỗi: {response.ServerError.Error.Reason}");
+                return (new List<dynamic>(), 0);
             }
 
-            // Step 2.2: Extract SellerIDs from the product results
+            // Bước 2.2: Trích xuất SellerIDs từ kết quả sản phẩm
             var products = ConvertToProduct(response.Documents.ToList());
             var sellerIds = products.Select(p => p.SellerID_NK).ToList();
 
-            // Step 2.3: Fetch priorities for the extracted SellerIDs
+            // Bước 2.3: Lấy độ ưu tiên cho SellerIDs đã trích xuất
             var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
-                    .Index("accselpri")
-                    .Query(q => q
-                        .Terms(t => t
-                            .Field("SELLERID")
-                            .Terms(sellerIds)
-                        )
+                .Index("accselpri")
+                .Query(q => q
+                    .Terms(t => t
+                        .Field("SELLERID")
+                        .Terms(sellerIds)
                     )
-                    .Sort(ss => ss
-                        .Field(f => f
-                            .Field("IDX")
-                            .Order(SortOrder.Ascending)
-                        )
+                )
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("IDX")
+                        .Order(SortOrder.Ascending)
                     )
-                );
+                )
+                .Size(10000) 
+            );
 
             if (!priorityItems.IsValid)
             {
-                Console.WriteLine($"Error: {priorityItems.ServerError.Error.Reason}");
-                return new List<dynamic>();
+                Console.WriteLine($"Lỗi: {priorityItems.ServerError.Error.Reason}");
+                return (new List<dynamic>(), 0);
             }
 
-            // Step 2.4: Combine product and priority results
+            // Bước 2.4: Kết hợp kết quả sản phẩm và độ ưu tiên
             var sellerPriority = ConverToSellerPriority(priorityItems.Documents.ToList());
 
             var combinedResults = new List<dynamic>();
@@ -156,11 +156,16 @@ namespace ShopRe.Service
                 }
             }
 
-            // Step 2.5: Sort the combined results by IDX
-            var sortedResults = combinedResults.OrderBy(r => r.IDX).ToList();
+            // Bước 2.5: Sắp xếp kết quả kết hợp theo IDX
+            var sortedResults = combinedResults.OrderBy(r => r.IDX).Take(10).ToList();
 
-            return sortedResults;
+            // Bước 2.6: Lấy tổng số sản phẩm khớp
+            var totalCount = (int)combinedResults.Count();
+
+            return (sortedResults, totalCount);
         }
+
+
 
         public async Task<ProductResponse> GetAllAsync(ProductParameters productParameters)
         {

@@ -28,13 +28,19 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
-        public async Task<ActionResult> GetProductByTrainning([FromQuery] ProductParameters productParameters, string? keyWord)
+        public async Task<ActionResult> GetProductByTrainning([FromQuery] ProductParameters productParameters)
         {
             try
             {
-                var product = await _elasticSearchService.ProductAfterTraining(productParameters, keyWord);
+                var (product,totalCount) = await _elasticSearchService.ProductAfterTraining(productParameters);
 
-                return Ok(product);
+                var productResponse = new
+                {
+                    Product = product,
+                    TotalCount = totalCount
+                };
+
+                return Ok(productResponse);
             }
             catch (Exception ex)
             {

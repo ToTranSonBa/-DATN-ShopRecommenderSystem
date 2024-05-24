@@ -14,5 +14,7 @@ namespace ShopRe.Common.RequestFeatures
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
         public int? MinReviewRating { get; set; }
+        public int? PageNumber1 { get; set; }
+        public int? PageSize1 { get; set; }
     }
 }
