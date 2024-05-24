@@ -108,8 +108,15 @@ namespace ShopRe.Service
                 list.Add(categoryDto);
             }
 
-            return list;
+            // Loại bỏ các mục có Total = 0 và sắp xếp giảm dần theo Total
+            var sortedList = list
+                .Where(c => c.Total > 0)
+                .OrderByDescending(c => c.Total)
+                .ToList();
+
+            return sortedList;
         }
+
 
     }
 }

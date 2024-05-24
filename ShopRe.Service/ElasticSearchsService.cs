@@ -90,12 +90,12 @@ namespace ShopRe.Service
         //
         public async Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters)
         {
-            // Bước 2.1: Tìm kiếm sản phẩm khớp chính xác với từ khóa
+            
             var response = await _elasticClient.SearchAsync<object>(s => s
                 .Index("shoprecommend")
                 .Query(q => q
                     .Term(t => t
-                        .Field("Name") // Sử dụng .keyword để tìm kiếm chính xác
+                        .Field("Name") 
                         .Value(productParameters.ProductName)
                     )
                 )
@@ -104,15 +104,14 @@ namespace ShopRe.Service
 
             if (!response.IsValid)
             {
-                Console.WriteLine($"Lỗi: {response.ServerError.Error.Reason}");
                 return (new List<dynamic>(), 0);
             }
 
-            // Bước 2.2: Trích xuất SellerIDs từ kết quả sản phẩm
+            
             var products = ConvertToProduct(response.Documents.ToList());
             var sellerIds = products.Select(p => p.SellerID_NK).ToList();
 
-            // Bước 2.3: Lấy độ ưu tiên cho SellerIDs đã trích xuất
+            
             var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("accselpri")
                 .Query(q => q
@@ -132,11 +131,10 @@ namespace ShopRe.Service
 
             if (!priorityItems.IsValid)
             {
-                Console.WriteLine($"Lỗi: {priorityItems.ServerError.Error.Reason}");
                 return (new List<dynamic>(), 0);
             }
 
-            // Bước 2.4: Kết hợp kết quả sản phẩm và độ ưu tiên
+
             var sellerPriority = ConverToSellerPriority(priorityItems.Documents.ToList());
 
             var combinedResults = new List<dynamic>();
@@ -156,10 +154,10 @@ namespace ShopRe.Service
                 }
             }
 
-            // Bước 2.5: Sắp xếp kết quả kết hợp theo IDX
-            var sortedResults = combinedResults.OrderBy(r => r.IDX).Take(10).ToList();
+            
+            var sortedResults = combinedResults.OrderBy(r => r.IDX).Take(20).ToList();
 
-            // Bước 2.6: Lấy tổng số sản phẩm khớp
+            
             var totalCount = (int)combinedResults.Count();
 
             return (sortedResults, totalCount);
