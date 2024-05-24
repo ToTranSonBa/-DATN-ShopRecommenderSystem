@@ -5,7 +5,7 @@ import ProductPricing from './ProductPricing';
 const ProductCard = ({ product }) => {
     return (
         <div key={product.iD_NK} className="bg-white shadow-sm rounded-lg max-w-sm hover:shadow-lg hover:border hover:border-blue-700">
-            <a href="/productpage">
+            <a href="/productdetail">
                 {product.allTimeQuantitySold > 1000 
                 && 
                 <span className="absolute px-2 py-1 mx-4 my-12 bg-orange-100 text-xs text-orange-500 rounded font-semibold">
