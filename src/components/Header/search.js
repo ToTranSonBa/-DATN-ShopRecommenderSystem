@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 const Search = () => {
     const [scrollPosition, setScrollPosition] = useState(0);
     const [classNameHidden, setClassNameHidden] = useState('hidden');
-
+    const [currentPage, setCurrentPage] = useState(window.location.pathname);
     const handleScroll = () => {
         const currentScrollPos = window.scrollY;
 
         if (currentScrollPos > 800) {
             setClassNameHidden('');
         } else {
-            setClassNameHidden('hidden');
+            if (currentPage !== '/') {
+                setClassNameHidden('');
+            } else {
+                setClassNameHidden('hidden');
+            }
         }
 
         setScrollPosition(currentScrollPos);
@@ -23,6 +27,12 @@ const Search = () => {
         };
     }, []);
 
+    useEffect(() => {
+        setCurrentPage(window.location.pathname);
+        if (window.location.pathname !== '/') {
+            setClassNameHidden('');
+        }
+    }, []);
     return (
         <form className={`w-full mx-auto  ${classNameHidden}`}>
             <div className="flex">
