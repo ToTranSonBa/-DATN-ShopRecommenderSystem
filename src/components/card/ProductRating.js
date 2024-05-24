@@ -31,7 +31,7 @@ const ProductRating = ({ ratingAverage }) => {
     return (
         <div className="flex items-center mt-2.5 mb-5">
         {stars}
-        <span className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded ml-3">
+        <span className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded ml-3 hidden sm:block">
             {ratingAverage === 0 ? "N/A" : ratingAverage}
         </span>
         </div>

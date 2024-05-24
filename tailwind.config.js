@@ -7,6 +7,7 @@ module.exports = {
             colors: {
                 primary: '#8833FF',
                 secondary: '#FF6633',
+                background: '#FAFBFC',
                 brown: {
                     800: '#37190B',
                     600: '#402013',
@@ -45,6 +46,9 @@ module.exports = {
             minWidth: {
                 '1/8': '12.5%',
             },
+            fontSize: {
+                es: '0.5rem',
+            }
         },
     },
 

@@ -15,7 +15,7 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
                     <a
                         href="#!"
                         onClick={() => paginate(currentPage - 1)}
-                        className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-primary ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                        className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-blue-700 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                     >
                         <span>
                             <svg width="8" height="15" viewBox="0 0 8 15" className="fill-current stroke-current">
@@ -29,7 +29,7 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
                         <a
                             href="#!"
                             onClick={() => paginate(number)}
-                            className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-primary ${number === currentPage ? 'bg-primary border-primary text-white' : ''}`}
+                            className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-blue-700 ${number === currentPage ? 'bg-blue-700 border-blue-700 text-white' : ''}`}
                         >
                             {number}
                         </a>
@@ -39,7 +39,7 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
                     <a
                         href="#!"
                         onClick={() => paginate(currentPage + 1)}
-                        className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-primary ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                        className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-blue-700 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
                     >
                         <span>
                             <svg width="8" height="15" viewBox="0 0 8 15" className="fill-current stroke-current">
