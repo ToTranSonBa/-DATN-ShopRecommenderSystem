@@ -1,5 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginApi } from '../../services/LoginApi/loginApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Move the <head> section outside of the component
 // It's usually included in the HTML file, not within React components
@@ -7,6 +10,51 @@ import { Link } from 'react-router-dom';
 // You can include the external CSS link directly in the HTML file
 
 const LoginPage = () => {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+
+        if (token) {
+            navigate('/');
+        }
+    }, []);
+
+    const handleClick = async () => {
+        try {
+            if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+                toast.error('Please enter a valid email address');
+                return;
+            }
+
+            if (!password) {
+                toast.error('Password is required');
+                return;
+            }
+
+            const response = await loginApi(email, password);
+
+
+            if (response && response.token) {
+
+                const token = response.token;
+                localStorage.setItem('token', token);
+                console.log('token: ', localStorage);
+
+
+            } else if (response && response.status === 401) {
+                localStorage.setItem('token', '');
+            } else {
+                if (response) {
+                    localStorage.setItem('token', '');
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            toast.error('An unexpected error occurred. Please try again.');
+        }
+    };
     return (
         <>
             <body className="py-5 bg-white rounded-lg">
@@ -39,6 +87,8 @@ const LoginPage = () => {
                                     <input
                                         id="email"
                                         type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         placeholder="mail@loopple.com"
                                         className="flex items-center w-full px-5 py-4 mr-2 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"
                                     />
@@ -49,6 +99,8 @@ const LoginPage = () => {
                                         id="password"
                                         type="password"
                                         placeholder="Enter a password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         className="flex items-center w-full px-5 py-4 mb-5 mr-2 text-sm font-medium outline-none focus:bg-grey-400 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"
                                     />
                                     <div className="flex flex-row justify-between mb-8">
@@ -72,14 +124,14 @@ const LoginPage = () => {
                                             Forget password?
                                         </a>
                                     </div>
-                                    <button className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500">
+                                    <button onClick={handleClick} className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500">
                                         Sign In
                                     </button>
                                     <p className="text-sm leading-relaxed text-grey-900">
                                         Not registered yet?{' '}
-                                        <Link href="/signup" className="font-bold text-grey-700">
+                                        <div className="font-bold text-grey-700">
                                             Create an Account
-                                        </Link>
+                                        </div>
                                     </p>
                                 </form>
                             </div>

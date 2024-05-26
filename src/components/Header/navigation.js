@@ -19,7 +19,8 @@ function classNames(...classes) {
 }
 
 const Navigation = ({ className_bg, className_textcolor }) => {
-    const getUser = undefined;
+    const getUser = localStorage.getItem('token');
+    ;
     return (
         <div className="inset-x-0 top-8 md:absolute md:z-10">
             <Disclosure as="nav" className={`max-w-full  ${className_bg}`}>
