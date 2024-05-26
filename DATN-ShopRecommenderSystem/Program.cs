@@ -72,6 +72,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerPriorityRepository, SellerPriorityRepository>();
+builder.Services.AddScoped<IUserLogRepository, UserLogRepository>();
 
 
 
@@ -87,6 +88,7 @@ builder.Services.AddScoped<ISellerService, SellerService>();
 builder.Services.AddScoped<ICartItemsService, CartItemsService>();
 builder.Services.AddScoped<IShoppingSessionService, ShoppingSessionsService>();
 builder.Services.AddScoped<IElasticSearchService, ElasticSearchsService>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 //
 builder.Services.AddAuthentication(options =>

@@ -56,5 +56,6 @@ namespace ShopRe.Service
             var userEmail = userEmailClaim.Value;
             return await _userManager.FindByEmailAsync(userEmail);
         }
+        
     }
 }

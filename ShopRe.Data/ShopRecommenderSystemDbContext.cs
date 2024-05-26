@@ -21,10 +21,7 @@ namespace ShopRe.Data
         public DbSet<ProductOption> ProductOptions { get; set; }
         public DbSet<CartItem>? CartItem { get; set; }
         public DbSet<ShoppingSession> ShoppingSessions { get; set; }
-        public DbSet<Log> Log { get; set; }
-        public DbSet<EventType> EventType { get; set; }
-        public DbSet<LogDetail> LogDetail { get; set; }
-        public DbSet<EventParameter> EventParameters { get; set; }
+        public DbSet<UserLog> UserLog { get; set; }
         public DbSet<SellerPriority> SellerPriority { get; set; }
         public DbSet<ProductOptionValues> ProductOptionValues { get; set; }
         public DbSet<ProductChild> ProductChild { get; set; }
