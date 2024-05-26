@@ -21,24 +21,7 @@ namespace ShopRe.Data.Migrations
             migrationBuilder.DropTable(
                 name: "EventType");
 
-            migrationBuilder.CreateTable(
-                name: "Images",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductID_NK = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Images", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Images_Product_ProductID_NK",
-                        column: x => x.ProductID_NK,
-                        principalTable: "Product",
-                        principalColumn: "ID_NK");
-                });
+            
 
             migrationBuilder.CreateTable(
                 name: "UserLog",
@@ -67,10 +50,7 @@ namespace ShopRe.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Images_ProductID_NK",
-                table: "Images",
-                column: "ProductID_NK");
+            
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserLog_SellerId",
@@ -85,9 +65,6 @@ namespace ShopRe.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Images");
-
             migrationBuilder.DropTable(
                 name: "UserLog");
 
