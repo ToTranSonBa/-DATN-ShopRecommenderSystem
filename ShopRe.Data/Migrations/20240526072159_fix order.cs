@@ -103,9 +103,7 @@ namespace ShopRe.Data.Migrations
                 name: "FK_OderItem_Product_ProductID",
                 table: "OrderItem");
 
-            migrationBuilder.DropColumn(
-                name: "temp",
-                table: "Order");
+            
             migrationBuilder.DropForeignKey(
                 name: "FK_Order_AspNetUsers_ApplicationUserId",
                 table: "Order");
