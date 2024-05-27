@@ -8,6 +8,7 @@ using ShopRe.Model.Models;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using static ShopRe.Service.ProductService;
+using AutoMapper;
 
 namespace ShopRe.Service
 {
@@ -16,7 +17,7 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<Product>> GetAll();
         Task<IQueryable<Product>> GetAll(bool trackChanges);
-        Task<(IEnumerable<ProductDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters);
+        Task<(IEnumerable<ProductDetailDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters);
         Task<Product> GetById(int id);
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
@@ -27,7 +28,7 @@ namespace ShopRe.Service
         Task SaveManyAsync(Product[] products);
         Task SaveBulkAsync(Product[] products);
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
-        Task<object> GetProductDetail(int idProduct);
+        Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
 
     }
@@ -38,10 +39,13 @@ namespace ShopRe.Service
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<ProductService> _logger;
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository, ILogger<ProductService> logger, IElasticClient elasticClient, ShopRecommenderSystemDbContext dbContext)
+        public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository, 
+            ILogger<ProductService> logger, IElasticClient elasticClient, 
+            ShopRecommenderSystemDbContext dbContext, IMapper mapper)
         {
+            _mapper = mapper;
             _productRepository = productRepository;
             _sellerPriorityRepository = sellerPriorityRepository;
             _elasticClient = elasticClient;
@@ -122,42 +126,39 @@ namespace ShopRe.Service
         }
         public class ProductDetail
         {
-            public ProductDTO Product { get; set; } = new ProductDTO();
-            public Seller Seller { get; set; } = new Seller();
-            public Category Category { get; set; } = new Category();
-            public Brand Brand { get; set; } = new Brand();
+            public ProductDetailDTO Product { get; set; } = new ProductDetailDTO();
         }
 
-        public async Task<object> GetProductDetail(int idProduct)
+        public async Task<ProductDetailDTO> GetProductDetail(int idProduct)
         {
+            ProductDetailDTO productDetail=new ProductDetailDTO();
+
             Product product = await _productRepository.GetById(idProduct);
             if (product == null)
             {
-                return null; // Hoặc trả về lỗi hoặc giá trị phù hợp nếu sản phẩm không tồn tại
+                return null; 
             }
 
-            var productDetail = new ProductDetail();
-
-            // Lấy danh sách hình ảnh của sản phẩm
             List<Images> images = await _dbContext.Images
                 .Where(p => p.Product.ID_NK == idProduct)
                 .ToListAsync();
 
-            // Lấy thông tin người bán
             Seller seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
 
-            // Lấy thông tin danh mục
             Category category = await _dbContext.Category.FindAsync(product.Category_LV0_NK);
 
-            // Lấy thông tin thương hiệu
             Brand brand = await _dbContext.Brands.FindAsync(product.BrandID_NK);
 
+            List<ProductChild> children = await _dbContext.ProductChild.Where(p => p.Product.ID_NK == idProduct)
+                .ToListAsync();
+
             // Thiết lập các giá trị cho productDetail
-            productDetail.Product.Product = product;
-            productDetail.Product.Images = images;
-            productDetail.Seller = seller;
-            productDetail.Category = category;
-            productDetail.Brand = brand;
+            productDetail.Product= _mapper.Map<ProductDTO>(product);
+            productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
+            productDetail.Seller = _mapper.Map<SellerDTO>(seller);
+            productDetail.Category = _mapper.Map<CategoryDTO>(category);
+            productDetail.Brand = _mapper.Map<BrandDTO>(brand);
+            productDetail.ProductChildren = _mapper.Map<List<ProductChildDTO>>(children);
 
             return productDetail;
         }
@@ -195,10 +196,10 @@ namespace ShopRe.Service
         {
             return _productRepository.Update(entity);
         }
-        public async Task<(IEnumerable<ProductDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters)
+        public async Task<(IEnumerable<ProductDetailDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters)
         {
             var productWithMetadata = await _productRepository.GetAllProduct(productParameters);
-            var productDTO = productWithMetadata.Select(e => new ProductDTO
+            var productDTO = productWithMetadata.Select(e => new ProductDetailDTO
             {
                 //ID_NK = e.ID_NK,
                 //Name = e.Name,

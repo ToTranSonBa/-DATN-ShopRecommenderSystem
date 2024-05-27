@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.DTOs;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
@@ -21,7 +22,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/brands
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
+        public async Task<ActionResult<IEnumerable<BrandDetailDTO>>> GetBrands()
         {
             var res = await _brandService.GetAll();
             return Ok(res);

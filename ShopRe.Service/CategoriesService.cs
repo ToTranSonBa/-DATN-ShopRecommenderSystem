@@ -20,7 +20,7 @@ namespace ShopRe.Service
         Task<Category> Update(Category entity);
         void Remove(int id);
         IEnumerable<Category> Find(Expression<Func<Category, bool>> expression);
-        Task<List<CategoryDTO>> GetCategoryLevel(int level);
+        Task<List<CategoryDetailDTO>> GetCategoryLevel(int level);
 
     }
     public class CategoryService : ICategoryService
@@ -74,11 +74,11 @@ namespace ShopRe.Service
             return _categoryRepository.Update(entity);
         }
 
-        public async Task<List<CategoryDTO>> GetCategoryLevel(int level)
+        public async Task<List<CategoryDetailDTO>> GetCategoryLevel(int level)
         {
             var results = await _dbContext.Category.Where(p => p.Level == level).ToListAsync();
 
-            var list = new List<CategoryDTO>();
+            var list = new List<CategoryDetailDTO>();
 
             string levelProduct = $"Category_LV{level}_NK";
 
@@ -99,7 +99,7 @@ namespace ShopRe.Service
                     throw new Exception($"Failed to count products for category {categoryId}: {countResponse.ServerError}");
                 }
 
-                var categoryDto = new CategoryDTO
+                var categoryDto = new CategoryDetailDTO
                 {
                     Category = category,
                     Total = countResponse.Count

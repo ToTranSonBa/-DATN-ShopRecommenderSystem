@@ -22,10 +22,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
         [EnableCors]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int level)
+        public async Task<ActionResult<IEnumerable<CategoryDetailDTO>>> GetCategories(int level)
         {
             var res = await _categoryService.GetCategoryLevel(level);
-            return Ok(new Response<CategoryDTO>
+            return Ok(new Response<CategoryDetailDTO>
             {
                 message = "Success!",
                 status = "200",

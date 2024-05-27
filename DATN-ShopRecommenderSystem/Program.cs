@@ -1,4 +1,5 @@
 ﻿using DATN_ShopRecommenderSystem.Extensions;
+using DATN_ShopRecommenderSystem.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -139,6 +140,7 @@ builder.Services.AddSwaggerGen(setup =>
 
 });
 
+builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 
 builder.Services.AddAuthorization();
 

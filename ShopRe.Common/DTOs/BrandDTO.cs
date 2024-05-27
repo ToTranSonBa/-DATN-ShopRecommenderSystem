@@ -9,7 +9,10 @@ namespace ShopRe.Common.DTOs
 {
     public class BrandDTO
     {
-        public Brand Brand { get; set; }
+        public int ID_NK { get; set; }
+        public int? ID_SK { get; set; }
+        public string? Name { get; set; }
+        public string? Slug { get; set; }
         public int TotalProduct { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace ShopRe.Service
 {
     public interface IBrandService
     {
-        Task<IEnumerable<BrandDTO>> GetAll();
+        Task<IEnumerable<BrandDetailDTO>> GetAll();
         Task<IQueryable<Brand>> GetAll(bool trackChanges);
         Task<Brand> GetById(int id);
         Task<Brand> Add(Brand entity);
@@ -52,15 +52,16 @@ namespace ShopRe.Service
             return Convert.ToInt32(response.Total);
         }
 
-        public async Task<IEnumerable<BrandDTO>> GetAll()
+        public async Task<IEnumerable<BrandDetailDTO>> GetAll()
         {
             var brands = await _brandRepository.GetAll();
-            var brandsResponse = new List<BrandDTO>();
+
+            var brandsResponse = new List<BrandDetailDTO>();
 
             foreach (var brand in brands)
             {
                 var totalProductOfBrand = await GetTotalProductCountForBrand(brand.ID_NK);
-                var brandItem = new BrandDTO()
+                var brandItem = new BrandDetailDTO()
                 {
                     Brand = brand,
                     TotalProduct = totalProductOfBrand
@@ -109,5 +110,6 @@ namespace ShopRe.Service
         {
             return _brandRepository.Update(entity);
         }
+
     }
 }

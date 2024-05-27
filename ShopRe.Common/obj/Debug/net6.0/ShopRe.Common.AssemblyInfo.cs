@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShopRe.Common")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+597ff1f48875e7a494266894b09517f20626ddbe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a9b49be766ed39802dafac100519682189d066e")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShopRe.Common")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShopRe.Common")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
