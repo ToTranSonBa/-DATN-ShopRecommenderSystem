@@ -16,7 +16,7 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<Product>> GetAll();
         Task<IQueryable<Product>> GetAll(bool trackChanges);
-        Task<(IEnumerable<ProductDto> products, MetaData metaData)> GetAll(ProductParameters productParameters);
+        Task<(IEnumerable<ProductDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters);
         Task<Product> GetById(int id);
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
@@ -27,6 +27,8 @@ namespace ShopRe.Service
         Task SaveManyAsync(Product[] products);
         Task SaveBulkAsync(Product[] products);
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
+        Task<object> GetProductDetail(int idProduct);
+        public Task<List<object>> GetProductValues(int ProductId);
 
     }
     public class ProductService : IProductService
@@ -113,6 +115,77 @@ namespace ShopRe.Service
             return _productRepository.GetById(id);
         }
 
+        private class OptionAndValues
+        {
+            public ProductOption? Option { get; set; }
+            public List<ProductOptionValues> ProductOptionValues { get; set; } = new List<ProductOptionValues>();
+        }
+        public class ProductDetail
+        {
+            public ProductDTO Product { get; set; } = new ProductDTO();
+            public Seller Seller { get; set; } = new Seller();
+            public Category Category { get; set; } = new Category();
+            public Brand Brand { get; set; } = new Brand();
+        }
+
+        public async Task<object> GetProductDetail(int idProduct)
+        {
+            Product product = await _productRepository.GetById(idProduct);
+            if (product == null)
+            {
+                return null; // Hoặc trả về lỗi hoặc giá trị phù hợp nếu sản phẩm không tồn tại
+            }
+
+            var productDetail = new ProductDetail();
+
+            // Lấy danh sách hình ảnh của sản phẩm
+            List<Images> images = await _dbContext.Images
+                .Where(p => p.Product.ID_NK == idProduct)
+                .ToListAsync();
+
+            // Lấy thông tin người bán
+            Seller seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
+
+            // Lấy thông tin danh mục
+            Category category = await _dbContext.Category.FindAsync(product.Category_LV0_NK);
+
+            // Lấy thông tin thương hiệu
+            Brand brand = await _dbContext.Brands.FindAsync(product.BrandID_NK);
+
+            // Thiết lập các giá trị cho productDetail
+            productDetail.Product.Product = product;
+            productDetail.Product.Images = images;
+            productDetail.Seller = seller;
+            productDetail.Category = category;
+            productDetail.Brand = brand;
+
+            return productDetail;
+        }
+
+        public async Task<List<object>> GetProductValues(int ProductId)
+        {
+            var list = new List<object>();
+            var options = await _dbContext.ProductOptions
+                .Where(p => p.ProductID == ProductId)
+                .ToListAsync();
+
+            foreach (var option in options)
+            {
+                var optionValues = await _dbContext.ProductOptionValues.Where(p => p.Option == option).ToListAsync();
+                var productOptionValues = new OptionAndValues()
+                {
+                    Option = option,
+                    ProductOptionValues = optionValues
+                };
+
+                list.Add(productOptionValues);
+
+            }
+
+            return list.ToList();
+
+        }
+
         public void Remove(int id)
         {
             _productRepository.Remove(id);
@@ -122,10 +195,10 @@ namespace ShopRe.Service
         {
             return _productRepository.Update(entity);
         }
-        public async Task<(IEnumerable<ProductDto> products, MetaData metaData)> GetAll(ProductParameters productParameters)
+        public async Task<(IEnumerable<ProductDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters)
         {
             var productWithMetadata = await _productRepository.GetAllProduct(productParameters);
-            var productDTO = productWithMetadata.Select(e => new ProductDto
+            var productDTO = productWithMetadata.Select(e => new ProductDTO
             {
                 //ID_NK = e.ID_NK,
                 //Name = e.Name,
@@ -242,6 +315,5 @@ namespace ShopRe.Service
             }
             return selprios.OrderBy(s => s.Idx).ToList();
         }
-
     }
 }

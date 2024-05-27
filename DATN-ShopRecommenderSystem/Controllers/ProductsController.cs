@@ -9,6 +9,7 @@ using ShopRe.Service;
 using System.Xml.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Cors;
+using static ShopRe.Service.ProductService;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -62,16 +63,24 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-        
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _productsService.GetById(id);
+            var product = await _productsService.GetProductDetail(id);
             if (product == null)
             {
                 return NotFound();
             }
             return Ok(product);
+        }
+
+
+        [HttpGet("Option/{id}")]
+        public async Task<ActionResult> GetProductOptions(int id)
+        {
+            var option = await _productsService.GetProductValues(id);
+            return Ok(option);
         }
 
         // POST: api/products

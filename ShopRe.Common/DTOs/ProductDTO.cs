@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShopRe.Common.DTOs
 {
-    public class ProductDto
+    public class ProductDTO
     {
         public Product Product { get; set; }
         public List<Images> Images { get; set; }

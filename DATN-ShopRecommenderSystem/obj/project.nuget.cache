@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "1H0dZI16H2oZ+A5lVfcBG6MsgqW83Wvno6p85Y86NR7MextKMr/4HGGmcFeEQWCWrpNcnbwT8ulLVeOvjk14jA==",
+  "dgSpecHash": "zpTt3T4C2FQ2isnd4NyTt3BEHXkPEqplCTPAVwTVJCMx1AJP4bIz+Q3LJJbYUlYqafM+ELrXdAwu+QcT+6J2Ww==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\DATN\\-DATN-ShopRecommenderSystem-1\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\12.0.0\\automapper.12.0.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",
