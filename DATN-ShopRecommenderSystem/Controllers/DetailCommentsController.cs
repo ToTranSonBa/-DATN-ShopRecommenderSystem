@@ -17,10 +17,24 @@ namespace DATN_ShopRecommenderSystem.Controllers
     public class DetailCommentsController : ControllerBase
     {
         readonly IDetailCommentService _detailCommentService;
-        public DetailCommentsController(IDetailCommentService detailCommentService)
+        private readonly IElasticSearchService _elasticsearchService;
+        public DetailCommentsController(IDetailCommentService detailCommentService, IElasticSearchService elasticSearchService)
         {
+            _elasticsearchService = elasticSearchService;
             _detailCommentService = detailCommentService;
         }
+
+        [HttpGet("Product{id}")]
+        public async Task<ActionResult> GetCommentsOfProduct([FromQuery] CommentParameters commentParameters, int id)
+        {
+            var res = await _elasticsearchService.DetailComments(commentParameters, id);
+            if (res == null)
+            {
+                return NotFound();
+            }
+            return Ok(res);
+        }
+
         // GET: api/detailcomments
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailComment>>> GetDetailComments()

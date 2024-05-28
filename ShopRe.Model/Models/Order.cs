@@ -20,7 +20,5 @@ namespace ShopRe.Model.Models
         public DateTime? UpdatedAt { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
 
-
-
     }
 }

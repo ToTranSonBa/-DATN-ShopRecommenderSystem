@@ -11,7 +11,7 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<DetailComment>> GetAll();
         Task<IQueryable<DetailComment>> GetAll(bool trackChanges);
-        Task<(IEnumerable<CommentDto> comments, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
+        Task<(IEnumerable<CommentDTO> comments, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
         Task<DetailComment> GetById(int id);
         Task<DetailComment> Add(DetailComment entity);
         Task<int> AddRange(IEnumerable<DetailComment> entities);
@@ -67,10 +67,10 @@ namespace ShopRe.Service
         {
             return _detailCommentRepository.Update(entity);
         }
-        public async Task<(IEnumerable<CommentDto> comments, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
+        public async Task<(IEnumerable<CommentDTO> comments, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
         {
             var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters,trackChanges);
-            var commentDTO = commentWithMetadata.Select(e => new CommentDto
+            var commentDTO = commentWithMetadata.Select(e => new CommentDTO
             {
                 ID = e.ID,
                 AccountID = e.AccountID,

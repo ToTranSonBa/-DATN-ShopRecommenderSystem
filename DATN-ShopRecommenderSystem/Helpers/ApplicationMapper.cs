@@ -15,6 +15,9 @@ namespace DATN_ShopRecommenderSystem.Helpers
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Images, ImageDTO>().ReverseMap();
             CreateMap<ProductChild, ProductChildDTO>().ReverseMap();
+            CreateMap<DetailComment, CommentDTO>().ReverseMap();
+            CreateMap<Order, OrderDTO>().ReverseMap();
+            CreateMap<Account, AccountDTO>().ReverseMap();
         }
     }
 }

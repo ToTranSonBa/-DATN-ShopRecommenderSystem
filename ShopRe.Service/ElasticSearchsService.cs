@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
@@ -20,17 +22,20 @@ namespace ShopRe.Service
         Task<ProductResponse> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
         Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters);
-        Task<List<dynamic>> GetAllBrandDetails();
         Task<List<BrandDetailDTO>> GetBrands();
+        Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
         private readonly IElasticClient _elasticClient;
 
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public ElasticSearchsService(IElasticClient elasticClient, ShopRecommenderSystemDbContext dbContext)
+        public ElasticSearchsService(IElasticClient elasticClient, ShopRecommenderSystemDbContext dbContext,
+            IMapper mapper)
         {
+            _mapper = mapper;
             _dbContext = dbContext;
             _elasticClient = elasticClient;
         }
@@ -103,6 +108,30 @@ namespace ShopRe.Service
                 brands.Add(brand);
             }
             return brands.ToList();
+        }
+
+        private List<DetailComment> ConverToComment(List<object> documents)
+        {
+            var commments = new List<DetailComment>();
+            foreach (dynamic document in documents)
+            {
+                var comment = new DetailComment
+                {
+
+                    ID = document.ContainsKey("ID") ? Convert.ToInt32(document["ID"]) : 0,
+                    ID_SK = document.ContainsKey("ID_SK") ? Convert.ToInt32(document["ID_SK"]) : 0,
+                    AccountID = document.ContainsKey("AccountID") ? Convert.ToInt32(document["AccountID"]) : 0,
+                    SellerID = document.ContainsKey("SellerID") ? Convert.ToInt32(document["SellerID"]) : 0,
+                    ProductID = document.ContainsKey("ProductID") ? Convert.ToInt32(document["ProductID"]) : 0,
+                    Image = document.ContainsKey("Image") ? document["Image"].ToString() : "",
+                    Rating = document.ContainsKey("Rating") ? Convert.ToInt32(document["Rating"]) : 0,
+                    Content = document.ContainsKey("Content") ? document["Content"].ToString() : "",
+                    TimelineContent = document.ContainsKey("TimelineContent") ? document["TimelineContent"].ToString() : "",
+                    CreatedAt= DateTime.Parse(document.ContainsKey("CreatedAt") ? document["CreatedAt"].ToString() : "")
+            };
+                commments.Add(comment);
+            }
+            return commments.ToList();
         }
 
         //
@@ -342,76 +371,6 @@ namespace ShopRe.Service
 
             return Convert.ToInt32(response.Total);
         }
-        public async Task<List<dynamic>> GetAllBrandDetails()
-        {
-            // Fetch all brands from Elasticsearch
-            var brandSearchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
-                .Index("brands").Size(10000)
-            );
-
-
-            if (!brandSearchResponse.IsValid)
-            {
-                // Log the error or handle it as needed
-                return await Task.FromResult<dynamic>(null);
-            }
-
-            var brands = ConverToBrand(brandSearchResponse.Documents.ToList());
-
-            var brandsResponse = new List<dynamic>();
-
-            foreach (var brand in brands)
-            {
-                var totalProductOfBrand = await GetTotalProductCountForBrand(brand.ID_NK);
-                brandsResponse.Add(new
-                {
-                    Brand = brand,
-                    TotalProduct = totalProductOfBrand
-                });
-            }
-
-            // Order the brands by total product count in descending order and take top 15
-            var orderedBrands = brandsResponse
-                .OrderByDescending(b => b.TotalProduct)
-                .Take(15)
-                .ToList();
-
-            return brandsResponse;
-        }
-        //public async Task<List<BrandDetailDTO>> GetBrands()
-        //{
-        //    var results = await _elasticClient.SearchAsync<dynamic>(s => s
-        //        .Index("brands").Size(10000)
-        //    );
-
-        //    var list = new List<BrandDetailDTO>();
-        //    var brands = ConverToBrand(results.Documents.ToList());
-
-        //    foreach (var brand in brands)
-        //    {
-        //        var countResponse = await _elasticClient.CountAsync<Product>(s => s
-        //            .Query(q => q
-        //                .Term(t => t.Field("BrandID_NK").Value(brand.ID_NK))
-        //            )
-        //        );
-
-        //        var brandDetailDTO = new BrandDetailDTO
-        //        {
-        //            Brand = brand,
-        //            TotalProduct = (int?)countResponse.Count ?? 0,
-        //        };
-
-        //        list.Add(brandDetailDTO);
-        //    }
-
-        //    // Loại bỏ các mục có Total = 0 và sắp xếp giảm dần theo Total
-        //    var sortedList = list
-        //        .Where(c => c.TotalProduct > 0)
-        //        .OrderByDescending(c => c.TotalProduct)
-        //        .ToList();
-
-        //    return sortedList;
-        //}
         public async Task<List<BrandDetailDTO>> GetBrands()
         {
             
@@ -475,6 +434,46 @@ namespace ShopRe.Service
                 .ToList();
 
             return sortedList;
+        }
+        //Comments
+        public async Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId)
+        {
+            var response = await _elasticClient.SearchAsync<object>(s => s
+               .Index("comments")
+               .Query(q => q
+                   .Bool(b => b
+                       .Filter(filters => filters
+                           .Term(t => t.Field("ProductID").Value(ProductId))
+                       )
+                   )
+               )
+               .From(commentParameters.PageNumber * commentParameters.PageSize)
+               .Size(commentParameters.PageSize)
+            );
+
+            if (!response.IsValid)
+            {
+                // Log lỗi hoặc xử lý nếu cần
+                return new List<DetailCommentDTO>();
+            }
+
+            // Chuyển đổi kết quả từ Elasticsearch thành danh sách CommentDTO
+            List<CommentDTO> detailComments = _mapper.Map<List<CommentDTO>>(ConverToComment(response.Documents.ToList()));
+
+            foreach (var commentDTO in detailComments)
+            {
+                var account = _mapper.Map<AccountDTO>(await _dbContext.Accounts.FirstOrDefaultAsync(a => a.ID_NK == commentDTO.AccountID));
+                commentDTO.Account = account;
+            }
+
+            // Tạo đối tượng DetailCommentDTO với thông tin chi tiết và tổng số bình luận
+            DetailCommentDTO comments = new DetailCommentDTO
+            {
+                DetailComment = detailComments,
+                Total = (int)response.Total
+            };
+
+            return new List<DetailCommentDTO> { comments };
         }
 
     }

@@ -12,6 +12,7 @@ namespace DATN_ShopRecommenderSystem.Extensions
             var defaultIndex = configuration["ELKConfiguration:index"];
             var defaultIndex2 = configuration["ELKConfiguration:index2"];
             var defaultIndex3 = configuration["ELKConfiguration:index3"];
+            var defaultIndex4 = configuration["ELKConfiguration:index4"];
 
             var setting = new ConnectionSettings(new Uri(url)).PrettyJson().DefaultIndex(defaultIndex).BasicAuthentication(configuration["ELKConfiguration:username"], configuration["ELKConfiguration:password"]);
 
@@ -20,7 +21,7 @@ namespace DATN_ShopRecommenderSystem.Extensions
             var client = new ElasticClient(setting);
             services.AddSingleton<IElasticClient>(client);
 
-            CreateIndex(client, defaultIndex, defaultIndex2, defaultIndex3);
+            CreateIndex(client, defaultIndex, defaultIndex2, defaultIndex3, defaultIndex4);
         }
         private static void AddDefaultMappings(ConnectionSettings connectionSettings)
         {
@@ -31,10 +32,11 @@ namespace DATN_ShopRecommenderSystem.Extensions
             );
 
         }
-        private static void CreateIndex(IElasticClient client, string indexName, string indexName2, string indexName3)
+        private static void CreateIndex(IElasticClient client, string indexName, string indexName2, string indexName3, string indexName4)
         {
             client.Indices.Create(indexName, i => i.Map<Product>(x => x.AutoMap()));
             client.Indices.Create(indexName3, i => i.Map<Brand>(x => x.AutoMap()));
+            client.Indices.Create(indexName4, i => i.Map<DetailComment>(x => x.AutoMap()));
 
             var indexExistsResponse = client.Indices.Exists(indexName2);
             if (indexExistsResponse.Exists)
