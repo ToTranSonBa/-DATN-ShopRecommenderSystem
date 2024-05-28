@@ -20,6 +20,8 @@ namespace ShopRe.Service
         Task<ProductResponse> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
         Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters);
+        Task<List<dynamic>> GetAllBrandDetails();
+        Task<List<BrandDetailDTO>> GetBrands();
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -86,7 +88,23 @@ namespace ShopRe.Service
             }
             return sellerPriority.ToList();
         }
-        //
+        private List<Brand> ConverToBrand(List<object> documents)
+        {
+            var brands = new List<Brand>();
+            foreach (dynamic document in documents)
+            {
+                var brand = new Brand
+                {
+                    ID_NK = document.ContainsKey("ID_NK") ? Convert.ToInt32(document["ID_NK"]) : 0,
+                    ID_SK = document.ContainsKey("ID_SK") ? Convert.ToInt32(document["ID_SK"]) : 0,
+                    Name = document.ContainsKey("Name") ? document["Name"].ToString() : "",
+                    Slug = document.ContainsKey("Slug") ? document["Slug"].ToString() : ""
+                };
+                brands.Add(brand);
+            }
+            return brands.ToList();
+        }
+
         //
         public async Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters)
         {
@@ -162,8 +180,6 @@ namespace ShopRe.Service
 
             return (sortedResults, totalCount);
         }
-
-
 
         public async Task<ProductResponse> GetAllAsync(ProductParameters productParameters)
         {
@@ -304,5 +320,162 @@ namespace ShopRe.Service
             var documents = ConvertToProduct(response.Documents.ToList());
             return documents;
         }
+
+        //Brands
+        private async Task<int> GetTotalProductCountForBrand(int brandId)
+        {
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("BrandID_NK").Value(brandId))
+                        )
+                    )
+                )
+            );
+
+            if (!response.IsValid)
+            {
+                return 0;
+            }
+
+            return Convert.ToInt32(response.Total);
+        }
+        public async Task<List<dynamic>> GetAllBrandDetails()
+        {
+            // Fetch all brands from Elasticsearch
+            var brandSearchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                .Index("brands").Size(10000)
+            );
+
+
+            if (!brandSearchResponse.IsValid)
+            {
+                // Log the error or handle it as needed
+                return await Task.FromResult<dynamic>(null);
+            }
+
+            var brands = ConverToBrand(brandSearchResponse.Documents.ToList());
+
+            var brandsResponse = new List<dynamic>();
+
+            foreach (var brand in brands)
+            {
+                var totalProductOfBrand = await GetTotalProductCountForBrand(brand.ID_NK);
+                brandsResponse.Add(new
+                {
+                    Brand = brand,
+                    TotalProduct = totalProductOfBrand
+                });
+            }
+
+            // Order the brands by total product count in descending order and take top 15
+            var orderedBrands = brandsResponse
+                .OrderByDescending(b => b.TotalProduct)
+                .Take(15)
+                .ToList();
+
+            return brandsResponse;
+        }
+        //public async Task<List<BrandDetailDTO>> GetBrands()
+        //{
+        //    var results = await _elasticClient.SearchAsync<dynamic>(s => s
+        //        .Index("brands").Size(10000)
+        //    );
+
+        //    var list = new List<BrandDetailDTO>();
+        //    var brands = ConverToBrand(results.Documents.ToList());
+
+        //    foreach (var brand in brands)
+        //    {
+        //        var countResponse = await _elasticClient.CountAsync<Product>(s => s
+        //            .Query(q => q
+        //                .Term(t => t.Field("BrandID_NK").Value(brand.ID_NK))
+        //            )
+        //        );
+
+        //        var brandDetailDTO = new BrandDetailDTO
+        //        {
+        //            Brand = brand,
+        //            TotalProduct = (int?)countResponse.Count ?? 0,
+        //        };
+
+        //        list.Add(brandDetailDTO);
+        //    }
+
+        //    // Loại bỏ các mục có Total = 0 và sắp xếp giảm dần theo Total
+        //    var sortedList = list
+        //        .Where(c => c.TotalProduct > 0)
+        //        .OrderByDescending(c => c.TotalProduct)
+        //        .ToList();
+
+        //    return sortedList;
+        //}
+        public async Task<List<BrandDetailDTO>> GetBrands()
+        {
+            
+            var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                .Index("shoprecommend")
+                .Size(0) 
+                .Aggregations(a => a
+                    .Terms("brands", t => t
+                        .Field("BrandID_NK")
+                        .Size(15) 
+                        .Order(o => o
+                            .Descending("product_count")
+                      )
+                        .Aggregations(aa => aa
+                            .ValueCount("product_count", v => v.Field("BrandID_NK"))
+                        )
+                    )
+                )
+            );
+
+            if (!searchResponse.IsValid)
+            {
+                
+                return new List<BrandDetailDTO>();
+            }
+
+            var brandBuckets = searchResponse.Aggregations.Terms("brands").Buckets;
+            var topBrandIds = brandBuckets.Select(b => int.Parse(b.Key)).ToList();
+
+
+            var brands = await _dbContext.Brands
+                .Where(b => topBrandIds.Contains(b.ID_NK))
+                .ToListAsync();
+
+
+
+            if (brands.Count() < 0)
+            {
+
+                return new List<BrandDetailDTO>();
+            }
+
+
+            var brandsResponse = new List<BrandDetailDTO>();
+
+            foreach (var brand in brands)
+            {
+                var totalProduct = (int)brandBuckets.First(b => int.Parse(b.Key) == brand.ID_NK).ValueCount("product_count").Value;
+
+                var brandDetailDTO = new BrandDetailDTO
+                {
+                    Brand = brand,
+                    TotalProduct = totalProduct
+                };
+
+                brandsResponse.Add(brandDetailDTO);
+            }
+
+            var sortedList = brandsResponse
+                .OrderByDescending(c => c.TotalProduct)
+                .ToList();
+
+            return sortedList;
+        }
+
     }
 }

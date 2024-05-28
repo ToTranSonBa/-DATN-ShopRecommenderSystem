@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using ShopRe.Service;
+using System.Collections.Generic;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -16,15 +18,21 @@ namespace DATN_ShopRecommenderSystem.Controllers
     public class BrandsController : ControllerBase
     {
         private readonly IBrandService _brandService;
-        public BrandsController(IBrandService brandService)
+        private readonly IElasticSearchService _elasticsearchService;
+        public BrandsController(IBrandService brandService, IElasticSearchService elasticSearchService)
         {
+            _elasticsearchService = elasticSearchService;
             _brandService = brandService;
         }
         // GET: api/brands
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BrandDetailDTO>>> GetBrands()
+        public async Task<ActionResult> GetBrands()
         {
-            var res = await _brandService.GetAll();
+            var res = await _elasticsearchService.GetBrands();
+            if (res == null)
+            {
+                return NotFound();
+            }
             return Ok(res);
         }
 
