@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {}
+    "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
+    "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+        "projectUniqueName": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
         "projectName": "ShopRe.UnitTest",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
+        "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\obj\\",
+        "outputPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

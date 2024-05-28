@@ -40,18 +40,17 @@ namespace ShopRe.Service
 
         public async Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user)
         {
-            // Kiểm tra xem người dùng có phiên mua sắm hay không
             var session = await _dbContext.ShoppingSessions
                                           .FirstOrDefaultAsync(s => s.User.Id == user.Id);
 
             if (session == null)
             {
-                return new List<CartItem>(); // Trả về danh sách rỗng nếu không có phiên mua sắm
+                return new List<CartItem>(); 
             }
 
-            // Truy vấn các mục trong giỏ hàng thuộc phiên mua sắm này
             var cartItems = await _dbContext.CartItem
                                             .Where(c => c.Session.ID == session.ID && c.Session.User.Id == user.Id)
+                                            .Include(c => c.Product)
                                             .ToListAsync();
 
             return cartItems;

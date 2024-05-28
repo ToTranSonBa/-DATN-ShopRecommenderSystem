@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uEtOaMAG0ISO/2aopQZJCq1FkVCnHx9Nkdb4mO9+QBSOqXWF94WzguiCZGqk5tk0NU/RQgE5CRh+MWaJS97WeA==",
+  "dgSpecHash": "GcBtqWlycG8ZXt9XUgTgufMz9UDrLv4LQwuy5xfF5B88qC6sQoqSFv/6Cv3zkUbkqrHRv/KfyxrcjZsbjJ8TJQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+  "projectFilePath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\6.0.28\\microsoft.aspnetcore.cryptography.internal.6.0.28.nupkg.sha512",

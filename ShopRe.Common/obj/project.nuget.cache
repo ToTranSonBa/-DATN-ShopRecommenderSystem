@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aMUta214vu4Hwu66vJ4R8OUW5HPl1iCYW8h8zZjSgbfQG/5OPBxs8K+iO5t7xuYu/4J0+utJ8EIW64/ZGrkpmg==",
+  "dgSpecHash": "4IUgDwdX/YlPbGsBxjmkIheh5Pj2mHLJpJ8ocd7Lc1Mumlj0y3UaGWrcau/dq/cbmZZRr/uy0mB9AG4qwmQ4vg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\DATN-new\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj",
+  "projectFilePath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\6.0.28\\microsoft.aspnetcore.cryptography.internal.6.0.28.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\6.0.28\\microsoft.aspnetcore.cryptography.keyderivation.6.0.28.nupkg.sha512",
