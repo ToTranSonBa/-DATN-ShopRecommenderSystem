@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using DATN_ShopRecommenderSystem.Service;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.DTOs;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
@@ -14,10 +17,45 @@ namespace DATN_ShopRecommenderSystem.Controllers
     public class OrdersController : ControllerBase
     {
         readonly IOrderService _orderService;
-        public OrdersController(IOrderService orderService)
+        private readonly IAccountService _accountService;
+        private readonly ICartItemsService _cartItemsService;
+        private readonly ShopRecommenderSystemDbContext _dbContext;
+        public OrdersController(IOrderService orderService, IAccountService accountService, 
+            ICartItemsService cartItemsService, ShopRecommenderSystemDbContext dbContext)
         {
             _orderService = orderService;
+            _accountService = accountService;
+            _cartItemsService = cartItemsService;
+            _dbContext = dbContext;
         }
+        [Authorize]
+        [HttpGet("UserOrders")]
+        public async Task<IActionResult> GetOrdersOfUser()
+        {
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized(new Response<CartItem>()
+                {
+                    message = "Unauthorized!",
+                    status = "401",
+                    token = token,
+                    Data = null,
+                });
+            }
+
+            var res = await _orderService.GetOrdersOfUser(user);
+            return Ok(res);
+        }
+
         // GET: api/orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
@@ -39,12 +77,69 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         // POST: api/orders
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(string Address, string PhoneNumber)
         {
-            var res = await _orderService.Add(order);
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+            var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.ID }, order);
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized(new Response<CartItem>()
+                {
+                    message = "Unauthorized!",
+                    status = "401",
+                    token = token,
+                    Data = null,
+                });
+            }else
+            {
+                var cartItems = await _cartItemsService.GetAllItemsOfUserInCart(user);
+
+
+                Order order = await _orderService.CreateOrder(user, Address, PhoneNumber);
+
+                var orderItems = new List<OrderItems>();
+                try
+                {
+                    foreach (var item in cartItems)
+                    {
+                        var orderItem = new OrderItems()
+                        {
+                            Product = item.Product,
+                            Order = order,
+                            Quantity = item.Quantity,
+                            Price = item.Product.Price * item.Quantity
+                        };
+
+                        order.TotalPrice += item.Product.Price * item.Quantity;
+
+                        _dbContext.OrderItems.AddAsync(orderItem);
+                        _dbContext.Order.Update(order);
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    return Ok(new Response<OrderItems>
+                    {
+                        message = "Order Successfully!",
+                        status = "200",
+                        Data = null,
+                        token = token
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex);
+                }
+
+            }
         }
 
         // DELETE: api/orders/5

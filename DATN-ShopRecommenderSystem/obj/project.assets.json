@@ -7603,11 +7603,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
       "projectName": "DATN-ShopRecommenderSystem",
-      "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\DATN-ShopRecommenderSystem\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -7629,20 +7629,20 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
-              "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj"
+            "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Common\\ShopRe.Common.csproj"
             },
-            "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj": {
-              "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj"
+            "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Data\\ShopRe.Data.csproj"
             },
-            "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
-              "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
+            "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj"
             },
-            "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj": {
-              "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj"
+            "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Service\\ShopRe.Service.csproj"
             },
-            "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
-              "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj"
+            "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.UnitTest\\ShopRe.UnitTest.csproj"
             }
           }
         }

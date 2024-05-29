@@ -13,6 +13,7 @@ namespace ShopRe.Data
         #region DbSet
         public DbSet<Product>? Products { get; set; }
         public DbSet<Order>? Order { get; set; }
+        public DbSet<OrderItems>? OrderItems { get; set; }
         public DbSet<Category>? Category { get; set; }
         public DbSet<Account>? Accounts { get; set; }
         public DbSet<Brand> Brands { get; set; }

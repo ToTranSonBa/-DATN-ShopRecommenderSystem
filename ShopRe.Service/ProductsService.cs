@@ -145,6 +145,16 @@ namespace ShopRe.Service
 
             Seller seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
 
+            var totalCount = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Term(t => t
+                        .Field("SellerID_NK")
+                        .Value(seller.ID_NK)
+                    )
+                )
+            );
+
             Category category = await _dbContext.Category.FindAsync(product.Category_LV0_NK);
 
             Brand brand = await _dbContext.Brands.FindAsync(product.BrandID_NK);
@@ -156,6 +166,7 @@ namespace ShopRe.Service
             productDetail.Product= _mapper.Map<ProductDTO>(product);
             productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
             productDetail.Seller = _mapper.Map<SellerDTO>(seller);
+            productDetail.Seller.Total = (int)totalCount.Count;
             productDetail.Category = _mapper.Map<CategoryDTO>(category);
             productDetail.Brand = _mapper.Map<BrandDTO>(brand);
             productDetail.ProductChildren = _mapper.Map<List<ProductChildDTO>>(children);

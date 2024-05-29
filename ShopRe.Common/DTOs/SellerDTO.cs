@@ -17,5 +17,6 @@ namespace ShopRe.Common.DTOs
         public int? TotalFollower { get; set; }
         public int? ReviewCount { get; set; }
         public string? ImageUrl { get; set; }
+        public int? Total {  get; set; }
     }
 }

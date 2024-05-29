@@ -21,7 +21,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         [Authorize]
         [HttpPost("AddToCart")]
-        public async Task<IActionResult> AddToCart(int idProduct)
+        public async Task<IActionResult> AddToCart(int idProduct, int idProductOptionValue)
         {
             // Lấy token từ header Authorization
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -38,7 +38,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return Unauthorized(); // Trả về 401 nếu người dùng không hợp lệ
             }
 
-            var result = await _cartItemsService.AddToCart(idProduct, user);
+            var result = await _cartItemsService.AddToCart(idProduct, idProductOptionValue, user);
 
             var response = new Response<CartItem>("Add to cart successfully", "201", null, token);
 
@@ -118,6 +118,53 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var response = new Response<CartItem>("Success", "200", null, token);
 
             return Ok(response);
+        }
+        [Authorize]
+        [HttpDelete("DeleteCartItems")]
+        public async Task<IActionResult> DeleteItems(int idCartItem)
+        {
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized(new Response<CartItem>()
+                {
+                    message = "Unauthorized!",
+                    status = "401",
+                    token = token,
+                    Data = null,
+                }); 
+            }
+
+            bool check = await _cartItemsService.DeleteCartItem(idCartItem, user);
+
+            if (check)
+            {
+                return Ok(new Response<CartItem>()
+                {
+                    message = "Delete Success!",
+                    status = "204",
+                    token = token,
+                    Data = null,
+                });
+            }
+            else { 
+                return BadRequest(new Response<CartItem>()
+                {
+                    message = "Delete Failed!",
+                    status = "204",
+                    token = token,
+                    Data = null,
+                });
+            }
         }
     }
 }

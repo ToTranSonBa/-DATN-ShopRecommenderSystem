@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {}
+    "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {}
   },
   "projects": {
-    "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
+    "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
         "projectName": "ShopRe.Model",
-        "projectPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
+        "projectPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\ShopRe.Model.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\DATN\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Desktop\\DATN-nop\\-DATN-ShopRecommenderSystem\\ShopRe.Model\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
