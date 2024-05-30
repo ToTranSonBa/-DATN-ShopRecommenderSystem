@@ -25,7 +25,7 @@ namespace ShopRe.Data.Repositories
         }
         public async Task<UserLog> AddL(UserLog UserLog)
         {
-            var addedUserLog = context.Set<UserLog>().Add(UserLog);
+            var addedUserLog = await context.Set<UserLog>().AddAsync(UserLog);
             await context.SaveChangesAsync();
             return addedUserLog.Entity;
         }

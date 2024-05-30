@@ -10,6 +10,8 @@ using System.Xml.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Cors;
 using static ShopRe.Service.ProductService;
+using ShopRe.Common.DTOs;
+using ShopRe.Model.Models.user_s_log;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -21,11 +23,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         readonly IProductService _productsService;
         private readonly ILogger<ProductsController> _logger;
         private readonly IElasticSearchService _elasticSearchService;
-        public ProductsController(IProductService productsService, ILogger<ProductsController> logger, IElasticSearchService elasticSearchService)
+        private readonly IAccountService _accountService;
+        private readonly ILogService _logService;
+        public ProductsController(ILogService logService,IAccountService accountService,IProductService productsService, ILogger<ProductsController> logger, IElasticSearchService elasticSearchService)
         {
             _productsService = productsService;
             _logger = logger;
             _elasticSearchService = elasticSearchService;
+            _accountService = accountService;
+            _logService = logService;
         }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
@@ -55,6 +61,23 @@ namespace DATN_ShopRecommenderSystem.Controllers
             try
             {
                 var product = await _elasticSearchService.GetAllAsync(productParameters);
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                var newlog = new UserLogDto
+                {
+                    User = user,
+                    LogRate = LogRate._1MIN,
+                    Detail = productParameters.ProductName,
+                    SellerId= null
+                };
+                await _logService.addSearch(newlog);
 
                 return Ok(product);
             }
@@ -124,6 +147,21 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
+        [HttpPost("logUserView")]
+        public async Task<ActionResult> logProductView(int min, int sellerId)
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            var res = await _logService.addView(min, sellerId, user);
+            return Ok(res);
+        }
         //[HttpPost("UpdateDocument")]
         //public async Task<ActionResult> UpdateDocument()
         //{

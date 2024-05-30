@@ -12,6 +12,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using ShopRe.Model.Models.user_s_log;
+using ShopRe.Common.DTOs;
 
 namespace ShopRe.Service
 {
@@ -30,13 +32,15 @@ namespace ShopRe.Service
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly IProductRepository _productRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserLogRepository _UserLogRepository;
 
 
-        public CartItemsService(ShopRecommenderSystemDbContext dbContext, IProductRepository productRepository, UserManager<ApplicationUser> userManager)
+        public CartItemsService(ShopRecommenderSystemDbContext dbContext, IUserLogRepository UserLogRepository, IProductRepository productRepository, UserManager<ApplicationUser> userManager)
         {
             _dbContext = dbContext;
             _productRepository = productRepository;
             _userManager = userManager;
+            _UserLogRepository = UserLogRepository;
         }
         private async Task<bool> UpdateTotalPriceShoppingSession(ApplicationUser user)
         {
@@ -109,6 +113,15 @@ namespace ShopRe.Service
 
             var session = await _dbContext.ShoppingSessions.FirstOrDefaultAsync(p => p.User == user);
 
+            var newLog = new UserLog
+            {
+                Detail = "add to cart",
+                SellerId = product.SellerID_NK,
+                LogRate = LogRate.ADCART,
+                User = user
+            };
+            await _UserLogRepository.AddL(newLog);
+            //Nếu user chưa có giỏ hàng thì tạo shopsession
             if (session == null)
             {
                 session = new ShoppingSession
