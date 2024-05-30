@@ -35,6 +35,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(res);
         }
 
+        [HttpGet("RattingCount/Product{id}")]
+        public async Task<ActionResult> GetAllCountRattingCommentsOfProduct(int id)
+        {
+            var res = await _elasticsearchService.CommentsRatingCount(id);
+            if (res == null)
+            {
+                return NotFound();
+            }
+            return Ok(res);
+        }
+
         // GET: api/detailcomments
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailComment>>> GetDetailComments()

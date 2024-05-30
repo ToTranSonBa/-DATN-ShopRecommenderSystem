@@ -24,6 +24,7 @@ namespace ShopRe.Service
         Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters);
         Task<List<BrandDetailDTO>> GetBrands();
         Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId);
+        Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -350,6 +351,84 @@ namespace ShopRe.Service
             return documents;
         }
 
+        public class ProductRatingCountDTO
+        {
+            public long RatingLessThan1 { get; set; }
+            public long Rating1To2 { get; set; }
+            public long Rating2To3 { get; set; }
+            public long Rating3To4 { get; set; }
+            public long Rating4To5 { get; set; }
+        }
+
+
+        public async Task<ProductRatingCountDTO> ProductRatingCount()
+        {
+            var countResponse1 = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Range(r => r.Field("RatingAverage").LessThanOrEquals(1))
+                        )
+                    )
+                )
+            );
+
+            var countResponse2 = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Range(r => r.Field("RatingAverage").LessThanOrEquals(2).GreaterThan(1))
+                        )
+                    )
+                )
+            );
+
+            var countResponse3 = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Range(r => r.Field("RatingAverage").LessThanOrEquals(3).GreaterThan(2))
+                        )
+                    )
+                )
+            );
+
+            var countResponse4 = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Range(r => r.Field("RatingAverage").LessThanOrEquals(4).GreaterThan(3))
+                        )
+                    )
+                )
+            );
+
+            var countResponse5 = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Range(r => r.Field("RatingAverage").LessThanOrEquals(5).GreaterThan(4))
+                        )
+                    )
+                )
+            );
+
+            return new ProductRatingCountDTO
+            {
+                RatingLessThan1 = countResponse1.Count,
+                Rating1To2 = countResponse2.Count,
+                Rating2To3 = countResponse3.Count,
+                Rating3To4 = countResponse4.Count,
+                Rating4To5 = countResponse5.Count
+            };
+        }
+
+
         //Brands
         private async Task<int> GetTotalProductCountForBrand(int brandId)
         {
@@ -474,6 +553,87 @@ namespace ShopRe.Service
             };
 
             return new List<DetailCommentDTO> { comments };
+        }
+
+        public class CommentsRatingCountDTO
+        {
+            public long RatingLessThanOrEqual1 { get; set; }
+            public long Rating1To2 { get; set; }
+            public long Rating2To3 { get; set; }
+            public long Rating3To4 { get; set; }
+            public long Rating4To5 { get; set; }
+        }
+
+        public async Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct)
+        {
+            var countResponse1 = await _elasticClient.CountAsync<object>(c => c
+                .Index("comments")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
+                            filters.Range(r => r.Field("Rating").LessThanOrEquals(1))
+                        )
+                    )
+                )
+            );
+
+            var countResponse2 = await _elasticClient.CountAsync<object>(c => c
+                .Index("comments")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
+                            filters.Range(r => r.Field("Rating").LessThanOrEquals(2).GreaterThan(1))
+                        )
+                    )
+                )
+            );
+
+            var countResponse3 = await _elasticClient.CountAsync<object>(c => c
+                .Index("comments")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
+                            filters.Range(r => r.Field("Rating").LessThanOrEquals(3).GreaterThan(2))
+                        )
+                    )
+                )
+            );
+
+            var countResponse4 = await _elasticClient.CountAsync<object>(c => c
+                .Index("comments")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
+                            filters.Range(r => r.Field("Rating").LessThanOrEquals(4).GreaterThan(3))
+                        )
+                    )
+                )
+            );
+
+            var countResponse5 = await _elasticClient.CountAsync<object>(c => c
+                .Index("comments")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
+                            filters.Range(r => r.Field("Rating").LessThanOrEquals(5).GreaterThan(4))
+                        )
+                    )
+                )
+            );
+
+            return new CommentsRatingCountDTO
+            {
+                RatingLessThanOrEqual1 = countResponse1.Count,
+                Rating1To2 = countResponse2.Count,
+                Rating2To3 = countResponse3.Count,
+                Rating3To4 = countResponse4.Count,
+                Rating4To5 = countResponse5.Count
+            };
         }
 
     }

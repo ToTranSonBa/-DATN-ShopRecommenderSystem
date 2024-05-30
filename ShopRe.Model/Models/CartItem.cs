@@ -14,6 +14,5 @@ namespace ShopRe.Model.Models
         public DateTime? UpdatedAt { get; set; }
         public ShoppingSession? Session { get; set; }
         public Product? Product { get; set; }
-        //public ProductOptionValues? ProductOptionValues { get; set; }
     }
 }
