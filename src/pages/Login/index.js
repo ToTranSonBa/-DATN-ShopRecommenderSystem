@@ -13,15 +13,9 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    useEffect(() => {
-        let token = localStorage.getItem('token');
 
-        if (token) {
-            navigate('/');
-        }
-    }, []);
-
-    const handleClick = async () => {
+    const handleClick = async (event) => {
+        event.preventDefault();
         try {
             if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
                 toast.error('Please enter a valid email address');
@@ -32,29 +26,35 @@ const LoginPage = () => {
                 toast.error('Password is required');
                 return;
             }
-
             const response = await loginApi(email, password);
 
-
             if (response && response.token) {
-
                 const token = response.token;
                 localStorage.setItem('token', token);
-                console.log('token: ', localStorage);
-
-
+                navigate('/');
             } else if (response && response.status === 401) {
-                localStorage.setItem('token', '');
+                localStorage.removeItem('token');
+                toast.error('Không được phép. Vui lòng kiểm tra thông tin đăng nhập của bạn.');
             } else {
-                if (response) {
-                    localStorage.setItem('token', '');
-                }
+                localStorage.removeItem('token');
+                toast.error('Đăng nhập thất bại. Vui lòng thử lại.');
             }
+
+
+
+
         } catch (error) {
             console.error('Error submitting form:', error);
             toast.error('An unexpected error occurred. Please try again.');
         }
     };
+
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+        if (token) {
+
+        }
+    }, []);
     return (
         <>
             <body className="py-5 bg-white rounded-lg">

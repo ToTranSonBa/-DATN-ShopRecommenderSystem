@@ -1,7 +1,7 @@
 
-import { Fragment, useState } from 'react'
-
-
+import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom';
+import { cartsApi, deleteCartItem, increaseProduct, decreaseProduct } from '../../services/CartApi/cartApi'
 const products = [
     {
         id: 1,
@@ -38,55 +38,174 @@ const products = [
     },
 ]
 
-const footerNavigation = {
-    products: [
-        { name: 'Bags', href: '#' },
-        { name: 'Tees', href: '#' },
-        { name: 'Objects', href: '#' },
-        { name: 'Home Goods', href: '#' },
-        { name: 'Accessories', href: '#' },
-    ],
-    company: [
-        { name: 'Who we are', href: '#' },
-        { name: 'Sustainability', href: '#' },
-        { name: 'Press', href: '#' },
-        { name: 'Careers', href: '#' },
-        { name: 'Terms & Conditions', href: '#' },
-        { name: 'Privacy', href: '#' },
-    ],
-    customerService: [
-        { name: 'Contact', href: '#' },
-        { name: 'Shipping', href: '#' },
-        { name: 'Returns', href: '#' },
-        { name: 'Warranty', href: '#' },
-        { name: 'Secure Payments', href: '#' },
-        { name: 'FAQ', href: '#' },
-        { name: 'Find a store', href: '#' },
-    ],
-}
+const CartShoppingPage = () => {
+    const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+    const [quantities, setQuantities] = useState([]);
+    const [cartData, setCartData] = useState([]);
+    const [subTotal, setSubTotal] = useState(0);
+    const [total, setTotal] = useState(0);
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+    const fetchCart = useCallback(async () => {
+        try {
+            const response = await cartsApi(token);
+            const updatedCartData = response.data.map(item => {
+                // Tìm chuỗi trong dấu ngoặc kép
+                const match = item.product.image.match(/'base_url': '([^']+)'/);
 
-export default function cartShoppingPage() {
+                if (match && match[1]) {
+                    const baseUrl = match[1];
+
+
+                    return {
+                        ...item,
+                        product: {
+                            ...item.product,
+                            image: baseUrl
+                        },
+                        checked: false
+                    };
+                } else {
+
+                    return item;
+                }
+            });
+            setQuantities(response.data.map(item => item.quantity))
+            setCartData(updatedCartData);
+
+        } catch (error) {
+            console.error('Failed to fetch cart:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                await fetchCart();
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, [fetchCart]);
+
+
+    const handleIncrement = async (index, idProduct) => {
+        try {
+            await increaseProduct(idProduct, token);
+            const updatedCart = [...cartData];
+            updatedCart[index].quantity += 1;
+            console.log('token: ', token);
+            const updatedTotalPrices = updatedCart.reduce((total, item) => {
+                const productPrice = item.product.price * item.quantity;
+                return total + productPrice;
+            }, 0);
+
+            setQuantities(updatedCart.map(item => item.quantity));
+            setCartData(updatedCart);
+            setSubTotal(updatedTotalPrices);
+            setTotal(updatedTotalPrices + 5000);
+        } catch (error) {
+            console.error('Failed to delete item:', error);
+        }
+
+    };
+
+    const handleDecrement = async (index, idProduct) => {
+        try {
+
+            await decreaseProduct(idProduct, token);
+            const updatedCart = [...cartData];
+            if (updatedCart[index].quantity > 1) {
+                updatedCart[index].quantity -= 1;
+
+                const updatedTotalPrices = updatedCart.reduce((total, item) => {
+                    const productPrice = item.product.price * item.quantity;
+                    return total + productPrice;
+                }, 0);
+
+                setQuantities(updatedCart.map(item => item.quantity));
+                setCartData(updatedCart);
+                setSubTotal(updatedTotalPrices); // Cập nhật tổng tạm tính
+                setTotal(updatedTotalPrices + 5000);
+
+            }
+        } catch (error) {
+            console.error('Failed to delete item:', error);
+        }
+
+    };
+
+    const handleChange = (e, index) => {
+        const value = e.target.value;
+        if (!isNaN(value) && value >= 1) {
+            setQuantities(prevQuantities => {
+                const newQuantities = [...prevQuantities];
+                newQuantities[index] = parseInt(value);
+                return newQuantities;
+            });
+        }
+    };
+
+    const handleCheckout = () => {
+        navigate('/checkout');
+    };
+
+    const handleDeleteItem = async (itemId) => {
+        try {
+            // Gọi API để xóa phần tử từ cơ sở dữ liệu
+            await deleteCartItem(itemId, token);
+            const updatedCartItems = cartData.filter(item => item.id !== itemId);
+            setCartData(updatedCartItems);
+        } catch (error) {
+            console.error('Failed to delete item:', error);
+        }
+    };
+
+    const handleCheckboxChange = (itemId) => {
+        setCartData(prevCartData =>
+            prevCartData.map(item =>
+                item.id === itemId ? { ...item, checked: !item.checked } : item
+            )
+        );
+    };
+
+    const calculateSubtotal = () => {
+        return cartData.reduce((total, item) => {
+            if (item.checked) {
+                return total + (item.product.price * item.quantity);
+            }
+            return total;
+        }, 0);
+    };
 
     return (
-        <div className="bg-white">
+        <div className="bg-white pt-32">
             <main className="max-w-2xl mx-auto pt-16 pb-24 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Shopping Cart</h1>
+                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Giỏ hàng</h1>
 
                 <form className="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start xl:gap-x-16">
                     <section aria-labelledby="cart-heading" className="lg:col-span-7">
-                        <h2 id="cart-heading" className="sr-only">Items in your shopping cart</h2>
+
 
                         <ul role="list" className="border-t border-b border-gray-200 divide-y divide-gray-200">
-                            {products.map((product, productIdx) => (
-                                <li key={product.id} className="flex py-6 sm:py-10">
+                            {cartData.map((data, dataId) => (
+                                <li key={data.id} className="flex py-6 sm:py-10">
+
+                                    <div className="flex items-center pr-2">
+                                        <input
+                                            id={`checkbox-${data.id}`}
+                                            type="checkbox"
+                                            checked={data.checked}
+                                            onChange={() => handleCheckboxChange(data.id)}
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        />
+                                    </div>
                                     <div className="flex-shrink-0">
                                         <img
-                                            src={product.imageSrc}
-                                            alt={product.imageAlt}
+                                            src={data.product.image}
+                                            alt='chua co hinh'
                                             className="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48"
                                         />
                                     </div>
@@ -96,38 +215,79 @@ export default function cartShoppingPage() {
                                             <div>
                                                 <div className="flex justify-between">
                                                     <h3 className="text-sm">
-                                                        <a href={product.href} className="font-medium text-gray-700 hover:text-gray-800">
-                                                            {product.name}
+                                                        <a className="font-medium text-gray-700 hover:text-gray-800">
+                                                            {data.product.name}
                                                         </a>
                                                     </h3>
                                                 </div>
                                                 <div className="mt-1 flex text-sm">
-                                                    <p className="text-gray-500">{product.color}</p>
-                                                    {product.size ? (
-                                                        <p className="ml-4 pl-4 border-l border-gray-200 text-gray-500">{product.size}</p>
+                                                    <p className="text-gray-500">{data.product.name} {data.product.minSaleQuantity}</p>
+                                                    {data.product.minSaleQuantity ? (
+                                                        <p className="ml-4 pl-4 border-l border-gray-200 text-gray-500">{data.product.minSaleQuantity}</p>
                                                     ) : null}
                                                 </div>
-                                                <p className="mt-1 text-sm font-medium text-gray-900">{product.price}</p>
+                                                <p className="mt-1 text-sm font-medium text-gray-900">{data.product.price} Đ</p>
                                             </div>
 
                                             <div className="mt-4 sm:mt-0 sm:pr-9">
-                                                <label htmlFor={`quantity-${productIdx}`} className="sr-only">
-                                                    Quantity, {product.name}
-                                                </label>
-                                                <select
-                                                    id={`quantity-${productIdx}`}
-                                                    name={`quantity-${productIdx}`}
-                                                    className="max-w-full rounded-md border border-gray-300 py-1.5 text-base leading-5 font-medium text-gray-700 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                >
-                                                    {[...Array(8).keys()].map((i) => (
-                                                        <option key={i} value={i + 1}>{i + 1}</option>
-                                                    ))}
-                                                </select>
+
+                                                <div className="relative flex items-center max-w-[8rem]">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDecrement(dataId, data.product.iD_NK)}
+                                                        className="p-3 bg-white border h-8 border-gray-100 focus:outline-none"
+                                                    >
+                                                        <svg
+                                                            className="w-3 h-3 text-gray-900 dark:text-white"
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 18 2"
+                                                        >
+                                                            <path
+                                                                stroke="currentColor"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth="2"
+                                                                d="M1 1h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    <input
+                                                        type="text"
+                                                        id={`quantity-input-${dataId}`}
+                                                        value={quantities[dataId]}
+                                                        onChange={(e) => handleChange(e, dataId)}
+                                                        className="bg-white border-gray-100 h-8 text-center text-gray-900 text-sm  block w-1/3 py-3 "
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleIncrement(dataId, data.product.iD_NK)}
+                                                        className="p-3 bg-white border h-8 border-gray-100   focus:outline-none"
+                                                    >
+                                                        <svg
+                                                            className="w-3 h-3 text-gray-900 "
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 18 18"
+                                                        >
+                                                            <path
+                                                                stroke="currentColor"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth="2"
+                                                                d="M9 1v16M1 9h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
 
                                                 <div className="absolute top-0 right-0">
                                                     <button type="button" className="-m-2 p-2 inline-flex text-gray-400 hover:text-gray-500">
-                                                        <span className="sr-only">Remove</span>
-                                                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                                        <svg onClick={() => handleDeleteItem(data.id)} className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                                         </svg>
                                                     </button>
@@ -135,18 +295,7 @@ export default function cartShoppingPage() {
                                             </div>
                                         </div>
 
-                                        <p className="mt-4 flex text-sm text-gray-700 space-x-2">
-                                            {product.inStock ? (
-                                                <svg className="flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            ) : (
-                                                <svg className="flex-shrink-0 h-5 w-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            )}
-                                            <span>{product.inStock ? 'In stock' : `Ships in ${product.leadTime}`}</span>
-                                        </p>
+
                                     </div>
                                 </li>
                             ))}
@@ -155,142 +304,43 @@ export default function cartShoppingPage() {
 
                     {/* Order summary */}
                     <section aria-labelledby="summary-heading" className="mt-16 bg-gray-50 rounded-lg px-4 py-6 sm:p-6 lg:p-8 lg:mt-0 lg:col-span-5">
-                        <h2 id="summary-heading" className="text-lg font-medium text-gray-900">Order summary</h2>
+                        <h2 id="summary-heading" className="text-lg font-medium text-gray-900">Tóm tắt đơn hàng</h2>
 
                         <dl className="mt-6 space-y-4">
                             <div className="flex items-center justify-between">
-                                <dt className="text-sm text-gray-600">Subtotal</dt>
-                                <dd className="text-sm font-medium text-gray-900">$99.00</dd>
+                                <dt className="text-sm text-gray-600">tạm tính</dt>
+                                <dd className="text-sm font-medium text-gray-900"><dd className="text-sm font-medium text-gray-900">{calculateSubtotal()}đ</dd>đ</dd>
                             </div>
                             <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
                                 <dt className="flex items-center text-sm text-gray-600">
-                                    <span>Shipping estimate</span>
-                                    <a href="#" className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                                        <span className="sr-only">Learn more about how shipping is calculated</span>
-                                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5-3h3M5 5h14M5 19h14" />
-                                        </svg>
-                                    </a>
+                                    <span>vận chuyển</span>
+
                                 </dt>
-                                <dd className="text-sm font-medium text-gray-900">$5.00</dd>
+                                <dd className="text-sm font-medium text-gray-900">đ5000đ</dd>
                             </div>
+
                             <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                                <dt className="flex text-sm text-gray-600">
-                                    <span>Tax estimate</span>
-                                    <a href="#" className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                                        <span className="sr-only">Learn more about how tax is calculated</span>
-                                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5-3h3M5 5h14M5 19h14" />
-                                        </svg>
-                                    </a>
-                                </dt>
-                                <dd className="text-sm font-medium text-gray-900">$8.32</dd>
-                            </div>
-                            <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                                <dt className="text-base font-medium text-gray-900">Order total</dt>
-                                <dd className="text-base font-medium text-gray-900">$112.32</dd>
+                                <dt className="text-base font-medium text-gray-900">tổng thanh toán</dt>
+                                <dd className="text-base font-medium text-gray-900">{calculateSubtotal() + 5000}đ</dd>
                             </div>
                         </dl>
 
                         <div className="mt-6">
                             <button
                                 type="submit"
+                                onClick={handleCheckout}
                                 className="w-full bg-indigo-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
                             >
-                                Checkout
+                                Thanh toán
                             </button>
                         </div>
                     </section>
                 </form>
             </main>
 
-            <footer aria-labelledby="footer-heading" className="bg-white">
-                <h2 id="footer-heading" className="sr-only">Footer</h2>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="border-t border-gray-200 py-20">
-                        <div className="grid grid-cols-1 md:grid-cols-12 md:grid-flow-col md:gap-x-8 md:gap-y-16 md:auto-rows-min">
-                            {/* Image section */}
-                            <div className="col-span-1 md:col-span-2 lg:row-start-1 lg:col-start-1">
-                                <img
-                                    src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=600"
-                                    alt=""
-                                    className="h-8 w-auto"
-                                />
-                            </div>
 
-                            {/* Sitemap sections */}
-                            <div className="mt-10 col-span-6 grid grid-cols-2 gap-8 sm:grid-cols-3 md:mt-0 md:row-start-1 md:col-start-3 md:col-span-8 lg:col-start-2 lg:col-span-6">
-                                <div className="grid grid-cols-1 gap-y-12 sm:col-span-2 sm:grid-cols-2 sm:gap-x-8">
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-900">Products</h3>
-                                        <ul role="list" className="mt-6 space-y-6">
-                                            {footerNavigation.products.map((item) => (
-                                                <li key={item.name} className="text-sm">
-                                                    <a href={item.href} className="text-gray-500 hover:text-gray-600">
-                                                        {item.name}
-                                                    </a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-900">Company</h3>
-                                        <ul role="list" className="mt-6 space-y-6">
-                                            {footerNavigation.company.map((item) => (
-                                                <li key={item.name} className="text-sm">
-                                                    <a href={item.href} className="text-gray-500 hover:text-gray-600">
-                                                        {item.name}
-                                                    </a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-900">Customer Service</h3>
-                                    <ul role="list" className="mt-6 space-y-6">
-                                        {footerNavigation.customerService.map((item) => (
-                                            <li key={item.name} className="text-sm">
-                                                <a href={item.href} className="text-gray-500 hover:text-gray-600">
-                                                    {item.name}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {/* Newsletter section */}
-                            <div className="mt-12 md:mt-0 md:row-start-2 md:col-start-3 md:col-span-8 lg:row-start-1 lg:col-start-9 lg:col-span-4">
-                                <h3 className="text-sm font-medium text-gray-900">Sign up for our newsletter</h3>
-                                <p className="mt-6 text-sm text-gray-500">The latest deals and savings, sent to your inbox weekly.</p>
-                                <form className="mt-2 flex sm:max-w-md">
-                                    <label htmlFor="email-address" className="sr-only">Email address</label>
-                                    <input
-                                        id="email-address"
-                                        type="text"
-                                        autoComplete="email"
-                                        required
-                                        className="appearance-none min-w-0 w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                    <div className="ml-4 flex-shrink-0">
-                                        <button
-                                            type="submit"
-                                            className="w-full bg-indigo-600 border border-transparent rounded-md shadow-sm py-2 px-4 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Sign up
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-gray-100 py-10 text-center">
-                        <p className="text-sm text-gray-500">&copy; 2021 Workflow, Inc. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
     )
 };
+
+export default CartShoppingPage;

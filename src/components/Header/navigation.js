@@ -7,6 +7,11 @@ import MaxWidthWrapper from '../MaxWidthWrapper';
 import Search from './search';
 import Vietnam from '../../assets/vn.png';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+
+
 const navigation = [
     { name: 'Dashboard', href: '#', current: false },
     { name: 'Team', href: '#', current: false },
@@ -19,8 +24,16 @@ function classNames(...classes) {
 }
 
 const Navigation = ({ className_bg, className_textcolor }) => {
+    const navigate = useNavigate();
+
     const getUser = localStorage.getItem('token');
     ;
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+
+    };
     return (
         <div className="inset-x-0 top-8 md:absolute md:z-10">
             <Disclosure as="nav" className={`max-w-full  ${className_bg}`}>
@@ -105,11 +118,12 @@ const Navigation = ({ className_bg, className_textcolor }) => {
                                                     <Menu.Item>
                                                         {({ active }) => (
                                                             <a
-                                                                href="#"
+
                                                                 className={classNames(
                                                                     active ? 'bg-gray-100' : '',
                                                                     'block px-4 py-2 text-sm text-gray-700',
                                                                 )}
+                                                                onClick={handleLogout}
                                                             >
                                                                 Sign out
                                                             </a>
