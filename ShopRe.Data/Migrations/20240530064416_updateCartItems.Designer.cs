@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240530064416_updateCartItems")]
+    partial class updateCartItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,20 +324,17 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OptionValuesId")
+                    b.Property<int?>("ProductID_NK")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductID_NK")
+                    b.Property<string>("ProductImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProductOptionValuesId")
                         .HasColumnType("int");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<int?>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SellerName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SessionID")
                         .HasColumnType("int");
@@ -343,12 +342,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("productImgs")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("OptionValuesId");
 
                     b.HasIndex("ProductID_NK");
 
@@ -537,9 +531,6 @@ namespace ShopRe.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("OptionValuesId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("OrderID")
                         .HasColumnType("int");
 
@@ -553,8 +544,6 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OptionValuesId");
 
                     b.HasIndex("OrderID");
 
@@ -932,10 +921,6 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.CartItem", b =>
                 {
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "OptionValues")
-                        .WithMany()
-                        .HasForeignKey("OptionValuesId");
-
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductID_NK");
@@ -947,8 +932,6 @@ namespace ShopRe.Data.Migrations
                     b.HasOne("ShopRe.Model.Models.ShoppingSession", "Session")
                         .WithMany()
                         .HasForeignKey("SessionID");
-
-                    b.Navigation("OptionValues");
 
                     b.Navigation("Product");
 
@@ -986,10 +969,6 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.OrderItems", b =>
                 {
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "OptionValues")
-                        .WithMany()
-                        .HasForeignKey("OptionValuesId");
-
                     b.HasOne("ShopRe.Model.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderID");
@@ -997,8 +976,6 @@ namespace ShopRe.Data.Migrations
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductID_NK");
-
-                    b.Navigation("OptionValues");
 
                     b.Navigation("Order");
 

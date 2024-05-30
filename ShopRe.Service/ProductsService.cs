@@ -87,7 +87,6 @@ namespace ShopRe.Service
                 }
             }
         }
-
         //
         public Task<Product> Add(Product entity)
         {
