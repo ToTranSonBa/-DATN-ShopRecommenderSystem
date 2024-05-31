@@ -18,6 +18,8 @@ namespace DATN_ShopRecommenderSystem.Helpers
             CreateMap<DetailComment, CommentDTO>().ReverseMap();
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<Account, AccountDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
+            CreateMap<ApplicationUser, AccountDTO>().ReverseMap();
         }
     }
 }
