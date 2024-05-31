@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cartsApi, deleteCartItem, increaseProduct, decreaseProduct } from '../../services/CartApi/cartApi';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const CartShoppingPage = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const [quantities, setQuantities] = useState([]);
     const [cartData, setCartData] = useState([]);
-    const [subTotal, setSubTotal] = useState(0);
-    const [total, setTotal] = useState(0);
+
 
     const fetchCart = useCallback(async () => {
         try {
@@ -55,16 +55,9 @@ const CartShoppingPage = () => {
             await increaseProduct(idProduct, token);
             const updatedCart = [...cartData];
             updatedCart[index].quantity += 1;
-            console.log('token: ', token);
-            const updatedTotalPrices = updatedCart.reduce((total, item) => {
-                const productPrice = item.product.price * item.quantity;
-                return total + productPrice;
-            }, 0);
 
             setQuantities(updatedCart.map((item) => item.quantity));
             setCartData(updatedCart);
-            setSubTotal(updatedTotalPrices);
-            setTotal(updatedTotalPrices + 5000);
         } catch (error) {
             console.error('Failed to delete item:', error);
         }
@@ -77,15 +70,8 @@ const CartShoppingPage = () => {
             if (updatedCart[index].quantity > 1) {
                 updatedCart[index].quantity -= 1;
 
-                const updatedTotalPrices = updatedCart.reduce((total, item) => {
-                    const productPrice = item.product.price * item.quantity;
-                    return total + productPrice;
-                }, 0);
-
                 setQuantities(updatedCart.map((item) => item.quantity));
                 setCartData(updatedCart);
-                setSubTotal(updatedTotalPrices); // Cập nhật tổng tạm tính
-                setTotal(updatedTotalPrices + 5000);
             }
         } catch (error) {
             console.error('Failed to delete item:', error);
@@ -103,8 +89,16 @@ const CartShoppingPage = () => {
         }
     };
 
-    const handleCheckout = () => {
-        navigate('/checkout');
+    const handleCheckout = (event) => {
+        event.preventDefault();
+        const selectedItems = cartData.filter(item => item.checked);
+        if (selectedItems.length > 0) {
+
+            navigate('/checkout', { state: { selectedItems } });
+        }
+        else {
+            toast.error('Chưa có sản phẩm được chọn');
+        }
     };
 
     const handleDeleteItem = async (itemId) => {
@@ -306,6 +300,7 @@ const CartShoppingPage = () => {
                             >
                                 Thanh toán
                             </button>
+                            <ToastContainer />
                         </div>
                     </section>
                 </form>

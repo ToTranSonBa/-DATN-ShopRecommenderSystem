@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import CreditCard from './creditCard';
 import PaymentSuccess from './paymentsuccess';
 function Checkout() {
+    const location = useLocation();
+    const { selectedItems } = location.state || { selectedItems: [] };
+    console.log(selectedItems);
+    const userInfor = selectedItems[0]?.session?.user;
+    const subTotal = selectedItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    const shippingFee = 0; // Assuming shipping is free
+    const total = subTotal + shippingFee;
     const inprocessing = undefined;
     const succes = undefined;
     const [formData, setFormData] = useState({
@@ -88,83 +97,38 @@ function Checkout() {
                                     <fieldset className="mb-3 text-gray-600 bg-white shadow-md">
                                         <label className="flex items-center py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Tên</span>
-                                            <input
-                                                name="name"
+                                            <div
                                                 className="w-10/12 focus:outline-none"
-                                                placeholder="Nguyễn Văn A"
-                                                required
-                                                value={formData.name}
-                                                onChange={handleChange}
-                                            />
+
+                                            >{userInfor.firstName} {userInfor.lastName}</div>
+
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Email</span>
-                                            <input
-                                                name="email"
-                                                type="email"
-                                                className="w-10/12 border-none focus:outline-none"
-                                                placeholder="nguyenvana@gmail.com"
-                                                required
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                            />
+                                            <div
+                                                className="w-10/12 focus:outline-none"
+
+                                            >{userInfor.email}</div>
+
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Địa chỉ</span>
-                                            <input
-                                                name="address"
+                                            <div
                                                 className="w-10/12 focus:outline-none"
-                                                placeholder="Quan 10 duong Vo Van Ngan"
-                                                value={formData.address}
-                                                onChange={handleChange}
-                                            />
+
+                                            >{userInfor.address}</div>
+
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
-                                            <span className="w-2/12 text-right">City</span>
-                                            <input
-                                                name="city"
+                                            <span className="w-2/12 text-right">Số điện thoại</span>
+                                            <div
                                                 className="w-10/12 focus:outline-none"
-                                                placeholder="San Francisco"
-                                                value={formData.city}
-                                                onChange={handleChange}
-                                            />
+
+                                            >{userInfor.phoneNumber}</div>
+
                                         </label>
-                                        <label className="relative flex items-center h-12 py-3 border-t border-gray-200 lg:gap-12 select">
-                                            <span className="w-2/12 text-right">Country</span>
-                                            <div id="country" className="flex items-center w-10/12 focus:outline-none">
-                                                <select
-                                                    name="coutry"
-                                                    className="flex-1 bg-transparent border-none appearance-none cursor-pointer focus:outline-none"
-                                                    value={formData.country}
-                                                    onChange={handleChange}
-                                                >
-                                                    <option value="AU">Australia</option>
-                                                    <option value="BE">Belgium</option>
-                                                    <option value="BR">Brazil</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="CN">China</option>
-                                                    <option value="DK">Denmark</option>
-                                                    <option value="FI">Finland</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="DE">Germany</option>
-                                                    <option value="HK">Hong Kong</option>
-                                                    <option value="IE">Ireland</option>
-                                                    <option value="IT">Italy</option>
-                                                    <option value="JP">Japan</option>
-                                                    <option value="LU">Luxembourg</option>
-                                                    <option value="MX">Mexico</option>
-                                                    <option value="NL">Netherlands</option>
-                                                    <option value="PL">Poland</option>
-                                                    <option value="PT">Portugal</option>
-                                                    <option value="SG">Singapore</option>
-                                                    <option value="ES">Spain</option>
-                                                    <option value="TN">Tunisia</option>
-                                                    <option value="GB">United Kingdom</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="VN">Việt Nam</option>
-                                                </select>
-                                            </div>
-                                        </label>
+
+
                                     </fieldset>
                                 </section>
                                 <section className="h-auto rounded-lg lg:mt-14">
@@ -188,7 +152,7 @@ function Checkout() {
                                         ) : (
                                             <>
                                                 <span>Thanh toán</span>
-                                                <span className="pl-3">€846.98</span>
+                                                <span className="pl-3">{total + 5000}</span>
                                             </>
                                         )}
                                     </button>
@@ -199,34 +163,30 @@ function Checkout() {
                     <div className="hidden col-span-1 bg-white shadow-md lg:mt-7 h-min lg:block">
                         <h1 className="px-8 py-6 text-xl text-gray-600 border-b-2">Tóm tắt đơn Hàng</h1>
                         <ul className="max-h-[550px] h-[550px] px-8 py-6 space-y-6 overflow-y-scroll border-b">
-                            <OrderItem
-                                imgSrc="https://bit.ly/3oW8yej"
-                                title="Studio 2 Headphone"
-                                description="Red Headphone"
-                                quantity={2}
-                                price={30.99}
-                            />
-                            <OrderItem
-                                imgSrc="https://bit.ly/3oW8yej"
-                                title="Studio 2 Headphone"
-                                description="Red Headphone"
-                                quantity={2}
-                                price={30.99}
-                            />
+                            {selectedItems.map((item, index) => (
+                                <OrderItem
+                                    key={index}
+                                    imgSrc={item.product.image}
+                                    title={item.product.name}
+                                    description={item.product.name || 'No description available'}
+                                    quantity={item.quantity}
+                                    price={item.product.price}
+                                />
+                            ))}
                         </ul>
                         <div className="px-8 border-b">
                             <div className="flex justify-between py-4 text-gray-600">
                                 <span>Tạm tính</span>
-                                <span className="font-semibold text-pink-500">€846.98</span>
+                                <span className="font-semibold text-pink-500">€{subTotal}đ</span>
                             </div>
                             <div className="flex justify-between py-4 text-gray-600">
                                 <span>Phí giao hàng</span>
-                                <span className="font-semibold text-pink-500">Free</span>
+                                <span className="font-semibold text-pink-500">5000</span>
                             </div>
                         </div>
                         <div className="flex justify-between px-8 py-8 text-xl font-semibold text-gray-600">
                             <span>Tổng </span>
-                            <span>€846.98</span>
+                            <span>{total + 5000} đ</span>
                         </div>
                     </div>
                 </div>
@@ -247,9 +207,9 @@ const OrderItem = ({ imgSrc, title, description, quantity, price }) => (
         <div className="col-span-2 pt-3">
             <div className="flex items-center justify-between space-x-2 text-sm">
                 <span className="text-gray-400">
-                    {quantity} x €{price}
+                    {quantity} x {price}
                 </span>
-                <span className="inline-block font-semibold text-pink-400">€{(quantity * price).toFixed(2)}</span>
+                <span className="inline-block font-semibold text-pink-400">{(quantity * price)}</span>
             </div>
         </div>
     </li>

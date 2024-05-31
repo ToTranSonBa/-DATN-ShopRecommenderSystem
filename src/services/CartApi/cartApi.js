@@ -17,7 +17,7 @@ const deleteCartItem = async (idCartItem, token) => {
 };
 
 const increaseProduct = async (idProduct, token) => {
-    return axios.post(`/CartItems/DecreaseProduct?idProduct=${idProduct}`, {
+    return axios.post(`/CartItems/IncreaseProduct?idProduct=${idProduct}`, {
         headers: {
             Authorization: "Bearer " + token,
         }

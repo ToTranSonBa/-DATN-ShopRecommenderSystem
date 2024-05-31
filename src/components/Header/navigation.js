@@ -49,12 +49,13 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
     };
     const handleLogout = () => {
         localStorage.clear();
-        // navigate('/login'); // Chuyển hướng người dùng đến trang đăng nhập
+        navigate('/login'); // Chuyển hướng người dùng đến trang đăng nhập
     };
     const goToSignUP = () => {
         navigate('/signup');
     };
     const goToLogin = () => {
+        localStorage.removeItem('token');
         navigate('/login');
     };
     const goToUserPage = () => {
