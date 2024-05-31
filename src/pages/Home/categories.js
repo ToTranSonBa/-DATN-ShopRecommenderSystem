@@ -3,39 +3,39 @@ import SliderCategories from './slider_categories';
 
 const Categories = () => {
     return (
-        <div className="w-full h-auto py-12 bg-white">
+        <div className="w-full h-auto bg-white lg:py-32">
             <MaxWidthWrapper className={'flex-row lg:gap-10'}>
-                <div className="flex h-min">
+                <div className="flex h-min lg:gap-12">
                     <span className="text-4xl font-semibold text-black basis-7/12">
-                        Explore millions of offerings tailored to your business needs
+                        Khám phá hàng triệu sản phẩm, dịch vụ phù hợp với nhu cầu kinh doanh của bạn
                     </span>
                     <div className="grid grid-cols-2 grid-rows-2 gap-y-6 basis-5/12">
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">200M+</span>
+                                <span className="text-3xl font-semibold text-primary">Hơn 200 triệu</span>
                                 <br />
-                                <span className="text-xl font-medium ">product</span>
+                                <span className="text-xl font-light ">sản phẩm</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">200K+</span>
+                                <span className="text-3xl font-semibold text-primary">Hơn 200 nghìn</span>
                                 <br />
-                                <span className="text-xl font-medium ">suppliers</span>
+                                <span className="text-xl font-light ">nhà cung cấp</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
                                 <span className="text-3xl font-semibold text-primary">5,900</span>
                                 <br />
-                                <span className="text-xl font-medium ">product categories</span>
+                                <span className="text-xl font-light ">danh mục sản phẩm</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
                                 <span className="text-3xl font-semibold text-primary">200+</span>
                                 <br />
-                                <span className="text-xl font-medium ">countries and regions</span>
+                                <span className="text-xl font-light ">quốc gia và khu vực</span>
                             </div>
                         </div>
                     </div>

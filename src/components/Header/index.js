@@ -10,12 +10,9 @@ function Header() {
     const [classNameBg, setClassNameBg] = useState('bg-transparent');
     const [classNameTextColor, setClassNameTextColor] = useState('text-white');
     const [classNameDropShadow, setClassNameDropShadow] = useState('');
-    const [currentPage, setCurrentPage] = useState(window.location.pathname);
+
     const handleHover = () => {
         setIsHovered(true);
-        setClassNameBg('bg-white');
-        setClassNameTextColor('text-black');
-        setClassNameDropShadow('drop-shadow-md');
     };
 
     const handleLeave = () => {
@@ -26,20 +23,14 @@ function Header() {
         const currentScrollPos = window.scrollY;
         setScrollPosition(currentScrollPos);
 
-        if (currentScrollPos > 50 || isHovered) {
+        if (currentScrollPos > 50) {
             setClassNameBg('bg-white');
             setClassNameTextColor('text-black');
             setClassNameDropShadow('drop-shadow-md');
-        } else {
-            if (currentPage !== '/') {
-                setClassNameBg('bg-white');
-                setClassNameTextColor('text-black');
-                setClassNameDropShadow('drop-shadow-md');
-            } else {
-                setClassNameBg('bg-transparent');
-                setClassNameTextColor('text-white');
-                setClassNameDropShadow('');
-            }
+        } else if (!isHovered) {
+            setClassNameBg('bg-transparent');
+            setClassNameTextColor('text-white');
+            setClassNameDropShadow('');
         }
     };
 
@@ -48,24 +39,46 @@ function Header() {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [isHovered]);
+    }, []);
+
     useEffect(() => {
-        setCurrentPage(window.location.pathname);
         if (window.location.pathname !== '/') {
             setClassNameBg('bg-white');
             setClassNameTextColor('text-black');
             setClassNameDropShadow('drop-shadow-md');
+        } else {
+            setClassNameBg('bg-transparent');
+            setClassNameTextColor('text-white');
+            setClassNameDropShadow('');
         }
-    }, []);
+    }, [window.location.pathname]);
+
+    useEffect(() => {
+        if (isHovered) {
+            setClassNameBg('bg-white');
+            setClassNameTextColor('text-black');
+            setClassNameDropShadow('drop-shadow-md');
+        } else if (scrollPosition <= 50) {
+            setClassNameBg('bg-transparent');
+            setClassNameTextColor('text-white');
+            setClassNameDropShadow('');
+        }
+    }, [isHovered, scrollPosition]);
+
     return (
         <div className="fixed z-50 w-screen bg-black">
             <HeaderNotificationBar
                 className_bg={classNameBg}
                 className_textcolor={classNameTextColor}
-                content="30% off storewide"
+                content="Giảm 30% toàn cửa hàng"
             />
 
-            <Navigation className_bg={classNameBg} className_textcolor={classNameTextColor} />
+            <Navigation
+                className_bg={classNameBg}
+                className_textcolor={classNameTextColor}
+                onHover={handleHover}
+                onLeave={handleLeave}
+            />
             <NavbarCustom
                 className_bg={classNameBg}
                 className_textcolor={classNameTextColor}

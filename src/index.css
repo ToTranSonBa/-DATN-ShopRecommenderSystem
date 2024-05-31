@@ -18,3 +18,18 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+@layer utilities {
+    .rotate-y-180 {
+        transform: rotateY(180deg);
+    }
+    .rotate-y--180 {
+        transform: rotateY(-180deg);
+    }
+}
+
+.rearIsVisible {
+    @apply rotate-y--180;
+}
+input:focus {
+    outline: none;
+}

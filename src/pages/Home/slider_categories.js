@@ -2,57 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { BsChevronCompactLeft, BsChevronCompactRight } from 'react-icons/bs';
 import { RxDotFilled } from 'react-icons/rx';
 
-const items = [
-    { icon: <IconComponent />, label: 'Agriculture' },
-    { icon: <IconComponent />, label: 'Industry' },
-    { icon: <IconComponent />, label: 'Technology' },
-    { icon: <IconComponent />, label: 'Health' },
-    { icon: <IconComponent />, label: 'Education' },
-    { icon: <IconComponent />, label: 'Finance' },
-    { icon: <IconComponent />, label: 'Retail' },
-    { icon: <IconComponent />, label: 'Transportation' },
-    { icon: <IconComponent />, label: 'Energy' },
-    { icon: <IconComponent />, label: 'Construction' },
-    { icon: <IconComponent />, label: 'Hospitality' },
-    { icon: <IconComponent />, label: 'Real Estate' },
-    { icon: <IconComponent />, label: 'Entertainment' },
-    { icon: <IconComponent />, label: 'Telecommunication' },
-    { icon: <IconComponent />, label: 'Utilities' },
-    { icon: <IconComponent />, label: 'Media' },
-    { icon: <IconComponent />, label: 'Automotive' },
-    { icon: <IconComponent />, label: 'Pharmaceutical' },
-    { icon: <IconComponent />, label: 'Biotechnology' },
-    { icon: <IconComponent />, label: 'Food' },
-    { icon: <IconComponent />, label: 'Fashion' },
-    { icon: <IconComponent />, label: 'Aerospace' },
-    { icon: <IconComponent />, label: 'Defense' },
-    { icon: <IconComponent />, label: 'Chemicals' },
-    { icon: <IconComponent />, label: 'Machinery' },
-];
-
-function IconComponent() {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            className="w-6 h-6 mx-auto"
-        >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"
-            />
-        </svg>
-    );
-}
+// API
+import { fetchCategories } from '../../services/HomeApi/home';
 
 function SliderCategories() {
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const slides = [items.slice(0, 9), items.slice(9, 18), items.slice(18, 25)];
+    const [error, setError] = useState(null);
+    const [slides, setSlides] = useState([]);
+
+    //
+
+    useEffect(() => {
+        const getCategories = async () => {
+            try {
+                const response = await fetchCategories();
+                const categoriesData = response.data;
+
+                createSlides(categoriesData);
+            } catch (error) {
+                setError('Failed to fetch categories');
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+
+        getCategories();
+    }, []);
+
+    const createSlides = (items) => {
+        const slidesArray = [];
+        let tempArray = [...items]; // Tạo bản sao của danh sách ban đầu
+
+        for (let i = 0; i < items.length; i += 16) {
+            let slide = tempArray.slice(i, i + 16);
+            if (slide.length < 16) {
+                // Nếu slide không đủ 16 phần tử, bổ sung từ danh sách ban đầu
+                slide = slide.concat(items.slice(0, 16 - slide.length));
+            }
+            slidesArray.push(slide);
+        }
+
+        setSlides(slidesArray);
+    };
 
     const prevSlide = () => {
         if (currentIndex > 0) {
@@ -66,15 +57,9 @@ function SliderCategories() {
         }
     };
 
-    useEffect(() => {
-        const autoSlide = setInterval(() => {
-            if (currentIndex < slides.length - 1) {
-                nextSlide();
-            }
-        }, 3000);
-
-        return () => clearInterval(autoSlide);
-    }, [currentIndex]);
+    if (!slides[currentIndex]) {
+        return null; // Avoid rendering if the slide is undefined
+    }
 
     // Chia các mục thành các cột, mỗi cột chứa 2 mục
     const columns = [];
@@ -83,35 +68,51 @@ function SliderCategories() {
     }
 
     return (
-        <div className="relative w-full h-auto m-auto lg:px-4 lg:py-16 group">
+        <div className="relative min-h-[400px] w-full m-auto lg:px-4 lg:py-16 group ">
             <div className="flex items-center justify-around">
+                {error && <div className="error">{error}</div>}
                 {columns.map((column, columnIndex) => (
-                    <div key={columnIndex} className="flex flex-col items-center gap-y-8">
+                    <div className="w-[150px] h-[150px]" key={columnIndex}>
                         {column.map((item, index) => (
                             <div
                                 key={index}
-                                className="border-2 border-separate border-black rounded-full lg:py-6 lg:px-2 lg:w-24"
+                                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
                             >
-                                {item.icon}
-                                <span className="block">{item.label}</span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    className="mx-auto size-9"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                                    />
+                                </svg>
+
+                                <div className="mt-2 text-sm text-center lg:px-1">{item.category.name}</div>
                             </div>
                         ))}
                     </div>
                 ))}
             </div>
+
             {/* Left Arrow */}
             {currentIndex > 0 && (
-                <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] left-5 text-2xl rounded-full p-2 bg-black/30 text-white cursor-pointer">
-                    <BsChevronCompactLeft onClick={prevSlide} size={30} />
+                <div className="hidden lg:mt-6 group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] left-0 text-xl rounded-full p-2 bg-black/30 text-white cursor-pointer backdrop-blur-xl">
+                    <BsChevronCompactLeft onClick={prevSlide} size={20} />
                 </div>
             )}
             {/* Right Arrow */}
             {currentIndex < slides.length - 1 && (
-                <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] right-5 text-2xl rounded-full p-2 bg-black/30 text-white cursor-pointer">
-                    <BsChevronCompactRight onClick={nextSlide} size={30} />
+                <div className="hidden lg:mt-6 group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] right-0 text-xl rounded-full p-2 bg-black/30 text-white cursor-pointer backdrop-blur-xl">
+                    <BsChevronCompactRight onClick={nextSlide} size={20} />
                 </div>
             )}
-            <div className="flex justify-center py-2 top-4">
+            <div className="absolute flex items-end justify-center w-full py-2 -bottom-4 ">
                 {slides.map((_, slideIndex) => (
                     <div
                         key={slideIndex}
