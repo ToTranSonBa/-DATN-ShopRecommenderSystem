@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DATN-ShopRecommenderSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd70e527cfd243a579949f6477dc1ee502b6fdff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e8434ec417f642f2bf9eb718515245d1354b0a60")]
 [assembly: System.Reflection.AssemblyProductAttribute("DATN-ShopRecommenderSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DATN-ShopRecommenderSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
