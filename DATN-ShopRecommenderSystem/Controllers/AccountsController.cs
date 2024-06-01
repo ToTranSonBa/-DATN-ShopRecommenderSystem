@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,30 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             var response = new Response<Account>("Login Successfully!", "200", null, token);
             return Ok(response);
+        }
+        [Authorize]
+        [HttpGet("UserInformation")]
+        public async Task<ActionResult> GetUserInformation()
+        {
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var userDTO = await _accountService.GetUserInformation(user);
+
+            
+            return Ok(userDTO);
         }
     }
 }

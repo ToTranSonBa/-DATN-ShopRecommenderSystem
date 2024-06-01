@@ -19,12 +19,13 @@ namespace ShopRe.Service
 {
     public interface ICartItemsService
     {
-        Task<CartItem> AddToCart(int idProduct, int idProductOptionValue, ApplicationUser user);
+        Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, ApplicationUser user);
         Task<CartItem> DecreaseProductInCart(int idProduct, ApplicationUser user);
         Task<CartItem> IncreaseProductInCart(int idProduct, ApplicationUser user);
         Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user);
         Task<ApplicationUser> GetUserFromTokenAsync(string token);
         Task<bool> DeleteCartItem(int idCartItem, ApplicationUser user);
+        Task<CartItem> UpdateQuantityItem(int idProduct, int quantity, ApplicationUser user);
     }
 
     public class CartItemsService : ICartItemsService
@@ -53,12 +54,11 @@ namespace ShopRe.Service
             }
 
             var cartItems = await _dbContext.CartItem
-                                            .Where(c => c.Session.ID == session.ID && c.Session.User.Id == user.Id)
+                                            .Where(c => c.Session.ID == session.ID)
                                             .Include(c => c.Product)
                                             .ToListAsync();
 
-            var total = 0;
-
+            decimal total = 0;
             foreach (var cartItem in cartItems)
             {
                 if (cartItem.Product != null)
@@ -82,12 +82,19 @@ namespace ShopRe.Service
 
             if (session == null)
             {
-                return new List<CartItem>(); 
+                session = new ShoppingSession
+                {
+                    Total = 0,
+                    User = user
+                };
+                _dbContext.ShoppingSessions.Add(session);
+                await _dbContext.SaveChangesAsync();
+                return new List<CartItem>();
             }
 
             var cartItems = await _dbContext.CartItem
-                                            .Where(c => c.Session.ID == session.ID && c.Session.User.Id == user.Id)
-                                            .Include(c => c.Product)
+                                            .Where(c => c.Session.ID == session.ID)
+                                            .Include(c => c.Product).Include(c=>c.OptionValues)
                                             .ToListAsync();
 
             return cartItems;
@@ -107,21 +114,37 @@ namespace ShopRe.Service
             var userEmail = userEmailClaim.Value;
             return await _userManager.FindByEmailAsync(userEmail);
         }
-        public async Task<CartItem> AddToCart(int idProduct, int idProductOptionValue, ApplicationUser user)
+        public async Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, ApplicationUser user)
         {
             var product = await _productRepository.GetById(idProduct);
+            if (product == null)
+            {
+                return null;
+            }
+
+            var seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
+            if (seller == null)
+            {
+                return null;
+            }
+
+            ProductOptionValues productOption = null;
+            if (idProductOptionValue.HasValue)
+            {
+                //productOption = await _dbContext.ProductOptionValues.FindAsync(idProductOptionValue.Value);
+                productOption = await _dbContext.ProductOptionValues
+                    .Where(p => p.Id == idProductOptionValue.Value)
+                    .Include(p => p.Option)
+                    .ThenInclude(o => o.Product)
+                    .FirstOrDefaultAsync();
+
+                if (productOption == null || productOption.Option.Product.ID_NK != product.ID_NK)
+                {
+                    return null;
+                }
+            }
 
             var session = await _dbContext.ShoppingSessions.FirstOrDefaultAsync(p => p.User == user);
-
-            var newLog = new UserLog
-            {
-                Detail = "add to cart",
-                SellerId = product.SellerID_NK,
-                LogRate = LogRate.ADCART,
-                User = user
-            };
-            await _UserLogRepository.AddL(newLog);
-            //Nếu user chưa có giỏ hàng thì tạo shopsession
             if (session == null)
             {
                 session = new ShoppingSession
@@ -132,31 +155,86 @@ namespace ShopRe.Service
                 _dbContext.ShoppingSessions.Add(session);
             }
 
-            var existingCartItem = await _dbContext.CartItem.FirstOrDefaultAsync(p => p.Product == product && p.Session == session);
+            var newLog = new UserLog
+            {
+                Detail = "add to cart",
+                SellerId = product.SellerID_NK,
+                LogRate = LogRate.ADCART,
+                User = user
+            };
+            await _UserLogRepository.AddL(newLog);
 
+            var existingCartItem = await _dbContext.CartItem.FirstOrDefaultAsync(p => p.Product == product && p.Session == session && p.OptionValues == productOption);
             if (existingCartItem == null)
             {
                 var cartItem = new CartItem
                 {
                     Quantity = 1,
                     Product = product,
-                    Session = session
+                    Session = session,
+                    OptionValues = productOption,
+                    SellerId = product.SellerID_NK,
+                    SellerName = seller.Name,
+                    productImgs= ProductOptionImage
                 };
                 _dbContext.CartItem.Add(cartItem);
+                session.Total += product.Price;
+                await _dbContext.SaveChangesAsync();
+                return cartItem;
             }
             else
             {
                 existingCartItem.Quantity += 1;
                 _dbContext.CartItem.Update(existingCartItem);
+                session.Total += product.Price;
+                await _dbContext.SaveChangesAsync();
+                return existingCartItem;
             }
-
-            session.Total += product.Price;
-
-            await _dbContext.SaveChangesAsync();
-
-            return existingCartItem;
         }
 
+        public async Task<CartItem> UpdateQuantityItem(int idProduct, int quantity, ApplicationUser user)
+        {
+            if(quantity == 0)
+            {
+                return null;
+            }
+            var product = await _productRepository.GetById(idProduct);
+            if (product == null)
+            {
+                return null;
+            }
+
+            var session = await _dbContext.ShoppingSessions.FirstOrDefaultAsync(p => p.User.Id == user.Id);
+            if (session == null)
+            {
+                session = new ShoppingSession
+                {
+                    Total = 0,
+                    User = user
+                };
+                _dbContext.ShoppingSessions.Add(session);
+                await _dbContext.SaveChangesAsync(); 
+            }
+
+            var cartItem = await _dbContext.CartItem.FirstOrDefaultAsync(c => c.Session == session && c.Product == product);
+            if (cartItem == null)
+            {
+                return null;
+            }
+
+            cartItem.Quantity = quantity;
+            _dbContext.CartItem.Update(cartItem);
+
+            var isTotalUpdated = await UpdateTotalPriceShoppingSession(user);
+
+            if (isTotalUpdated)
+            {
+                await _dbContext.SaveChangesAsync();
+                return cartItem;
+            }
+
+            return null; 
+        }
 
         public async Task<CartItem> IncreaseProductInCart(int idProduct, ApplicationUser user)
         {
@@ -208,25 +286,23 @@ namespace ShopRe.Service
 
             if (session == null)
             {
-                return false; 
+                return false;
             }
 
             var cartItem = await _dbContext.CartItem.FirstOrDefaultAsync(c => c.Session == session && c.Id == idCartItem);
 
             if (cartItem == null)
             {
-                return false; 
+                return false;
             }
 
             _dbContext.CartItem.Remove(cartItem);
+            await _dbContext.SaveChangesAsync();
 
-            await _dbContext.SaveChangesAsync(); 
+            bool isTotalUpdated = await UpdateTotalPriceShoppingSession(user);
 
-            bool check = await UpdateTotalPriceShoppingSession(user);
-
-            return check;
+            return isTotalUpdated;
         }
-
 
     }
 
