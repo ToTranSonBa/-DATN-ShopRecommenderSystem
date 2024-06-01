@@ -18,5 +18,6 @@ namespace ShopRe.Common.DTOs
         public int? ReviewCount { get; set; }
         public string? ImageUrl { get; set; }
         public int? Total {  get; set; }
+        public List<ProductDetailDTO> Products { get; set; }
     }
 }
