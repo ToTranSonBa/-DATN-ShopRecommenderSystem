@@ -260,6 +260,9 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ShippingAddress")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -351,8 +354,6 @@ namespace ShopRe.Data.Migrations
                     b.HasIndex("OptionValuesId");
 
                     b.HasIndex("ProductID_NK");
-
-                    b.HasIndex("ProductOptionValuesId");
 
                     b.HasIndex("SessionID");
 
@@ -513,6 +514,9 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ShippingAddressId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -525,6 +529,8 @@ namespace ShopRe.Data.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ShippingAddressId");
 
                     b.ToTable("Order");
                 });
@@ -819,6 +825,40 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("ACCOUNT_SELLER_PRIORITY", (string)null);
                 });
 
+            modelBuilder.Entity("ShopRe.Model.Models.ShippingAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ShippingAddresses");
+                });
+
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
                 {
                     b.Property<int>("ID")
@@ -829,9 +869,6 @@ namespace ShopRe.Data.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("ToTalItems")
-                        .HasColumnType("int");
 
                     b.Property<decimal?>("Total")
                         .HasColumnType("decimal(18,2)");
@@ -940,10 +977,6 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ProductID_NK");
 
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "ProductOptionValues")
-                        .WithMany()
-                        .HasForeignKey("ProductOptionValuesId");
-
                     b.HasOne("ShopRe.Model.Models.ShoppingSession", "Session")
                         .WithMany()
                         .HasForeignKey("SessionID");
@@ -951,8 +984,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("OptionValues");
 
                     b.Navigation("Product");
-
-                    b.Navigation("ProductOptionValues");
 
                     b.Navigation("Session");
                 });
@@ -981,7 +1012,13 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
 
+                    b.HasOne("ShopRe.Model.Models.ShippingAddress", "ShippingAddress")
+                        .WithMany()
+                        .HasForeignKey("ShippingAddressId");
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("ShippingAddress");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.OrderItems", b =>
@@ -1034,6 +1071,15 @@ namespace ShopRe.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Option");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.ShippingAddress", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
