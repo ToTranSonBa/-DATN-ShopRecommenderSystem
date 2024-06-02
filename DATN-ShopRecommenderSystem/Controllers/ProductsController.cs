@@ -61,7 +61,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             try
             {
                 var product = await _elasticSearchService.GetAllAsync(productParameters);
-                var authHeader = Request.Headers["Authorization"].ToString();
+                /*var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
                     var newlog = new UserLogDto
@@ -85,7 +85,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         SellerId= null
                     };
                     await _logService.addSearch(newlog);
-                }
+                }*/
 
                 return Ok(product);
             }
