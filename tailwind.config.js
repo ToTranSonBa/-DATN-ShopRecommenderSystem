@@ -4,6 +4,18 @@ module.exports = {
     content: ['node_modules/flowbite-react/lib/esm/**/*.js', './src/**/*.{js,jsx,ts,tsx}', flowbite.content()],
     theme: {
         extend: {
+            keyframes: {
+                'anim-in': {
+                    '0%': { width: '0px', height: '0px', borderRadius: '100%', opacity: '20%' },
+                    '100%': { opacity: '0%', borderRadius: '0', width: '600px', height: '600px' },
+                },
+            },
+            animation: {
+                'anim-in': 'anim-in 0.7s forwards ease-out',
+            },
+            rotate: {
+                'y-180': '180deg',
+            },
             colors: {
                 primary: '#8833FF',
                 secondary: '#FF6633',
@@ -48,7 +60,7 @@ module.exports = {
             },
             fontSize: {
                 es: '0.5rem',
-            }
+            },
         },
     },
 

@@ -1,5 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginApi } from '../../services/LoginApi/loginApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Move the <head> section outside of the component
 // It's usually included in the HTML file, not within React components
@@ -7,16 +10,71 @@ import { Link } from 'react-router-dom';
 // You can include the external CSS link directly in the HTML file
 
 const LoginPage = () => {
+    const navigate = useNavigate();
+    const goToSignUP = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const GoToSignUP = () => {
+        goToSignUP('/signup');
+    };
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+
+        if (token) {
+            navigate('/');
+        }
+    }, [localStorage.getItem]);
+
+    const handleClick = async (event) => {
+        event.preventDefault();
+        try {
+            if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+                toast.error('Vui lòng nhập địa chỉ email của bạn');
+                return;
+            }
+
+            if (!password) {
+                toast.error('Vui lòng nhập mật khẩu của bạn');
+                return;
+            }
+            const response = await loginApi(email, password);
+
+            if (response && response.token) {
+                const token = response.token;
+                localStorage.setItem('token', token);
+                navigate('/');
+            } else if (response && response.status === 401) {
+                localStorage.removeItem('token');
+                toast.error('Không được phép. Vui lòng kiểm tra thông tin đăng nhập của bạn.');
+            } else {
+                localStorage.removeItem('token');
+                toast.error('Đăng nhập thất bại. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            toast.error('An unexpected error occurred. Please try again.');
+        }
+    };
+
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+        if (token) {
+        }
+    }, []);
     return (
         <>
-            <body className="py-5 bg-white rounded-lg">
+            <div className="py-5 bg-white rounded-lg">
                 <div className="container flex flex-col pt-12 mx-auto my-5 bg-white rounded-lg">
                     <div className="flex justify-center w-full h-full my-auto xl:gap-14 lg:justify-normal md:gap-5 draggable">
                         <div className="flex items-center justify-center w-full lg:p-12">
                             <div className="flex items-center xl:p-10">
                                 <form className="flex flex-col w-full h-full pb-6 text-center bg-white rounded-3xl">
-                                    <h3 className="mb-3 text-4xl font-extrabold text-dark-grey-900">Sign In</h3>
-                                    <p className="mb-4 text-grey-700">Enter your email and password</p>
+                                    <h3 className="mb-3 text-4xl font-extrabold text-dark-grey-900">Đăng nhập</h3>
+                                    <p className="mb-4 text-grey-700 lg:pb-6">
+                                        Đăng nhập với email và mật khẩu của bạn
+                                    </p>
+
                                     <a
                                         className="flex items-center justify-center w-full py-4 mb-6 text-sm font-medium transition duration-300 rounded-2xl text-grey-900 bg-grey-300 hover:bg-grey-400 focus:ring-4 focus:ring-grey-300"
                                         href="#"
@@ -26,67 +84,65 @@ const LoginPage = () => {
                                             src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/motion-tailwind/img/logos/logo-google.png"
                                             alt=""
                                         />
-                                        Sign in with Google
+                                        Đăng nhập với Google
                                     </a>
                                     <div className="flex items-center mb-3">
                                         <hr className="h-0 border-b border-solid border-grey-500 grow" />
-                                        <p className="mx-4 text-grey-600">or</p>
+                                        <p className="mx-4 text-grey-600">hoặc</p>
                                         <hr className="h-0 border-b border-solid border-grey-500 grow" />
                                     </div>
                                     <label htmlFor="email" className="mb-2 text-sm text-start text-grey-900">
-                                        Email*
+                                        Email <span className="text-red-600 lg:pl-1">*</span>
                                     </label>
                                     <input
                                         id="email"
                                         type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         placeholder="mail@loopple.com"
                                         className="flex items-center w-full px-5 py-4 mr-2 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"
                                     />
                                     <label htmlFor="password" className="mb-2 text-sm text-start text-grey-900">
-                                        Password*
+                                        Mật khẩu<span className="text-red-600 lg:pl-1">*</span>
                                     </label>
                                     <input
                                         id="password"
                                         type="password"
                                         placeholder="Enter a password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         className="flex items-center w-full px-5 py-4 mb-5 mr-2 text-sm font-medium outline-none focus:bg-grey-400 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"
                                     />
-                                    <div className="flex flex-row justify-between mb-8">
-                                        <label className="relative inline-flex items-center mr-3 cursor-pointer select-none">
-                                            <input type="checkbox" checked value="" className="sr-only peer" />
-                                            <div className="w-5 h-5 bg-white border-2 rounded-sm border-grey-500 peer peer-checked:border-0 peer-checked:bg-purple-blue-500">
-                                                <img
-                                                    className=""
-                                                    src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/motion-tailwind/img/icons/check.png"
-                                                    alt="tick"
-                                                />
-                                            </div>
-                                            <span className="ml-3 text-sm font-normal text-grey-900">
-                                                Keep me logged in
-                                            </span>
-                                        </label>
-                                        <a
-                                            href="javascript:void(0)"
+                                    <div className="flex flex-row justify-end mb-8">
+                                        <button
+                                            // onClick={handleForgotPassword}
                                             className="mr-4 text-sm font-medium text-purple-blue-500"
                                         >
-                                            Forget password?
-                                        </a>
+                                            Quên mật khẩu?
+                                        </button>
                                     </div>
-                                    <button className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500">
-                                        Sign In
+                                    <button
+                                        onClick={handleClick}
+                                        className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500"
+                                    >
+                                        Đăng nhập
                                     </button>
-                                    <p className="text-sm leading-relaxed text-grey-900">
-                                        Not registered yet?{' '}
-                                        <Link href="/signup" className="font-bold text-grey-700">
-                                            Create an Account
-                                        </Link>
+                                    <ToastContainer />
+                                    <p className="flex justify-between text-sm leading-relaxed text-grey-900">
+                                        Chưa đăng kí?{' '}
+                                        <a
+                                            onClick={GoToSignUP}
+                                            className="font-bold cursor-pointer hover:underline text-grey-700"
+                                        >
+                                            Tạo tài khoản
+                                        </a>
                                     </p>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-            </body>
+            </div>
         </>
     );
 };

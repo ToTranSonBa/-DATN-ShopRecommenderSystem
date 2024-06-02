@@ -1,29 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../ShopDashboardPage/ShopDashboardPage.scss';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import {
-    BsJustify,
     BsThreeDots,
-    BsSearch,
-    BsFillPersonFill,
-    BsBellFill,
-    BsFillXCircleFill,
-    BsFillPlusCircleFill,
-    BsGraphUpArrow,
-    BsHospital,
-    BsFilter,
-    BsArrowRight,
+
 } from 'react-icons/bs';
 
 import {
     FaCompass,
-    FaStar,
-    FaFacebookMessenger,
-    FaGlobeAmericas,
-    FaListUl,
-    FaPlusCircle,
-    FaPen,
-    FaTrashAlt,
 } from 'react-icons/fa';
 
 import userdata from './userdata';
@@ -31,9 +14,78 @@ import productdata from './productdata';
 import categoriesdata from './categoriesdata';
 import ordersdata from './ordersdata';
 
-// import Checkbox from '@material-ui/core/Checkbox';
-// import CircleCheckedFilled from '@material-ui/icons/CheckCircle';
-// import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
+const orders = [
+    {
+        number: 'WU88191111',
+        date: 'January 22, 2021',
+        datetime: '2021-01-22',
+        invoiceHref: '#',
+        total: '$104.00',
+        products: [
+            {
+                id: 1,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            }, {
+                id: 2,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            }, {
+                id: 3,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            }, {
+                id: 4,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            }, {
+                id: 5,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            },
+            , {
+                id: 6,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            },
+            , {
+                id: 7,
+                name: "Men's 3D Glasses Artwork Tee",
+                href: '#',
+                price: '$36.00',
+                status: 'Delivered Jan 25, 2021',
+                imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-04-product-01.jpg',
+                imageAlt: 'Black tee with intersecting red, white, and green curved lines on front.',
+            },
+            // More products...
+        ],
+    },
+    // More orders...
+]
 
 function getStatusColorClass(status) {
     switch (status) {
@@ -60,28 +112,22 @@ const ShopDashboardPage = () => {
         setCheckedItems(new Array(dataType.length).fill(false));
         setIsAllChecked(false);
         setSelectedItem(null);
+        setIsOpenModal(false);
     };
 
     const [isAllChecked, setIsAllChecked] = useState(false);
     const [checkedItems, setCheckedItems] = useState(new Array(userdata.length).fill(false));
 
-    const handleAllCheckboxChange = (datatype) => {
-        setIsAllChecked(!isAllChecked); // Đảo ngược trạng thái kiểm tra chung
-        setCheckedItems(new Array(datatype.length).fill(!isAllChecked)); // Cập nhật trạng thái kiểm tra của từng phần tử trong userdata
-    };
 
-    const handleCheckboxChange = (index) => {
-        const newCheckedItems = [...checkedItems]; // Tạo một bản sao của mảng trạng thái kiểm tra hiện tại
-        newCheckedItems[index] = !newCheckedItems[index]; // Đảo ngược trạng thái kiểm tra của phần tử tại index
-        setCheckedItems(newCheckedItems); // Cập nhật mảng trạng thái kiểm tra mới
-        setIsAllChecked(newCheckedItems.every((item) => item === true)); // Cập nhật trạng thái kiểm tra chung dựa trên trạng thái kiểm tra của tất cả các phần tử trong userdata
-    };
 
     const [selectedItem, setSelectedItem] = useState(null);
     const getTitleName = () => {
         if (selectedItem) {
             return selectedItem.userName || selectedItem.product || selectedItem.category || selectedItem.client;
         }
+
+
+
 
         switch (selectedData) {
             case 'userdata':
@@ -111,10 +157,46 @@ const ShopDashboardPage = () => {
     const currentData = dataMap[selectedData] || [];
     const handleItemClick = (item) => {
         setSelectedItem(item);
+        if (selectedData === 'categoriesdata') {
+            setSelectedItem(null);
+            openModal();
+        }
     };
 
     const handleBackToList = () => {
         setSelectedItem(null);
+    };
+
+    const [activeIndex, setActiveIndex] = useState(0);
+    const slides = [
+        { src: "https://th.bing.com/th/id/OIP.SDPSNNGWcje3D2AqelhNtAHaEL?w=332&h=187&c=7&r=0&o=5&dpr=1.3&pid=1.7", alt: "Slide 1" },
+        { src: "https://th.bing.com/th/id/OIP.iY8kUBDpiBe7MDujq8_BigHaEK?w=300&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7", alt: "Slide 2" },
+        { src: "https://th.bing.com/th/id/OIP.4iuvU_HXjT5cv2JHOi9M0gHaE7?w=280&h=186&c=7&r=0&o=5&dpr=1.3&pid=1.7", alt: "Slide 3" },
+        { src: "https://th.bing.com/th/id/OIP.p2QBjJfEwLeHnQpTWnnP6gHaFK?w=271&h=187&c=7&r=0&o=5&dpr=1.3&pid=1.7", alt: "Slide 4" },
+        { src: "https://th.bing.com/th/id/OIP.R-yRkj48IzXDeRKz-wO9zwHaDt?rs=1&pid=ImgDetMain", alt: "Slide 5" }
+    ];
+
+    const nextSlide = () => {
+        setActiveIndex((prevIndex) => (prevIndex + 1) % slides.length);
+    };
+
+    const prevSlide = () => {
+        setActiveIndex((prevIndex) => (prevIndex - 1 + slides.length) % slides.length);
+    };
+
+    const goToSlide = (index) => {
+        setActiveIndex(index);
+    };
+
+
+    const [isOpenModal, setIsOpenModal] = useState(false);
+
+    const openModal = () => {
+        setIsOpenModal(true);
+    };
+
+    const closeModal = () => {
+        setIsOpenModal(false);
     };
 
     return (
@@ -294,44 +376,7 @@ const ShopDashboardPage = () => {
                         </div>
                     </div>
 
-                    <div className="left-navigation-content">
-                        <div className="icon-bg">
-                            {/* <BsFillPlusCircleFill className="display-icon" /> */}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="display-icon"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
-                        </div>
-                        <div className="mess-bg">
-                            <div className="Announcement"></div>
-                            <img
-                                className="user-avatar"
-                                src="https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain"
-                            />
-                        </div>
 
-                        <div className="mess-bg">
-                            <img
-                                className="user-avatar"
-                                src="https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain"
-                            />
-                        </div>
-
-                        <div className="mess-bg">
-                            <img
-                                className="user-avatar"
-                                src="https://th.bing.com/th/id/OIF.yAvT7538kbL6wtA0gHPpkw?rs=1&pid=ImgDetMain"
-                            />
-                        </div>
-                    </div>
                 </div>
 
                 <div className="dashboard-content-section">
@@ -357,15 +402,15 @@ const ShopDashboardPage = () => {
                             </div>
 
                             <div
-                                className="add-categories-button"
+                                className="flex text-white min-w-40 h-12 items-center justify-center rounded-lg bg-[#8833ff]"
                                 onClick={selectedItem ? handleBackToList : () => setSelectedItem(null)}
                             >
-                                {/* <FaPlusCircle className="plus-icon" /> */}
+
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="currentColor"
-                                    class="plus-icon"
+                                    class="w-8 pr-2 "
                                 >
                                     <path
                                         fill-rule="evenodd"
@@ -452,15 +497,7 @@ const ShopDashboardPage = () => {
 
                                 <ul className="data-list">
                                     <li className="list-header">
-                                        {/* <div className="checkbox-bg">
-                                            <Checkbox
-                                                className="checkbox-color"
-                                                checked={isAllChecked}
-                                                onChange={() => handleAllCheckboxChange(productdata)}
-                                                icon={<CircleUnchecked />} // Biểu tượng khi chưa được tích vào
-                                                checkedIcon={<CircleCheckedFilled />} // Biểu tượng khi được tích vào
-                                            />
-                                        </div> */}
+
                                         {selectedData === 'userdata' && (
                                             <>
                                                 <div className="header-bg header-center text">Photo</div>
@@ -517,15 +554,7 @@ const ShopDashboardPage = () => {
 
                                     {currentData.map((item, index) => (
                                         <li key={index} className="user-item" onClick={() => handleItemClick(item)}>
-                                            {/* <div className="checkbox-bg">
-                                                <Checkbox
-                                                    className="checkbox-color"
-                                                    checked={checkedItems[index]}
-                                                    onChange={() => handleCheckboxChange(index)}
-                                                    icon={<CircleUnchecked />}
-                                                    checkedIcon={<CircleCheckedFilled />}
-                                                />
-                                            </div> */}
+
                                             {selectedData === 'userdata' && (
                                                 <>
                                                     <div className="header-bg header-center">
@@ -674,12 +703,162 @@ const ShopDashboardPage = () => {
                             </>
                         )}
 
+                        {isOpenModal && (
+                            <div id="default-modal" tabIndex="-1" aria-hidden="true" className="fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-gray bg-opacity-10 backdrop-blur-sm">
+                                <div className="relative p-4 w-full max-w-4xl max-h-full">
+                                    <div className="relative bg-[#EDEFF2] rounded-lg shadow dark:bg-gray-700">
+                                        {/* Modal header */}
+                                        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                                            <h3 className="text-xl font-semibold text-[#6B7A99] dark:text-white">
+                                                Terms of Service
+                                            </h3>
+                                            <button onClick={closeModal} type="button" className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="default-modal">
+                                                <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                </svg>
+                                                <span className="sr-only">Close modal</span>
+                                            </button>
+                                        </div>
+                                        {/* Modal body */}
+                                        <form className="space-y-4 p-8 rounded-lg md:space-y-6 bg-gray-100" onSubmit={(e) => {
+                                            e.preventDefault();
+                                        }} >
+                                            <div className='flex lg:gap-2'>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="last-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Họ
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="last-name"
+                                                        id="last-name"
+                                                        placeholder="Nguyễn"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="first-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="first-name"
+                                                        id="first-name"
+                                                        placeholder="Văn A"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="first-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="first-name"
+                                                        id="first-name"
+                                                        placeholder="Văn A"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className='flex lg:gap-2'>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="last-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Họ
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="last-name"
+                                                        id="last-name"
+                                                        placeholder="Nguyễn"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="first-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="first-name"
+                                                        id="first-name"
+                                                        placeholder="Văn A"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div className='w-1/3'>
+                                                    <label
+                                                        htmlFor="first-name"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Tên
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="first-name"
+                                                        id="first-name"
+                                                        placeholder="Văn A"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label
+                                                    htmlFor="address"
+                                                    className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                >
+                                                    Địa chỉ
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="address"
+                                                    id="address"
+                                                    placeholder="Số nhà, Đường, Quận, Thành phố"
+                                                    className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                />
+                                            </div>
+
+                                        </form>
+                                        {/* Modal footer */}
+                                        <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                                            <button onClick={closeModal} data-modal-hide="default-modal" type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">I accept</button>
+                                            <button onClick={closeModal} data-modal-hide="default-modal" type="button" className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Decline</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {selectedItem && (
-                            <div className="item-details">
+                            <div className="h-[800px]">
                                 {selectedData === 'userdata' && (
                                     <div className="infor-section">
-                                        <div className="infor-column">
-                                            <div className="infor-box ">
+                                        <div className="infor-column h-full">
+                                            <div className="infor-box  bg-gray-100">
                                                 <div className="grid items-center p-10">
                                                     <img
                                                         className="user-avatar-detail"
@@ -693,7 +872,7 @@ const ShopDashboardPage = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="infor-box">
+                                            <div className="infor-box bg-gray-100">
                                                 <div className="pt-5 label-box">Analytics</div>
                                                 <div className="grid gap-10 p-10">
                                                     <div className="infor-detail">
@@ -713,8 +892,8 @@ const ShopDashboardPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="infor-column">
-                                            <div className=" infor-box">
+                                        <div className="infor-column h-full">
+                                            <div className=" infor-box bg-gray-100">
                                                 <div className="grid pt-5 pb-5 gap-7">
                                                     <div className="label-box">Profile</div>
                                                     <div className="grid gap-4">
@@ -740,7 +919,7 @@ const ShopDashboardPage = () => {
                                                         </div>
 
                                                         <div className="flex gap-5">
-                                                            <div className="grid gap-2.5">
+                                                            <div className="grid gap-2.5 px-2">
                                                                 <p className="column-label">ID</p>
                                                                 <div className="w-48 px-3 py-3 bg-white rounded-lg infor-label">
                                                                     {selectedItem.userId}
@@ -763,12 +942,12 @@ const ShopDashboardPage = () => {
                                                 </div>
                                             </div>
 
-                                            <div className=" infor-box">
+                                            <div className=" infor-box bg-gray-100">
                                                 <div className="grid pt-5 pb-5 gap-7">
                                                     <div className="label-box">Analytics</div>
                                                     <div className="grid gap-4">
                                                         <div className="flex gap-5">
-                                                            <div className="grid gap-2.5">
+                                                            <div className="grid gap-2.5 px-2">
                                                                 <p className="column-label">ID</p>
                                                                 <div className="w-48 p-3 bg-white rounded-lg infor-label">
                                                                     {selectedItem.userId}
@@ -789,7 +968,7 @@ const ShopDashboardPage = () => {
                                                         </div>
 
                                                         <div className="flex gap-5">
-                                                            <div className="grid gap-2.5">
+                                                            <div className="grid gap-2.5 px-2">
                                                                 <p className="column-label">ID</p>
                                                                 <div className="w-48 p-3 bg-white rounded-lg infor-label">
                                                                     {selectedItem.userId}
@@ -812,87 +991,402 @@ const ShopDashboardPage = () => {
                                 {selectedData === 'productdata' && (
                                     <div className="infor-section">
                                         <div className="infor-column w-45p">
-                                            <div className="infor-box">
-                                                <div className="pt-5 label-box">Analytics</div>
-                                                <div className="grid gap-10 p-10">
-                                                    <div className="infor-detail">
-                                                        <p className="infor-text">$1456</p>
-                                                        <p className="infor-label">Total sales </p>
-                                                    </div>
 
-                                                    <div className="infor-detail">
-                                                        <p className="infor-text">14</p>
-                                                        <p className="infor-label">profit sales </p>
-                                                    </div>
+                                            <form className="space-y-4 p-8 rounded-lg md:space-y-6 bg-gray-100 h-full" onSubmit={(e) => {
+                                                e.preventDefault();
+                                            }} >
+                                                <div className="pb-2 flex justify-center text-[#6b7a99] text-lg ">Analytics</div>
+                                                <div className='flex lg:gap-2'>
+                                                    <div className='w-1/2'>
+                                                        <label
+                                                            htmlFor="last-name"
+                                                            className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                        >
+                                                            Họ
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="last-name"
+                                                            id="last-name"
+                                                            placeholder="Nguyễn"
+                                                            className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 
-                                                    <div className="infor-detail">
-                                                        <p className="infor-text">78%</p>
-                                                        <p className="infor-label">completed </p>
+                                                        />
+                                                    </div>
+                                                    <div className='w-1/2'>
+                                                        <label
+                                                            htmlFor="first-name"
+                                                            className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                        >
+                                                            Tên
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="first-name"
+                                                            id="first-name"
+                                                            placeholder="Văn A"
+                                                            className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                        />
                                                     </div>
                                                 </div>
-                                            </div>
+
+                                                <div>
+                                                    <label
+                                                        htmlFor="address"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Địa chỉ
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="address"
+                                                        id="address"
+                                                        placeholder="Số nhà, Đường, Quận, Thành phố"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+
+
+                                                <div>
+                                                    <label
+                                                        htmlFor="phone-number"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Số điện thoại
+                                                    </label>
+                                                    <input
+                                                        type="tel"
+                                                        name="phone-number"
+                                                        id="phone-number"
+                                                        placeholder="0123456789"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="email"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Email của bạn
+                                                    </label>
+                                                    <input
+                                                        type="email"
+                                                        name="email"
+                                                        id="email"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                        placeholder="name@company.com"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="password"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Mật khẩu
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        id="password"
+                                                        placeholder="••••••••"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="confirm-password"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Nhập lại mật khẩu
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        name="confirm-password"
+                                                        id="confirm-password"
+                                                        placeholder="••••••••"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+
+
+
+                                            </form>
                                         </div>
-                                        <div className="infor-column w-45p">
-                                            <div className=" infor-box">
-                                                <div className="grid pt-5 pb-5 gap-7">
-                                                    <div className="label-box">Analytics</div>
-                                                    <div className="grid gap-4"></div>
+                                        <div className="infor-column w-45p ">
+                                            <div className="infor-box bg-gray-100 p-8 h-auto">
+                                                <div className="pb-2 flex justify-center text-[#6b7a99] text-lg ">Analytics</div>
+                                                <div id="default-carousel" className="relative w-full" data-carousel="slide">
+                                                    {/* Carousel wrapper */}
+                                                    <div className="relative h-60 overflow-hidden rounded-lg">
+                                                        {slides.map((slide, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={`flex items-center  justify-center w-full duration-700 ease-in-out ${index === activeIndex ? 'block' : 'hidden'}`}
+                                                                data-carousel-item
+                                                            >
+                                                                <img
+                                                                    src={slide.src}
+                                                                    className="absolute block w-full h-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                                                                    alt={slide.alt}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    {/* Slider indicators */}
+                                                    <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
+                                                        {slides.map((_, index) => (
+                                                            <button
+                                                                key={index}
+                                                                type="button"
+                                                                className={`w-3 h-3 rounded-full ${index === activeIndex ? 'bg-blue-500' : 'bg-gray-300'}`}
+                                                                aria-current={index === activeIndex}
+                                                                aria-label={`Slide ${index + 1}`}
+                                                                data-carousel-slide-to={index}
+                                                                onClick={() => goToSlide(index)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    {/* Slider controls */}
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+                                                        data-carousel-prev
+                                                        onClick={prevSlide}
+                                                    >
+                                                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                                                            <svg className="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4" />
+                                                            </svg>
+                                                            <span className="sr-only">Previous</span>
+                                                        </span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+                                                        data-carousel-next
+                                                        onClick={nextSlide}
+                                                    >
+                                                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                                                            <svg className="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4" />
+                                                            </svg>
+                                                            <span className="sr-only">Next</span>
+                                                        </span>
+                                                    </button>
                                                 </div>
+
+                                            </div>
+
+                                            <div className="infor-box  bg-gray-100">
+                                                <div className="pb-2 flex justify-center text-[#6b7a99] text-lg ">Analytics</div>
+                                                <p className='block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white'>The new iPad combines the power and capability of a computer with the ease of use and versatility you’d never expect from one. And now it’s even more versatile, with a larger 10.2‑inch Retina display, support for the full-size Smart Keyboard, and the amazing new capabilities of iPadOS. It’s unbelievably fun. And unmistakably iPad.</p>
+                                                <br />
+                                                <p className='block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white'>With iPad, getting work done is all hustle and no hassle. You can easily edit a document while researching something on the web and making a FaceTime call to a colleague at the same time. Manage all your files in one convenient spot with the Files app.</p>
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                {selectedData === 'categoriesdata' && (
-                                    <>
-                                        <p>
-                                            <strong>Category:</strong> {selectedItem.category}
-                                        </p>
-                                        <p>
-                                            <strong>ID:</strong> {selectedItem.id}
-                                        </p>
-                                        <p>
-                                            <strong>Products:</strong> {selectedItem.products}
-                                        </p>
-                                        <p>
-                                            <strong>Link:</strong> {selectedItem.link}
-                                        </p>
-                                        <p>
-                                            <strong>Section:</strong> {selectedItem.section}
-                                        </p>
-                                        <p>
-                                            <strong>Priority:</strong> {selectedItem.priority}
-                                        </p>
-                                    </>
-                                )}
 
                                 {selectedData === 'ordersdata' && (
-                                    <>
-                                        <p>
-                                            <strong>ID:</strong> {selectedItem.id}
-                                        </p>
-                                        <p>
-                                            <strong>Amount:</strong> {selectedItem.amount}
-                                        </p>
-                                        <p>
-                                            <strong>Income:</strong> {selectedItem.income}
-                                        </p>
-                                        <p>
-                                            <strong>Products:</strong> {selectedItem.products}
-                                        </p>
-                                        <p>
-                                            <strong>Client:</strong> {selectedItem.client}
-                                        </p>
-                                        <p>
-                                            <strong>Update:</strong> {selectedItem.update}
-                                        </p>
-                                        <p>
-                                            <strong>Created:</strong> {selectedItem.created}
-                                        </p>
-                                        <p>
-                                            <strong>Status:</strong> {selectedItem.status}
-                                        </p>
-                                    </>
+                                    <div className="infor-section h-full">
+                                        <div className="infor-column w-45p h-full">
+
+                                            <form className="space-y-4 p-8 rounded-lg md:space-y-6 bg-gray-100 h-full" onSubmit={(e) => {
+                                                e.preventDefault();
+                                            }} >
+                                                <div className="pb-2 flex justify-center text-[#6b7a99] text-lg ">Analytics</div>
+                                                <div className='flex lg:gap-2'>
+                                                    <div className='w-1/2'>
+                                                        <label
+                                                            htmlFor="last-name"
+                                                            className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                        >
+                                                            Họ
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="last-name"
+                                                            id="last-name"
+                                                            placeholder="Nguyễn"
+                                                            className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                        />
+                                                    </div>
+                                                    <div className='w-1/2'>
+                                                        <label
+                                                            htmlFor="first-name"
+                                                            className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                        >
+                                                            Tên
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="first-name"
+                                                            id="first-name"
+                                                            placeholder="Văn A"
+                                                            className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label
+                                                        htmlFor="address"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Địa chỉ
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="address"
+                                                        id="address"
+                                                        placeholder="Số nhà, Đường, Quận, Thành phố"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+
+
+                                                <div>
+                                                    <label
+                                                        htmlFor="phone-number"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Số điện thoại
+                                                    </label>
+                                                    <input
+                                                        type="tel"
+                                                        name="phone-number"
+                                                        id="phone-number"
+                                                        placeholder="0123456789"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="email"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Email của bạn
+                                                    </label>
+                                                    <input
+                                                        type="email"
+                                                        name="email"
+                                                        id="email"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                        placeholder="name@company.com"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="password"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Mật khẩu
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        id="password"
+                                                        placeholder="••••••••"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        htmlFor="confirm-password"
+                                                        className="block mb-2 text-sm font-medium text-[#6b7a99] dark:text-white"
+                                                    >
+                                                        Nhập lại mật khẩu
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        name="confirm-password"
+                                                        id="confirm-password"
+                                                        placeholder="••••••••"
+                                                        className="bg-white border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+
+                                                    />
+                                                </div>
+
+
+
+                                            </form>
+                                        </div>
+                                        <div className="infor-column w-45p h-full">
+                                            <div className="infor-box bg-gray-100 p-8 h-full">
+                                                <div className="pb-2 flex justify-center text-[#6b7a99] text-lg ">Analytics</div>
+
+                                                <main className="max-w-7xl h-[500px] overflow-y-scroll mx-auto lg:mt-16  px-2 sm:px-6 lg:px-4 ">
+
+
+                                                    <section aria-labelledby="recent-heading" className="">
+
+                                                        <div className="space-y-20  ">
+                                                            {orders.map((order) => (
+                                                                <div key={order.number}>
+                                                                    <table className="mt-4 w-full  text-gray-500 sm:mt-6">
+                                                                        <caption className="sr-only">Products</caption>
+                                                                        <thead className="sr-only text-sm text-gray-500 text-left sm:not-sr-only">
+                                                                            <tr>
+                                                                                <th scope="col" className="sm:w-2/5 lg:w-1/2 pr-4 py-3 font-normal">
+                                                                                    Product
+                                                                                </th>
+                                                                                <th scope="col" className="hidden w-1/5 pr-4 py-3 font-normal sm:table-cell">
+                                                                                    Price
+                                                                                </th>
+                                                                                <th scope="col" className="hidden  py-3 font-normal sm:table-cell">
+                                                                                    Status
+                                                                                </th>
+
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody className="border-b border-gray-200 divide-y divide-gray-200 text-sm sm:border-t">
+                                                                            {order.products.map((product) => (
+                                                                                <tr key={product.id}>
+                                                                                    <td className="py-6 pr-4">
+                                                                                        <div className="flex items-center">
+                                                                                            <img
+                                                                                                src={product.imageSrc}
+                                                                                                alt={product.imageAlt}
+                                                                                                className="w-16 h-16 object-center object-cover rounded mr-2"
+                                                                                            />
+                                                                                            <div>
+                                                                                                <div className="text-sm text-gray-40">{product.name}</div>
+                                                                                                <div className="mt-1 sm:hidden">{product.price}</div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td className="hidden py-6 pr-4 sm:table-cell">{product.price}</td>
+                                                                                    <td className="hidden py-6  sm:table-cell">{product.status}</td>
+
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                </main>
+
+                                                <div className="pb-2 flex mt-8 justify-center text-[#6b7a99] text-lg ">total: $500</div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         )}

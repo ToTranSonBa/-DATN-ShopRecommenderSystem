@@ -151,7 +151,7 @@
 
 .left-navigation {
     width: 5%;
-    min-height: 1000px;
+    height: 1100px;
     padding: 35px 0;
     border-right: 2px solid #edeff2;
     justify-content: space-between;
@@ -228,12 +228,11 @@
 .dashboard-content-section {
     display: flex;
     padding: 30px 30px 0;
-    max-height: 1100px;
+    height: auto;
     width: 75%;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    overflow-x: auto;
 
     .management-content {
         width: 100%;
@@ -408,11 +407,11 @@
                 }
             }
 
-            .filter-container > .filter-content:first-child {
+            .filter-container>.filter-content:first-child {
                 border-radius: 5px 0 0 5px;
             }
 
-            .filter-container > .filter-content:last-child {
+            .filter-container>.filter-content:last-child {
                 border-radius: 0 5px 5px 0;
             }
         }
@@ -421,9 +420,8 @@
 
 .data-list {
     max-width: 100%;
-    height: auto;
-
-    overflow-x: auto;
+    height: 700px;
+    overflow-y: scroll;
 }
 
 .user-item:hover {
@@ -555,10 +553,9 @@
 }
 
 .infor-box {
-    height: auto;
+
     border-radius: 10px;
     padding: 20px;
-    background-color: #fafbfc;
 }
 
 .user-avatar-detail {

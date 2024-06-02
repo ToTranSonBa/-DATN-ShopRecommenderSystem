@@ -65,6 +65,28 @@ const productdata = [
         extra: '20%',
         price: 540,
         priority: 1
+    }, , {
+        productImage: 'https://tidbits.com/uploads/2020/05/AirPods-Pro.jpg',
+        producer: 'Apple',
+        product: 'Air Pods 2',
+        id: 'p10001',
+        cat: 'Tablet',
+        link: 'apple-air-pods',
+        cost: 432,
+        extra: '20%',
+        price: 540,
+        priority: 1
+    }, , {
+        productImage: 'https://tidbits.com/uploads/2020/05/AirPods-Pro.jpg',
+        producer: 'Apple',
+        product: 'Air Pods 2',
+        id: 'p10001',
+        cat: 'Tablet',
+        link: 'apple-air-pods',
+        cost: 432,
+        extra: '20%',
+        price: 540,
+        priority: 1
     },
 ]
 

@@ -1,6 +1,11 @@
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import Home_login from '../../assets/HomeImg/homeLogin.jpg';
+import { useNavigate } from 'react-router-dom';
 const LoginElement = () => {
+    const navigate = useNavigate();
+    const goToSignUp = () => {
+        navigate('/signup');
+    };
     return (
         <div className="relative w-full">
             <img
@@ -13,12 +18,12 @@ const LoginElement = () => {
                     'lg:-translate-x-1/2 absolute w-1/2 h-1/2 top-1/3 z-2 lg:left-1/2 md:left-8 flex-row justify-center'
                 }
             >
-                <div className="text-5xl  font-medium text-white text-center">Ready to get started?</div>
+                <div className="text-5xl font-medium text-center text-white">Bạn đã sẵn sàng bắt đầu?</div>
                 <div className="text-center text-white lg:text-2xl lg:my-8">
-                    Explore millions of products from trusted suppliers by signing up today!
+                    Khám phá hàng triệu sản phẩm từ các nhà cung cấp đáng tin cậy bằng cách đăng ký ngay hôm nay!
                 </div>
-                <div className="text-center">
-                    <button className="text-xl  text-white rounded-full lg:py-4 lg:px-12 bg-primary">Sign up</button>
+                <div onClick={goToSignUp} className="text-center">
+                    <button className="text-xl text-white rounded-full lg:py-4 lg:px-12 bg-primary">Đăng kí</button>
                 </div>
             </MaxWidthWrapper>
         </div>

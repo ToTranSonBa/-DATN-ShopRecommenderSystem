@@ -4,15 +4,15 @@ const Summary = () => {
     return (
         <div className="w-full h-auto bg-brown-800">
             <MaxWidthWrapper className={'grid h-auto sm:grid-cols-1  md:grid-cols-2 lg:grid-cols-4 '}>
-                <div className="h-auto px-4 py-4 lg:px-8 lg:py-8 lg:min-h-60 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
-                    <div className="relative rounded-full bg-transparent/15 w-14 h-14">
+                <div className="h-auto px-4 py-4 cursor-pointer  hover:bg-secondary/10 group lg:px-8 lg:py-8 lg:min-h-60 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
+                    <div className="relative rounded-full bg-transparent/15 w-14 h-14 ">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke-width="1.5"
                             stroke="currentColor"
-                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 text-white"
+                            class="group-hover:text-secondary absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 text-white"
                         >
                             <path
                                 stroke-linecap="round"
@@ -21,12 +21,13 @@ const Summary = () => {
                             />
                         </svg>
                     </div>
-                    <span className="py-5 text-2xl text-white">Millions of business offerings</span>
-                    <p className="text-white">
-                        Explore products and suppliers for your business from millions of offerings worldwide.
+                    <p className="py-5 text-2xl text-white lg:py-3">Hàng triệu sản phẩm, dịch vụ cho doanh nghiệp</p>
+                    <p className="text-white ">
+                        Khám phá sản phẩm và nhà cung cấp cho doanh nghiệp của bạn từ hàng triệu sản phẩm, dịch vụ trên
+                        toàn thế giới.
                     </p>
                 </div>
-                <div className="h-auto px-4 py-4 lg:px-8 lg:py-8 lg:min-h-60 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
+                <div className="h-auto px-4 py-4 cursor-pointer lg:px-8 lg:py-8 lg:min-h-60 group hover:bg-secondary/10 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
                     <div className="relative rounded-full bg-transparent/15 w-14 h-14">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +35,7 @@ const Summary = () => {
                             viewBox="0 0 24 24"
                             stroke-width="1.5"
                             stroke="currentColor"
-                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 text-white"
+                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 group-hover:text-secondary text-white"
                         >
                             <path
                                 stroke-linecap="round"
@@ -43,13 +44,13 @@ const Summary = () => {
                             />
                         </svg>
                     </div>
-                    <span className="text-2xl text-white">Assured quality and transactions</span>
+                    <p className="text-2xl text-white lg:py-3">Giao dịch và chất lượng đảm bảo</p>
                     <p className="text-white">
-                        Ensure production quality from verified suppliers, with your orders protected from payment to
-                        delivery.
+                        Đảm bảo chất lượng sản xuất từ các nhà cung cấp đã được xác minh, bảo vệ đơn hàng của bạn từ
+                        khâu thanh toán đến giao hàng.
                     </p>
                 </div>
-                <div className="h-auto px-4 py-4 lg:px-8 lg:py-8 lg:min-h-60 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
+                <div className="h-auto px-4 py-4 cursor-pointer lg:px-8 lg:py-8 lg:min-h-60 group hover:bg-secondary/10 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
                     <div className="relative rounded-full bg-transparent/15 w-14 h-14">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +58,7 @@ const Summary = () => {
                             viewBox="0 0 24 24"
                             stroke-width="1.5"
                             stroke="currentColor"
-                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 text-white"
+                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 group-hover:text-secondary text-white"
                         >
                             <path
                                 stroke-linecap="round"
@@ -66,12 +67,13 @@ const Summary = () => {
                             />
                         </svg>
                     </div>
-                    <span className="text-2xl text-white ">One-stop trading solution</span>
+                    <p className="text-2xl text-white lg:py-3 ">GIải pháp giao dịch toàn diện</p>
                     <p className="text-white">
-                        Order seamlessly from product/supplier search to order management, payment, and fulfillment.
+                        Đặt hàng trơn tru từ bước tìm kiếm sản phẩm/nhà cung cấp đến quản lý, thanh toán và thực hiện
+                        đơn hàng.
                     </p>
                 </div>
-                <div className="h-auto px-4 py-4 lg:px-8 lg:py-8 lg:min-h-60 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
+                <div className="h-auto px-4 py-4 cursor-pointer lg:px-8 lg:py-8 lg:min-h-60 group hover:bg-secondary/10 rounded-3xl md:mx-4 lg:mx-8 md:my-4 lg:my-8 bg-brown-600">
                     <div className="relative rounded-full bg-transparent/15 w-14 h-14">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +81,7 @@ const Summary = () => {
                             viewBox="0 0 24 24"
                             stroke-width="1.5"
                             stroke="currentColor"
-                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 text-white"
+                            class="absolute top-3 md:w-8 md:h-8 lg:w-14 w-14 group-hover:text-secondary text-white"
                         >
                             <path
                                 stroke-linecap="round"
@@ -88,10 +90,10 @@ const Summary = () => {
                             />
                         </svg>
                     </div>
-                    <span className="text-2xl text-white ">Tailored trading experience</span>
+                    <p className="text-2xl text-white lg:py-3 ">Trải nghiệm giao dịch được thiết kế riêng</p>
                     <p className="text-white">
-                        Get curated benefits, such as exclusive discounts, enhanced protection, and extra support, to
-                        help grow your business every step of the way.
+                        Nhận các quyền lợi chọn lọc, chẳng hạn như giảm giá độc quyền, bảo vệ nâng cao và hỗ trợ bổ
+                        sung, để giúp phát triển doanh nghiệp của bạn trên mọi chặng đường.
                     </p>
                 </div>
             </MaxWidthWrapper>

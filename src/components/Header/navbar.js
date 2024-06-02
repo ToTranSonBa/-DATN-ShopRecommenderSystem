@@ -25,7 +25,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
     };
     const AllCategories_Data = [
         {
-            title: 'Top categories',
+            title: 'Danh mục nổi bật',
             submenu: [
                 { title: 'Home Decor', url: '#' },
                 { title: 'Home Decor', url: '#' },
@@ -38,7 +38,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
             ],
         },
         {
-            title: 'Home Decor',
+            title: 'Trang trí nhà cửa',
             submenu: [
                 { title: 'Top categories', url: '#' },
                 { title: 'Top categories', url: '#' },
@@ -48,7 +48,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
             ],
         },
         {
-            title: 'Industrial',
+            title: 'Công nghiệp',
             submenu: [
                 { title: 'Health & Personal Care', url: '#' },
                 { title: 'Health & Personal Care', url: '#' },
@@ -58,7 +58,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
             ],
         },
         {
-            title: 'Health & Personal Care',
+            title: 'Sức khoẻ & Chăm sóc cá nhân',
             submenu: [
                 { title: 'Fashion & Beauty', url: '#' },
                 { title: 'Fashion & Beauty', url: '#' },
@@ -67,59 +67,59 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 { title: 'Fashion & Beauty', url: '#' },
             ],
         },
-        { title: 'Fashion & Beauty' },
-        { title: 'Sport & Entertainment' },
+        { title: 'Thời trang & Làm đẹp' },
+        { title: 'Thể thao & Giải trí' },
     ];
 
     const BuyerCentral = [
         {
-            title: 'Get started',
+            title: 'Bắt đầu',
             submenu: [
                 {
-                    title: 'What is ShopLy',
+                    title: 'ShopLY là gì',
                     url: '#',
                 },
             ],
         },
         {
-            title: 'Why ShopLY',
+            title: 'Tại sao lại là ShopLY',
             submenu: [
                 {
-                    title: 'How sourcing works',
+                    title: 'Làm thế nào tìm nguồn cung ứng',
                     url: '#',
                 },
                 {
-                    title: 'Membership program',
+                    title: 'Chương trình dành cho thành viên',
                     url: '#',
                 },
             ],
         },
         {
-            title: 'Trade serviecs',
+            title: 'Dịch vụ thương mại',
             submenu: [
                 {
-                    title: 'Trade Assurance',
+                    title: 'Đảm bảo thương mại',
                     url: '#',
                 },
                 {
-                    title: 'Logistic Services',
+                    title: 'Dịch vụ logistic',
                     url: '#',
                 },
                 {
-                    title: 'Letter of Credit',
+                    title: 'Thư tín dụng',
                     url: '#',
                 },
                 {
-                    title: 'Tax Compliance Program',
+                    title: 'Chương trình tuân thủ thuế',
                     url: '#',
                 },
             ],
         },
         {
-            title: 'Resources',
+            title: 'Tài nguyên',
             submenu: [
                 {
-                    title: 'Success stories',
+                    title: 'Những câu chuyện',
                     url: '#',
                 },
                 {
@@ -127,29 +127,29 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     url: '#',
                 },
                 {
-                    title: 'Industry reports',
+                    title: 'Báo cáo về ngành công nghiệp',
                     url: '#',
                 },
                 {
-                    title: 'Help center',
+                    title: 'Trung tâm hỗ trợ',
                     url: '#',
                 },
             ],
         },
 
         {
-            title: 'Webinars',
+            title: 'Hội thảo trực tuyến',
             submenu: [
                 {
-                    title: 'Overview',
+                    title: 'Khái quát',
                     url: '#',
                 },
                 {
-                    title: 'Meet the peers',
+                    title: 'Gặp gỡ các đối tác cùng ngành',
                     url: '#',
                 },
                 {
-                    title: 'E-commerce Academy',
+                    title: 'Học viện Thương mại Điện tử',
                     url: '#',
                 },
             ],
@@ -165,7 +165,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                             <ul
                                 onMouseOver={handleMouseOnUl}
                                 onMouseOut={handleMouseOutUl}
-                                className="flex flex-col font-normal lg:text-sm md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse"
+                                className="flex flex-col font-normal cursor-pointer lg:text-sm md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse"
                             >
                                 <li
                                     id="menu-categories"
@@ -187,7 +187,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
                                         />
                                     </svg>
-                                    All categories
+                                    Tất cả danh mục
                                 </li>
                                 <li
                                     id="menu-featured-selection"
@@ -195,7 +195,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     onMouseOver={() => handleMouseOver('featured-selection')}
                                     onMouseOut={handleMouseOut}
                                 >
-                                    Featured selection
+                                    Lựa chọn nổi bật
                                 </li>
                                 <li
                                     id="menu-trade-assurance"
@@ -211,7 +211,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                             <ul
                                 onMouseOver={handleMouseOnUl}
                                 onMouseOut={handleMouseOutUl}
-                                className="flex flex-col font-normal lg:text-sm md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse"
+                                className="flex flex-col font-normal cursor-pointer lg:text-sm md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse"
                             >
                                 <li
                                     id="menu-buyer-central"
@@ -219,7 +219,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     onMouseOver={() => handleMouseOver('buyer-central')}
                                     onMouseOut={handleMouseOut}
                                 >
-                                    Buyer Central
+                                    Trung tâm Người mua
                                 </li>
                                 <li
                                     id="menu-help-center"
@@ -227,14 +227,14 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     onMouseOver={() => handleMouseOver('help-center')}
                                     onMouseOut={handleMouseOut}
                                 >
-                                    Help Center
+                                    Trung tâm trợ giúp
                                 </li>
                                 <li className="hover:underline">
                                     <a
                                         href="#"
                                         className={`block px-3 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
                                     >
-                                        Become a supplier
+                                        Đăng kí trở thành nhà cung cấp
                                     </a>
                                 </li>
                             </ul>
@@ -250,6 +250,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('categories')}
                     onMouseOut={handleMouseOut}
+                    onMouseEnter={handleMouseOnUl}
+                    onMouseLeave={handleMouseOutUl}
                 >
                     <MaxWidthWrapper>
                         <div className="w-full h-auto overflow-y-auto lg:gap-x-12 lg:py-8">
@@ -259,7 +261,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     <ul className="flex-row ">
                                         {AllCategories_Data.map((menu, index) => (
                                             <li
-                                                className="font-light text-black border-r-2 lg:px-7 lg:leading-10 hover:bg-gray-100"
+                                                className="font-light text-black border-r-2 lg:px-7 lg:py-1 lg:leading-10 hover:bg-gray-100"
                                                 key={index}
                                             >
                                                 <a href="#">{menu.title}</a>
@@ -297,6 +299,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('featured-selection')}
                     onMouseOut={handleMouseOut}
+                    onMouseEnter={handleMouseOnUl}
+                    onMouseLeave={handleMouseOutUl}
                 >
                     <MaxWidthWrapper>
                         <div className="flex h-auto overflow-y-scroll lg:py-16 lg:max-h-2/3">
@@ -316,7 +320,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
                                         />
                                     </svg>
-                                    Top ranking
+                                    Đánh giá hàng đầu
                                 </div>
                                 <div className="h-full mx-auto font-light border-2 rounded-md w-ful lg:px-20 lg:py-8">
                                     <svg
@@ -338,7 +342,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
                                         />
                                     </svg>
-                                    New arrivals
+                                    Sản phẩm mới
                                 </div>
                                 <div className="h-full mx-auto font-light border-2 rounded-md w-ful lg:px-20 lg:py-8">
                                     <div className="rotate-180">
@@ -357,24 +361,24 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             />
                                         </svg>
                                     </div>
-                                    Savings spotlight
+                                    Tiêu điểm tiết kiệm
                                 </div>
                             </div>
                             <div className="w-1/3 h-full border-l-2 lg:pl-32">
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Sample Center
+                                    Trung tâm hàng mẫu
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Online Trade Show
+                                    Triển lãm Thương mại Trực tuyến
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Tips
+                                    Mẹo
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
                                     LIVE
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Global suppliers
+                                    Nhà cung cấp toàn cầu
                                 </a>
                             </div>
                         </div>
@@ -388,6 +392,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('trade-assurance')}
                     onMouseOut={handleMouseOut}
+                    onMouseEnter={handleMouseOnUl}
+                    onMouseLeave={handleMouseOutUl}
                 >
                     <MaxWidthWrapper>
                         <div className="flex items-center justify-around w-full h-auto lg:py-12">
@@ -396,10 +402,10 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     T<span className="text-black lg:text-2xl">rade Assurance</span>
                                 </span>
                                 <p className="w-3/4 lg:text-3xl lg:leading-10 lg:py-6">
-                                    Enjoy protection from payment to delivery
+                                    Thưởng thức bảo vệ từ thanh toán để giao hàng
                                 </p>
                                 <button className="text-white rounded-full bg-primary lg:px-12 lg:py-2 hover:bg-primary/60">
-                                    Learn more
+                                    Tìm hiểu thêm
                                 </button>
                             </div>
                             <div className="grid mx-auto lg:grid-cols-2 lg:grid-rows-2 lg:gap-x-3 lg:gap-y-6">
@@ -420,7 +426,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             />
                                         </svg>
                                     </div>
-                                    <span>Money-back policy</span>
+                                    <span>Chính sách hoàn tiền</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -428,6 +434,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                         stroke-width="1.5"
                                         stroke="currentColor"
                                         class="lg:w-6 lg:h-6"
+                                        ml-auto
                                     >
                                         <path
                                             stroke-linecap="round"
@@ -453,7 +460,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             />
                                         </svg>
                                     </div>
-                                    <span>Shipping & logistics services</span>
+                                    <span>Dịch vụ vận chuyển & kho hàng</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -461,6 +468,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                         stroke-width="1.5"
                                         stroke="currentColor"
                                         class="lg:w-6 lg:h-6"
+                                        ml-auto
                                     >
                                         <path
                                             stroke-linecap="round"
@@ -486,7 +494,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             />
                                         </svg>
                                     </div>
-                                    <span>After-sales protections</span>
+                                    <span>Bảo vệ sau bán hàng</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -494,6 +502,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                         stroke-width="1.5"
                                         stroke="currentColor"
                                         class="lg:w-6 lg:h-6"
+                                        ml-auto
                                     >
                                         <path
                                             stroke-linecap="round"
@@ -519,14 +528,14 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             />
                                         </svg>
                                     </div>
-                                    <span>Safe & easy payment</span>
+                                    <span>Thanh toán an toàn và dễ dàng</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke-width="1.5"
                                         stroke="currentColor"
-                                        class="lg:w-6 lg:h-6"
+                                        class="lg:w-6 lg:h-6 ml-auto"
                                     >
                                         <path
                                             stroke-linecap="round"
@@ -547,6 +556,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[200px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('buyer-central')}
                     onMouseOut={handleMouseOut}
+                    onMouseEnter={handleMouseOnUl}
+                    onMouseLeave={handleMouseOutUl}
                 >
                     <MaxWidthWrapper>
                         <div className="flex items-start justify-between w-full h-auto lg:py-6">
@@ -576,6 +587,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                     } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('help-center')}
                     onMouseOut={handleMouseOut}
+                    onMouseEnter={handleMouseOnUl}
+                    onMouseLeave={handleMouseOutUl}
                 >
                     <MaxWidthWrapper>
                         <div className="flex h-auto overflow-y-scroll lg:py-16 lg:max-h-2/3">
@@ -595,7 +608,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
                                         />
                                     </svg>
-                                    For buyer
+                                    Dành cho người dùng
                                 </div>
                                 <div className="h-full mx-auto font-light border-2 rounded-md w-ful lg:px-20 lg:py-8">
                                     <svg
@@ -612,18 +625,18 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                             d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z"
                                         />
                                     </svg>
-                                    For suppliers
+                                    Dành cho nhà cung ứng
                                 </div>
                             </div>
                             <div className="w-1/3 h-full border-l-2 lg:pl-32">
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Open a dispute
+                                    Mở khiếu nại
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Report IPR infringement
+                                    Báo cáo vi phạm IPR
                                 </a>
                                 <a className="block font-light lg:leading-10 lg:py-2 hover:underline lg:hover:text-medium">
-                                    Report abuse
+                                    Báo cáo vi phạm
                                 </a>
                             </div>
                         </div>

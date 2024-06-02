@@ -8,6 +8,7 @@ import TimeLine from './timeline';
 import Categories from './categories';
 import LoginElement from './login';
 import Our from './our';
+import Trade from './trade';
 
 const Home = () => {
     return (
@@ -16,6 +17,7 @@ const Home = () => {
             <Summary />
             <Categories />
             <RecommendTop />
+            <Trade />
             <TimeLine />
             <LoginElement />
             <Our />
