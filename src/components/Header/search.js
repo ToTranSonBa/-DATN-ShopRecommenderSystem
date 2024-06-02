@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { SearchContext } from '../searchContext';
+
 const Search = () => {
     const [scrollPosition, setScrollPosition] = useState(0);
     const [classNameHidden, setClassNameHidden] = useState('hidden');
     const [currentPage, setCurrentPage] = useState(window.location.pathname);
+    
+    const { setSearchQuery } = useContext(SearchContext);
+    const [inputValue, setInputValue] = useState('');
+
     const handleScroll = () => {
         const currentScrollPos = window.scrollY;
 
@@ -33,8 +39,18 @@ const Search = () => {
             setClassNameHidden('');
         }
     }, []);
+
+    function handleChange(e) {
+        setInputValue(e.target.value);
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        setSearchQuery(inputValue);
+    }
+
     return (
-        <form className={`w-full mx-auto  ${classNameHidden}`}>
+        <form className={`w-full mx-auto  ${classNameHidden}`} onSubmit={handleSubmit}>
             <div className="flex">
                 <label htmlFor="search-dropdown" className="mb-2 text-sm font-medium sr-only ">
                     Your Email
@@ -93,6 +109,7 @@ const Search = () => {
                         className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-primary focus:border-primary  "
                         placeholder="Search Mockups, Logos, Design Templates..."
                         required
+                        onChange={handleChange}
                     />
                     <button
                         type="submit"

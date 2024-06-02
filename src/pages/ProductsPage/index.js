@@ -1,26 +1,29 @@
 /* eslint-disable react/style-prop-object */
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import "../../index.css"
 import "../../styles/reset.css";
 import axios from "axios";
-import Pagination from "../../components/Pagination";
 import ProductCard from "../../components/card/ProductCard";
 import ProductRating from "../../components/card/ProductRating";
+import { Pagination as PaginationAntd } from 'antd';
+import { SearchContext } from "../../components/searchContext";
 
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
+    const { searchQuery } = useContext(SearchContext);
     
-    const [productsPerPage] = useState(20);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage, setProductsPerPage] = useState(20);
+    const [currentPage, setCurrentPage] = useState(0);
     const [totalProducts, setTotalProducts] = useState(0);
-    const [search, setSearch] = useState('Sách');
+    const [search, setSearch] = useState('');
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(100000000);
     const [minReview, setMinReview] = useState(0);
-    const [categoryIds, setCategoryIds] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedBrands, setSelectedBrands] = useState([]);
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -42,19 +45,23 @@ const ProductPage = () => {
 
     const fetchProducts = useCallback(async () => {
         try {
-            const param = new URLSearchParams();
-            categoryIds.forEach(element => {
-                param.append('CategoryIds', element);
+            const categoriesParam = new URLSearchParams();
+            selectedCategories.forEach(element => {
+                categoriesParam.append('CategoryIds', element);
             });
-            const response = await axios.get(`https://localhost:7016/api/Products/GetAllProducts?${param}`, {
+
+            const brandsParam = new URLSearchParams();
+            selectedBrands.forEach(element => {
+                brandsParam.append('BrandIds', element);
+            });
+
+            const response = await axios.get(`https://localhost:7016/api/Products/GetAllProducts?${categoriesParam}${brandsParam}`, {
                 params: {
-                    ProductName: search,
-                    // CategoryIds: ["1103"],
-                    // BrandIds: search,
+                    ProductName: searchQuery,
                     MinPrice: minPrice,
                     MaxPrice: maxPrice,
                     MinReviewRating: minReview,
-                    // PageNumber: currentPage,
+                    PageNumber: currentPage,
                     PageSize: productsPerPage,
                 },
             });
@@ -63,29 +70,73 @@ const ProductPage = () => {
                 const temp = element.image;
                 element.image = temp.substring(15, temp.indexOf("'", 15));
             });
-            
+
             setTotalProducts(response.data.totalCount);
             setProducts(response.data.products);
         } catch (error) {
             console.error('Failed to fetch products:', error);
         }
-    }, []);
+    }, [currentPage, productsPerPage, searchQuery]);
     
     useEffect(() => {
         const fetchData = async () => {
+            await fetchProducts();
             await fetchCategories();
             await fetchBrands();
-            await fetchProducts();
         };
         fetchData();
     }, [fetchCategories, fetchProducts, fetchBrands]);
 
-    // Change page
-    const paginate = pageNumber => setCurrentPage(pageNumber);
+    async function handlePagination(value) {
+        try {
+            setCurrentPage(value - 1);
+            fetchProducts();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    async function handleSizePagination(current, pageSize) {
+        try {
+            setProductsPerPage(pageSize);
+            fetchProducts();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleCategory = (category) => {
+        const index = selectedCategories.indexOf(category.iD_NK);
+
+        if (index !== -1) {
+            selectedCategories.splice(index, 1);
+        } else {
+            const updateCaregories = selectedCategories;
+            updateCaregories.push(category.iD_NK);
+            setSelectedCategories(updateCaregories);
+        }
+
+        setCurrentPage(1);
+        fetchProducts();
+    };
+
+    const handleBrand = (brand) => {
+        const index = selectedBrands.indexOf(brand.iD_NK);
+
+        if (index !== -1) {
+            selectedBrands.splice(index, 1);
+        } else {
+            const updateBrands = selectedBrands;
+            updateBrands.push(brand.iD_NK);
+            setSelectedBrands(updateBrands);
+        }
+
+        setCurrentPage(1);
+        fetchProducts();
+    };
     
     return (
         <div className="shop-page bg-background pt-40">
-            
             {/* layout 2 cột */}
             <div className="flex md:flex-row w-11/12 sm:w-3/4 m-auto">
 
@@ -101,14 +152,8 @@ const ProductPage = () => {
                                 {categories.map((category) => (
                                     <li key={category.iD_NK} className="flex items-center">
                                         <input id={category.category.name} type="checkbox" value=""
-                                        className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" 
-                                        onClick={(category) => {
-                                            console.log(category);
-                                            const updatedCategoryIds = [...categoryIds, category.iD_NK];
-                                            console.log(updatedCategoryIds);
-                                            setCategoryIds(updatedCategoryIds);
-                                            fetchProducts();
-                                        }}/>
+                                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" 
+                                            onClick={() => handleCategory(category.category)}/>
                                         <label htmlFor={category.category.name} className="ml-2 py-1 text-sm text-gray-900 dark:text-gray-100">
                                             {category.category.name} ({category.total})
                                         </label>
@@ -124,7 +169,9 @@ const ProductPage = () => {
                                 {brands.map((brand) => (
                                     <li key={brand.brand.ID_NK} className="flex items-center">
                                         <input id={brand.brand.name} type="checkbox" value=""
-                                        className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"/>
+                                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                            onClick={() => handleBrand(brand.brand)}
+                                        />
                                         <label htmlFor={brand.brand.name} className="ml-2 py-1 text-sm text-gray-900 dark:text-gray-100">
                                             {brand.brand.name} ({brand.totalProduct})
                                         </label>
@@ -165,7 +212,14 @@ const ProductPage = () => {
 
                 {/* cột phải 4/5 chứa products */}
                 <div className="flex-1 md:flex-none md:w-4/5">
-                    <span className="text-lg sm:text-xl font-semibold text-gray-900">Kết quả tìm kiếm của "{search}" - {totalProducts} sản phẩm</span>
+                    {search 
+                        ? <span className="text-lg sm:text-xl font-semibold text-gray-900">
+                            Kết quả tìm kiếm của "{search}" - {totalProducts} sản phẩm
+                        </span> 
+                        : <span className="text-lg sm:text-xl font-semibold text-gray-900">
+                            Kết quả tìm kiếm - {totalProducts} sản phẩm
+                        </span> 
+                    }
                     {/* danh sách sản phẩm */}
                     <div className="product-content mt-4">
                         <div className="bg-background flex items-center justify-center">
@@ -180,12 +234,15 @@ const ProductPage = () => {
                     </div>
 
                     {/* phân trang */}
-                    <Pagination
-                        productsPerPage={productsPerPage}
-                        totalProducts={products.length}
-                        paginate={paginate}
-                        currentPage={currentPage}
-                    />
+                    <div className="flex justify-center m-8">
+                        <PaginationAntd
+                            defaultPageSize={20}
+                            defaultCurrent={1}
+                            total={totalProducts}
+                            onChange={handlePagination}
+                            onShowSizeChange={handleSizePagination}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

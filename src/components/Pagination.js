@@ -4,7 +4,7 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
     const pageNumbers = [];
     const totalPages = Math.ceil(totalProducts / productsPerPage);
 
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 0; i <= totalPages - 1; i++) {
         pageNumbers.push(i);
     }
 
@@ -14,7 +14,9 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
                 <li className="px-[6px]">
                     <a
                         href="#!"
-                        onClick={() => paginate(currentPage - 1)}
+                        onClick={() => (
+                            paginate(currentPage - 1)
+                        )}
                         className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-blue-700 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                     >
                         <span>
@@ -25,13 +27,13 @@ const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) =
                     </a>
                 </li>
                 {pageNumbers.map(number => (
-                    <li key={number} className="px-[6px]">
+                    <li key={number-1} className="px-[6px]">
                         <a
                             href="#!"
                             onClick={() => paginate(number)}
                             className={`w-9 h-9 flex items-center justify-center rounded-md border border-[#EDEFF1] text-[#838995] text-base hover:border-blue-700 ${number === currentPage ? 'bg-blue-700 border-blue-700 text-white' : ''}`}
                         >
-                            {number}
+                            {number + 1}
                         </a>
                     </li>
                 ))}

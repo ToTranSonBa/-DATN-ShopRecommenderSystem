@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import HomeBG from '../../assets/HomeImg/home.jpg';
 import MaxWidthWrapper from '../../components/MaxWidthWrapper/index';
+import { SearchContext } from '../../components/searchContext';
+import { useNavigate } from 'react-router-dom';
 
 const Search = () => {
+    const { setSearchQuery } = useContext(SearchContext);
+    const [inputValue, setInputValue] = useState('');
+    const navigate = useNavigate();
+
+    function handleChange(e) {
+        setInputValue(e.target.value);
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        setSearchQuery(inputValue);
+        navigate('/productpage');
+    }
+
     return (
         <div className="relative w-full">
             <img
@@ -15,7 +31,7 @@ const Search = () => {
                     <span className="font-bold text-white uppercase md:text-2xl lg:text-3xl">
                         The leading B2B e-commerce platform for global trade
                     </span>
-                    <form class="w-full mx-auto md:my-8 lg:my-12">
+                    <form class="w-full mx-auto md:my-8 lg:my-12" onSubmit={handleSubmit}>
                         <label
                             for="default-search"
                             class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
@@ -29,6 +45,7 @@ const Search = () => {
                                 class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary/50 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Search Mockups, HomeBGs..."
                                 required
+                                onChange={handleChange}
                             />
                             <button
                                 type="submit"
