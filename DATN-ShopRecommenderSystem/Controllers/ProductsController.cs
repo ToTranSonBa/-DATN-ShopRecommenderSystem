@@ -64,20 +64,28 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
-                    return Unauthorized();
+                    var newlog = new UserLogDto
+                    {
+                        LogRate = LogRate._1MIN,
+                        Detail = productParameters.ProductName,
+                        SellerId = null
+                    };
+                    await _logService.addSearch(newlog);
                 }
+                else
+                { 
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
 
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-
-                var user = await _accountService.GetUserFromTokenAsync(token);
-                var newlog = new UserLogDto
-                {
-                    User = user,
-                    LogRate = LogRate._1MIN,
-                    Detail = productParameters.ProductName,
-                    SellerId= null
-                };
-                await _logService.addSearch(newlog);
+                    var user = await _accountService.GetUserFromTokenAsync(token);
+                    var newlog = new UserLogDto
+                    {
+                        User = user,
+                        LogRate = LogRate._1MIN,
+                        Detail = productParameters.ProductName,
+                        SellerId= null
+                    };
+                    await _logService.addSearch(newlog);
+                }
 
                 return Ok(product);
             }
