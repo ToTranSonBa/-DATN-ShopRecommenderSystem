@@ -9,7 +9,7 @@ function DefaultLayout({ children }) {
             <div className="relative">
                 <Header />
                 <div>{children}</div>
-            <ToastContainer />
+                <ToastContainer />
 
                 <Footer />
             </div>

@@ -88,6 +88,7 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
                                         <div
                                             onMouseOver={handleMouseOnCart}
                                             onMouseOut={handleMouseOutCart}
+                                            onClick={goToCart}
                                             className="relative flex items-center justify-center h-16 mx-auto "
                                         >
                                             <div

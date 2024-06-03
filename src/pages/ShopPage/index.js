@@ -2,7 +2,9 @@ import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import Avatar from '../../assets/HomeImg/home.jpg';
 import axios from 'axios';
 import React, { useState, useEffect, useCallback } from 'react';
+import { getSellerbyID } from '../../services/ShopPageApi';
 //
+import { useLocation } from 'react-router-dom';
 const data = [
     {
         iD_NK: 74793,
@@ -593,10 +595,29 @@ const allProduct = [
         shortUrl: 'https://tiki.vn/product-p50685547.html?spid=272190990',
     },
 ];
-function ShopPage() {
+function ShopPage({}) {
+    const [seller, setSeller] = useState([]);
     const isFollow = undefined;
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const location = useLocation();
+    const [error, setError] = useState('');
+
+    const sellerId = location.state?.sellerId;
+    console.log('Seller: ', sellerId);
+    useEffect(() => {
+        const getSellerbyID = async () => {
+            try {
+                const response = await fetchCategories(sellerId);
+                setSeller = response.data;
+            } catch (error) {
+                setError('Failed to fetch categories');
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+
+        getSellerbyID();
+    }, []);
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -614,7 +635,7 @@ function ShopPage() {
             const response = await axios.get(
                 'https://localhost:7016/api/Products?PageNumber=1&PageSize=1000&keyWord=s%C3%A1ch',
             );
-            console.log(response);
+
             setProducts(response.data);
             // console.log(products);
         } catch (error) {

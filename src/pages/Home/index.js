@@ -10,6 +10,7 @@ import LoginElement from './login';
 import Our from './our';
 import Trade from './trade';
 
+import AddressForm from '../../components/Address';
 const Home = () => {
     return (
         <div className="w-full bg-black">

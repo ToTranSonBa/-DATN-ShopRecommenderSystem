@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Fragment } from 'react'
+import { Fragment } from 'react';
+import AddressManager from '../../components/Address';
 
 const UserPage = () => {
     const [firstName, setFirstName] = useState('Jane');
@@ -26,9 +27,7 @@ const UserPage = () => {
         setSelectedOption(option);
         if (option === 'profile' || option === 'address' || option === 'changepassword') {
             setIsOpen(true);
-
         } else {
-
             setIsOpen(false);
         }
     };
@@ -93,29 +92,25 @@ const UserPage = () => {
                     imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-03-product-01.jpg',
                     imageAlt:
                         'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-                }
+                },
                 // More products...
             ],
         },
         // More orders...
-    ]
+    ];
     const [selectedStatus, setSelectedStatus] = useState('all');
 
     const handleStatusClick = (status) => {
         setSelectedStatus(status);
     };
 
-    const filteredOrders = selectedStatus === 'all'
-        ? orders
-        : orders.filter(order => order.status === selectedStatus);
-
+    const filteredOrders =
+        selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
 
     return (
         <div className="lg:pt-36 bg-background w-full flex flex-col gap-5 px-3 md:px-16 lg:px-28 md:flex-row text-[#161931]">
             <aside className="hidden py-4 md:w-1/3 lg:w-1/4 md:block">
                 <div className="sticky flex flex-col gap-2 p-4 text-sm border-r border-indigo-100">
-
-
                     <a>
                         <button
                             type="button"
@@ -324,121 +319,134 @@ const UserPage = () => {
                         </div>
                     )}
 
+                    {selectedOption === 'address' && (
+                        <div className=" bg-white h-full w-full  flex justify-center">
+                            <AddressManager className={'w-full lg:mt-12'} isUserPage={true} />
+                        </div>
+                    )}
+
                     {selectedOption === 'orders' && (
                         <div className="p-2 md:py-6 ">
-                            <nav
-                                class="relative flex w-full items-center bg-white py-2 shadow-dark-mild  lg:flex-wrap lg:justify-start lg:py-4"
-                            >
+                            <nav class="relative flex w-full items-center bg-white py-2 shadow-dark-mild  lg:flex-wrap lg:justify-start lg:py-4">
                                 <div
                                     class="!visible hidden grow basis-[100%] items-center text-center lg:!flex lg:basis-auto lg:text-left lg:w-full "
                                     id="navbarSupportedContentY"
                                 >
-                                    <ul
-                                        class="w-full flex  justify-between"
-                                    >
+                                    <ul class="w-full flex  justify-between">
                                         <li class="mb-4 lg:mb-0 lg:pe-2">
                                             <a
                                                 class="block text-lg text-gray-700 font-light  hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick('all')}
-
-                                            >Tất cả</a
                                             >
+                                                Tất cả
+                                            </a>
                                         </li>
                                         <li class="mb-4 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
                                                 class="block text-lg font-light text-gray-700 hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick(0)}
-
-                                            >Chờ thanh toán</a
                                             >
+                                                Chờ thanh toán
+                                            </a>
                                         </li>
                                         <li class="mb-4 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
                                                 class="block text-lg text-gray-700 font-light hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick(1)}
-
-                                            >Vận chuyển</a
                                             >
+                                                Vận chuyển
+                                            </a>
                                         </li>
                                         <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
                                                 class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick(2)}
-                                            >Chờ giao hàng</a
                                             >
+                                                Chờ giao hàng
+                                            </a>
                                         </li>
                                         <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
                                                 class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick('3')}
-                                            >Hoàn thành</a
                                             >
+                                                Hoàn thành
+                                            </a>
                                         </li>
                                         <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
                                                 class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick(4)}
-                                            >Đã Hủy</a
                                             >
+                                                Đã Hủy
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>
                             </nav>
 
                             <main className="w-full pt-4 lg:pt-0">
-
                                 <section aria-labelledby="recent-heading" className="mt-16">
-
                                     <div className="w-full mx-auto">
                                         <div className="max-w-2xl space-y-8 sm:px-4 lg:max-w-full lg:px-0">
                                             {filteredOrders.map((order) => (
-                                                <div key={order.number} className="bg-white border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border">
-
-
+                                                <div
+                                                    key={order.number}
+                                                    className="bg-white border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border"
+                                                >
                                                     <div className="flex items-center p-4 border-b border-gray-200 sm:p-6 sm:grid sm:grid-cols-6 sm:gap-x-6">
                                                         <dl className="flex-1 grid grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-7 lg:col-span-3">
-                                                            <div className='lg:col-span-3'>
+                                                            <div className="lg:col-span-3">
                                                                 <dt className="font-medium text-gray-900">Cửa hàng</dt>
                                                                 <dd className="mt-1 text-gray-500">{order.store}</dd>
                                                             </div>
                                                             <div className="hidden lg:col-span-2 sm:block">
                                                                 <dt className="font-medium text-gray-900">Ngày đặt</dt>
                                                                 <dd className="mt-1 text-gray-500">
-                                                                    <time dateTime={order.createdDatetime}>{order.createdDate}</time>
+                                                                    <time dateTime={order.createdDatetime}>
+                                                                        {order.createdDate}
+                                                                    </time>
                                                                 </dd>
                                                             </div>
-                                                            <div className='lg:col-span-2' >
-                                                                <dt className="font-medium text-gray-900">Thành tiền</dt>
-                                                                <dd className="mt-1 font-medium text-gray-900">{order.total}</dd>
+                                                            <div className="lg:col-span-2">
+                                                                <dt className="font-medium text-gray-900">
+                                                                    Thành tiền
+                                                                </dt>
+                                                                <dd className="mt-1 font-medium text-gray-900">
+                                                                    {order.total}
+                                                                </dd>
                                                             </div>
                                                         </dl>
 
                                                         <div className="hidden lg:col-span-3 lg:flex lg:items-center lg:justify-end lg:space-x-4">
                                                             <div className="text-sm font-medium text-gray-700">
-                                                                <span>Đơn hàng đã đến kho phân loại Kho Trung Chuyển Hồ Chí Minh 01</span>
+                                                                <span>
+                                                                    Đơn hàng đã đến kho phân loại Kho Trung Chuyển Hồ
+                                                                    Chí Minh 01
+                                                                </span>
                                                             </div>
                                                             <div className="text-sm font-medium text-gray-700">
                                                                 <span>
                                                                     {(() => {
                                                                         switch (order.status) {
                                                                             case 0:
-                                                                                return "Chờ thanh toán";
+                                                                                return 'Chờ thanh toán';
                                                                             case 1:
-                                                                                return "Vận chuyển";
+                                                                                return 'Vận chuyển';
                                                                             case 2:
-                                                                                return "Chờ giao hàng";
+                                                                                return 'Chờ giao hàng';
                                                                             case 3:
-                                                                                return "Hoàn thành";
+                                                                                return 'Hoàn thành';
                                                                             case 4:
-                                                                                return "Đã Hủy";
+                                                                                return 'Đã Hủy';
                                                                             default:
-                                                                                return "Unknown Status";
+                                                                                return 'Unknown Status';
                                                                         }
                                                                     })()}
                                                                 </span>
@@ -462,9 +470,13 @@ const UserPage = () => {
                                                                     <div className="flex-1 ml-6 text-sm">
                                                                         <div className="font-medium text-gray-900 sm:flex sm:justify-between">
                                                                             <h5>{product.name}</h5>
-                                                                            <p className="mt-2 sm:mt-0">{product.price}</p>
+                                                                            <p className="mt-2 sm:mt-0">
+                                                                                {product.price}
+                                                                            </p>
                                                                         </div>
-                                                                        <p className="hidden text-gray-500 sm:block sm:mt-2">{product.description}</p>
+                                                                        <p className="hidden text-gray-500 sm:block sm:mt-2">
+                                                                            {product.description}
+                                                                        </p>
                                                                     </div>
                                                                 </div>
 
@@ -483,19 +495,27 @@ const UserPage = () => {
                                                                             />
                                                                         </svg>
                                                                         <p className="ml-2 text-sm font-medium text-gray-500">
-                                                                            Đã giao vào ngày <time dateTime={order.deliveredDatetime}>{order.deliveredDate}</time>
+                                                                            Đã giao vào ngày{' '}
+                                                                            <time dateTime={order.deliveredDatetime}>
+                                                                                {order.deliveredDate}
+                                                                            </time>
                                                                         </p>
                                                                     </div>
 
-
                                                                     <div className="mt-6 border-t border-gray-200 pt-4 flex items-center space-x-4 divide-x divide-gray-200 text-sm font-medium sm:mt-0 sm:ml-4 sm:border-none sm:pt-0">
                                                                         <div className="flex-1 flex justify-center">
-                                                                            <a href={product.href} className="text-indigo-600 whitespace-nowrap hover:text-indigo-500">
+                                                                            <a
+                                                                                href={product.href}
+                                                                                className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"
+                                                                            >
                                                                                 Xem sản phẩm
                                                                             </a>
                                                                         </div>
                                                                         <div className="flex-1 pl-4 flex justify-center">
-                                                                            <a href="#" className="text-indigo-600 whitespace-nowrap hover:text-indigo-500">
+                                                                            <a
+                                                                                href="#"
+                                                                                className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"
+                                                                            >
                                                                                 Mua lại
                                                                             </a>
                                                                         </div>
@@ -510,11 +530,8 @@ const UserPage = () => {
                                     </div>
                                 </section>
                             </main>
-                        </div>)}
-
-
-
-
+                        </div>
+                    )}
                 </main>
             )}
         </div>

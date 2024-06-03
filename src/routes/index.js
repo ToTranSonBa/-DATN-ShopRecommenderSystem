@@ -10,7 +10,7 @@ import ShopDashboardPage from '../pages/ShopDashboardPage/ShopDashboardPage';
 import CartShoppingPage from '../pages/CartsShoppingPage/CartShoppingPage';
 import UserPage from '../pages/UserPage/UserPage';
 import ShopPage from '../pages/ShopPage';
-import CheckoutForm from '../pages/CheckoutForm/CheckoutForm'
+import CheckoutForm from '../pages/CheckoutForm/CheckoutForm';
 
 const publicRoutes = [
     { path: '/', component: Home },
@@ -21,7 +21,7 @@ const publicRoutes = [
     { path: '/shopdashboardpage', component: ShopDashboardPage, layout: HeaderOnly },
     { path: '/cartshoppingpage', component: CartShoppingPage },
     { path: '/userpage', component: UserPage },
-    { path: '/shoppage', component: ShopPage },
+    { path: '/shoppage/:sellerId', component: ShopPage },
     { path: '/checkout', component: CheckoutForm },
 ];
 

@@ -1,10 +1,111 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
+import { Tab } from '@headlessui/react';
+import { Fragment } from 'react';
+import { useNavigate } from 'react-router-dom';
 import renderStars from './RenderStars';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
+const Seller = {
+    iD_NK: 10,
+    iD_SK: 281062,
+    name: 'Bamboo Books',
+    isOfficial: false,
+    storeLevel: null,
+    avgRatingPoint: 4.8774,
+    totalFollower: 3257,
+    reviewCount: 2399,
+    imageUrl: null,
+    createdAt: '2024-04-06T23:42:09.8848036',
+    updatedAt: '2024-04-06T23:42:09.8848036',
+    deletedAt: null,
+};
+
+const calculateTimeDifference = (date) => {
+    const createdDate = new Date(date);
+    const currentDate = new Date();
+
+    let yearsDifference = currentDate.getFullYear() - createdDate.getFullYear();
+    let monthsDifference = currentDate.getMonth() - createdDate.getMonth();
+
+    if (monthsDifference < 0) {
+        yearsDifference -= 1;
+        monthsDifference += 12;
+    }
+
+    return { years: yearsDifference, months: monthsDifference };
+};
 const ProductDetailPage = () => {
+    const navigate = useNavigate();
+
+    const { years, months } = calculateTimeDifference(Seller.createdAt);
+
+    const handleClick = () => {
+        navigate(`/shoppage/${Seller.iD_SK}`);
+    };
+
+    const product = {
+        name: 'Zip Tote Basket',
+        price: '$140',
+        rating: 4,
+        images: [
+            {
+                id: 1,
+                name: 'Angled view',
+                src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg',
+                alt: 'Angled front view with bag zipped and handles upright.',
+            },
+            {
+                id: 2,
+                name: 'Angled view',
+                src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-02.jpg',
+                alt: 'Angled front view with bag zipped and handles upright.',
+            },
+            {
+                id: 3,
+                name: 'Angled view',
+                src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-03.jpg',
+                alt: 'Angled front view with bag zipped and handles upright.',
+            },
+            {
+                id: 4,
+                name: 'Angled view',
+                src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-04.jpg',
+                alt: 'Angled front view with bag zipped and handles upright.',
+            },
+            {
+                id: 5,
+                name: 'Angled view',
+                src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-03.jpg',
+                alt: 'Angled front view with bag zipped and handles upright.',
+            },
+            // More images...
+        ],
+        colors: [
+            { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
+            { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
+            { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
+        ],
+        description: `
+          <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
+        `,
+        details: [
+            {
+                name: 'Features',
+                items: [
+                    'Multiple strap configurations',
+                    'Spacious interior with top zip',
+                    'Leather handle and tabs',
+                    'Interior dividers',
+                    'Stainless strap loops',
+                    'Double stitched construction',
+                    'Water-resistant',
+                ],
+            },
+            // More sections...
+        ],
+    };
     const id = parseInt(useParams().id);
 
     const [productDetail, setProduct] = useState({});
@@ -14,8 +115,8 @@ const ProductDetailPage = () => {
     const [quantity, setQuantity] = useState(1);
     const [comments, setComments] = useState([]);
     const [commentRating, setCommentRating] = useState([]);
-    
-    const fetchProductDetail = useCallback (async () => {
+
+    const fetchProductDetail = useCallback(async () => {
         try {
             const response = await axios.get(`https://localhost:7016/api/Products/${id}`);
             setProduct(response.data);
@@ -26,7 +127,7 @@ const ProductDetailPage = () => {
         }
     }, []);
 
-    const fetchCommentRating = useCallback (async () => {
+    const fetchCommentRating = useCallback(async () => {
         try {
             const response = await axios.get(`https://localhost:7016/api/DetailComments/RattingCount/Product${id}`);
             setCommentRating(response.data);
@@ -35,15 +136,15 @@ const ProductDetailPage = () => {
         }
     }, []);
 
-    const fetchPrice = useCallback (async () => {
+    const fetchPrice = useCallback(async () => {
         try {
-            setPrice(productDetail?.product?.price)
+            setPrice(productDetail?.product?.price);
         } catch (error) {
             console.error('Failed to fetch price:', error);
         }
     }, [fetchProductDetail]);
 
-    const fetchComments = useCallback (async () => {
+    const fetchComments = useCallback(async () => {
         try {
             const response = await axios.get(`https://localhost:7016/api/DetailComments/Product${id}`);
             setComments(response.data[0]);
@@ -86,9 +187,9 @@ const ProductDetailPage = () => {
 
     const ratingNumber = (number) => {
         return Math.ceil(number / comments.length);
-    }
+    };
     console.log(ratingNumber(0));
-    
+
     const totalPrice = price * quantity;
 
     return (
@@ -142,25 +243,31 @@ const ProductDetailPage = () => {
                     <div class="lg:col-span-5 ml-8">
                         <h2 class="text-2xl font-semibold text-gray-700">{productDetail.product?.name}</h2>
                         <div class="flex flex-wrap gap-4 mt-4">
-                            <p class="text-gray-700 text-4xl font-semibold">{price ? formatNumber(price) : formatNumber(productDetail.product?.price)}₫</p>
+                            <p class="text-gray-700 text-4xl font-semibold">
+                                {price ? formatNumber(price) : formatNumber(productDetail.product?.price)}₫
+                            </p>
                             <p class="text-gray-300 text-xl">
-                                <strike>{formatNumber(productDetail.product?.originalPrice)}₫</strike> 
+                                <strike>{formatNumber(productDetail.product?.originalPrice)}₫</strike>
                             </p>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-1 mt-4">
+                            <div className="flex items-center mt-4 space-x-1">
                                 {renderStars(productDetail.product?.ratingAverage)}
                             </div>
                             <div className="flex items-center mt-4 space-x-4">
-                                <h4 className="text-base text-gray-700">{formatNumber(productDetail.product?.ratingCount)} đánh giá</h4>
-                                <h4 className="text-base text-gray-700">{formatNumber(productDetail.product?.allTimeQuantitySold)} đã mua</h4>
+                                <h4 className="text-base text-gray-700">
+                                    {formatNumber(productDetail.product?.ratingCount)} đánh giá
+                                </h4>
+                                <h4 className="text-base text-gray-700">
+                                    {formatNumber(productDetail.product?.allTimeQuantitySold)} đã mua
+                                </h4>
                             </div>
                         </div>
 
                         <form className="flex items-center max-w-full gap-5 mt-8">
                             <label
                                 htmlFor="quantity-input"
-                                className="block mr-2 text-ms font-medium text-gray-500 dark:text-white"
+                                className="block mr-2 font-medium text-gray-500 text-ms dark:text-white"
                             >
                                 Số lượng:
                             </label>
@@ -226,31 +333,26 @@ const ProductDetailPage = () => {
 
                         {/* Cập nhật option */}
                         <div className="max-w-full mt-8">
-                            <h3 className="text-ms font-medium text-gray-600">Lựa chọn: </h3>
+                            <h3 className="font-medium text-gray-600 text-ms">Lựa chọn: </h3>
                             <div className="grid grid-cols-5 gap-6 mt-4">
                                 {productDetail?.productChildren?.map((option, index) => (
                                     <button
                                         key={option.id}
-                                        className="relative flex items-center h-14 text-sm font-medium text-gray-900 bg-white rounded-md cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
-                                        onClick={() => (
-                                            setSelectedOptionIndex(index),
-                                            setPrice(option.price)
-                                        )}
+                                        className="relative flex items-center text-sm font-medium text-gray-900 bg-white rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
+                                        onClick={() => (setSelectedOptionIndex(index), setPrice(option.price))}
                                     >
-                                        <p className="pl-12 z-10 text-xs">{option.option1}</p>
+                                        <p className="z-10 pl-12 text-xs">{option.option1}</p>
                                         <span className="absolute inset-0 overflow-hidden rounded-md">
                                             <img
                                                 src={option.thumbnail_url}
                                                 alt={option.name}
-                                                className="object-cover object-center w-12 h-12 mx-1 mt-1 z-0"
+                                                className="z-0 object-cover object-center w-12 h-12 mx-1 mt-1"
                                             />
                                         </span>
-                                        
+
                                         <span
                                             className={classNames(
-                                                selectedOptionIndex === index
-                                                    ? 'ring-indigo-500'
-                                                    : 'ring-transparent',
+                                                selectedOptionIndex === index ? 'ring-indigo-500' : 'ring-transparent',
                                                 'absolute inset-0 rounded-md ring-2 ring-offset-2 pointer-events-none',
                                             )}
                                             aria-hidden="true"
@@ -262,7 +364,9 @@ const ProductDetailPage = () => {
 
                         <div className="flex flex-wrap items-center gap-4 mt-8">
                             <p className="text-2xl font-semibold text-gray-700">Tạm tính: </p>
-                            <p className="text-4xl font-semibold text-gray-700">{totalPrice ? formatNumber(totalPrice) : formatNumber(productDetail.product?.price)}₫</p>
+                            <p className="text-4xl font-semibold text-gray-700">
+                                {totalPrice ? formatNumber(totalPrice) : formatNumber(productDetail.product?.price)}₫
+                            </p>
                         </div>
 
                         <div class="flex flex-wrap w-full justify-between mt-8">
@@ -315,15 +419,19 @@ const ProductDetailPage = () => {
                         <p className="text-sm !ml-2 font-semibold text-blue-700">{productDetail.seller?.total}</p>
                     </div>
                 </div>
-                
+
                 <div className="items-center hidden h-20 lg:grid lg:col-span-2">
                     <div className="flex justify-between">
                         <p className="text-sm !ml-2 font-semibold text-gray-400">Số người theo dõi:</p>
-                        <p className="text-sm !ml-2 font-semibold text-blue-700">{formatNumber(productDetail.seller?.totalFollower)}</p>
+                        <p className="text-sm !ml-2 font-semibold text-blue-700">
+                            {formatNumber(productDetail.seller?.totalFollower)}
+                        </p>
                     </div>
                     <div className="flex justify-between">
                         <p className="text-sm !ml-2 font-semibold text-gray-400">Tổng lượt đánh giá:</p>
-                        <p className="text-sm !ml-2 font-semibold text-blue-700">{formatNumber(productDetail.seller?.reviewCount)}</p>
+                        <p className="text-sm !ml-2 font-semibold text-blue-700">
+                            {formatNumber(productDetail.seller?.reviewCount)}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -415,7 +523,9 @@ const ProductDetailPage = () => {
                             <div class="bg-gray-300 rounded w-full h-2 ml-3">
                                 <div class="w-[6%] h-full rounded bg-yellow-300"></div>
                             </div>
-                            <p class="text-sm text-gray-700 font-semibold ml-3">{commentRating?.ratingLessThanOrEqual1}</p>
+                            <p class="text-sm text-gray-700 font-semibold ml-3">
+                                {commentRating?.ratingLessThanOrEqual1}
+                            </p>
                         </div>
                     </div>
                 </div>

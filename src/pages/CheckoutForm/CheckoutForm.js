@@ -4,16 +4,39 @@ import { useLocation } from 'react-router-dom';
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import CreditCard from './creditCard';
 import PaymentSuccess from './paymentsuccess';
+import AddressManager from '../../components/Address';
+
 function Checkout() {
     const location = useLocation();
     const { selectedItems } = location.state || { selectedItems: [] };
-    console.log(selectedItems);
+
     const userInfor = selectedItems[0]?.session?.user;
     const subTotal = selectedItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
     const shippingFee = 0; // Assuming shipping is free
     const total = subTotal + shippingFee;
+    // Tạo state để kiểm soát việc hiển thị của thẻ div
+    const [isVisible, setIsVisible] = useState(false);
+
+    // Tạo state kiểm xoát edit address đóng mở
+    const [isAddressManagerOpen, setIsAddressManagerOpen] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState(null);
+    const handleOpenAddressManager = () => {
+        setIsAddressManagerOpen(true);
+        setIsVisible(!isVisible);
+    };
+
+    const handleCloseAddressManager = () => {
+        setIsAddressManagerOpen(false);
+    };
+
+    const handleConfirmAddress = (address) => {
+        setSelectedAddress(address);
+        handleCloseAddressManager();
+    };
+
     const inprocessing = undefined;
     const succes = undefined;
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -24,6 +47,12 @@ function Checkout() {
         country: 'US',
         card: '',
     });
+
+    const [isFullFill, setIsFullFill] = useState(false);
+
+    const handleCheckFullFill = (isFull) => {
+        setIsFullFill(isFull);
+    };
 
     const handleChange = (e) => {
         setFormData({
@@ -38,11 +67,15 @@ function Checkout() {
     };
 
     return (
-        <div className="bg-background lg:pt-36">
+        <div className="relative bg-background lg:pt-36">
             <MaxWidthWrapper>
                 <div className="grid grid-cols-3 gap-8">
                     <div className="col-span-3 px-12 space-y-8 lg:col-span-2 pb- bg-indigo-50 lg:pb-12">
-                        <div className="relative flex flex-col p-4 mt-8 bg-white rounded-md shadow-md sm:flex-row sm:items-center">
+                        <div
+                            className={`relative flex flex-col p-4 mt-8 bg-white rounded-md border-red-600 border-1 shadow-md sm:flex-row sm:items-center ${
+                                !isFullFill ? 'visible' : 'invisible'
+                            }`}
+                        >
                             <div className="flex flex-row items-center w-full pb-4 border-b sm:border-b-0 sm:w-auto sm:pb-0">
                                 <div className="text-yellow-500">
                                     <svg
@@ -65,23 +98,8 @@ function Checkout() {
                             <div className="mt-4 text-sm tracking-wide text-gray-500 sm:mt-0 sm:ml-4">
                                 Hoàn thành chi tiết giao hàng và thanh toán của bạn bên dưới.
                             </div>
-                            <div className="absolute ml-auto text-gray-400 cursor-pointer sm:relative sm:top-auto sm:right-auto right-4 top-4 hover:text-gray-800">
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    ></path>
-                                </svg>
-                            </div>
                         </div>
+
                         <div>
                             <form
                                 className="flex-row"
@@ -91,51 +109,44 @@ function Checkout() {
                                 onSubmit={handleSubmit}
                             >
                                 <section>
-                                    <h2 className="my-2 text-lg font-semibold tracking-wide text-gray-700 uppercase">
-                                        Giao hàng & thông tin hóa đơn{' '}
-                                    </h2>
+                                    <div className=" flex justify-between lg:pb-3">
+                                        <h2 className="my-2 text-lg font-semibold tracking-wide text-gray-700 uppercase">
+                                            Giao hàng & thông tin hóa đơn{' '}
+                                        </h2>
+                                        <button
+                                            onClick={handleOpenAddressManager}
+                                            className="border-1 font-light text-sm text-primary border-primary lg:px-6 cursor-pointer"
+                                        >
+                                            {' '}
+                                            Thay đổi
+                                        </button>
+                                    </div>
                                     <fieldset className="mb-3 text-gray-600 bg-white shadow-md">
                                         <label className="flex items-center py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Tên</span>
-                                            <div
-                                                className="w-10/12 focus:outline-none"
-
-                                            >{userInfor.firstName} {userInfor.lastName}</div>
-
+                                            <div className="w-10/12 focus:outline-none">
+                                                {userInfor.firstName} {userInfor.lastName}
+                                            </div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Email</span>
-                                            <div
-                                                className="w-10/12 focus:outline-none"
-
-                                            >{userInfor.email}</div>
-
+                                            <div className="w-10/12 focus:outline-none">{userInfor.email}</div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Địa chỉ</span>
-                                            <div
-                                                className="w-10/12 focus:outline-none"
-
-                                            >{userInfor.address}</div>
-
+                                            <div className="w-10/12 focus:outline-none">{userInfor.address}</div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Số điện thoại</span>
-                                            <div
-                                                className="w-10/12 focus:outline-none"
-
-                                            >{userInfor.phoneNumber}</div>
-
+                                            <div className="w-10/12 focus:outline-none">{userInfor.phoneNumber}</div>
                                         </label>
-
-
                                     </fieldset>
                                 </section>
                                 <section className="h-auto rounded-lg lg:mt-14">
                                     <h2 className="my-2 text-lg font-semibold tracking-wide text-gray-700 uppercase">
                                         Thông tin thanh toán
                                     </h2>
-                                    <CreditCard />
+                                    <CreditCard onCheckFullFill={handleCheckFullFill} />
                                 </section>
                                 <div className="flex justify-end w-full">
                                     <button
@@ -160,6 +171,7 @@ function Checkout() {
                             </form>
                         </div>
                     </div>
+
                     <div className="hidden col-span-1 bg-white shadow-md lg:mt-7 h-min lg:block">
                         <h1 className="px-8 py-6 text-xl text-gray-600 border-b-2">Tóm tắt đơn Hàng</h1>
                         <ul className="max-h-[550px] h-[550px] px-8 py-6 space-y-6 overflow-y-scroll border-b">
@@ -191,6 +203,14 @@ function Checkout() {
                     </div>
                 </div>
             </MaxWidthWrapper>
+
+            {isAddressManagerOpen && (
+                <div className="absolute z-50 bg-gray-600/70 h-full  w-screen top-0 left-0">
+                    <MaxWidthWrapper className={'flex justify-center items-center'}>
+                        <AddressManager onCancel={handleCloseAddressManager} onConfirm={handleConfirmAddress} />
+                    </MaxWidthWrapper>
+                </div>
+            )}
         </div>
     );
 }
@@ -209,7 +229,7 @@ const OrderItem = ({ imgSrc, title, description, quantity, price }) => (
                 <span className="text-gray-400">
                     {quantity} x {price}
                 </span>
-                <span className="inline-block font-semibold text-pink-400">{(quantity * price)}</span>
+                <span className="inline-block font-semibold text-pink-400">{quantity * price}</span>
             </div>
         </div>
     </li>

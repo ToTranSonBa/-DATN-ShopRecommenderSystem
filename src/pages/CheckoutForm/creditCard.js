@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-const CreditCard = () => {
-    const [cardNumber, setCardNumber] = useState('4256 4256 4256 4256');
-    const [expDate, setExpDate] = useState('12/24');
-    const [ccv, setCcv] = useState('342');
-    const [cardName, setCardName] = useState('John Doe');
+import React, { useState, useEffect } from 'react';
+const CreditCard = ({ onCheckFullFill }) => {
+    const [cardNumber, setCardNumber] = useState('');
+    const [expDate, setExpDate] = useState('');
+    const [ccv, setCcv] = useState('');
+    const [cardName, setCardName] = useState('');
     const [isRearVisible, setIsRearVisible] = useState(false);
 
     const handleCardNumberChange = (e) => {
@@ -40,9 +40,13 @@ const CreditCard = () => {
         else if (side === 'flipToFront') setIsRearVisible(false);
         else setIsRearVisible(!isRearVisible);
     };
+    useEffect(() => {
+        const isFull = cardNumber && expDate && ccv && cardName;
+        onCheckFullFill(isFull);
+    }, [cardNumber, expDate, ccv, cardName, onCheckFullFill]);
     return (
         <main class="flex h-auto w-full items-center justify-between lg:pb-8">
-            <form class="bg-white w-full mx-auto px-6 py-8 shadow-md flex">
+            <form className="bg-white w-full mx-auto px-6 py-8 shadow-md flex">
                 <div className="w-1/2 pr-8 border-r-2 border-slate-300">
                     <label className="block mb-2 font-bold text-md text-neutral-800">Số thẻ:</label>
                     <input

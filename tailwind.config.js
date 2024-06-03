@@ -61,6 +61,9 @@ module.exports = {
             fontSize: {
                 es: '0.5rem',
             },
+            borderWidth: {
+                1: '1px',
+            },
         },
     },
 
