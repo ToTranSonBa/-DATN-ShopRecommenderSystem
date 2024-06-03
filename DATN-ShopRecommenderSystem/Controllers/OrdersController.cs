@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
@@ -57,106 +59,231 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         // GET: api/orders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        [Authorize]
+        [HttpGet("OrdersByStatus")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByStatus(int status)
         {
-            var res = await _orderService.GetAll();
-            return Ok(res);
+            try
+            {
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var orders = await _orderService.GetOrdersByStatus(status, user);
+                if (orders == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
         }
 
         // GET: api/orders/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _orderService.GetById(id);
-            if (order == null)
+            try
             {
-                return NotFound();
-            }
-            return Ok(order);
-        }
-
-        // POST: api/orders
-        [Authorize]
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(string Address, string PhoneNumber)
-        {
-            // Lấy token từ header Authorization
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                return Unauthorized();
-            }
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user == null)
-            {
-                return Unauthorized(new Response<CartItem>()
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
-                    message = "Unauthorized!",
-                    status = "401",
-                    token = token,
-                    Data = null,
-                });
-            }else
-            {
-                var cartItems = await _cartItemsService.GetAllItemsOfUserInCart(user);
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
-
-                Order order = await _orderService.CreateOrder(user, Address, PhoneNumber);
-
-                var orderItems = new List<OrderItems>();
-                try
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
                 {
-                    foreach (var item in cartItems)
+                    return Unauthorized(new Response<CartItem>()
                     {
-                        var orderItem = new OrderItems()
-                        {
-                            Product = item.Product,
-                            Order = order,
-                            Quantity = item.Quantity,
-                            Price = item.Product.Price * item.Quantity
-                        };
-
-                        order.TotalPrice += item.Product.Price * item.Quantity;
-
-                        _dbContext.OrderItems.AddAsync(orderItem);
-                        _dbContext.Order.Update(order);
-                        await _dbContext.SaveChangesAsync();
-                    }
-
-                    return Ok(new Response<OrderItems>
-                    {
-                        message = "Order Successfully!",
-                        status = "200",
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
                         Data = null,
-                        token = token
                     });
                 }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex);
-                }
 
+                var order = await _orderService.GetById(id, user);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
             }
         }
 
-        // DELETE: api/orders/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Order>> DeleteOrder(int id)
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Order>> CreateOrder([FromQuery] OrderParameters orderParameters)
         {
-            _orderService.Remove(id);
+            try
+            {
+                // Get token from the Authorization header
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            return NoContent();
+                // Get user from token
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                if (user.PhoneNumber == null && orderParameters.PhoneNumber == null)
+                {
+                    return BadRequest(new Response<Order>
+                    {
+                        message = "Update your phone number or fill phone number field",
+                        token = token,
+                        Data = null,
+                        status = "400"
+                    });
+                }
+
+                var order = await _orderService.CreateOrder(user, orderParameters.Address, orderParameters.PhoneNumber);
+
+                if (order != null)
+                {
+                    return Ok(new Response<Order>
+                    {
+                        message = "Order Successfully!",
+                        token = token,
+                        Data = null,
+                        status = "201"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new Response<object>
+                    {
+                        message = "Failed to create order.",
+                        status = "400",
+                        token = token,
+                        Data = null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
         }
-        // PUT: api/orders/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+
+        [Authorize]
+        [HttpPut("UpdateStatusOrder{id}")]
+        public async Task<ActionResult<Order>> UpdateStatusOrder(int id, int status)
         {
-            var res = _orderService.Update(order);
-            return NoContent();
-        }
+            try
+            {
+                // Get token from the Authorization header
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
+                // Get user from token
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var order = await _orderService.UpdateStatus(user, status, id);
+
+                if (order != null)
+                {
+                    return Ok(new Response<Order>
+                    {
+                        message = "Order Successfully!",
+                        token = token,
+                        Data = null,
+                        status = "201"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new Response<object>
+                    {
+                        message = "Failed to create order.",
+                        status = "400",
+                        token = token,
+                        Data = null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
+        }
+        
     }
 }

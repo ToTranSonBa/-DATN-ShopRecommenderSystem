@@ -5,6 +5,8 @@ using ShopRe.Model.Models;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using static ShopRe.Service.OrderService;
+using AutoMapper;
+using ShopRe.Common.DTOs;
 
 namespace ShopRe.Service
 {
@@ -12,14 +14,14 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<Order>> GetAll();
         Task<IQueryable<Order>> GetAll(bool trackChanges);
-        Task<Order> GetById(int id);
+        Task<OrderDTO> GetById(int id, ApplicationUser user);
         Task<Order> Add(Order entity);
         Task<int> AddRange(IEnumerable<Order> entities);
         Task<Order> Update(Order entity);
         void Remove(int id);
         IEnumerable<Order> Find(Expression<Func<Order, bool>> expression);
         Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user);
-
+        Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
         Task<Order> CreateOrder(ApplicationUser user, string Address, string PhoneNumber);
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
     }
@@ -27,17 +29,13 @@ namespace ShopRe.Service
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, ShopRecommenderSystemDbContext dbContext)
+        public OrderService(IOrderRepository orderRepository, ShopRecommenderSystemDbContext dbContext, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _dbContext = dbContext;
-        }
-
-        public class OrderDTO
-        {
-            public Order? Order;
-            public List<OrderItems>? OrderItems;
+            _mapper = mapper;
         }
 
         public async Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user)
@@ -47,25 +45,23 @@ namespace ShopRe.Service
                                          .Where(o => o.ApplicationUser.Id == user.Id)
                                          .ToListAsync();
 
-            List<OrderDTO> listOrder = new List<OrderDTO>();
 
-            foreach (var order in orders)
+            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+
+            foreach (var order in listOrder)
             {
-                var orderItem = await _dbContext.OrderItems
-                                             .Where(o=>o.Id==order.ID)
+                var orderItems = await _dbContext.OrderItems
+                                             .Where(o=>o.Order.ID==order.ID).Include(o=>o.Product).Include(o=>o.OptionValues).ThenInclude(o=>o.Option)
                                              .ToListAsync();
-                var orderTemp = new OrderDTO()
-                {
-                    Order = order,
-                    OrderItems = orderItem
-                };
-                listOrder.Add(orderTemp);
+
+                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+                order.Items = Items;
             }
 
             return listOrder;
         }
 
-        public async Task<Order> CreateOrder(ApplicationUser user, string address, string phoneNumber)
+        public async Task<Order> CreateOrder(ApplicationUser user, string? address, string? phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(address))
             {
@@ -77,13 +73,13 @@ namespace ShopRe.Service
                 phoneNumber = user.PhoneNumber;
             }
 
-            var order = new Order()
+            var order = new Order
             {
-                TotalPrice = 0,
-                ApplicationUser = user,
-                Status = 1,
+                Status = 1, // 0 Canceled, 1 Pending Confirmation, 2 Waiting for Shipment, 3 Waiting for Pickup, 4 Delivered.
                 Address = address,
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                TotalPrice = 0,
+                ApplicationUser = user
             };
 
             await _dbContext.Order.AddAsync(order);
@@ -91,14 +87,33 @@ namespace ShopRe.Service
 
             return order;
         }
+        public async Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user)
+        {
+            var orders = await _dbContext.Order
+                                 .Where(o => o.ApplicationUser.Id == user.Id && o.Status == status).ToListAsync();
 
+
+            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+
+            foreach (var order in listOrder)
+            {
+                var orderItems = await _dbContext.OrderItems
+                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+                                             .ToListAsync();
+
+                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+                order.Items = Items;
+            }
+
+            return listOrder;
+        }
 
         public async Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder)
         {
-            var order = await _dbContext.Order.FirstOrDefaultAsync(p => p.ID == idOrder);
+            var order = await _dbContext.Order.FirstOrDefaultAsync(o => o.ID == idOrder && o.ApplicationUser.Id == user.Id);
             if (order == null)
             {
-                return await Task.FromResult<Order>(null);
+                return null;
             }
             else
             {
@@ -135,9 +150,23 @@ namespace ShopRe.Service
             return _orderRepository.GetAll(trackChanges);
         }
 
-        public Task<Order> GetById(int id)
+        public async Task<OrderDTO> GetById(int id, ApplicationUser user)
         {
-            return _orderRepository.GetById(id);
+            var orders = await _dbContext.Order.FirstOrDefaultAsync(o=>o.ID==id && o.ApplicationUser.Id==user.Id);
+
+
+            OrderDTO Order = _mapper.Map<OrderDTO>(orders);
+
+
+            var orderItems = await _dbContext.OrderItems
+                                         .Where(o => o.Order.ID == Order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+                                         .ToListAsync();
+
+            var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+            Order.Items = Items;
+
+
+            return Order;
         }
 
         public void Remove(int id)

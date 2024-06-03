@@ -10,6 +10,8 @@ namespace DATN_ShopRecommenderSystem.Helpers
         public ApplicationMapper()
         {
             CreateMap<Product, ProductDTO>().ReverseMap();
+            CreateMap<ProductOption, ProductOptionDTO>().ReverseMap();
+            CreateMap<ProductOptionValues, ProductOptionValuesDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Seller, SellerDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
@@ -17,6 +19,7 @@ namespace DATN_ShopRecommenderSystem.Helpers
             CreateMap<ProductChild, ProductChildDTO>().ReverseMap();
             CreateMap<DetailComment, CommentDTO>().ReverseMap();
             CreateMap<Order, OrderDTO>().ReverseMap();
+            CreateMap<OrderItems, OrderItemsDTO>().ReverseMap();
             CreateMap<Account, AccountDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             CreateMap<ApplicationUser, AccountDTO>().ReverseMap();
