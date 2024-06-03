@@ -212,9 +212,9 @@ const ProductPage = () => {
 
                 {/* cột phải 4/5 chứa products */}
                 <div className="flex-1 md:flex-none md:w-4/5">
-                    {search 
+                    {searchQuery 
                         ? <span className="text-lg sm:text-xl font-semibold text-gray-900">
-                            Kết quả tìm kiếm của "{search}" - {totalProducts} sản phẩm
+                            Kết quả tìm kiếm của "{searchQuery}" - {totalProducts} sản phẩm
                         </span> 
                         : <span className="text-lg sm:text-xl font-semibold text-gray-900">
                             Kết quả tìm kiếm - {totalProducts} sản phẩm

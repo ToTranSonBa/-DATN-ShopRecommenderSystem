@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 // API
 import { fetchCategories } from '../../services/HomeApi/home';
+import { SearchContext } from '../searchContext';
+
 const recentSearch = [
     { searchkey: 'điện thoại' },
     { searchkey: 'quần áo' },
@@ -19,8 +21,6 @@ const searchPlaceholders = [
         title: 'quần áo',
     },
 ];
-
-import { SearchContext } from '../searchContext';
 
 const Search = () => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
