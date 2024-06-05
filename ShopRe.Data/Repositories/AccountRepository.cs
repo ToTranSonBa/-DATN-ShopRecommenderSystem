@@ -78,7 +78,7 @@ namespace ShopRe.Data.Repositories
                 Avatar="No image yet",
                 ShippingAddresses = new List<ShippingAddress>
                 {
-                    new ShippingAddress { Address = signUp.Address, FullName = signUp.FirstName+signUp.LastName, PhoneNumber = signUp.PhoneNumber, Type = "Văn phòng"}
+                    new ShippingAddress { Address = signUp.Address, FullName = signUp.FirstName+signUp.LastName, PhoneNumber = signUp.PhoneNumber, Type = "Văn phòng", Email=signUp.Email}
                 }
             };
             return await _userManager.CreateAsync(user, signUp.Password);
