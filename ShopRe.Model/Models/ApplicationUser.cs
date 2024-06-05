@@ -14,6 +14,8 @@ namespace ShopRe.Model.Models
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
         public string Avatar { get; set; }
+        public int? ShippingAddress { get; set; }
+        public ICollection<ShippingAddress> ShippingAddresses { get; set; } 
 
         public string GetFullName()
         {

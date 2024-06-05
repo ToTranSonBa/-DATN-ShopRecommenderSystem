@@ -21,7 +21,10 @@ namespace ShopRe.Model.Models
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? DeletedAt { get; set; } // Thời điểm đánh dấu đơn hàng đã bị xóa (nếu có)
         public DateTime? UpdatedAt { get; set; }
+        public string? Email { get; set; }
+        public string? Name { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
+        public ShippingAddress? ShippingAddress { get; set; }
 
     }
 }

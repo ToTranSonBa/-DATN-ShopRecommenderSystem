@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240601161131_shipping address")]
+    partial class shippingaddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -508,14 +510,8 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("ID_SK")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -856,7 +852,6 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -1083,10 +1078,8 @@ namespace ShopRe.Data.Migrations
             modelBuilder.Entity("ShopRe.Model.Models.ShippingAddress", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
-                        .WithMany("ShippingAddresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -1113,11 +1106,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("Seller");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("ShippingAddresses");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Product", b =>

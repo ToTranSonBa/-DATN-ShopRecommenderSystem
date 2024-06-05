@@ -27,6 +27,7 @@ namespace ShopRe.Data
         public DbSet<ProductOptionValues> ProductOptionValues { get; set; }
         public DbSet<ProductChild> ProductChild { get; set; }
         public DbSet<Images> Images { get; set; }
+        public DbSet<ShippingAddress> ShippingAddresses { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

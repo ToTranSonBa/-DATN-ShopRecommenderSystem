@@ -12,6 +12,7 @@ using ShopRe.Model.Models;
 using ShopRe.Service;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +75,7 @@ builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerPriorityRepository, SellerPriorityRepository>();
 builder.Services.AddScoped<IUserLogRepository, UserLogRepository>();
+builder.Services.AddScoped<IShippingAddressRepository, ShippingAddressRepository>();
 
 
 
@@ -90,6 +92,7 @@ builder.Services.AddScoped<ICartItemsService, CartItemsService>();
 builder.Services.AddScoped<IShoppingSessionService, ShoppingSessionsService>();
 builder.Services.AddScoped<IElasticSearchService, ElasticSearchsService>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IShippingAddressService, ShippingAddressService>();
 
 //
 builder.Services.AddAuthentication(options =>
@@ -143,6 +146,11 @@ builder.Services.AddSwaggerGen(setup =>
 builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 
 builder.Services.AddAuthorization();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 
 var app = builder.Build();
 

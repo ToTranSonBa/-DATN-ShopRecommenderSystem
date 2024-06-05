@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
+using ShopRe.Data.Migrations;
 
 namespace ShopRe.Data.Repositories
 {
@@ -23,6 +24,7 @@ namespace ShopRe.Data.Repositories
     {
         public Task<IdentityResult> SignUpAsync(SignUpModel signUp);
         public Task<string> SignInAsync(SignInModel signIn);
+        Task<IdentityResult> Update(ApplicationUser user, int ship);
     }
     public class AccountRepository : IAccountRepository
     {
@@ -73,9 +75,18 @@ namespace ShopRe.Data.Repositories
                 PhoneNumber = signUp.PhoneNumber,
                 Address = signUp.Address,
                 UserName= signUp.Email,
-                Avatar="No image yet"
+                Avatar="No image yet",
+                ShippingAddresses = new List<ShippingAddress>
+                {
+                    new ShippingAddress { Address = signUp.Address, FullName = signUp.FirstName+signUp.LastName, PhoneNumber = signUp.PhoneNumber, Type = "Văn phòng"}
+                }
             };
             return await _userManager.CreateAsync(user, signUp.Password);
+        }
+        public async Task<IdentityResult> Update(ApplicationUser user, int ship )
+        {
+            user.ShippingAddress = ship;
+            return await _userManager.UpdateAsync(user);
         }
     }
 }
