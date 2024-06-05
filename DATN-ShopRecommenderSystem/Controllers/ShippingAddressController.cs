@@ -46,6 +46,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var addresses = await _shippingAddressService.GetAllbyUser(user);
             return Ok(addresses);
         }
+        [Authorize]
         [HttpGet("GetbyId")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -56,6 +57,28 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             return Ok(adr);
         }
+        [Authorize]
+        [HttpGet("GetDefault")]
+        public async Task<IActionResult> GetDefault()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var address = await _shippingAddressService.GetById((int)user.ShippingAddress);
+            return Ok(address);
+        }
+
+        [Authorize]
         [HttpPut("updateDefaulAddress")]
         public async Task<IActionResult> UpdateDefault(int id)
         {
@@ -76,6 +99,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var res = await _accountService.UpdateShip(user, id);
             return Ok(res);
         }
+        [Authorize]
         [HttpPost("AddNewAddress")]
         public async Task<IActionResult> AddAddress(ShippingAddressDTO shippingAddressDTO)
         {
@@ -98,6 +122,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 PhoneNumber = shippingAddressDTO.PhoneNumber,
                 Address = shippingAddressDTO.Address,
                 Type = shippingAddressDTO.Type,
+                Email = shippingAddressDTO.Email,
                 User = user
             };
             var res = await _shippingAddressService.Add(address);
