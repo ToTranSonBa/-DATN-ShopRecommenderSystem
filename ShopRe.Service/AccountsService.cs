@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using AutoMapper;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
 
 namespace ShopRe.Service
 {
@@ -20,7 +21,7 @@ namespace ShopRe.Service
         public Task<ApplicationUser> GetUserFromTokenAsync(string token);
         Task<UserDTO> GetUserInformation(ApplicationUser user);
         Task<IdentityResult> UpdateShip(ApplicationUser user, int id);
-
+        Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user);
     }
     public class AccountService : IAccountService
     {
@@ -69,6 +70,57 @@ namespace ShopRe.Service
             return accountDTO;
         }
 
+        public async Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user)
+        {
+            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+
+            if (userFromDb == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            userFromDb.PhoneNumber = userInfo.PhoneNumber;
+            userFromDb.UserName = userInfo.Email;
+            userFromDb.Email = userInfo.Email;
+            userFromDb.Address = userInfo.Address;
+            userFromDb.FirstName = userInfo.FirstName;
+            userFromDb.LastName = userInfo.LastName;
+
+            if (userInfo.Avatar != null)
+            {
+                userFromDb.Avatar = "No image yet";
+            }
+            else
+            {
+                userFromDb.Avatar = userInfo.Avatar;
+            }
+
+
+
+            if (!string.IsNullOrEmpty(userInfo.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(userFromDb);
+                var result = await _userManager.ResetPasswordAsync(userFromDb, token, userInfo.Password);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Failed to update password: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+            }
+
+
+            var updateResult = await _userManager.UpdateAsync(userFromDb);
+            if (!updateResult.Succeeded)
+            {
+                throw new Exception("Failed to update user: " + string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            var accountDTO = _mapper.Map<UserDTO>(userFromDb);
+
+            return accountDTO;
+        }
         public async Task<IdentityResult> UpdateShip(ApplicationUser user, int id)
         {
             return await _accountRepository.Update(user, id);

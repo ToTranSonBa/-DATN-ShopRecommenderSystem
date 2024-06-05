@@ -151,7 +151,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("CreatOrderForUser")]
         public async Task<ActionResult<Order>> CreateOrder([FromQuery] OrderParameters orderParameters)
         {
             try
@@ -168,7 +168,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _accountService.GetUserFromTokenAsync(token);
                 if (user == null)
                 {
-                    return Unauthorized(new Response<CartItem>
+                    return Unauthorized(new Response<object>
                     {
                         message = "Unauthorized!",
                         status = "401",
@@ -176,29 +176,65 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         Data = null,
                     });
                 }
-
-                if (user.PhoneNumber == null && orderParameters.PhoneNumber == null)
-                {
-                    return BadRequest(new Response<Order>
-                    {
-                        message = "Update your phone number or fill phone number field",
-                        token = token,
-                        Data = null,
-                        status = "400"
-                    });
-                }
-
-                var order = await _orderService.CreateOrder(user, orderParameters.Address, orderParameters.PhoneNumber);
+                var order = await _orderService.CreateOrderForUser(user, orderParameters);
 
                 if (order != null)
                 {
-                    return Ok(new Response<Order>
+                    return Ok(order);
+                }
+                else
+                {
+                    return BadRequest(new Response<object>
                     {
-                        message = "Order Successfully!",
+                        message = "Failed to create order.",
+                        status = "400",
+                        token = token,
+                        Data = null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
+        }
+        [Authorize]
+        [HttpPost("CreatOrderForNewUser")]
+        public async Task<ActionResult<Order>> CreateOrderForNewUser([FromQuery] OrderNewUserPrameters orderParameters)
+        {
+            try
+            {
+                // Get token from the Authorization header
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                // Get user from token
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<object>
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
                         token = token,
                         Data = null,
-                        status = "201"
                     });
+                }
+                var order = await _orderService.CreateOrderForNewUser(orderParameters);
+
+                if (order != null)
+                {
+                    return Ok(order);
                 }
                 else
                 {

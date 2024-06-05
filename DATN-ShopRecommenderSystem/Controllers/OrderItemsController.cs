@@ -23,7 +23,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _accountService = accountService;
         }
         [Authorize]
-        [HttpPost]
+        [HttpPost("AddOrderItemsForUser")]
         public async Task<ActionResult<OrderItems>> AddOrderItems([FromQuery] OrderItemsParameters orderItemsParameters)
         {
             try
@@ -68,6 +68,45 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         message = "Failed to create order.",
                         status = "400",
                         token = token,
+                        Data = null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
+        }
+        [HttpPost("AddOrderItemsForNewUser")]
+        public async Task<ActionResult<OrderItems>> AddOrderItemsForNewUser([FromQuery] OrderItemsParameters orderItemsParameters)
+        {
+            try
+            {
+                var orderItems = await _orderItemsService.AddOrderItemsForNewUser(orderItemsParameters);
+
+                if (orderItems != null)
+                {
+                    return Ok(new Response<Order>
+                    {
+                        message = "Order Successfully!",
+                        token = null,
+                        Data = null,
+                        status = "201"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new Response<object>
+                    {
+                        message = "Failed to create order.",
+                        status = "400",
+                        token = null,
                         Data = null
                     });
                 }
