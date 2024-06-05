@@ -84,6 +84,7 @@ builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDetailCommentService, DetailCommentService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
 //builder.Services.AddScoped<IOwnershipService, OwnershipService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductOptionService, ProductOptionService>();

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ShopRe.Common.RequestFeatures
 {
-    public class OrderParameters : RequestFeatures
+    public class OrderParameters
     {
-
+        public string? Address { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }
