@@ -7,8 +7,8 @@ import NavbarCustom from './navbar';
 function Header() {
     const [scrollPosition, setScrollPosition] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
-    const [classNameBg, setClassNameBg] = useState('bg-transparent');
-    const [classNameTextColor, setClassNameTextColor] = useState('text-white');
+    const [classNameBg, setClassNameBg] = useState('');
+    const [classNameTextColor, setClassNameTextColor] = useState('');
     const [classNameDropShadow, setClassNameDropShadow] = useState('');
 
     const handleHover = () => {

@@ -8,6 +8,12 @@ const UserPage = () => {
     const [email, setEmail] = useState('');
     const [profession, setProfession] = useState('');
     const [bio, setBio] = useState('');
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedOption, setSelectedOption] = useState('profile');
+    const [selectedStatus, setSelectedStatus] = useState('all');
 
     const handleSave = (e) => {
         e.preventDefault();
@@ -15,13 +21,14 @@ const UserPage = () => {
         console.log({ firstName, lastName, email, profession, bio });
     };
 
-    const [isOpen, setIsOpen] = useState(false);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Xử lý logic thay đổi mật khẩu ở đây
+    };
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
-
-    const [selectedOption, setSelectedOption] = useState('profile');
 
     const handleOptionClick = (option) => {
         setSelectedOption(option);
@@ -98,7 +105,6 @@ const UserPage = () => {
         },
         // More orders...
     ];
-    const [selectedStatus, setSelectedStatus] = useState('all');
 
     const handleStatusClick = (status) => {
         setSelectedStatus(status);
@@ -157,7 +163,7 @@ const UserPage = () => {
                             <li>
                                 <a
                                     href="#"
-                                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                    className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 hover:bg-gray-100 dark:hover:bg-gray-700"
                                     onClick={() => handleOptionClick('changepassword')}
                                 >
                                     Đổi mật khẩu
@@ -178,9 +184,9 @@ const UserPage = () => {
             {selectedOption && (
                 <main className="w-full min-h-screen py-1 mb-4 md:w-2/3 lg:w-3/4">
                     {selectedOption === 'profile' && (
-                        <div className="grid bg-white justify-center ">
-                            <div className="w-full  px-6 pb-8 mt-4">
-                                <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2>
+                        <div className="flex justify-center bg-white ">
+                            <div className="w-3/5 px-6 pb-8 mt-12 ">
+                                {/* <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2> */}
                                 <form className="grid max-w-2xl mx-auto mt-8" onSubmit={handleSave}>
                                     <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
                                         <img
@@ -203,7 +209,7 @@ const UserPage = () => {
                                             <div className="w-full">
                                                 <label
                                                     htmlFor="first_name"
-                                                    className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
+                                                    className="block mb-2 text-sm font-medium text-indigo-900 "
                                                 >
                                                     Tên đăng nhập
                                                 </label>
@@ -220,7 +226,7 @@ const UserPage = () => {
                                             <div className="w-full">
                                                 <label
                                                     htmlFor="last_name"
-                                                    className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
+                                                    className="block mb-2 text-sm font-medium text-indigo-900 "
                                                 >
                                                     Tên
                                                 </label>
@@ -238,7 +244,7 @@ const UserPage = () => {
                                         <div className="mb-2 sm:mb-6">
                                             <label
                                                 htmlFor="email"
-                                                className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
+                                                className="block mb-2 text-sm font-medium text-indigo-900 "
                                             >
                                                 Email
                                             </label>
@@ -255,7 +261,7 @@ const UserPage = () => {
                                         <div className="mb-2 sm:mb-6">
                                             <label
                                                 htmlFor="profession"
-                                                className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
+                                                className="block mb-2 text-sm font-medium text-indigo-900 "
                                             >
                                                 Số điện thoại
                                             </label>
@@ -272,7 +278,7 @@ const UserPage = () => {
                                         <div className="mb-2 sm:mb-6">
                                             <label
                                                 htmlFor="profession"
-                                                className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
+                                                className="block mb-2 text-sm font-medium text-indigo-900 "
                                             >
                                                 Giới tính
                                             </label>
@@ -320,8 +326,81 @@ const UserPage = () => {
                     )}
 
                     {selectedOption === 'address' && (
-                        <div className=" bg-white h-full w-full  flex justify-center">
+                        <div className="flex justify-center w-full h-full bg-white ">
                             <AddressManager className={'w-full lg:mt-12'} isUserPage={true} />
+                        </div>
+                    )}
+
+                    {selectedOption === 'changepassword' && (
+                        <div className="flex flex-col items-center w-full h-full bg-white">
+                            <div className="w-3/5 h-auto lg:mt-12">
+                                <h2 className="pb-2 mb-1 text-xl leading-tight tracking-tight text-gray-900 border-b-1 md:text-2xl">
+                                    Thay đổi mật khẩu
+                                </h2>
+                                <form className="mt-4 space-y-4 lg:mt-5 md:space-y-5" onSubmit={handleSubmit}>
+                                    <div>
+                                        <label
+                                            for="old-password"
+                                            className="block mb-2 text-sm font-medium text-gray-900"
+                                        >
+                                            Mật khẩu cũ
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="old-password"
+                                            id="old-password"
+                                            placeholder="••••••••"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                            value={oldPassword}
+                                            onChange={(e) => setOldPassword(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            for="new-password"
+                                            className="block mb-2 text-sm font-medium text-gray-900"
+                                        >
+                                            Mật khẩu mới
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="new-password"
+                                            id="new-password"
+                                            placeholder="••••••••"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            for="confirm-password"
+                                            className="block mb-2 text-sm font-medium text-gray-900"
+                                        >
+                                            Xác nhận mật khẩu
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="confirm-password"
+                                            id="confirm-password"
+                                            placeholder="••••••••"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-max ml-auto text-white bg-primary hover:bg-primary/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Đổi mật khẩu
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     )}
 
@@ -401,7 +480,7 @@ const UserPage = () => {
                                                     className="bg-white border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border"
                                                 >
                                                     <div className="flex items-center p-4 border-b border-gray-200 sm:p-6 sm:grid sm:grid-cols-6 sm:gap-x-6">
-                                                        <dl className="flex-1 grid grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-7 lg:col-span-3">
+                                                        <dl className="grid flex-1 grid-cols-2 text-sm gap-x-6 sm:col-span-3 sm:grid-cols-7 lg:col-span-3">
                                                             <div className="lg:col-span-3">
                                                                 <dt className="font-medium text-gray-900">Cửa hàng</dt>
                                                                 <dd className="mt-1 text-gray-500">{order.store}</dd>
@@ -460,11 +539,11 @@ const UserPage = () => {
                                                         {order.products.map((product) => (
                                                             <li key={product.id} className="p-4 sm:p-6">
                                                                 <div className="flex items-center sm:items-start">
-                                                                    <div className="flex-shrink-0 w-20 h-20 bg-gray-200 rounded-lg overflow-hidden sm:w-40 sm:h-40">
+                                                                    <div className="flex-shrink-0 w-20 h-20 overflow-hidden bg-gray-200 rounded-lg sm:w-40 sm:h-40">
                                                                         <img
                                                                             src={product.imageSrc}
                                                                             alt={product.imageAlt}
-                                                                            className="w-full h-full object-center object-cover"
+                                                                            className="object-cover object-center w-full h-full"
                                                                         />
                                                                     </div>
                                                                     <div className="flex-1 ml-6 text-sm">
@@ -502,8 +581,8 @@ const UserPage = () => {
                                                                         </p>
                                                                     </div>
 
-                                                                    <div className="mt-6 border-t border-gray-200 pt-4 flex items-center space-x-4 divide-x divide-gray-200 text-sm font-medium sm:mt-0 sm:ml-4 sm:border-none sm:pt-0">
-                                                                        <div className="flex-1 flex justify-center">
+                                                                    <div className="flex items-center pt-4 mt-6 space-x-4 text-sm font-medium border-t border-gray-200 divide-x divide-gray-200 sm:mt-0 sm:ml-4 sm:border-none sm:pt-0">
+                                                                        <div className="flex justify-center flex-1">
                                                                             <a
                                                                                 href={product.href}
                                                                                 className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"
@@ -511,7 +590,7 @@ const UserPage = () => {
                                                                                 Xem sản phẩm
                                                                             </a>
                                                                         </div>
-                                                                        <div className="flex-1 pl-4 flex justify-center">
+                                                                        <div className="flex justify-center flex-1 pl-4">
                                                                             <a
                                                                                 href="#"
                                                                                 className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"

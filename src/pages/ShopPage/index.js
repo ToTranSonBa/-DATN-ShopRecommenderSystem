@@ -595,6 +595,22 @@ const allProduct = [
         shortUrl: 'https://tiki.vn/product-p50685547.html?spid=272190990',
     },
 ];
+
+const calculateTimeDifference = (date) => {
+    const createdDate = new Date(date);
+    const currentDate = new Date();
+
+    let yearsDifference = currentDate.getFullYear() - createdDate.getFullYear();
+    let monthsDifference = currentDate.getMonth() - createdDate.getMonth();
+
+    if (monthsDifference < 0) {
+        yearsDifference -= 1;
+        monthsDifference += 12;
+    }
+
+    return { years: yearsDifference, months: monthsDifference };
+};
+
 function ShopPage({}) {
     const [seller, setSeller] = useState([]);
     const isFollow = undefined;
@@ -603,21 +619,33 @@ function ShopPage({}) {
     const location = useLocation();
     const [error, setError] = useState('');
 
-    const sellerId = location.state?.sellerId;
-    console.log('Seller: ', sellerId);
+    const sellerId = 10;
+    const { years, months } = calculateTimeDifference(seller.createdAt);
+    const getJoinTimeText = (years, months) => {
+        if (years < 1 && months < 1) {
+            return 'Chưa tới 1 tháng';
+        } else if (years < 1) {
+            return `${months} tháng trước`;
+        } else {
+            return `${years} năm ${months} tháng trước`;
+        }
+    };
+
+    const joinTimeText = getJoinTimeText(years, months);
     useEffect(() => {
-        const getSellerbyID = async () => {
+        const fetchSeller = async () => {
             try {
-                const response = await fetchCategories(sellerId);
-                setSeller = response.data;
+                const response = await getSellerbyID(sellerId);
+
+                setSeller(response);
             } catch (error) {
-                setError('Failed to fetch categories');
-                console.error('Failed to fetch categories:', error);
+                setError('Failed to fetch seller');
+                console.error('Failed to fetch seller:', error);
             }
         };
 
-        getSellerbyID();
-    }, []);
+        fetchSeller();
+    }, [sellerId]);
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -659,19 +687,20 @@ function ShopPage({}) {
         <div className="lg:pt-44">
             <MaxWidthWrapper>
                 <div className="bg-white">
+                    {error && <div>{error}</div>}
                     <div className="flex justify-around w-full h-auto lg:py-4">
                         <div className="bg-gray-300 lg:rounded-r-md ">
                             <div className="flex items-center justify-between lg:gap-4 lg:px-4 lg:py-4 backdrop-blur-3xl">
                                 <div className="flex justify-center items-center bg-gray-500 rounded-full w-[90px] h-[90px]">
                                     <img
                                         className="rounded-full object-cover w-[80px] h-[80px]"
-                                        src={Avatar}
+                                        src={seller.imageUrl}
                                         alt="this is avt"
                                     />
                                 </div>
                                 <div>
                                     <span className="flex items-center w-full font-medium text-white lg:gap-2 lg:leading-8 lg:text-lg">
-                                        Máy tính Laptop Nhật Bản
+                                        {seller.name}
                                     </span>
                                     <span className="block font-light text-white lg:text-md">
                                         Online <span>1</span> <soan>giờ </soan>trước
@@ -817,7 +846,7 @@ function ShopPage({}) {
                                 </svg>
 
                                 <span> Người theo dõi: </span>
-                                <span className="font-light text-red-700">68,1k</span>
+                                <span className="font-light text-red-700">{seller.totalFollower}</span>
                             </div>
                             <div className="flex items-center w-full lg:gap-2 lg:py-3">
                                 <svg
@@ -837,8 +866,8 @@ function ShopPage({}) {
 
                                 <span> Đánh giá: </span>
                                 <div>
-                                    <span className="font-light text-red-700">4.9</span>
-                                    <span className="font-light text-red-700 lg:pl-1">(2,2k Đánh Giá)</span>
+                                    <span className="font-light text-red-700">{seller.avgRatingPoint}</span>
+                                    <span className="font-light text-red-700 lg:pl-1">({seller.reviewCount})</span>
                                 </div>
                             </div>
                             <div className="flex items-center w-full lg:gap-2 lg:py-3">
@@ -858,7 +887,7 @@ function ShopPage({}) {
                                 </svg>
 
                                 <span> Tham gia: </span>
-                                <span className="font-light text-red-700">23 tháng trước</span>
+                                <span className="font-light text-red-700">{joinTimeText}</span>
                             </div>
                         </div>
                     </div>
@@ -874,9 +903,9 @@ function ShopPage({}) {
                                 Tất cả sản phẩm
                             </li>
                         </a>
-                        <a href="#recommendforu">
+                        {/* <a href="#recommendforu">
                             <li className="text-lg hover:text-red-700 hover:cursor-pointer">Gợi ý cho bạn</li>
-                        </a>
+                        </a> */}
                         <a href="#newproduct">
                             <li className="text-lg hover:text-red-700 hover:cursor-pointer">Sản phẩm mới</li>
                         </a>
@@ -886,7 +915,7 @@ function ShopPage({}) {
                     </ul>
                 </div>
             </MaxWidthWrapper>
-            <div id="recommendforu" className="bg-gray-100 lg:py-8">
+            {/* <div id="recommendforu" className="bg-gray-100 lg:py-8">
                 <MaxWidthWrapper>
                     <div className="flex justify-between">
                         <span className="uppercase lg:text-xl">Gợi ý cho bạn</span>
@@ -1019,7 +1048,7 @@ function ShopPage({}) {
                         </div>
                     </div>
                 </MaxWidthWrapper>
-            </div>
+            </div> */}
             <div id="newproduct" className="bg-gray-100 lg:py-8">
                 <MaxWidthWrapper>
                     <div className="flex justify-between">

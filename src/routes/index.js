@@ -16,12 +16,12 @@ const publicRoutes = [
     { path: '/', component: Home },
     { path: '/login', component: LoginPage, layout: HeaderOnly },
     { path: '/signup', component: SignUpPage, layout: HeaderOnly },
-    { path: '/productpage', component: ProductsPage},
+    { path: '/productpage', component: ProductsPage },
     { path: '/productdetail/:id', component: ProductDetailPage },
     { path: '/shopdashboardpage', component: ShopDashboardPage, layout: HeaderOnly },
     { path: '/cartshoppingpage', component: CartShoppingPage },
     { path: '/userpage', component: UserPage },
-    { path: '/shoppage/:sellerId', component: ShopPage },
+    { path: '/shoppage', component: ShopPage },
     { path: '/checkout', component: CheckoutForm },
 ];
 

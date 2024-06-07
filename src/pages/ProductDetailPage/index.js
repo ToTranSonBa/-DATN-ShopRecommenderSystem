@@ -36,6 +36,7 @@ const calculateTimeDifference = (date) => {
 
     return { years: yearsDifference, months: monthsDifference };
 };
+
 const ProductDetailPage = () => {
     const navigate = useNavigate();
 
