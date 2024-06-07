@@ -53,11 +53,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
                 if (orderItems != null)
                 {
-                    return Ok(new Response<Order>
+                    return Ok(new 
                     {
                         message = "Order Successfully!",
                         token = token,
-                        Data = null,
+                        Data = orderItems,
                         status = "201"
                     });
                 }

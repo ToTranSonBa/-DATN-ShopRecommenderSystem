@@ -22,7 +22,7 @@ namespace ShopRe.Service
         void Remove(int id);
         IEnumerable<Order> Find(Expression<Func<Order, bool>> expression);
         Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user);
-        Task<int> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters);
+        Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters);
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
         Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
@@ -63,7 +63,7 @@ namespace ShopRe.Service
             return listOrder;
         }
 
-        public async Task<int> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters)
+        public async Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters)
         {
             if (orderParameters == null)
             {
@@ -94,7 +94,7 @@ namespace ShopRe.Service
             var newOrder = await _dbContext.Order.AddAsync(order);
             await _dbContext.SaveChangesAsync();
 
-            return newOrder.Entity.ID;
+            return newOrder.Entity;
         }
         public async Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters)
         {

@@ -180,7 +180,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
                 if (order != null)
                 {
-                    return Ok(order);
+                    return Ok(new
+                    {
+                        message = "Create Order Successfully.",
+                        status = "400",
+                        token = token,
+                        Data = order
+                    });
                 }
                 else
                 {
