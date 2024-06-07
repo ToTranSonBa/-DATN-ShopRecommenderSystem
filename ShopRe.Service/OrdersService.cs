@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using static ShopRe.Service.OrderService;
 using AutoMapper;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
 
 namespace ShopRe.Service
 {
@@ -21,9 +22,10 @@ namespace ShopRe.Service
         void Remove(int id);
         IEnumerable<Order> Find(Expression<Func<Order, bool>> expression);
         Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user);
-        Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
-        Task<Order> CreateOrder(ApplicationUser user, string Address, string PhoneNumber);
+        Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters);
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
+        Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
+        Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
     }
     public class OrderService : IOrderService
     {
@@ -61,31 +63,58 @@ namespace ShopRe.Service
             return listOrder;
         }
 
-        public async Task<Order> CreateOrder(ApplicationUser user, string? address, string? phoneNumber)
+        public async Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters)
         {
-            if (string.IsNullOrWhiteSpace(address))
+            if (orderParameters == null)
             {
-                address = user.Address;
+                throw new InvalidOperationException("Information are null!");
             }
 
-            if (string.IsNullOrWhiteSpace(phoneNumber))
+            var shippingAddress = await _dbContext.ShippingAddresses
+                .FirstOrDefaultAsync(s => s.Id == orderParameters.idShippingAddress
+                                            && s.User.Id == user.Id);
+
+            if (shippingAddress == null)
             {
-                phoneNumber = user.PhoneNumber;
+                throw new InvalidOperationException("Shipping Address don't exists!");
             }
 
             var order = new Order
             {
                 Status = 1, // 0 Canceled, 1 Pending Confirmation, 2 Waiting for Shipment, 3 Waiting for Pickup, 4 Delivered.
-                Address = address,
-                PhoneNumber = phoneNumber,
-                TotalPrice = 0,
+                Address = shippingAddress.Address,
+                PhoneNumber = shippingAddress.PhoneNumber,
+                TotalPrice = 0, 
+                Email = shippingAddress.Email,
+                Name = shippingAddress.FullName,
+                ShippingAddress = shippingAddress,
                 ApplicationUser = user
             };
 
-            await _dbContext.Order.AddAsync(order);
+            var newOrder = await _dbContext.Order.AddAsync(order);
             await _dbContext.SaveChangesAsync();
 
-            return order;
+            return newOrder.Entity;
+        }
+        public async Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters)
+        {
+
+            var order = new Order
+            {
+                Status = 1, // 0 Canceled, 1 Pending Confirmation, 2 Waiting for Shipment, 3 Waiting for Pickup, 4 Delivered.
+                Address = orderParameters.Address,
+                PhoneNumber = orderParameters.PhoneNumber,
+                TotalPrice = 0,
+                Email = orderParameters.Email,
+                Name = orderParameters.LastName + orderParameters.FirstName,
+                ShippingAddress = null,
+                ApplicationUser = null
+            };
+
+            var newOrder = await _dbContext.Order.AddAsync(order);
+            await _dbContext.SaveChangesAsync();
+
+            return newOrder.Entity.ID;
         }
         public async Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user)
         {

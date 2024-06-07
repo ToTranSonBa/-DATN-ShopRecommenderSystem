@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using AutoMapper;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
 
 namespace ShopRe.Service
 {
@@ -20,7 +21,8 @@ namespace ShopRe.Service
         public Task<ApplicationUser> GetUserFromTokenAsync(string token);
         Task<UserDTO> GetUserInformation(ApplicationUser user);
         Task<ApplicationUser> UpdateShip(ApplicationUser user, int id);
-
+        Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user);
+        Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
     }
     public class AccountService : IAccountService
     {
@@ -67,6 +69,73 @@ namespace ShopRe.Service
             var userFromDb = await _userManager.FindByIdAsync(user.Id);
             var accountDTO = _mapper.Map<UserDTO>(userFromDb);
             return accountDTO;
+        }
+
+        public async Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user)
+        {
+            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+
+            if (userFromDb == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            userFromDb.PhoneNumber = userInfo.PhoneNumber;
+            userFromDb.UserName = userInfo.Email;
+            userFromDb.Email = userInfo.Email;
+            userFromDb.Address = userInfo.Address;
+            userFromDb.FirstName = userInfo.FirstName;
+            userFromDb.LastName = userInfo.LastName;
+
+            if (userInfo.Avatar == null)
+            {
+                userFromDb.Avatar = "No image yet";
+            }
+            else
+            {
+                userFromDb.Avatar = userInfo.Avatar;
+            }
+
+            var updateResult = await _userManager.UpdateAsync(userFromDb);
+            if (!updateResult.Succeeded)
+            {
+                throw new Exception("Failed to update user: " + string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            var accountDTO = _mapper.Map<UserDTO>(userFromDb);
+
+            return accountDTO;
+        }
+
+        public async Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user)
+        {
+            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+
+            if (userFromDb == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var passwordCheck = await _userManager.CheckPasswordAsync(userFromDb, changePasswordParams.PasswordOld);
+            if (!passwordCheck)
+            {
+                throw new Exception("Old password is incorrect");
+            }
+
+            if (changePasswordParams.PasswordNew != changePasswordParams.PasswordNewConfirm)
+            {
+                throw new Exception("New password and confirmation password do not match");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(userFromDb, changePasswordParams.PasswordOld, changePasswordParams.PasswordNew);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Failed to change password");
+            }
+
+            return true;
         }
 
         public async Task<ApplicationUser> UpdateShip(ApplicationUser user, int id)
