@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShopRe.Model.Models
 {
@@ -15,6 +17,8 @@ namespace ShopRe.Model.Models
         public string PhoneNumber { get; set; }
         public string Avatar { get; set; }
         public int? ShippingAddress { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int TrainCode { get; set; }
         public ICollection<ShippingAddress> ShippingAddresses { get; set; } 
 
         public string GetFullName()

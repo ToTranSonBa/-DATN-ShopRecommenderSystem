@@ -24,15 +24,17 @@ namespace ShopRe.Data.Repositories
     {
         public Task<IdentityResult> SignUpAsync(SignUpModel signUp);
         public Task<string> SignInAsync(SignInModel signIn);
-        Task<IdentityResult> Update(ApplicationUser user, int ship);
+        Task<ApplicationUser> Update(ApplicationUser user, int ship);
     }
     public class AccountRepository : IAccountRepository
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public AccountRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        private readonly ShopRecommenderSystemDbContext _context;
+        public AccountRepository(ShopRecommenderSystemDbContext context,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
         {
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
@@ -83,10 +85,11 @@ namespace ShopRe.Data.Repositories
             };
             return await _userManager.CreateAsync(user, signUp.Password);
         }
-        public async Task<IdentityResult> Update(ApplicationUser user, int ship )
+        public async Task<ApplicationUser> Update(ApplicationUser user, int ship )
         {
             user.ShippingAddress = ship;
-            return await _userManager.UpdateAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
     }
 }

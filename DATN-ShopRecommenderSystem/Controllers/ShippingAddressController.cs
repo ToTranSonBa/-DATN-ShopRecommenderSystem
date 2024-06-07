@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
@@ -44,7 +45,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return Unauthorized();
             }
             var addresses = await _shippingAddressService.GetAllbyUser(user);
-            return Ok(addresses);
+
+            return Ok(addresses.Select(a=>new AddressDTO { ID=a.Id, FullName = a.FullName, Address =a.Address, Email=a.Email, PhoneNumber= a.PhoneNumber, Type=a.Type}).ToList());
         }
         [Authorize]
         [HttpGet("GetbyId")]
@@ -79,7 +81,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         [Authorize]
-        [HttpPut("updateDefaulAddress")]
+        [HttpPut("ChangeDefaulAddress")]
         public async Task<IActionResult> UpdateDefault(int id)
         {
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -99,9 +101,32 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var res = await _accountService.UpdateShip(user, id);
             return Ok(res);
         }
+        [Authorize, HttpPut("UpdateAdress/{Id}")]
+        public async Task<ActionResult> UpdateAdress(int Id,[FromBody] UpdateShipDTO updateShipDTO)
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            await _shippingAddressService.Update(Id, updateShipDTO);
+            if (updateShipDTO.IsDefault)
+            {
+                await _accountService.UpdateShip(user, Id);
+            }
+            return NoContent();
+        }
         [Authorize]
         [HttpPost("AddNewAddress")]
-        public async Task<IActionResult> AddAddress(ShippingAddressDTO shippingAddressDTO)
+        public async Task<ActionResult<ShippingAddress>> AddAddress(ShippingAddressDTO shippingAddressDTO)
         {
             var authHeader = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
@@ -118,6 +143,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             var address = new ShippingAddress
             {
+                Id = 0,
                 FullName = shippingAddressDTO.FullName,
                 PhoneNumber = shippingAddressDTO.PhoneNumber,
                 Address = shippingAddressDTO.Address,
@@ -126,7 +152,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 User = user
             };
             var res = await _shippingAddressService.Add(address);
-            return Ok(res);
+            return CreatedAtAction(nameof(GetById), new { Id = address.Id }, address);
         }
     }
 }

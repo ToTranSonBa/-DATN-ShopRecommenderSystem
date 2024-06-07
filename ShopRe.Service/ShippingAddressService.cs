@@ -1,4 +1,6 @@
-﻿using ShopRe.Data.Repositories;
+﻿using ShopRe.Common.DTOs;
+using ShopRe.Data;
+using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System;
 using System.Collections.Generic;
@@ -17,26 +19,28 @@ namespace ShopRe.Service
         Task<ShippingAddress> GetById(int id);
         Task<ShippingAddress> Add(ShippingAddress entity);
         Task<int> AddRange(IEnumerable<ShippingAddress> entities);
-        Task<ShippingAddress> Update(ShippingAddress entity);
+        Task Update(int Id, UpdateShipDTO updateShipDTO);
         void Remove(int id);
         IEnumerable<ShippingAddress> Find(Expression<Func<ShippingAddress, bool>> expression);
     }
     public class ShippingAddressService : IShippingAddressService
     {
         private readonly IShippingAddressRepository _shippingAddressRepository;
+        private readonly ShopRecommenderSystemDbContext _context;
 
-        public ShippingAddressService(IShippingAddressRepository shippingAddressService)
+        public ShippingAddressService(ShopRecommenderSystemDbContext context, IShippingAddressRepository shippingAddressService)
         {
             _shippingAddressRepository = shippingAddressService;
+            _context = context;
         }
-        public Task<IEnumerable<ShippingAddress>> GetAllbyUser(ApplicationUser user)
+        public async Task<IEnumerable<ShippingAddress>> GetAllbyUser(ApplicationUser user)
         {
-            return _shippingAddressRepository.GetAllbyUser(user);
+            return await _shippingAddressRepository.GetAllbyUser(user);
         }
 
-        public Task<ShippingAddress> Add(ShippingAddress entity)
+        public async Task<ShippingAddress> Add(ShippingAddress entity)
         {
-            return _shippingAddressRepository.Add(entity);
+            return await _shippingAddressRepository.AddAsync(entity);
         }
 
         public Task<int> AddRange(IEnumerable<ShippingAddress> entities)
@@ -70,9 +74,19 @@ namespace ShopRe.Service
             _shippingAddressRepository.Detele(obj);
         }
 
-        public Task<ShippingAddress> Update(ShippingAddress entity)
+        public async Task Update(int Id, UpdateShipDTO updateShipDTO)
         {
-            return _shippingAddressRepository.Update(entity);
+            var addressUpdate = await _shippingAddressRepository.GetById(Id);
+            if(addressUpdate == null)
+            {
+                throw new Exception("address not found");
+            }
+            addressUpdate.FullName = updateShipDTO.FullName;
+            addressUpdate.PhoneNumber   = updateShipDTO.PhoneNumber;
+            addressUpdate.Address = updateShipDTO.Address;
+            addressUpdate.Email = updateShipDTO.Email;
+            addressUpdate.Type = updateShipDTO.Type;
+            await _context.SaveChangesAsync();
         }
     }
 }

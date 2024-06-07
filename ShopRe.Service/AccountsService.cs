@@ -19,7 +19,7 @@ namespace ShopRe.Service
         public Task<string> SignInAsync(SignInModel signIn);
         public Task<ApplicationUser> GetUserFromTokenAsync(string token);
         Task<UserDTO> GetUserInformation(ApplicationUser user);
-        Task<IdentityResult> UpdateShip(ApplicationUser user, int id);
+        Task<ApplicationUser> UpdateShip(ApplicationUser user, int id);
 
     }
     public class AccountService : IAccountService
@@ -69,7 +69,7 @@ namespace ShopRe.Service
             return accountDTO;
         }
 
-        public async Task<IdentityResult> UpdateShip(ApplicationUser user, int id)
+        public async Task<ApplicationUser> UpdateShip(ApplicationUser user, int id)
         {
             return await _accountRepository.Update(user, id);
         }

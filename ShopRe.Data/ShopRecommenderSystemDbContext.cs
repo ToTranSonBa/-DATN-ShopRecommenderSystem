@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
+using System.Reflection.Metadata;
 
 namespace ShopRe.Data
 {
@@ -51,6 +53,8 @@ namespace ShopRe.Data
                 .HasForeignKey(e => e.ProductID)
                 ;
             });
+            
+
         }
 
     }

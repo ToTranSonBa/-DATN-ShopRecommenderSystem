@@ -15,6 +15,8 @@ namespace ShopRe.Data.Repositories
     {
         Task<IEnumerable<ShippingAddress>> GetAllbyUser(ApplicationUser user);
         void Detele(ShippingAddress shippingaddress);
+        Task<ShippingAddress> AddAsync(ShippingAddress shippingaddress);
+
     }
     public class ShippingAddressRepository: RepositoryBase<ShippingAddress>, IShippingAddressRepository
     {
@@ -35,6 +37,12 @@ namespace ShopRe.Data.Repositories
         {
             context.Set<ShippingAddress>().Remove(shippingaddress);
             _ = SaveChangesAsync();
+        }
+        public async Task<ShippingAddress> AddAsync(ShippingAddress shippingaddress)
+        {
+            var res = context.Set<ShippingAddress>().Add(shippingaddress);
+            await context.SaveChangesAsync();
+            return shippingaddress;
         }
     }
 }
