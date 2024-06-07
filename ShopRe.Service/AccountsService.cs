@@ -22,6 +22,7 @@ namespace ShopRe.Service
         Task<UserDTO> GetUserInformation(ApplicationUser user);
         Task<IdentityResult> UpdateShip(ApplicationUser user, int id);
         Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user);
+        Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
     }
     public class AccountService : IAccountService
     {
@@ -86,7 +87,7 @@ namespace ShopRe.Service
             userFromDb.FirstName = userInfo.FirstName;
             userFromDb.LastName = userInfo.LastName;
 
-            if (userInfo.Avatar != null)
+            if (userInfo.Avatar == null)
             {
                 userFromDb.Avatar = "No image yet";
             }
@@ -94,20 +95,6 @@ namespace ShopRe.Service
             {
                 userFromDb.Avatar = userInfo.Avatar;
             }
-
-
-
-            if (!string.IsNullOrEmpty(userInfo.Password))
-            {
-                var token = await _userManager.GeneratePasswordResetTokenAsync(userFromDb);
-                var result = await _userManager.ResetPasswordAsync(userFromDb, token, userInfo.Password);
-
-                if (!result.Succeeded)
-                {
-                    throw new Exception("Failed to update password: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-                }
-            }
-
 
             var updateResult = await _userManager.UpdateAsync(userFromDb);
             if (!updateResult.Succeeded)
@@ -121,6 +108,37 @@ namespace ShopRe.Service
 
             return accountDTO;
         }
+
+        public async Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user)
+        {
+            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+
+            if (userFromDb == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var passwordCheck = await _userManager.CheckPasswordAsync(userFromDb, changePasswordParams.PasswordOld);
+            if (!passwordCheck)
+            {
+                throw new Exception("Old password is incorrect");
+            }
+
+            if (changePasswordParams.PasswordNew != changePasswordParams.PasswordNewConfirm)
+            {
+                throw new Exception("New password and confirmation password do not match");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(userFromDb, changePasswordParams.PasswordOld, changePasswordParams.PasswordNew);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Failed to change password");
+            }
+
+            return true;
+        }
+
+
         public async Task<IdentityResult> UpdateShip(ApplicationUser user, int id)
         {
             return await _accountRepository.Update(user, id);
