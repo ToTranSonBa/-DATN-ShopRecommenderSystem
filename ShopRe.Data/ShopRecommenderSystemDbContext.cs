@@ -53,7 +53,7 @@ namespace ShopRe.Data
                 .HasForeignKey(e => e.ProductID)
                 ;
             });
-            
+            modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
         }
 

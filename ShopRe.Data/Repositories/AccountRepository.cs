@@ -78,12 +78,32 @@ namespace ShopRe.Data.Repositories
                 Address = signUp.Address,
                 UserName= signUp.Email,
                 Avatar="No image yet",
-                ShippingAddresses = new List<ShippingAddress>
-                {
-                    new ShippingAddress { Address = signUp.Address, FullName = signUp.FirstName+signUp.LastName, PhoneNumber = signUp.PhoneNumber, Type = "Văn phòng", Email=signUp.Email}
-                }
+                
             };
-            return await _userManager.CreateAsync(user, signUp.Password);
+            var result = await _userManager.CreateAsync(user, signUp.Password);
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+            var shippingAddress = new ShippingAddress
+            {
+                Address = signUp.Address,
+                FullName = signUp.FirstName + signUp.LastName,
+                PhoneNumber = signUp.PhoneNumber,
+                Type = "Văn phòng",
+                Email = signUp.Email,
+                UserId = user.Id
+            };
+            _context.ShippingAddresses.Add(shippingAddress);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật defaultAddress của user với Id của địa chỉ giao hàng mới tạo
+            user.ShippingAddress = shippingAddress.Id;
+            await _userManager.UpdateAsync(user);
+
+            // Hoàn thành giao dịch
+
+            return IdentityResult.Success;
         }
         public async Task<ApplicationUser> Update(ApplicationUser user, int ship )
         {
