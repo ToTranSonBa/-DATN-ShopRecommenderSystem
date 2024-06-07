@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240526115150_add-selcates")]
+    partial class addselcates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,15 +262,6 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ShippingAddress")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TrainCode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TrainCode"), 1L, 1);
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -331,20 +324,11 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OptionValuesId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ProductID_NK")
                         .HasColumnType("int");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<int?>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SellerName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SessionID")
                         .HasColumnType("int");
@@ -352,12 +336,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("productImgs")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("OptionValuesId");
 
                     b.HasIndex("ProductID_NK");
 
@@ -502,9 +481,6 @@ namespace ShopRe.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -514,22 +490,7 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("ID_SK")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ShippingAddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("TotalPrice")
@@ -542,43 +503,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("ShippingAddressId");
-
                     b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.OrderItems", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("OptionValuesId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("OrderID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("ProductID_NK")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OptionValuesId");
-
-                    b.HasIndex("OrderID");
-
-                    b.HasIndex("ProductID_NK");
-
-                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
@@ -873,39 +798,6 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("ACCOUNT_SELLER_PRIORITY", (string)null);
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.ShippingAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ShippingAddresses");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
                 {
                     b.Property<int>("ID")
@@ -1016,10 +908,6 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.CartItem", b =>
                 {
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "OptionValues")
-                        .WithMany()
-                        .HasForeignKey("OptionValuesId");
-
                     b.HasOne("ShopRe.Model.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductID_NK");
@@ -1027,8 +915,6 @@ namespace ShopRe.Data.Migrations
                     b.HasOne("ShopRe.Model.Models.ShoppingSession", "Session")
                         .WithMany()
                         .HasForeignKey("SessionID");
-
-                    b.Navigation("OptionValues");
 
                     b.Navigation("Product");
 
@@ -1059,34 +945,7 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("ShopRe.Model.Models.ShippingAddress", "ShippingAddress")
-                        .WithMany()
-                        .HasForeignKey("ShippingAddressId");
-
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("ShippingAddress");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.OrderItems", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.ProductOptionValues", "OptionValues")
-                        .WithMany()
-                        .HasForeignKey("OptionValuesId");
-
-                    b.HasOne("ShopRe.Model.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderID");
-
-                    b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID_NK");
-
-                    b.Navigation("OptionValues");
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductChild", b =>
@@ -1129,15 +988,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("Seller");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.ShippingAddress", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
-                        .WithMany("ShippingAddresses")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
@@ -1162,15 +1012,11 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("ShippingAddresses");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
                 {
                     b.Navigation("productOptions");
                 });
+#pragma warning restore 612, 618
         }
     }
 }

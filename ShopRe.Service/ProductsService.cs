@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Nest;
+using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using static ShopRe.Service.ProductService;
-using AutoMapper;
 
 namespace ShopRe.Service
 {
@@ -30,7 +30,7 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
-
+        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams);
     }
     public class ProductService : IProductService
     {
@@ -40,20 +40,23 @@ namespace ShopRe.Service
         private readonly ILogger<ProductService> _logger;
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly HttpClient _httpClient;
 
-        public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository, 
-            ILogger<ProductService> logger, IElasticClient elasticClient, 
-            ShopRecommenderSystemDbContext dbContext, IMapper mapper)
+        public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository,
+            ILogger<ProductService> logger, IElasticClient elasticClient,
+            ShopRecommenderSystemDbContext dbContext, IMapper mapper,
+            HttpClient httpClient)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _sellerPriorityRepository = sellerPriorityRepository;
             _elasticClient = elasticClient;
             _logger = logger;
-            _dbContext= dbContext;
+            _dbContext = dbContext;
+            _httpClient = httpClient;
         }
         //Elastic Service
-        
+
         public class ProductWithChildDto
         {
             public Product Product { get; set; }
@@ -130,12 +133,12 @@ namespace ShopRe.Service
 
         public async Task<ProductDetailDTO> GetProductDetail(int idProduct)
         {
-            ProductDetailDTO productDetail=new ProductDetailDTO();
+            ProductDetailDTO productDetail = new ProductDetailDTO();
 
             Product product = await _productRepository.GetById(idProduct);
             if (product == null)
             {
-                return null; 
+                return null;
             }
 
             List<Images> images = await _dbContext.Images
@@ -162,7 +165,7 @@ namespace ShopRe.Service
                 .ToListAsync();
 
             // Thiết lập các giá trị cho productDetail
-            productDetail.Product= _mapper.Map<ProductDTO>(product);
+            productDetail.Product = _mapper.Map<ProductDTO>(product);
             productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
             productDetail.Seller = _mapper.Map<SellerDTO>(seller);
             productDetail.Seller.Total = (int)totalCount.Count;
@@ -325,6 +328,40 @@ namespace ShopRe.Service
                 selprios.Add(selprio);
             }
             return selprios.OrderBy(s => s.Idx).ToList();
+        }
+
+        public async Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams)
+        {
+            var requestUri = $"http://127.0.0.1:8000/get/RecommendProduct?productId={reParams.productId}&cateid={reParams.CateId}";
+
+            try
+            {
+                var products = new List<Product>();
+                var response = await _httpClient.GetAsync(requestUri);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var result = JObject.Parse(content);
+
+                if ((int)result["total"] == 0)
+                {
+                    return new List<Product>();
+                }
+
+                var productIds = result["products"];
+                foreach (var productId in productIds)
+                {
+                    var product = await _productRepository.GetById((int)productId);
+
+                    products.Add(product);
+                }
+
+                return products;
+            }
+            catch (HttpRequestException ex)
+            {
+                return new List<Product>();
+            }
         }
     }
 }

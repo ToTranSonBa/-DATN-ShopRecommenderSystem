@@ -1,17 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Nest;
-using ShopRe.Common.RequestFeatures;
-using ShopRe.Data;
-using ShopRe.Model.Models;
-using ShopRe.Service;
-using System.Xml.Linq;
-using System.Text.Json;
-using Microsoft.AspNetCore.Cors;
-using static ShopRe.Service.ProductService;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.RequestFeatures;
+using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
+using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -25,7 +18,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IElasticSearchService _elasticSearchService;
         private readonly IAccountService _accountService;
         private readonly ILogService _logService;
-        public ProductsController(ILogService logService,IAccountService accountService,IProductService productsService, ILogger<ProductsController> logger, IElasticSearchService elasticSearchService)
+        public ProductsController(ILogService logService, IAccountService accountService, IProductService productsService, ILogger<ProductsController> logger, IElasticSearchService elasticSearchService)
         {
             _productsService = productsService;
             _logger = logger;
@@ -39,7 +32,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             try
             {
-                var (product,totalCount) = await _elasticSearchService.ProductAfterTraining(productParameters);
+                var (product, totalCount) = await _elasticSearchService.ProductAfterTraining(productParameters);
 
                 var productResponse = new
                 {
@@ -55,13 +48,14 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
         // GET: api/products
+
         [HttpGet("GetAllProducts")]
         public async Task<ActionResult> GetAll([FromQuery] ProductParameters productParameters)
         {
             try
             {
                 var product = await _elasticSearchService.GetAllAsync(productParameters);
-                /*var authHeader = Request.Headers["Authorization"].ToString();
+                var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
                     var newlog = new UserLogDto
@@ -73,7 +67,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     await _logService.addSearch(newlog);
                 }
                 else
-                { 
+                {
                     var token = authHeader.Substring("Bearer ".Length).Trim();
 
                     var user = await _accountService.GetUserFromTokenAsync(token);
@@ -82,11 +76,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         User = user,
                         LogRate = LogRate._1MIN,
                         Detail = productParameters.ProductName,
-                        SellerId= null
+                        SellerId = null
                     };
                     await _logService.addSearch(newlog);
-                }*/
-
+                }
                 return Ok(product);
             }
             catch (Exception ex)
@@ -118,7 +111,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("AddProduct")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-           var res = await _productsService.Add(product);
+            var res = await _productsService.Add(product);
 
             return CreatedAtAction(nameof(GetProduct), new { id = product.ID_NK }, product);
         }
@@ -135,7 +128,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
-           var res = await _productsService.Update(product);
+            var res = await _productsService.Update(product);
 
             return NoContent();
         }
@@ -170,6 +163,87 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var res = await _logService.addView(min, sellerId, user);
             return Ok(res);
         }
-        
+
+        [HttpPost("RecommendProduct")]
+        public async Task<ActionResult> logProductView(RecommendParamaters paramaters)
+        {
+            var results = await _productsService.GetRecommendProductAsync(paramaters);
+            if (results.Count() == 0)
+            {
+                return NoContent();
+            }
+            return Ok(results);
+        }
+        //[HttpPost("UpdateDocument")]
+        //public async Task<ActionResult> UpdateDocument()
+        //{
+        //    try
+        //    {
+        //        // Lấy danh sách sản phẩm từ cơ sở dữ liệu
+        //        var products = await _productsService.GetAll();
+
+        //        // Chuyển đổi danh sách sản phẩm thành các tài liệu Elasticsearch
+        //        var documents = products.Select(product => new
+        //        {
+        //            // Thay thế các thuộc tính dưới đây bằng các thuộc tính thực tế của sản phẩm
+        //            ID_NK = product?.ID_NK ?? 0,
+        //            ID_SK = product?.ID_SK ?? 0,
+        //            Name = product?.Name ?? "",
+        //            ShortDescription = product?.ShortDescription ?? "",
+        //            Image = product?.Image ?? "",
+        //            Price = product?.Price ?? 0,
+        //            ListPrice = product?.ListPrice ?? 0,
+        //            OriginalPrice = product?.OriginalPrice ?? 0,
+        //            RatingAverage = product?.RatingAverage ?? 0,
+        //            RatingCount = product?.RatingCount ?? 0,
+        //            MaxSaleQuantity = product?.MaxSaleQuantity ?? 0,
+        //            MinSaleQuantity = product?.MinSaleQuantity ?? 0,
+        //            Quantity = product?.Quantity ?? 0,
+        //            AllTimeQuantitySold = product?.AllTimeQuantitySold ?? 0,
+        //            ShortUrl = product?.ShortUrl ?? ""
+
+        //        }); ;
+
+        //        var data = documents.ToList();
+
+        //        var bulkAllObservable = _elasticClient.BulkAll(data, b => b
+        //            .Index("product")
+        //            .BackOffTime("60s")
+        //            .BackOffRetries(5)
+        //            .RefreshOnCompleted()
+        //            .MaxDegreeOfParallelism(Environment.ProcessorCount)
+        //            .Size(10000)
+        //        );
+
+        //        bulkAllObservable.Wait(TimeSpan.FromMinutes(15), next =>
+        //        {
+        //            // Xử lý sau mỗi lô tài liệu được nhập
+        //        });
+
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Xử lý lỗi nếu có
+        //        return StatusCode(500, $"An error occurred: {ex.Message}");
+        //    }
+        //}
+
+
+
+
+        //GET: api/products
+
+
+        // GET: api/products/5
+        //[HttpGet("asfasdf")]
+        //public async Task<ActionResult> GetAllProducts([FromQuery] ProductParameters productParameters)
+        //{
+        //    var pageResult = await _productsService.GetAll(productParameters);
+        //    Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
+
+        //    return Ok(pageResult.products);
+        //}
     }
+
 }
