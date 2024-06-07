@@ -3,14 +3,12 @@ using DATN_ShopRecommenderSystem.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using ShopRe.Service;
-using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -27,7 +25,7 @@ builder.Services.AddSwaggerGen();
 //Elastic Search
 builder.Services.AddElasticSearch(builder.Configuration);
 //CORS
-builder.Services.AddCors(options=>options.AddDefaultPolicy(policy=>policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 //DbContext
 builder.Services.AddDbContext<ShopRecommenderSystemDbContext>(options =>
@@ -95,6 +93,8 @@ builder.Services.AddScoped<IElasticSearchService, ElasticSearchsService>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IShippingAddressService, ShippingAddressService>();
 
+builder.Services.AddHttpClient();
+
 //
 builder.Services.AddAuthentication(options =>
 {
@@ -105,8 +105,9 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata= false;
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters {
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:ValidAudience"],
