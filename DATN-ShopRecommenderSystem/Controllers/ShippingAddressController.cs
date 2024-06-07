@@ -46,7 +46,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             var addresses = await _shippingAddressService.GetAllbyUser(user);
 
-            return Ok(addresses.Select(a=>new AddressDTO { ID=a.Id, FullName = a.FullName, Address =a.Address, Email=a.Email, PhoneNumber= a.PhoneNumber, Type=a.Type}).ToList());
+            return Ok(addresses);
         }
         [Authorize]
         [HttpGet("GetbyId")]
