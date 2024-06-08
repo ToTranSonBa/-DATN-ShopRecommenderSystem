@@ -1,40 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AddressForm from './AddressForm';
 
+import { AddressesApi, addNewAddressesApi, updateAddressDefaultApi, updateAddressApi } from '../../services/addressApi/addressApi'
+
 // Component chính để hiển thị danh sách địa chỉ và form
-const AddressManager = ({ className, onCancel, onConfirm, isUserPage }) => {
-    const [addresses, setAddresses] = useState([
-        {
-            name: 'Hoàng Cầu',
-            phone: '0845718717',
-            address: 'Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí Minh',
-            email: 'example1@gmail.com',
-            isDefault: true,
-        },
-        {
-            name: 'Hoàng Cầu',
-            phone: '0845718717',
-            address: 'Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí Minh',
-            email: 'example2@gmail.com',
-            isDefault: false,
-        },
-        {
-            name: 'Hoàng Cầu',
-            phone: '0845718717',
-            address: 'Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí Minh',
-            email: 'example3@gmail.com',
-            isDefault: false,
-        },
-    ]);
+const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAddressCheckout }) => {
     const [editingAddress, setEditingAddress] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState(null);
+    const [selectedAddress, setSelectedAddress] = useState({});
+    const token = localStorage.getItem('token');
+    const [addresses, setAddresses] = useState([]);
+    const [checkChange, setCheckChange] = useState(false);
+    const fetchAddresses = useCallback(async () => {
+        try {
+            const response = await AddressesApi(token);
+            setAddresses(response);
+            setCheckChange(false);
+        } catch (error) {
+            console.error('Failed to fetch cart:', error);
+        }
+    });
 
     useEffect(() => {
-        // Thiết lập selectedAddress ban đầu dựa trên địa chỉ có isDefault là true
-        const defaultAddress = addresses.find((address) => address.isDefault);
-        setSelectedAddress(defaultAddress);
-    }, [addresses]);
+        const fetchData = async () => {
+            await fetchAddresses();
+            if (selectedAddressCheckout) {
+                setSelectedAddress(selectedAddressCheckout);
+            }
+
+        };
+        fetchData();
+
+    }, [checkChange]);
+
+
 
     const handleEdit = (address) => {
         setEditingAddress(address);
@@ -51,23 +50,33 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage }) => {
         setIsCreating(false);
     };
 
-    const handleSubmit = (newAddress) => {
-        let updatedAddresses;
-        if (newAddress.isDefault) {
-            updatedAddresses = addresses.map((addr) => ({
-                ...addr,
-                isDefault: addr === newAddress,
-            }));
-        } else {
-            updatedAddresses = addresses.map((addr) => (addr === editingAddress ? newAddress : addr));
+    const handleSubmit = async (newAddress) => {
+
+        try {
+
+            if (editingAddress) {
+                const addressDefault = newAddress.addressID === newAddress.shippingAddress ? true : false;
+                const addressUpdate = await updateAddressApi(newAddress.addressID, newAddress.fullName,
+                    newAddress.phoneNumber, newAddress.address, 'nhà riêng', newAddress.email, addressDefault, token);
+            }
+
+
+            if (!editingAddress) {
+                const addAddress = await addNewAddressesApi(newAddress.fullName, newAddress.phoneNumber,
+                    newAddress.address, 'nhà riêng', newAddress.email, token
+                )
+                if (addAddress && newAddress.checkedState) {
+                    const addressDefaultUpdate = await updateAddressDefaultApi(addAddress.id, token);
+                }
+            }
+            setCheckChange(true);
+
+            handleCancelEdit();
+        } catch (error) {
+            console.log('error to update or create address', error);
         }
 
-        if (!editingAddress) {
-            updatedAddresses.push(newAddress);
-        }
 
-        setAddresses(updatedAddresses);
-        handleCancelEdit();
     };
 
     const handleAddressSelect = (address) => {
@@ -84,15 +93,15 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage }) => {
                             <input
                                 className="form-checkbox h-5 w-5 rounded-full focus:ring-0 focus:ring-offset-0 focus:outline-none checked:bg-red-600"
                                 type="checkbox"
-                                checked={selectedAddress === address}
+                                checked={selectedAddress.id === address.id}
                                 onChange={() => handleAddressSelect(address)}
                             />
                             <div className="w-11/12">
                                 <div className="flex items-center justify-between lg:pb-2">
                                     <div className="flex lg:gap-2">
-                                        <span className="font-normal">{address.name}</span>
+                                        <span className="font-normal">{address.fullName}</span>
                                         <span className="font-extralight">|</span>
-                                        <span>{address.phone}</span>
+                                        <span>{address.phoneNumber}</span>
                                     </div>
                                     <button className="font-light text-primary" onClick={() => handleEdit(address)}>
                                         Cập nhật

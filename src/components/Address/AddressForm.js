@@ -1,23 +1,54 @@
+import { Alert } from 'antd';
 import React, { useState, useEffect } from 'react';
 
 // Component AddressForm để sử dụng chung
 const AddressForm = ({ className, initialData, onSubmit, onCancel }) => {
-    const [name, setName] = useState(initialData?.name || '');
-    const [phone, setPhone] = useState(initialData?.phone || '');
+    const [fullName, setName] = useState(initialData?.fullName || '');
+    const [phoneNumber, setPhone] = useState(initialData?.phoneNumber || '');
     const [address, setAddress] = useState(initialData?.address || '');
     const [email, setEmail] = useState(initialData?.email || '');
-    const [isDefault, setIsDefault] = useState(initialData?.isDefault || false);
-
+    const [shippingAddress, setShippingAddress] = useState(initialData?.user?.shippingAddress || '');
+    const [addressID, setAddressID] = useState(initialData?.id || '');
+    const [checkedState, setCheckedState] = useState(false);
+    console.log('initialData', initialData);
     const handleSubmit = () => {
         const newAddress = {
-            name,
-            phone,
+            addressID,
+            fullName,
+            phoneNumber,
             address,
             email,
-            isDefault,
+            shippingAddress,
+            checkedState
         };
-        onSubmit(newAddress);
+
+        if (newAddress.fullName === '' || newAddress.phoneNumber === '' || newAddress.address === ''
+            || newAddress.email === '') {
+            alert('Hãy nhập đủ thông tin');
+            return;
+        }
+        else {
+            onSubmit(newAddress);
+        }
     };
+
+
+
+    // Hàm xử lý khi có initialData
+    const handleCheckboxChangeWithInitialData = (addressID) => {
+        if (shippingAddress === addressID) {
+            return; // Không cho thay đổi nếu shippingAddress === addressID
+        }
+        setShippingAddress(prevAddress => (prevAddress === addressID ? '' : addressID));
+    };
+
+    // Hàm xử lý khi không có initialData
+    const handleCheckboxChangeWithoutInitialData = () => {
+        setCheckedState(prevChecked => !prevChecked);
+    };
+
+    // Chọn hàm xử lý dựa trên sự tồn tại của initialData
+    const handleCheckboxChange = initialData ? handleCheckboxChangeWithInitialData : handleCheckboxChangeWithoutInitialData;
 
     return (
         <div
@@ -28,7 +59,7 @@ const AddressForm = ({ className, initialData, onSubmit, onCancel }) => {
                 <div className="flex justify-between lg:gap-4">
                     <input
                         onChange={(e) => setName(e.target.value)}
-                        value={name}
+                        value={fullName}
                         required
                         className="w-full lg:leading-10 border-1 lg:px-3"
                         placeholder="Họ và tên"
@@ -36,7 +67,7 @@ const AddressForm = ({ className, initialData, onSubmit, onCancel }) => {
                     <input
                         required
                         onChange={(e) => setPhone(e.target.value)}
-                        value={phone}
+                        value={phoneNumber}
                         className="w-full lg:leading-10 border-1 lg:px-3"
                         placeholder="Số điện thoại"
                     />
@@ -58,8 +89,8 @@ const AddressForm = ({ className, initialData, onSubmit, onCancel }) => {
                 <div className="flex items-center lg:gap-2">
                     <input
                         type="checkbox"
-                        checked={isDefault}
-                        onChange={(e) => setIsDefault(e.target.checked)}
+                        checked={initialData ? (shippingAddress === addressID) : checkedState}
+                        onChange={() => handleCheckboxChange(addressID)}
                         className="form-checkbox h-5 w-5 text-red-600 focus:ring-0 focus:ring-offset-0 focus:outline-none checked:bg-red-600"
                     />
                     <span>Đặt làm địa chỉ mặc định</span>

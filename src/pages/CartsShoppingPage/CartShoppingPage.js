@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cartsApi, deleteCartItem, increaseProduct, decreaseProduct } from '../../services/CartApi/cartApi';
+import { cartsApi, deleteCartItem, updateProduct } from '../../services/CartApi/cartApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const CartShoppingPage = () => {
@@ -52,12 +52,16 @@ const CartShoppingPage = () => {
 
     const handleIncrement = async (index, idProduct) => {
         try {
-            await increaseProduct(idProduct, token);
             const updatedCart = [...cartData];
-            updatedCart[index].quantity += 1;
+            const response = await updateProduct(idProduct, updatedCart[index].quantity += 1, token);
+            if (response.message === 'Success') {
+                setQuantities(updatedCart.map((item) => item.quantity));
+                setCartData(updatedCart);
+            }
+            else {
+                console.log('error call api');
+            }
 
-            setQuantities(updatedCart.map((item) => item.quantity));
-            setCartData(updatedCart);
         } catch (error) {
             console.error('Failed to delete item:', error);
         }
@@ -65,14 +69,20 @@ const CartShoppingPage = () => {
 
     const handleDecrement = async (index, idProduct) => {
         try {
-            await decreaseProduct(idProduct, token);
+
             const updatedCart = [...cartData];
             if (updatedCart[index].quantity > 1) {
-                updatedCart[index].quantity -= 1;
-
-                setQuantities(updatedCart.map((item) => item.quantity));
-                setCartData(updatedCart);
+                const response = await updateProduct(idProduct, updatedCart[index].quantity -= 1, token);
+                if (response.message === 'Success') {
+                    setQuantities(updatedCart.map((item) => item.quantity));
+                    setCartData(updatedCart);
+                }
+                else {
+                    console.log('error call api');
+                }
             }
+
+
         } catch (error) {
             console.error('Failed to delete item:', error);
         }
@@ -137,7 +147,7 @@ const CartShoppingPage = () => {
                         <ul role="list" className="border-t border-b border-gray-200 divide-y divide-gray-200">
                             {cartData.map((data, dataId) => (
                                 <li key={data.id} className="flex py-6 sm:py-10">
-                                    <div className="flex items-center pr-2">
+                                    <div className="flex items-center mr-8">
                                         <input
                                             id={`checkbox-${data.id}`}
                                             type="checkbox"
@@ -148,7 +158,7 @@ const CartShoppingPage = () => {
                                     </div>
                                     <div className="flex-shrink-0">
                                         <img
-                                            src={data.product.image}
+                                            src={data.productImgs}
                                             alt="chua co hinh"
                                             className="object-cover object-center w-24 h-24 rounded-md sm:w-48 sm:h-48"
                                         />
@@ -166,13 +176,9 @@ const CartShoppingPage = () => {
                                                 </div>
                                                 <div className="flex mt-1 text-sm">
                                                     <p className="text-gray-500">
-                                                        {data.product.name} {data.product.minSaleQuantity}
+                                                        {data.optionValues.name}
                                                     </p>
-                                                    {data.product.minSaleQuantity ? (
-                                                        <p className="pl-4 ml-4 text-gray-500 border-l border-gray-200">
-                                                            {data.product.minSaleQuantity}
-                                                        </p>
-                                                    ) : null}
+
                                                 </div>
                                                 <p className="mt-1 text-sm font-medium text-gray-900">
                                                     {data.product.price} Đ

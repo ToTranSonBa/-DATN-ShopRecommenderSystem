@@ -1,25 +1,54 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import CreditCard from './creditCard';
 import PaymentSuccess from './paymentsuccess';
 import AddressManager from '../../components/Address';
-
+import { createOrderApi, addOrderItemsApi } from '../../services/CheckoutApi/checkoutApi'
+import { addressDefaultApi, AddressesApi } from '../../services/addressApi/addressApi'
+import { deleteCartItem } from '../../services/CartApi/cartApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Checkout() {
+    const navigate = useNavigate();
     const location = useLocation();
+    const token = localStorage.getItem('token')
     const { selectedItems } = location.state || { selectedItems: [] };
-
-    const userInfor = selectedItems[0]?.session?.user;
+    const [selectedAddress, setSelectedAddress] = useState({});
+    const [addresses, setAddresses] = useState([]);
     const subTotal = selectedItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
     const shippingFee = 0; // Assuming shipping is free
     const total = subTotal + shippingFee;
     // Tạo state để kiểm soát việc hiển thị của thẻ div
     const [isVisible, setIsVisible] = useState(false);
 
+    const fetchAddresses = useCallback(async () => {
+        try {
+            const response = await AddressesApi(token);
+
+            setAddresses(response);
+            const defaultAddress = response.find((address) => address.user.shippingAddress === address.id);
+            setSelectedAddress(defaultAddress);
+        } catch (error) {
+            console.error('Failed to fetch cart:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                await fetchAddresses();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, [fetchAddresses]);
+
     // Tạo state kiểm xoát edit address đóng mở
     const [isAddressManagerOpen, setIsAddressManagerOpen] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState(null);
+
     const handleOpenAddressManager = () => {
         setIsAddressManagerOpen(true);
         setIsVisible(!isVisible);
@@ -37,16 +66,7 @@ function Checkout() {
     const inprocessing = undefined;
     const succes = undefined;
 
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        address: '',
-        city: '',
-        state: '',
-        postal_code: '',
-        country: 'US',
-        card: '',
-    });
+    const [formData, setFormData] = useState({});
 
     const [isFullFill, setIsFullFill] = useState(false);
 
@@ -60,21 +80,84 @@ function Checkout() {
             [e.target.name]: e.target.value,
         });
     };
-
-    const handleSubmit = (e) => {
+    const orderItemsArray = [];
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic
     };
 
+    const handleAddOrders = async (e) => {
+        for (const [index, item] of selectedItems.entries()) {
+            console.log('item', item);
+            if (index === 0) {
+                try {
+                    const order = await createOrderApi(selectedAddress.id, token);
+                    if (order.status === '400') {
+                        const orderItem = await addOrderItemsApi(order.data.id, item.product.iD_NK, item.optionValues.id, item.quantity, token);
+                        if (orderItem.status === 201) {
+                            // Lưu trữ thông tin vào orderItemsArray
+                            orderItemsArray.push({
+                                orderId: order.data.id,
+                                sellerId: item.sellerId
+                            });
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(`Lỗi khi gọi createOrderApi hoặc addOrderItemsApi tại chỉ số ${index}:`, error);
+                    // Xử lý lỗi ở đây nếu cần
+                }
+            } else {
+                const sellerIdToCheck = item.sellerId;
+
+                const isSellerIdExists = orderItemsArray.some((orderItem) => {
+                    return orderItem.sellerId === sellerIdToCheck;
+                });
+
+                if (isSellerIdExists) {
+                    try {
+                        const matchedOrderItem = orderItemsArray.find((orderItem) => {
+                            return orderItem.sellerId === sellerIdToCheck;
+                        });
+                        const orderItem = await addOrderItemsApi(matchedOrderItem.orderId, item.product.iD_NK, item.optionValues.id, item.quantity, token);
+                    } catch (error) {
+                        console.error(`Lỗi khi gọi addOrderItemsApi tại chỉ số ${index}:`, error);
+                    }
+                } else {
+                    try {
+                        const orderId = await createOrderApi(selectedAddress.id, token);
+                        if (orderId.status === '400') {
+                            const orderItem = await addOrderItemsApi(orderId.data.id, item.product.iD_NK, item.optionValues.id, item.quantity, token);
+                            if (orderItem.status === 201) {
+                                // Lưu trữ thông tin vào orderItemsArray
+                                orderItemsArray.push({
+                                    orderId: orderId.data.id,
+                                    sellerId: item.sellerId
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Lỗi khi gọi createOrderApi hoặc addOrderItemsApi tại chỉ số ${index}:`, error);
+                    }
+                }
+            }
+        }
+
+        for (const [index, item] of selectedItems.entries()) {
+            await deleteCartItem(item.id, token);
+        }
+        toast.success('đặt hàng thành công');
+        setTimeout(() => {
+            navigate('/login');
+        }, 2000);
+    };
     return (
         <div className="relative bg-background lg:pt-36">
             <MaxWidthWrapper>
                 <div className="grid grid-cols-3 gap-8">
                     <div className="col-span-3 px-12 space-y-8 lg:col-span-2 pb- bg-indigo-50 lg:pb-12">
                         <div
-                            className={`relative flex flex-col p-4 mt-8 bg-white rounded-md border-red-600 border-1 shadow-md sm:flex-row sm:items-center ${
-                                !isFullFill ? 'visible' : 'invisible'
-                            }`}
+                            className={`relative flex flex-col p-4 mt-8 bg-white rounded-md border-red-600 border-1 shadow-md sm:flex-row sm:items-center ${!isFullFill ? 'visible' : 'invisible'
+                                }`}
                         >
                             <div className="flex flex-row items-center w-full pb-4 border-b sm:border-b-0 sm:w-auto sm:pb-0">
                                 <div className="text-yellow-500">
@@ -125,20 +208,20 @@ function Checkout() {
                                         <label className="flex items-center py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Tên</span>
                                             <div className="w-10/12 focus:outline-none">
-                                                {userInfor.firstName} {userInfor.lastName}
+                                                {selectedAddress.fullName}
                                             </div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Email</span>
-                                            <div className="w-10/12 focus:outline-none">{userInfor.email}</div>
+                                            <div className="w-10/12 focus:outline-none">{selectedAddress.email}</div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Địa chỉ</span>
-                                            <div className="w-10/12 focus:outline-none">{userInfor.address}</div>
+                                            <div className="w-10/12 focus:outline-none">{selectedAddress.address}</div>
                                         </label>
                                         <label className="flex items-center h-12 py-3 border-b border-gray-200 lg:gap-12">
                                             <span className="w-2/12 text-right">Số điện thoại</span>
-                                            <div className="w-10/12 focus:outline-none">{userInfor.phoneNumber}</div>
+                                            <div className="w-10/12 focus:outline-none">{selectedAddress.phoneNumber}</div>
                                         </label>
                                     </fieldset>
                                 </section>
@@ -152,6 +235,7 @@ function Checkout() {
                                     <button
                                         type="submit"
                                         className="flex px-4 py-3 text-xl font-semibold text-white transition-colors rounded-md bg-blue-600/85 w-max submit-button focus:ring focus:outline-none"
+                                        onClick={handleAddOrders}
                                     >
                                         {inprocessing ? (
                                             <>
@@ -167,6 +251,7 @@ function Checkout() {
                                             </>
                                         )}
                                     </button>
+                                    <ToastContainer />
                                 </div>
                             </form>
                         </div>
@@ -180,7 +265,7 @@ function Checkout() {
                                     key={index}
                                     imgSrc={item.product.image}
                                     title={item.product.name}
-                                    description={item.product.name || 'No description available'}
+                                    description={item.optionValues.name || 'No description available'}
                                     quantity={item.quantity}
                                     price={item.product.price}
                                 />
@@ -207,7 +292,7 @@ function Checkout() {
             {isAddressManagerOpen && (
                 <div className="absolute z-50 bg-gray-600/70 h-full  w-screen top-0 left-0">
                     <MaxWidthWrapper className={'flex justify-center items-center'}>
-                        <AddressManager onCancel={handleCloseAddressManager} onConfirm={handleConfirmAddress} />
+                        <AddressManager onCancel={handleCloseAddressManager} onConfirm={handleConfirmAddress} addresses={addresses} selectedAddressCheckout={selectedAddress} />
                     </MaxWidthWrapper>
                 </div>
             )}

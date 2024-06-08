@@ -31,6 +31,13 @@ const decreaseProduct = async (idProduct, token) => {
     })
 };
 
+const updateProduct = async (idProduct, quantity, token) => {
+    return axios.put(`/CartItems/UpdateQuantity?idProduct=${idProduct}&Quantity=${quantity}`, {}, {
+        headers: {
+            Authorization: "Bearer " + token,
+        }
+    });
+};
 export {
-    cartsApi, deleteCartItem, increaseProduct, decreaseProduct
+    cartsApi, deleteCartItem, increaseProduct, decreaseProduct, updateProduct
 };

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SignupApi } from '../../services/SignupApi/SignUpApi';
+
 const SignUp = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
@@ -417,9 +418,9 @@ const SignUp = () => {
                             </li>
                             <li class="mb-10 ms-6">
                                 {step === 3 &&
-                                isPersonalInfoFilled &&
-                                isPersonalInfoFilled &&
-                                termsAccepted === true ? (
+                                    isPersonalInfoFilled &&
+                                    isPersonalInfoFilled &&
+                                    termsAccepted === true ? (
                                     <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

@@ -1,29 +1,64 @@
-import React, { useState } from 'react';
-import { Fragment } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AddressManager from '../../components/Address';
-
+import { userApi, updateUserApi } from '../../services/UserApi/userApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const UserPage = () => {
-    const [firstName, setFirstName] = useState('Jane');
-    const [lastName, setLastName] = useState('Ferguson');
-    const [email, setEmail] = useState('');
-    const [profession, setProfession] = useState('');
-    const [bio, setBio] = useState('');
+
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState('profile');
     const [selectedStatus, setSelectedStatus] = useState('all');
+    const token = localStorage.getItem('token');
+    const [userData, setUserData] = useState({});
+    const [ordersData, setOrderData] = useState([]);
 
-    const handleSave = (e) => {
-        e.preventDefault();
-        // Add your save logic here
-        console.log({ firstName, lastName, email, profession, bio });
-    };
+    const fetchUser = useCallback(async () => {
+        try {
+            const response = await userApi(token);
+            setUserData(response);
+        } catch (error) {
+            console.error('Failed to fetch brands:', error);
+        }
+
+    });
+
+    const fetchOrders = useCallback(async () => {
+        try {
+            const response = await userApi(token);
+            setUserData(response);
+        } catch (error) {
+            console.error('Failed to fetch brands:', error);
+        }
+
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchUser();
+
+        };
+        fetchData();
+
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // Xử lý logic thay đổi mật khẩu ở đây
+    }
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        try {
+            const response = updateUserApi(userData.firstName, userData.lastName, userData.email, userData.phoneNumber, userData.address, userData.avatar, token);
+            if (response) {
+                toast.success('thay đổi thành công');
+            }
+        } catch (error) {
+            console.log('error when call updateUserApi', error);
+        }
     };
 
     const toggleDropdown = () => {
@@ -113,6 +148,33 @@ const UserPage = () => {
     const filteredOrders =
         selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
 
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setUserData(prevState => ({
+            ...prevState,
+            [id]: value
+        }));
+    };
+    const [avatarFile, setAvatarFile] = useState(null);
+    const fileInputRef = useRef(null);
+    const handleButtonClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChangeAndSubmit = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatarFile(file); // Lưu tệp hình ảnh vào state
+
+            // Tạo một đối tượng userData mới để cập nhật
+            const updatedUserData = { ...userData };
+            // Thêm URL của hình ảnh mới vào userData
+            updatedUserData.avatar = URL.createObjectURL(file);
+            setUserData(updatedUserData);
+
+        }
+    };
+
     return (
         <div className="lg:pt-36 bg-background w-full flex flex-col gap-5 px-3 md:px-16 lg:px-28 md:flex-row text-[#161931]">
             <aside className="hidden py-4 md:w-1/3 lg:w-1/4 md:block">
@@ -184,23 +246,35 @@ const UserPage = () => {
             {selectedOption && (
                 <main className="w-full min-h-screen py-1 mb-4 md:w-2/3 lg:w-3/4">
                     {selectedOption === 'profile' && (
+
                         <div className="flex justify-center bg-white ">
                             <div className="w-3/5 px-6 pb-8 mt-12 ">
                                 {/* <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2> */}
+
                                 <form className="grid max-w-2xl mx-auto mt-8" onSubmit={handleSave}>
                                     <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
+
+
                                         <img
-                                            className="object-cover w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
-                                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGZhY2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60"
-                                            alt="Bordered avatar"
+                                            className="object-cover  w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
+                                            src={userData.avatar}
+
                                         />
                                         <div className="flex flex-col space-y-5 sm:ml-8">
                                             <button
                                                 type="button"
-                                                className="py-3.5 px-7 text-base font-medium text-indigo-100 focus:outline-none bg-blue-700 rounded-lg border border-indigo-200 hover:bg-indigo-900 focus:z-10 focus:ring-4 focus:ring-indigo-200 "
+                                                className="py-3.5 px-7 text-base font-medium text-indigo-100 focus:outline-none bg-blue-700 rounded-lg border border-indigo-200 hover:bg-indigo-900 focus:z-10 focus:ring-4 focus:ring-indigo-200"
+                                                onClick={handleButtonClick}
                                             >
                                                 Chọn ảnh
                                             </button>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                ref={fileInputRef}
+                                                onChange={handleFileChangeAndSubmit}
+                                            />
                                         </div>
                                     </div>
 
@@ -211,13 +285,13 @@ const UserPage = () => {
                                                     htmlFor="first_name"
                                                     className="block mb-2 text-sm font-medium text-indigo-900 "
                                                 >
-                                                    Tên đăng nhập
+                                                    Họ
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    id="first_name"
-                                                    value={firstName}
-                                                    onChange={(e) => setFirstName(e.target.value)}
+                                                    id="lastName"
+                                                    value={userData.lastName}
+                                                    onChange={handleChange}
                                                     className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
                                                     placeholder="Your first name"
                                                     required
@@ -232,9 +306,9 @@ const UserPage = () => {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    id="last_name"
-                                                    value={lastName}
-                                                    onChange={(e) => setLastName(e.target.value)}
+                                                    id="firstName"
+                                                    value={userData.firstName}
+                                                    onChange={handleChange}
                                                     className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
                                                     placeholder="Your last name"
                                                     required
@@ -251,11 +325,11 @@ const UserPage = () => {
                                             <input
                                                 type="email"
                                                 id="email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                value={userData.email}
                                                 className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
                                                 placeholder="your.email@mail.com"
                                                 required
+                                                readOnly
                                             />
                                         </div>
                                         <div className="mb-2 sm:mb-6">
@@ -267,26 +341,9 @@ const UserPage = () => {
                                             </label>
                                             <input
                                                 type="text"
-                                                id="profession"
-                                                value={profession}
-                                                onChange={(e) => setProfession(e.target.value)}
-                                                className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
-                                                placeholder="your profession"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="mb-2 sm:mb-6">
-                                            <label
-                                                htmlFor="profession"
-                                                className="block mb-2 text-sm font-medium text-indigo-900 "
-                                            >
-                                                Giới tính
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="profession"
-                                                value={profession}
-                                                onChange={(e) => setProfession(e.target.value)}
+                                                id="phoneNumber"
+                                                value={userData.phoneNumber}
+                                                onChange={handleChange}
                                                 className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
                                                 placeholder="your profession"
                                                 required
@@ -298,13 +355,13 @@ const UserPage = () => {
                                                 htmlFor="profession"
                                                 className="block mb-2 text-sm font-medium text-indigo-900 dark:text-white"
                                             >
-                                                Ngày tháng năm sinh
+                                                Địa Chỉ
                                             </label>
                                             <input
                                                 type="text"
-                                                id="profession"
-                                                value={profession}
-                                                onChange={(e) => setProfession(e.target.value)}
+                                                id="address"
+                                                value={userData.address}
+                                                onChange={handleChange}
                                                 className="bg-indigo-50 border border-indigo-300 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 "
                                                 placeholder="your profession"
                                                 required
@@ -318,6 +375,7 @@ const UserPage = () => {
                                             >
                                                 Lưu
                                             </button>
+                                            <ToastContainer />
                                         </div>
                                     </div>
                                 </form>
