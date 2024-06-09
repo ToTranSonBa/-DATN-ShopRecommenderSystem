@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240609043859_addRecommendDaily")]
+    partial class addRecommendDaily
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +219,6 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DayOfBirth")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -529,9 +528,6 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SellerID_NK")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ShippingAddressId")
                         .HasColumnType("int");
 
@@ -548,8 +544,6 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("SellerID_NK");
-
                     b.HasIndex("ShippingAddressId");
 
                     b.ToTable("Order");
@@ -562,9 +556,6 @@ namespace ShopRe.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("OptionValuesId")
                         .HasColumnType("int");
@@ -1071,17 +1062,11 @@ namespace ShopRe.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("ShopRe.Model.Models.Seller", "Seller")
-                        .WithMany()
-                        .HasForeignKey("SellerID_NK");
-
                     b.HasOne("ShopRe.Model.Models.ShippingAddress", "ShippingAddress")
                         .WithMany()
                         .HasForeignKey("ShippingAddressId");
 
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("Seller");
 
                     b.Navigation("ShippingAddress");
                 });

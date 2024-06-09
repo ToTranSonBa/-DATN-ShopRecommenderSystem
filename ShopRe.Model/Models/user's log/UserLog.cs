@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ShopRe.Model.Models.user_s_log
+﻿namespace ShopRe.Model.Models.user_s_log
 {
     public class UserLog
     {
@@ -14,6 +8,7 @@ namespace ShopRe.Model.Models.user_s_log
         public LogRate LogRate { get; set; }
         public int? SellerId { get; set; }
         public Seller? Seller { get; set; }
+        public Product? Product { get; set; }
         public ApplicationUser? User { get; set; }
     }
 

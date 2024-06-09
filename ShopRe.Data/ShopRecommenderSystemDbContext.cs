@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
-using System.Reflection.Metadata;
 
 namespace ShopRe.Data
 {
@@ -30,6 +29,8 @@ namespace ShopRe.Data
         public DbSet<ProductChild> ProductChild { get; set; }
         public DbSet<Images> Images { get; set; }
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }
+        public DbSet<ShopRecommendDaily> shopRecommendDailies { get; set; }
+        public DbSet<ProductRecommendDaily> productRecommendDailies { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
