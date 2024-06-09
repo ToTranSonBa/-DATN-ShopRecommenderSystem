@@ -19,6 +19,7 @@ namespace ShopRe.Model.Models
         public int? ShippingAddress { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TrainCode { get; set; }
+        public DateTime? DayOfBirth { get; set; }
         public ICollection<ShippingAddress> ShippingAddresses { get; set; } 
 
         public string GetFullName()

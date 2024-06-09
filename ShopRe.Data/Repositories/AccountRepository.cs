@@ -59,7 +59,7 @@ namespace ShopRe.Data.Repositories
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(30),
                 claims: authClaims,
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(authenKey,
                     SecurityAlgorithms.HmacSha256Signature)
@@ -78,6 +78,7 @@ namespace ShopRe.Data.Repositories
                 Address = signUp.Address,
                 UserName= signUp.Email,
                 Avatar="No image yet",
+                DayOfBirth = signUp.DayOfBirth
                 
             };
             var result = await _userManager.CreateAsync(user, signUp.Password);

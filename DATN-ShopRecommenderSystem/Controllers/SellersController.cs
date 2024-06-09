@@ -16,10 +16,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
     public class SellersController : ControllerBase
     {
         readonly ISellerService _sellerService;
+        private readonly ShopRecommenderSystemDbContext _context;
         private readonly IElasticSearchService _elasticsearchService;
-        public SellersController(ISellerService sellerService, IElasticSearchService elasticSearchService)
+        public SellersController(ShopRecommenderSystemDbContext context,ISellerService sellerService, IElasticSearchService elasticSearchService)
         {
             _sellerService = sellerService;
+            _context = context;
             _elasticsearchService = elasticSearchService;
         }
         // GET: api/sellers
@@ -90,6 +92,35 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return NoContent();
         }
 
+        [HttpGet("Top10Seller")]
+        public async Task<IActionResult> GetTopSeller()
+        {
+            try
+            {
+                var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+
+                var topSellerIds = _context.UserLog
+                    .Where(log => log.DateTime >= thirtyDaysAgo && log.SellerId.HasValue)
+                    .GroupBy(log => log.SellerId)
+                    .Select(group => new
+                    {
+                        SellerId = group.Key,
+                        LogCount = group.Count()
+                    })
+                    .OrderByDescending(x => x.LogCount)
+                    .Take(10)
+                    .Select(x => x.SellerId.Value) // We are assuming SellerId is not null
+                    .ToList();
+                var topSellers = _context.Sellers
+                    .Where(seller => topSellerIds.Contains(seller.ID_NK))
+                    .ToList();
+                return Ok(topSellers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 
 }

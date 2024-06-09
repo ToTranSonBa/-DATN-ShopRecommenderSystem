@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240609062121_fix cartitem entity")]
+    partial class fixcartitementity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +219,6 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DayOfBirth")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)

@@ -21,5 +21,6 @@ namespace ShopRe.Model.Authentication
         public string Address { get; set; } = null!;
         [Required]
         public string PhoneNumber { get; set; } = null!;
+        public DateTime? DayOfBirth { get; set; } 
     }
 }
