@@ -59,7 +59,7 @@ namespace ShopRe.Data.Repositories
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(180),
                 claims: authClaims,
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(authenKey,
                     SecurityAlgorithms.HmacSha256Signature)
