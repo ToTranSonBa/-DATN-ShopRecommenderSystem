@@ -90,10 +90,39 @@ namespace ShopRe.Service
             return true;
         }
 
+        private async Task<bool> UpdateSellerOrder(Order order, ApplicationUser user)
+        {
+            var orderByUser = await _dbContext.Order
+                                              .FirstOrDefaultAsync(s => s.ID == order.ID);
+
+            if (orderByUser == null)
+            {
+                return false;
+            }
+
+            var orderItems = await _dbContext.OrderItems
+                                             .Where(c => c.Order.ID == orderByUser.ID)
+                                             .Include(c => c.Product)
+                                             .ToListAsync();
+            if(orderItems.Count > 0)
+            {
+                var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ID_NK == orderItems[0].Product.SellerID_NK);
+
+                orderByUser.Seller = seller;
+
+                _dbContext.Order.Update(orderByUser);
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task<OrderItems> AddOrderItems(OrderItemsParameters orderItemsParameters, ApplicationUser user)
         {
             // Validate the product
-            var product = await _dbContext.Products.FindAsync(orderItemsParameters.idProduct);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p=>p.ID_NK == orderItemsParameters.idProduct);
             if (product == null)
             {
                 throw new InvalidOperationException("Product not found.");
@@ -113,17 +142,18 @@ namespace ShopRe.Service
             }
 
             var order = await _dbContext.Order
-                                        .Include(o => o.ApplicationUser)
+                                        .Include(o=> o.ShippingAddress)
                                         .FirstOrDefaultAsync(o => o.ID == orderItemsParameters.idOrder);
             if (order == null)
             {
-                return null;
+                throw new InvalidOperationException("Order not found.");
             }
 
             var orderItem = new OrderItems
             {
                 Quantity = orderItemsParameters.Quantity,
                 Price = Convert.ToInt32(orderItemsParameters.Quantity * product.Price),
+                Image = orderItemsParameters.Image,
                 Product = product,
                 Order = order,
                 OptionValues = optionValues
@@ -136,7 +166,16 @@ namespace ShopRe.Service
             var check = await UpdateTotalPriceOrder(order, user);
             if (!check)
             {
-                return null;
+                throw new InvalidOperationException("Update Total Price failed.");
+            }
+
+            if(order.Seller == null)
+            {
+                var checkSeller = await UpdateSellerOrder(order, user);
+                if (!checkSeller)
+                {
+                    throw new InvalidOperationException("Update Seller faile.");
+                }
             }
 
             return orderItem;

@@ -135,15 +135,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     return Unauthorized();
                 }
 
-                bool result = await _accountService.ChangePassword(changePasswordParams, user);
+                int result = await _accountService.ChangePassword(changePasswordParams, user);
 
-                if (result)
+                if (result != 4)
                 {
-                    return Ok(new Response<object> { message = "Password changed successfully", token = token, status="204" });
+                    return Ok(new { message = "Call Api success", token = token, status="204" , Data=result});
                 }
                 else
                 {
-                    return BadRequest(new Response<object> { message = "Failed to change password" ,token = token, status = "400" });
+                    return BadRequest(new { message = "Failed to change password" ,token = token, status = "400" });
                 }
             }
             catch (Exception ex)

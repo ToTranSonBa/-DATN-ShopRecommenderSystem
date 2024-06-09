@@ -22,7 +22,7 @@ namespace ShopRe.Service
         Task<UserDTO> GetUserInformation(ApplicationUser user);
         Task<ApplicationUser> UpdateShip(ApplicationUser user, int id);
         Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user);
-        Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
+        Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
     }
     public class AccountService : IAccountService
     {
@@ -109,33 +109,33 @@ namespace ShopRe.Service
             return accountDTO;
         }
 
-        public async Task<bool> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user)
+        public async Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user)
         {
             var userFromDb = await _userManager.FindByIdAsync(user.Id);
 
             if (userFromDb == null)
             {
-                throw new Exception("User not found");
+                return 1; //User không tồn tại
             }
 
             var passwordCheck = await _userManager.CheckPasswordAsync(userFromDb, changePasswordParams.PasswordOld);
             if (!passwordCheck)
             {
-                throw new Exception("Old password is incorrect");
+                return 2; //Password sai
             }
 
             if (changePasswordParams.PasswordNew != changePasswordParams.PasswordNewConfirm)
             {
-                throw new Exception("New password and confirmation password do not match");
+                return 3; //Xác nhận mật khẩu không chính xác
             }
 
             var result = await _userManager.ChangePasswordAsync(userFromDb, changePasswordParams.PasswordOld, changePasswordParams.PasswordNew);
             if (!result.Succeeded)
             {
-                throw new Exception("Failed to change password");
+                return 4; //Đổi mật khẩu thất bại
             }
 
-            return true;
+            return 0; //Đổi mật khẩu thành công
         }
 
         public async Task<ApplicationUser> UpdateShip(ApplicationUser user, int id)

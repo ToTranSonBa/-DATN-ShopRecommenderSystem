@@ -168,12 +168,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _accountService.GetUserFromTokenAsync(token);
                 if (user == null)
                 {
-                    return Unauthorized(new Response<object>
+                    return Unauthorized(new 
                     {
                         message = "Unauthorized!",
                         status = "401",
                         token = token,
-                        Data = null,
                     });
                 }
                 var order = await _orderService.CreateOrderForUser(user, orderParameters);
@@ -183,7 +182,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     return Ok(new
                     {
                         message = "Create Order Successfully.",
-                        status = "400",
+                        status = 201,
                         token = token,
                         Data = order
                     });

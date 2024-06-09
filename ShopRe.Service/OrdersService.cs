@@ -88,7 +88,7 @@ namespace ShopRe.Service
                 Email = shippingAddress.Email,
                 Name = shippingAddress.FullName,
                 ShippingAddress = shippingAddress,
-                ApplicationUser = user
+                ApplicationUser = user,
             };
 
             var newOrder = await _dbContext.Order.AddAsync(order);
