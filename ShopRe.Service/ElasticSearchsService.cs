@@ -363,7 +363,6 @@ namespace ShopRe.Service
             public long Rating4To5 { get; set; }
         }
 
-
         public async Task<ProductRatingCountDTO> ProductRatingCount()
         {
             var countResponse1 = await _elasticClient.CountAsync<object>(c => c
@@ -674,19 +673,16 @@ namespace ShopRe.Service
                         )
                     )
                 )
-                .Sort(ss => ss
-                    .Field(f => f
-                        .Field("CreatedAt")
-                        .Order(SortOrder.Descending)
-                    )
-                )
                 .From(sellerParameters.PageNumber * sellerParameters.PageSize)
                 .Size(sellerParameters.PageSize)
             );
+
             var listProductDetail = new List<ProductDetailDTO>();
+
             if (searchResponse.IsValid && searchResponse.Documents.Any())
             {
                 var latestProduct = ConvertToProduct(searchResponse.Documents.ToList());
+                var latestProducts = latestProduct.OrderByDescending(p => p.CreatedAt);
                 foreach (var item in latestProduct)
                 {
                     var productDetail = new ProductDetailDTO();
@@ -707,7 +703,6 @@ namespace ShopRe.Service
 
             return seller;
         }
-
         public async Task<SellerDTO> GetTopQuantitySoldProductsOfSellerById(SellerParameters sellerParameters, int id)
         {
             var res = await _dbContext.Sellers.FindAsync(id);
@@ -747,12 +742,6 @@ namespace ShopRe.Service
                         )
                     )
                 )
-                .Sort(ss => ss
-                    .Field(f => f
-                        .Field("AllTimeQuantitySold")
-                        .Order(SortOrder.Descending)
-                    )
-                )
                 .From(sellerParameters.PageNumber * sellerParameters.PageSize)
                 .Size(sellerParameters.PageSize)
             );
@@ -760,7 +749,9 @@ namespace ShopRe.Service
             if (searchResponse.IsValid && searchResponse.Documents.Any())
             {
                 var latestProduct = ConvertToProduct(searchResponse.Documents.ToList());
-                foreach (var item in latestProduct)
+                var latestProducts = latestProduct.OrderByDescending(p => p.AllTimeQuantitySold);
+
+                foreach (var item in latestProducts)
                 {
                     var productDetail = new ProductDetailDTO();
                     var images = await _dbContext.Images.Where(i => i.Product.ID_NK == item.ID_NK).ToListAsync();

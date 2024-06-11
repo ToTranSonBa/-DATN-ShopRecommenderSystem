@@ -125,6 +125,7 @@ namespace ShopRe.Service
         {
             public ProductOption? Option { get; set; }
             public List<ProductOptionValues> ProductOptionValues { get; set; } = new List<ProductOptionValues>();
+            public List<ProductChild> ProductChildren { get; set; } = new List<ProductChild> ();
         }
         public class ProductDetail
         {
@@ -186,10 +187,19 @@ namespace ShopRe.Service
             foreach (var option in options)
             {
                 var optionValues = await _dbContext.ProductOptionValues.Where(p => p.Option == option).ToListAsync();
+
+                var productChildNames = optionValues.Select(ov => ov.Name).ToList();
+                
+                var productChildren = await _dbContext.ProductChild
+                    .Where(pc => (productChildNames.Contains(pc.option1) || productChildNames.Contains(pc.option2) ||
+                          productChildNames.Contains(pc.option3) || productChildNames.Contains(pc.option4)) &&
+                         pc.Product.ID_NK == ProductId)
+                    .ToListAsync();
                 var productOptionValues = new OptionAndValues()
                 {
                     Option = option,
-                    ProductOptionValues = optionValues
+                    ProductOptionValues = optionValues,
+                    ProductChildren = productChildren
                 };
 
                 list.Add(productOptionValues);
@@ -199,6 +209,43 @@ namespace ShopRe.Service
             return list.ToList();
 
         }
+
+        //public async Task<List<object>> GetProductValues(int productId)
+        //{
+        //    var list = new List<object>();
+
+        //    // Truy vấn các tùy chọn sản phẩm theo ProductID
+        //    var options = await _dbContext.ProductOptions
+        //        .Where(p => p.ProductID == productId)
+        //        .ToListAsync();
+
+        //    foreach (var option in options)
+        //    {
+        //        // Truy vấn các giá trị tùy chọn theo OptionId
+        //        var optionValues = await _dbContext.ProductOptionValues.Where(p => p.Option == option).ToListAsync();
+
+        //        // Lấy tên của các giá trị tùy chọn
+        //        var optionValueNames = optionValues.Select(ov => ov.Name).ToList();
+
+        //        // Truy vấn các sản phẩm con dựa trên tên của các giá trị tùy chọn
+        //        var productChildren = await _dbContext.ProductChild
+        //            .Where(pc => optionValueNames.Contains(pc.option1) || optionValueNames.Contains(pc.option2) ||
+        //                         optionValueNames.Contains(pc.option3) || optionValueNames.Contains(pc.option4))
+        //            .ToListAsync();
+
+        //        // Gắn kết các ProductChild với OptionValues tương ứng
+        //        var productOptionValues = new OptionAndValues()
+        //        {
+        //            Option = option,
+        //            ProductOptionValues = optionValues,
+        //            ProductChildren = productChildren
+        //        };
+
+        //        list.Add(productOptionValues);
+        //    }
+
+        //    return list;
+        //}
 
         public void Remove(int id)
         {
