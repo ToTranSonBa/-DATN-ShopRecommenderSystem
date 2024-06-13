@@ -14,10 +14,11 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
     const fetchAddresses = useCallback(async () => {
         try {
             const response = await AddressesApi(token);
+            console.log('response', response)
             setAddresses(response);
             setCheckChange(false);
         } catch (error) {
-            console.error('Failed to fetch cart:', error);
+            console.error('Failed to fetch fetchAddresses:', error);
         }
     });
 
@@ -109,7 +110,7 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
                                 </div>
                                 <p>{address.address}</p>
                                 <p>{address.email}</p>
-                                {address.isDefault && (
+                                {address.user.shippingAddress === address.id && (
                                     <div className="w-24 text-center text-red-600 border-red-600 lg:mt-2 lg:px-2 border-1">
                                         Mặc định
                                     </div>

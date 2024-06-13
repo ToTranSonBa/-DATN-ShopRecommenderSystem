@@ -175,9 +175,12 @@ const CartShoppingPage = () => {
                                                     </h3>
                                                 </div>
                                                 <div className="flex mt-1 text-sm">
-                                                    <p className="text-gray-500">
-                                                        {data.optionValues.name}
-                                                    </p>
+                                                    {data.optionValues && data.optionValues.name && (
+                                                        <p className="text-gray-500">
+                                                            {data.optionValues.name}
+                                                        </p>
+                                                    )}
+
 
                                                 </div>
                                                 <p className="mt-1 text-sm font-medium text-gray-900">

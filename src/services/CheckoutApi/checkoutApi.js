@@ -15,8 +15,15 @@ const createOrderApi = async (addressId, token) => {
     }
 };
 
-const addOrderItemsApi = async (idOrder, idProduct, idOptionValues, Quantity, token) => {
-    return axios.post(`/OrderItems/AddOrderItemsForUser?idOrder=${idOrder}&idProduct=${idProduct}&idOptionValues=${idOptionValues}&Quantity=4${Quantity}`, {}, {
+const addOrderItemsApi = async (idOrder, idProduct, image, idOptionValues, Quantity, token) => {
+    // Construct the URL with conditionally added idOptionValues
+    let url = `/OrderItems/AddOrderItemsForUser?idOrder=${idOrder}&idProduct=${idProduct}&Image=${image}&Quantity=${Quantity}`;
+    if (idOptionValues !== null && idOptionValues !== undefined) {
+        url += `&idOptionValues=${idOptionValues}`;
+    }
+
+    // Make the API request
+    return axios.post(url, {}, {
         headers: {
             Authorization: "Bearer " + token,
         }

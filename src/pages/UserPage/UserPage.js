@@ -1,14 +1,16 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AddressManager from '../../components/Address';
-import { userApi, updateUserApi } from '../../services/UserApi/userApi';
+import { userApi, updateUserApi, getOrdersOfUserApi, changePasswordUserApi, getSellerByIdApi } from '../../services/UserApi/userApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { cloudinaryConfig } from '../../cloudinaryConfig';
+import axios from 'axios';
 const UserPage = () => {
 
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const [selectedOption, setSelectedOption] = useState('profile');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const token = localStorage.getItem('token');
@@ -20,17 +22,31 @@ const UserPage = () => {
             const response = await userApi(token);
             setUserData(response);
         } catch (error) {
-            console.error('Failed to fetch brands:', error);
+            console.error('Failed to fetch userApi:', error);
         }
 
     });
 
+
+
     const fetchOrders = useCallback(async () => {
         try {
-            const response = await userApi(token);
-            setUserData(response);
+            const response = await getOrdersOfUserApi(token);
+
+            // Duyệt qua từng đơn hàng để thêm trường seller
+            const updatedOrders = await Promise.all(response.map(async (order) => {
+                if (order.items && order.items.length > 0) {
+                    const firstItem = order.items[0];
+                    const sellerID = firstItem.product.sellerID_NK;
+                    const sellerResponse = await getSellerByIdApi(sellerID); // Gọi API để lấy tên người bán
+                    const sellerName = sellerResponse.name; // Giả sử API trả về một object với trường 'name'
+                    return { ...order, seller: sellerName };
+                }
+                return order;
+            }));
+            setOrderData(updatedOrders);
         } catch (error) {
-            console.error('Failed to fetch brands:', error);
+            console.error('Failed to fetch getOrdersOfUserApi:', error);
         }
 
     });
@@ -38,21 +54,47 @@ const UserPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             await fetchUser();
+            await fetchOrders();
 
         };
         fetchData();
-
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         // Xử lý logic thay đổi mật khẩu ở đây
+        try {
+
+            const response = await changePasswordUserApi(oldPassword, newPassword, confirmPassword, token);
+            if (response.status === '204') {
+                if (response.data === 0) {
+                    toast.success('Đổi mật khẩu thành công');
+
+                }
+                if (response.data === 1) {
+                    toast.error('Người dùng không tồn tại');
+                }
+                if (response.data === 2) {
+                    toast.error('Sai mật khẩu');
+                }
+                if (response.data === 3) {
+                    toast.error('Mật khẩu xác nhận không chính xác');
+                }
+            }
+            if (response.status === '400') {
+                toast.error('Đổi mật khẩu thất bại');
+            }
+        } catch (error) {
+            console.log('error when call changePasswordApi', error)
+        }
     }
 
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = updateUserApi(userData.firstName, userData.lastName, userData.email, userData.phoneNumber, userData.address, userData.avatar, token);
+            const response = updateUserApi(userData.firstName,
+                userData.lastName, userData.email, userData.phoneNumber,
+                userData.address, userData.avatar, token);
             if (response) {
                 toast.success('thay đổi thành công');
             }
@@ -62,6 +104,10 @@ const UserPage = () => {
     };
 
     const toggleDropdown = () => {
+        if (selectedOption === 'profile' || selectedOption === 'address'
+            || selectedOption === 'changepassword') {
+            return;
+        }
         setIsOpen(!isOpen);
     };
 
@@ -73,80 +119,14 @@ const UserPage = () => {
             setIsOpen(false);
         }
     };
-    const orders = [
-        {
-            number: 'WU88191111',
-            store: 'Sidotech Official Store',
-            href: '#',
-            invoiceHref: '#',
-            createdDate: 'Jul 6, 2021',
-            createdDatetime: '2021-07-06',
-            deliveredDate: 'July 12, 2021',
-            deliveredDatetime: '2021-07-12',
-            total: '$160.00',
-            status: 1,
-
-            products: [
-                {
-                    id: 1,
-                    name: 'Micro Backpack',
-                    description:
-                        'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-                    href: '#',
-                    price: '$70.00',
-                    imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-03-product-01.jpg',
-                    imageAlt:
-                        'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-                },
-                {
-                    id: 2,
-                    name: 'Micro Backpack',
-                    description:
-                        'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-                    href: '#',
-                    price: '$70.00',
-                    imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-03-product-01.jpg',
-                    imageAlt:
-                        'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-                },
-                // More products...
-            ],
-        },
-        {
-            number: 'WU88191121',
-            store: 'Sidotech Official Store',
-            href: '#',
-            invoiceHref: '#',
-            createdDate: 'Jul 6, 2021',
-            createdDatetime: '2021-07-06',
-            deliveredDate: 'July 12, 2021',
-            deliveredDatetime: '2021-07-12',
-            total: '$160.00',
-            status: 0,
-            products: [
-                {
-                    id: 1,
-                    name: 'Micro Backpack',
-                    description:
-                        'Are you a minimalist looking for a compact carry option? The Micro Backpack is the perfect size for your essential everyday carry items. Wear it like a backpack or carry it like a satchel for all-day use.',
-                    href: '#',
-                    price: '$70.00',
-                    imageSrc: 'https://tailwindui.com/img/ecommerce-images/order-history-page-03-product-01.jpg',
-                    imageAlt:
-                        'Moss green canvas compact backpack with double top zipper, zipper front pouch, and matching carry handle and backpack straps.',
-                },
-                // More products...
-            ],
-        },
-        // More orders...
-    ];
 
     const handleStatusClick = (status) => {
         setSelectedStatus(status);
     };
-
+    // 0 Da Huy, 1 Cho xac nhan, 2 Cho giao hang, 3 Cho lay hang, 4 Da giao.
     const filteredOrders =
-        selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
+        selectedStatus === 'all' ? ordersData : ordersData
+            .filter((order) => order.status === selectedStatus);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -157,21 +137,44 @@ const UserPage = () => {
     };
     const [avatarFile, setAvatarFile] = useState(null);
     const fileInputRef = useRef(null);
+
+
     const handleButtonClick = () => {
         fileInputRef.current.click();
     };
 
     const handleFileChangeAndSubmit = async (e) => {
+        e.preventDefault();
         const file = e.target.files[0];
         if (file) {
             setAvatarFile(file); // Lưu tệp hình ảnh vào state
 
-            // Tạo một đối tượng userData mới để cập nhật
-            const updatedUserData = { ...userData };
-            // Thêm URL của hình ảnh mới vào userData
-            updatedUserData.avatar = URL.createObjectURL(file);
-            setUserData(updatedUserData);
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', cloudinaryConfig.upload_preset); // Đảm bảo bạn đã tạo upload preset trong Cloudinary
 
+            try {
+                const response = await axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, formData);
+
+                // Lấy URL của hình ảnh mới tải lên từ response
+                const fileURL = response.data.secure_url;
+
+                // Tạo một đối tượng userData mới để cập nhật
+                const updatedUserData = { ...userData };
+                // Thêm URL của hình ảnh mới vào userData
+                updatedUserData.avatar = fileURL;
+                const updateUser = updateUserApi(updatedUserData.firstName,
+                    updatedUserData.lastName, updatedUserData.email, updatedUserData.phoneNumber,
+                    updatedUserData.address, updatedUserData.avatar, token);
+                if (!response) {
+                    console.log('fail to call updateUserApi');
+                } else {
+                    // Cập nhật state với thông tin mới của người dùng
+                    setUserData(updatedUserData);
+                }
+            } catch (error) {
+                console.error('Error uploading the file:', error);
+            }
         }
     };
 
@@ -251,7 +254,7 @@ const UserPage = () => {
                             <div className="w-3/5 px-6 pb-8 mt-12 ">
                                 {/* <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2> */}
 
-                                <form className="grid max-w-2xl mx-auto mt-8" onSubmit={handleSave}>
+                                <form className="grid max-w-2xl mx-auto mt-8" >
                                     <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
 
 
@@ -370,6 +373,7 @@ const UserPage = () => {
 
                                         <div className="flex justify-end">
                                             <button
+                                                onClick={handleSave}
                                                 type="submit"
                                                 className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
                                             >
@@ -457,6 +461,7 @@ const UserPage = () => {
                                     >
                                         Đổi mật khẩu
                                     </button>
+                                    <ToastContainer />
                                 </form>
                             </div>
                         </div>
@@ -472,7 +477,7 @@ const UserPage = () => {
                                     <ul class="w-full flex  justify-between">
                                         <li class="mb-4 lg:mb-0 lg:pe-2">
                                             <a
-                                                class="block text-lg text-gray-700 font-light  hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
+                                                class="block lg:text-sm text-gray-700 font-light  hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick('all')}
                                             >
@@ -481,49 +486,41 @@ const UserPage = () => {
                                         </li>
                                         <li class="mb-4 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
-                                                class="block text-lg font-light text-gray-700 hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
+                                                class="block lg:text-sm font-light text-gray-700 hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
                                                 onClick={() => handleStatusClick(0)}
-                                            >
-                                                Chờ thanh toán
-                                            </a>
-                                        </li>
-                                        <li class="mb-4 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
-                                            <a
-                                                class="block text-lg text-gray-700 font-light hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
-                                                href="#"
-                                                onClick={() => handleStatusClick(1)}
                                             >
                                                 Vận chuyển
                                             </a>
                                         </li>
-                                        <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
+                                        <li class="mb-4 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
-                                                class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
+                                                class="block lg:text-sm text-gray-700 font-light hover:text-blue-700 focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
-                                                onClick={() => handleStatusClick(2)}
+                                                onClick={() => handleStatusClick(1)}
                                             >
                                                 Chờ giao hàng
                                             </a>
                                         </li>
                                         <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
-                                                class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
+                                                class="block lg:text-sm font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
-                                                onClick={() => handleStatusClick('3')}
+                                                onClick={() => handleStatusClick(2)}
                                             >
                                                 Hoàn thành
                                             </a>
                                         </li>
                                         <li class="mb-2 lg:mb-0 lg:pe-2" data-twe-nav-item-ref>
                                             <a
-                                                class="block text-lg font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
+                                                class="block lg:text-sm font-light hover:text-blue-700  focus:text-blue-700 active:text-blue-700 motion-reduce:transition-none lg:px-2"
                                                 href="#"
-                                                onClick={() => handleStatusClick(4)}
+                                                onClick={() => handleStatusClick('3')}
                                             >
-                                                Đã Hủy
+                                                Đã hủy
                                             </a>
                                         </li>
+
                                     </ul>
                                 </div>
                             </nav>
@@ -534,20 +531,24 @@ const UserPage = () => {
                                         <div className="max-w-2xl space-y-8 sm:px-4 lg:max-w-full lg:px-0">
                                             {filteredOrders.map((order) => (
                                                 <div
-                                                    key={order.number}
+                                                    key={order.id}
                                                     className="bg-white border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border"
                                                 >
                                                     <div className="flex items-center p-4 border-b border-gray-200 sm:p-6 sm:grid sm:grid-cols-6 sm:gap-x-6">
-                                                        <dl className="grid flex-1 grid-cols-2 text-sm gap-x-6 sm:col-span-3 sm:grid-cols-7 lg:col-span-3">
+                                                        <dl className="grid flex-1 grid-cols-2 text-sm gap-x-6 sm:col-span-3 sm:grid-cols-7 lg:col-span-4">
                                                             <div className="lg:col-span-3">
                                                                 <dt className="font-medium text-gray-900">Cửa hàng</dt>
-                                                                <dd className="mt-1 text-gray-500">{order.store}</dd>
+                                                                <dd className="mt-1 text-gray-500">{order.seller}</dd>
                                                             </div>
                                                             <div className="hidden lg:col-span-2 sm:block">
                                                                 <dt className="font-medium text-gray-900">Ngày đặt</dt>
                                                                 <dd className="mt-1 text-gray-500">
-                                                                    <time dateTime={order.createdDatetime}>
-                                                                        {order.createdDate}
+                                                                    <time dateTime={order.createdAt}>
+                                                                        {new Date(order.createdAt).toLocaleDateString('vi-VN', {
+                                                                            year: 'numeric',
+                                                                            month: 'long',
+                                                                            day: 'numeric',
+                                                                        })}
                                                                     </time>
                                                                 </dd>
                                                             </div>
@@ -556,31 +557,24 @@ const UserPage = () => {
                                                                     Thành tiền
                                                                 </dt>
                                                                 <dd className="mt-1 font-medium text-gray-900">
-                                                                    {order.total}
+                                                                    {order.totalPrice}
                                                                 </dd>
                                                             </div>
                                                         </dl>
 
-                                                        <div className="hidden lg:col-span-3 lg:flex lg:items-center lg:justify-end lg:space-x-4">
-                                                            <div className="text-sm font-medium text-gray-700">
-                                                                <span>
-                                                                    Đơn hàng đã đến kho phân loại Kho Trung Chuyển Hồ
-                                                                    Chí Minh 01
-                                                                </span>
-                                                            </div>
-                                                            <div className="text-sm font-medium text-gray-700">
+                                                        <div className="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
+
+                                                            <div className="text-sm font-medium text-blue-700">
                                                                 <span>
                                                                     {(() => {
                                                                         switch (order.status) {
                                                                             case 0:
-                                                                                return 'Chờ thanh toán';
-                                                                            case 1:
                                                                                 return 'Vận chuyển';
-                                                                            case 2:
+                                                                            case 1:
                                                                                 return 'Chờ giao hàng';
-                                                                            case 3:
+                                                                            case 2:
                                                                                 return 'Hoàn thành';
-                                                                            case 4:
+                                                                            case 3:
                                                                                 return 'Đã Hủy';
                                                                             default:
                                                                                 return 'Unknown Status';
@@ -594,68 +588,48 @@ const UserPage = () => {
                                                     {/* Products */}
 
                                                     <ul role="list" className="divide-y divide-gray-200">
-                                                        {order.products.map((product) => (
-                                                            <li key={product.id} className="p-4 sm:p-6">
+                                                        {order.items.map((item) => (
+                                                            <li key={item.id} className="p-4 sm:p-6">
                                                                 <div className="flex items-center sm:items-start">
                                                                     <div className="flex-shrink-0 w-20 h-20 overflow-hidden bg-gray-200 rounded-lg sm:w-40 sm:h-40">
                                                                         <img
-                                                                            src={product.imageSrc}
-                                                                            alt={product.imageAlt}
+                                                                            src={item.image}
+                                                                            alt={item.product.name}
                                                                             className="object-cover object-center w-full h-full"
                                                                         />
                                                                     </div>
                                                                     <div className="flex-1 ml-6 text-sm">
                                                                         <div className="font-medium text-gray-900 sm:flex sm:justify-between">
-                                                                            <h5>{product.name}</h5>
+                                                                            <h5>{item.product.name}</h5>
                                                                             <p className="mt-2 sm:mt-0">
-                                                                                {product.price}
+                                                                                {item.product.price}
                                                                             </p>
+
                                                                         </div>
+                                                                        {item.optionValues && item.optionValues.name && (
+                                                                            <p className="hidden text-gray-500 sm:block sm:mt-2">
+                                                                                Phân loại hàng: {item.optionValues.name}
+                                                                            </p>
+                                                                        )}
                                                                         <p className="hidden text-gray-500 sm:block sm:mt-2">
-                                                                            {product.description}
+                                                                            X{item.quantity}
                                                                         </p>
                                                                     </div>
                                                                 </div>
 
                                                                 <div className="mt-6 sm:flex sm:justify-between">
-                                                                    <div className="flex items-center">
-                                                                        <svg
-                                                                            className="w-5 h-5 text-green-500"
-                                                                            fill="currentColor"
-                                                                            viewBox="0 0 20 20"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                        >
-                                                                            <path
-                                                                                fillRule="evenodd"
-                                                                                d="M16.707 5.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 11.586l6.293-6.293a1 1 0 011.414 0z"
-                                                                                clipRule="evenodd"
-                                                                            />
-                                                                        </svg>
-                                                                        <p className="ml-2 text-sm font-medium text-gray-500">
-                                                                            Đã giao vào ngày{' '}
-                                                                            <time dateTime={order.deliveredDatetime}>
-                                                                                {order.deliveredDate}
-                                                                            </time>
-                                                                        </p>
-                                                                    </div>
+
 
                                                                     <div className="flex items-center pt-4 mt-6 space-x-4 text-sm font-medium border-t border-gray-200 divide-x divide-gray-200 sm:mt-0 sm:ml-4 sm:border-none sm:pt-0">
                                                                         <div className="flex justify-center flex-1">
                                                                             <a
-                                                                                href={product.href}
+                                                                                href={`/productdetail/${item.product.iD_NK}`}
                                                                                 className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"
                                                                             >
                                                                                 Xem sản phẩm
                                                                             </a>
                                                                         </div>
-                                                                        <div className="flex justify-center flex-1 pl-4">
-                                                                            <a
-                                                                                href="#"
-                                                                                className="text-indigo-600 whitespace-nowrap hover:text-indigo-500"
-                                                                            >
-                                                                                Mua lại
-                                                                            </a>
-                                                                        </div>
+
                                                                     </div>
                                                                 </div>
                                                             </li>

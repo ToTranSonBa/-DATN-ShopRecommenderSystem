@@ -10,6 +10,11 @@ import { addressDefaultApi, AddressesApi } from '../../services/addressApi/addre
 import { deleteCartItem } from '../../services/CartApi/cartApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// format number
+const formatNumber = (number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+};
+
 function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -22,6 +27,8 @@ function Checkout() {
     const total = subTotal + shippingFee;
     // Tạo state để kiểm soát việc hiển thị của thẻ div
     const [isVisible, setIsVisible] = useState(false);
+
+
 
     const fetchAddresses = useCallback(async () => {
         try {
@@ -44,7 +51,7 @@ function Checkout() {
             }
         };
         fetchData();
-    }, [fetchAddresses]);
+    }, []);
 
     // Tạo state kiểm xoát edit address đóng mở
     const [isAddressManagerOpen, setIsAddressManagerOpen] = useState(false);
@@ -80,75 +87,64 @@ function Checkout() {
             [e.target.name]: e.target.value,
         });
     };
-    const orderItemsArray = [];
+
     const handleSubmit = async (e) => {
         e.preventDefault();
     };
 
     const handleAddOrders = async (e) => {
-        for (const [index, item] of selectedItems.entries()) {
-            console.log('item', item);
-            if (index === 0) {
-                try {
-                    const order = await createOrderApi(selectedAddress.id, token);
-                    if (order.status === '400') {
-                        const orderItem = await addOrderItemsApi(order.data.id, item.product.iD_NK, item.optionValues.id, item.quantity, token);
-                        if (orderItem.status === 201) {
-                            // Lưu trữ thông tin vào orderItemsArray
-                            orderItemsArray.push({
-                                orderId: order.data.id,
-                                sellerId: item.sellerId
-                            });
-                        }
-                    }
+        const sellerOrderMap = new Map();
+        console.log('selectedItems: ', selectedItems);
 
-                } catch (error) {
-                    console.error(`Lỗi khi gọi createOrderApi hoặc addOrderItemsApi tại chỉ số ${index}:`, error);
-                    // Xử lý lỗi ở đây nếu cần
-                }
-            } else {
-                const sellerIdToCheck = item.sellerId;
+        try {
+            for (const item of selectedItems) {
+                const sellerId = item.sellerId;
+                console.log(`Processing item with sellerId: ${sellerId}`);
 
-                const isSellerIdExists = orderItemsArray.some((orderItem) => {
-                    return orderItem.sellerId === sellerIdToCheck;
-                });
+                if (sellerOrderMap.has(sellerId)) {
+                    // Get the existing order ID
+                    const orderId = sellerOrderMap.get(sellerId);
+                    console.log(`Found existing orderId: ${orderId} for sellerId: ${sellerId}`);
 
-                if (isSellerIdExists) {
-                    try {
-                        const matchedOrderItem = orderItemsArray.find((orderItem) => {
-                            return orderItem.sellerId === sellerIdToCheck;
-                        });
-                        const orderItem = await addOrderItemsApi(matchedOrderItem.orderId, item.product.iD_NK, item.optionValues.id, item.quantity, token);
-                    } catch (error) {
-                        console.error(`Lỗi khi gọi addOrderItemsApi tại chỉ số ${index}:`, error);
-                    }
+                    // Add item to the existing order
+                    const response = await addOrderItemsApi(orderId, item.product.iD_NK, item.productImgs,
+                        item.optionValues ? item.optionValues.id : undefined, item.quantity, token);
+
+                    console.log(`Added item to existing order: ${orderId}, response: `, response);
                 } else {
-                    try {
-                        const orderId = await createOrderApi(selectedAddress.id, token);
-                        if (orderId.status === '400') {
-                            const orderItem = await addOrderItemsApi(orderId.data.id, item.product.iD_NK, item.optionValues.id, item.quantity, token);
-                            if (orderItem.status === 201) {
-                                // Lưu trữ thông tin vào orderItemsArray
-                                orderItemsArray.push({
-                                    orderId: orderId.data.id,
-                                    sellerId: item.sellerId
-                                });
-                            }
-                        }
-                    } catch (error) {
-                        console.error(`Lỗi khi gọi createOrderApi hoặc addOrderItemsApi tại chỉ số ${index}:`, error);
+                    // Create a new order for this seller
+                    console.log(`Creating new order for sellerId: ${sellerId}`);
+                    const order = await createOrderApi(selectedAddress.id, token);
+
+                    if (order.status === 201) {
+                        const orderId = order.data.id;
+                        console.log(`Created new orderId: ${orderId} for sellerId: ${sellerId}`);
+
+                        // Add the new order ID to the map
+                        sellerOrderMap.set(sellerId, orderId);
+
+                        // Add item to the new order
+                        const orderItem = await addOrderItemsApi(orderId, item.product.iD_NK, item.productImgs,
+                            item.optionValues ? item.optionValues.id : undefined, item.quantity, token);
+
+                        console.log(`Added item to new order: ${orderId}, response: `, orderItem);
                     }
                 }
             }
-        }
 
-        for (const [index, item] of selectedItems.entries()) {
-            await deleteCartItem(item.id, token);
+            //Uncomment below lines if you want to delete items from cart and navigate after placing orders
+            for (const item of selectedItems) {
+                await deleteCartItem(item.id, token);
+            }
+
+            toast.success('Đặt hàng thành công');
+            setTimeout(() => {
+                navigate('/login');
+            }, 1000);
+
+        } catch (error) {
+            console.error('Error processing orders:', error);
         }
-        toast.success('đặt hàng thành công');
-        setTimeout(() => {
-            navigate('/login');
-        }, 2000);
     };
     return (
         <div className="relative bg-background lg:pt-36">
@@ -265,7 +261,7 @@ function Checkout() {
                                     key={index}
                                     imgSrc={item.product.image}
                                     title={item.product.name}
-                                    description={item.optionValues.name || 'No description available'}
+                                    description={item?.optionValues?.name || ''}
                                     quantity={item.quantity}
                                     price={item.product.price}
                                 />
@@ -274,11 +270,11 @@ function Checkout() {
                         <div className="px-8 border-b">
                             <div className="flex justify-between py-4 text-gray-600">
                                 <span>Tạm tính</span>
-                                <span className="font-semibold text-pink-500">€{subTotal}đ</span>
+                                <span className="font-semibold text-blue-500">{subTotal}đ</span>
                             </div>
                             <div className="flex justify-between py-4 text-gray-600">
                                 <span>Phí giao hàng</span>
-                                <span className="font-semibold text-pink-500">5000</span>
+                                <span className="font-semibold text-blue-500">5000</span>
                             </div>
                         </div>
                         <div className="flex justify-between px-8 py-8 text-xl font-semibold text-gray-600">
@@ -300,24 +296,29 @@ function Checkout() {
     );
 }
 
-const OrderItem = ({ imgSrc, title, description, quantity, price }) => (
-    <li className="grid grid-cols-6 gap-2 border-b-1">
-        <div className="self-center col-span-1">
-            <img src={imgSrc} alt="Product" className="w-full rounded" />
-        </div>
-        <div className="flex flex-col col-span-3 pt-2">
-            <span className="text-gray-600 text-md font-semi-bold">{title}</span>
-            <span className="inline-block pt-2 text-sm text-gray-400">{description}</span>
-        </div>
-        <div className="col-span-2 pt-3">
-            <div className="flex items-center justify-between space-x-2 text-sm">
-                <span className="text-gray-400">
-                    {quantity} x {price}
-                </span>
-                <span className="inline-block font-semibold text-pink-400">{quantity * price}</span>
+const OrderItem = ({ imgSrc, title, description, quantity, price }) => {
+    const totalPrice = quantity * price;
+    return (
+        <li className="grid grid-cols-6 gap-2 border-b-1 items-start">
+            <div className="self-center col-span-1">
+                <img src={imgSrc} alt="Product" className="size-14 rounded" />
             </div>
-        </div>
-    </li>
-);
+            <div className="flex flex-col col-span-3 pt-2">
+                <span className="text-gray-600 text-md text-nowrap overflow-x-clip font-semi-bold">{title}</span>
+                <span className="inline-block pt-2 text-sm text-nowrap overflow-x-clip text-gray-400">{description}</span>
+            </div>
+            <div className="col-span-2 pt-3">
+                <div className="flex items-center justify-between space-x-2 text-sm">
+                    <span className="text-gray-400">
+                        {quantity} x {formatNumber(price)}
+                    </span>
+                    <span className="inline-block font-semibold text-blue-400">
+                        {formatNumber(totalPrice)}
+                    </span>
+                </div>
+            </div>
+        </li>
+    );
+};
 
 export default Checkout;
