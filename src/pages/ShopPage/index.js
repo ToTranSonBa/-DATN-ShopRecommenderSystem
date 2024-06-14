@@ -2,7 +2,7 @@ import MaxWidthWrapper from '../../components/MaxWidthWrapper';
 import Avatar from '../../assets/HomeImg/home.jpg';
 import axios from 'axios';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getSellerbyID } from '../../services/ShopPageApi';
+import { getSellerbyID, getProductsQuantitySoldMax, getProductsLastest } from '../../services/ShopPageApi';
 //
 import { useLocation } from 'react-router-dom';
 const data = [
@@ -614,11 +614,11 @@ const calculateTimeDifference = (date) => {
 function ShopPage({}) {
     const [seller, setSeller] = useState([]);
     const isFollow = undefined;
-    const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const location = useLocation();
     const [error, setError] = useState('');
-
+    const [newProducts, setNewProducts] = useState([]);
+    const [allProducts, setAllProdcts] = useState([]);
     const sellerId = 10;
     const { years, months } = calculateTimeDifference(seller.createdAt);
     const getJoinTimeText = (years, months) => {
@@ -658,26 +658,12 @@ function ShopPage({}) {
         }
     }, []);
 
-    const fetchProducts = useCallback(async () => {
-        try {
-            const response = await axios.get(
-                'https://localhost:7016/api/Products?PageNumber=1&PageSize=1000&keyWord=s%C3%A1ch',
-            );
-
-            setProducts(response.data);
-            // console.log(products);
-        } catch (error) {
-            console.error('Failed to fetch products:', error);
-        }
-    }, []);
-
     useEffect(() => {
         const fetchData = async () => {
             await fetchCategories();
-            await fetchProducts();
         };
         fetchData();
-    }, [fetchCategories, fetchProducts]);
+    }, [fetchCategories]);
 
     const formatNumber = (num) => {
         return new Intl.NumberFormat('de-DE').format(num);

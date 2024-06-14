@@ -11,17 +11,21 @@ import Our from './our';
 import Trade from './trade';
 
 import AddressForm from '../../components/Address';
+import Shops from './shops';
+import ExpandProduct from './expand';
 const Home = () => {
     return (
         <div className="w-full bg-black">
             <Search />
             <Summary />
+            <Shops />
             <Categories />
             <RecommendTop />
             <Trade />
             <TimeLine />
             <LoginElement />
             <Our />
+            <ExpandProduct />
         </div>
     );
 };

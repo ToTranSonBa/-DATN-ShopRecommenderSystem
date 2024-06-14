@@ -26,12 +26,13 @@ const Search = () => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
     const [scrollPosition, setScrollPosition] = useState(0);
     const [classNameHidden, setClassNameHidden] = useState('hidden');
-    const [currentPage, setCurrentPage] = useState(window.location.pathname);
+
     const [isFocused, setIsFocused] = useState(false);
     const [isChooseCategory, setIsChooseCategory] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All categories');
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
+    const pathName = window.location.pathname;
     //
     useEffect(() => {
         const getCategories = async () => {
@@ -64,24 +65,28 @@ const Search = () => {
     const handleBlur = () => {
         setIsFocused(false);
     };
-    
+
     const { setSearchQuery } = useContext(SearchContext);
     const [inputValue, setInputValue] = useState('');
 
     const handleScroll = () => {
-        const currentScrollPos = window.scrollY;
+        if (pathName === '/') {
+            const currentScrollPos = window.scrollY;
 
-        if (currentScrollPos > 800) {
-            setClassNameHidden('');
-        } else {
-            if (currentPage !== '/') {
+            if (currentScrollPos > 800) {
                 setClassNameHidden('');
             } else {
-                setClassNameHidden('hidden');
+                if (pathName !== '/') {
+                    setClassNameHidden('');
+                } else {
+                    setClassNameHidden('hidden');
+                }
             }
-        }
 
-        setScrollPosition(currentScrollPos);
+            setScrollPosition(currentScrollPos);
+        } else {
+            setClassNameHidden('');
+        }
     };
 
     useEffect(() => {
@@ -93,11 +98,11 @@ const Search = () => {
     }, []);
 
     useEffect(() => {
-        setCurrentPage(window.location.pathname);
-        if (window.location.pathname !== '/') {
+        if (pathName !== '/') {
             setClassNameHidden('');
         }
-    }, []);
+    }, [pathName]);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);

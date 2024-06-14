@@ -3,7 +3,7 @@ import SliderCategories from './slider_categories';
 
 const Categories = () => {
     return (
-        <div className="w-full h-auto bg-white lg:py-32">
+        <div className="w-full h-auto bg-white lg:pt-20 lg:pb-8">
             <MaxWidthWrapper className={'flex-row lg:gap-10'}>
                 <div className="flex h-min lg:gap-12">
                     <span className="text-4xl font-semibold text-black basis-7/12">

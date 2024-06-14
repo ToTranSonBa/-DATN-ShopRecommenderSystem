@@ -3,6 +3,7 @@ import MaxWidthWrapper from '../../components/MaxWidthWrapper/index';
 import React, { useState, useEffect, useContext } from 'react';
 import { SearchContext } from '../../components/searchContext';
 import { useNavigate } from 'react-router-dom';
+
 const recentSearch = [
     { searchkey: 'điện thoại' },
     { searchkey: 'quần áo' },
@@ -21,7 +22,6 @@ const searchPlaceholders = [
         title: 'quần áo',
     },
 ];
-
 
 const Search = () => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -110,8 +110,9 @@ const Search = () => {
                         </div>
                         <div
                             id="searchexpand"
-                            className={` ${isFocused ? 'block' : 'hidden'
-                                } absolute left-0 z-50  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 `}
+                            className={` ${
+                                isFocused ? 'block' : 'hidden'
+                            } absolute left-0 z-50  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 `}
                         >
                             <div class=" w-full text-sm text-gray-900 ">
                                 <span className="font-semibold lg:ml-10 lg:text-lg">Tìm kiếm gần đây</span>

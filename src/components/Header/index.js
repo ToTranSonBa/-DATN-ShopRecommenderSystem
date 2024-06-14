@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import HeaderNotificationBar from './headerNotificatonBar';
 import Navigation from './navigation';
 import NavbarCustom from './navbar';
+import { useLocation } from 'react-router-dom';
 
 function Header() {
     const [scrollPosition, setScrollPosition] = useState(0);
@@ -10,6 +11,7 @@ function Header() {
     const [classNameBg, setClassNameBg] = useState('');
     const [classNameTextColor, setClassNameTextColor] = useState('');
     const [classNameDropShadow, setClassNameDropShadow] = useState('');
+    const location = useLocation();
 
     const handleHover = () => {
         setIsHovered(true);
@@ -20,17 +22,25 @@ function Header() {
     };
 
     const handleScroll = () => {
-        const currentScrollPos = window.scrollY;
-        setScrollPosition(currentScrollPos);
+        if (location.pathname === '/') {
+            const currentScrollPos = window.scrollY;
+            setScrollPosition(currentScrollPos);
 
-        if (currentScrollPos > 50) {
+            if (currentScrollPos > 50) {
+                setClassNameBg('bg-white');
+                setClassNameTextColor('text-black');
+                setClassNameDropShadow('drop-shadow-md');
+            } else if (!isHovered) {
+                setClassNameBg('bg-transparent');
+                setClassNameTextColor('text-white');
+                setClassNameDropShadow('');
+            }
+        } else {
+            const currentScrollPos = window.scrollY;
+            setScrollPosition(currentScrollPos);
             setClassNameBg('bg-white');
             setClassNameTextColor('text-black');
             setClassNameDropShadow('drop-shadow-md');
-        } else if (!isHovered) {
-            setClassNameBg('bg-transparent');
-            setClassNameTextColor('text-white');
-            setClassNameDropShadow('');
         }
     };
 
@@ -39,31 +49,48 @@ function Header() {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, []);
-
-    useEffect(() => {
-        if (window.location.pathname !== '/') {
-            setClassNameBg('bg-white');
-            setClassNameTextColor('text-black');
-            setClassNameDropShadow('drop-shadow-md');
-        } else {
-            setClassNameBg('bg-transparent');
-            setClassNameTextColor('text-white');
-            setClassNameDropShadow('');
-        }
-    }, [window.location.pathname]);
+    }, [location.pathname]);
 
     useEffect(() => {
         if (isHovered) {
             setClassNameBg('bg-white');
             setClassNameTextColor('text-black');
             setClassNameDropShadow('drop-shadow-md');
-        } else if (scrollPosition <= 50) {
+        } else if (scrollPosition <= 50 && location.pathname === '/') {
             setClassNameBg('bg-transparent');
             setClassNameTextColor('text-white');
             setClassNameDropShadow('');
+        } else {
+            setClassNameBg('bg-white');
+            setClassNameTextColor('text-black');
+            setClassNameDropShadow('drop-shadow-md');
         }
-    }, [isHovered, scrollPosition]);
+    }, [isHovered, scrollPosition, location.pathname]);
+
+    const getInitialStates = () => {
+        if (location.pathname === '/') {
+            console.log('pathname', location.pathname + ': ' + classNameBg + classNameTextColor + classNameDropShadow);
+            return {
+                classNameBg: 'bg-transparent',
+                classNameTextColor: 'text-white',
+                classNameDropShadow: '',
+            };
+        } else {
+            console.log('pathname', location.pathname + ': ' + classNameBg + classNameTextColor + classNameDropShadow);
+            return {
+                classNameBg: 'bg-white',
+                classNameTextColor: 'text-black',
+                classNameDropShadow: 'drop-shadow-md',
+            };
+        }
+    };
+
+    useEffect(() => {
+        const newStates = getInitialStates();
+        setClassNameBg(newStates.classNameBg);
+        setClassNameTextColor(newStates.classNameTextColor);
+        setClassNameDropShadow(newStates.classNameDropShadow);
+    }, [location.pathname]);
 
     return (
         <div className="fixed z-50 w-screen bg-black">

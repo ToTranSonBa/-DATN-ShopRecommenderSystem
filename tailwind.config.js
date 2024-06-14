@@ -1,7 +1,33 @@
 const flowbite = require('flowbite-react/tailwind');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ['node_modules/flowbite-react/lib/esm/**/*.js', './src/**/*.{js,jsx,ts,tsx}', flowbite.content()],
+    content: [
+        'node_modules/flowbite-react/lib/esm/**/*.js',
+        './src/**/*.{js,jsx,ts,tsx}',
+        flowbite.content(),
+        './layouts/**/*.html',
+        './content/**/*.md',
+        './content/**/*.html',
+        './src/*.js',
+        './node_modules/flowbite/**/*.js',
+    ],
+    safelist: [
+        'w-64',
+        'w-1/2',
+        'rounded-l-lg',
+        'rounded-r-lg',
+        'bg-gray-200',
+        'grid-cols-4',
+        'grid-cols-7',
+        'h-6',
+        'leading-6',
+        'h-9',
+        'leading-9',
+        'shadow-lg',
+        'bg-opacity-50',
+        'dark:bg-opacity-80',
+    ],
+    darkMode: 'class',
     theme: {
         extend: {
             keyframes: {
@@ -9,9 +35,14 @@ module.exports = {
                     '0%': { width: '0px', height: '0px', borderRadius: '100%', opacity: '20%' },
                     '100%': { opacity: '0%', borderRadius: '0', width: '600px', height: '600px' },
                 },
+                wiggle: {
+                    '0%, 100%': { transform: 'rotate(-0.5deg)' },
+                    '50%': { transform: 'rotate(0.5deg)' },
+                },
             },
             animation: {
                 'anim-in': 'anim-in 0.7s forwards ease-out',
+                wiggle: 'wiggle 1s ease-in-out infinite',
             },
             rotate: {
                 'y-180': '180deg',
@@ -63,6 +94,13 @@ module.exports = {
             },
             borderWidth: {
                 1: '1px',
+            },
+            transitionProperty: {
+                width: 'width',
+            },
+            textDecoration: ['active'],
+            minWidth: {
+                kanban: '28rem',
             },
         },
     },

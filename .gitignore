@@ -28,5 +28,5 @@ yarn-error.log*
 # .vscode
 .vscode
 
-# package-lock
+# Ignore package-lock.json
 package-lock.json
