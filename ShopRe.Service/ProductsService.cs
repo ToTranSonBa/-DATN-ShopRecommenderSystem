@@ -31,6 +31,7 @@ namespace ShopRe.Service
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
         public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams);
+        public Task<IEnumerable<Product>> GetTopNew(int number);
     }
     public class ProductService : IProductService
     {
@@ -409,6 +410,11 @@ namespace ShopRe.Service
             {
                 return new List<Product>();
             }
+        }
+        public async Task<IEnumerable<Product>> GetTopNew(int number)
+        {
+            
+                return await _productRepository.GetTopNew(number);
         }
     }
 }

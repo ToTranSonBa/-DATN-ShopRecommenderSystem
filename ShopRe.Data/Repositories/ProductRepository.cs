@@ -16,6 +16,7 @@ namespace ShopRe.Data.Repositories
     {
         Task<PagedList<Product>?> GetAllProduct(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
+        Task<IEnumerable<Product>> GetTopNew(int number);
     }
     public class ProductRepository : RepositoryBase<Product>, IProductRepository
     {
@@ -42,6 +43,13 @@ namespace ShopRe.Data.Repositories
                                            .ToListAsync();
 
             return pagedData;
+        }
+        public async Task<IEnumerable<Product>> GetTopNew(int number)
+        {
+            return await context.Products
+                .OrderBy(p => p.CreatedAt)
+                .Take(number)
+                .ToListAsync();
         }
     }
 }

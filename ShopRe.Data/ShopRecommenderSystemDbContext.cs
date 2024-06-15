@@ -23,6 +23,7 @@ namespace ShopRe.Data
         public DbSet<ProductOption> ProductOptions { get; set; }
         public DbSet<CartItem>? CartItem { get; set; }
         public DbSet<ShoppingSession> ShoppingSessions { get; set; }
+        public DbSet<SelCates> SelCates { get; set; }
         public DbSet<UserLog> UserLog { get; set; }
         public DbSet<SellerPriority> SellerPriority { get; set; }
         public DbSet<ProductOptionValues> ProductOptionValues { get; set; }
