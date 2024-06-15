@@ -102,6 +102,9 @@ module.exports = {
             minWidth: {
                 kanban: '28rem',
             },
+            gridAutoRows: {
+                '2fr': 'minmax(0, 2fr)',
+            }
         },
     },
 
