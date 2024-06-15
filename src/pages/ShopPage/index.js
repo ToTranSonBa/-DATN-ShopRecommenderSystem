@@ -81,8 +81,13 @@ function ShopPage({}) {
     const fetchNewProducts = useCallback(async () => {
         try {
             const response = await getProductsLastest(0, 5, sellerId);
-            setNewProducts(response.products);
-            console.log(' response new product: ', response.products);
+            if (response && response.products) {
+                // Kiểm tra response và response.data có tồn tại
+                setNewProducts(response.products);
+                console.log(' response new product: ', response.products); // Cập nhật sản phẩm
+            } else {
+                setNewProducts([]); // Nếu không có dữ liệu, setProducts với một mảng trống
+            }
         } catch (error) {
             setError('Failed to fetch seller');
             console.error('Failed to fetch seller:', error);
@@ -92,8 +97,14 @@ function ShopPage({}) {
     const fetchBestSellProducts = useCallback(async () => {
         try {
             const response = await getProductsQuantitySoldMax(0, 5, sellerId);
-            setBestSellProduct(response.products);
-            console.log(' response getProductsQuantitySoldMax: ', response.products);
+
+            if (response && response.products) {
+                // Kiểm tra response và response.data có tồn tại
+                setBestSellProduct(response.products);
+                console.log(' response getProductsQuantitySoldMax: ', response.products); // Cập nhật sản phẩm
+            } else {
+                setBestSellProduct([]); // Nếu không có dữ liệu, setProducts với một mảng trống
+            }
         } catch (error) {
             setError('Failed to fetch seller');
             console.error('Failed to fetch seller:', error);
