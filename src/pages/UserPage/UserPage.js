@@ -1,12 +1,17 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AddressManager from '../../components/Address';
-import { userApi, updateUserApi, getOrdersOfUserApi, changePasswordUserApi, getSellerByIdApi } from '../../services/UserApi/userApi';
+import {
+    userApi,
+    updateUserApi,
+    getOrdersOfUserApi,
+    changePasswordUserApi,
+    getSellerByIdApi,
+} from '../../services/UserApi/userApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { cloudinaryConfig } from '../../cloudinaryConfig';
 import axios from 'axios';
 const UserPage = () => {
-
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,38 +29,35 @@ const UserPage = () => {
         } catch (error) {
             console.error('Failed to fetch userApi:', error);
         }
-
     });
-
-
 
     const fetchOrders = useCallback(async () => {
         try {
             const response = await getOrdersOfUserApi(token);
 
             // Duyệt qua từng đơn hàng để thêm trường seller
-            const updatedOrders = await Promise.all(response.map(async (order) => {
-                if (order.items && order.items.length > 0) {
-                    const firstItem = order.items[0];
-                    const sellerID = firstItem.product.sellerID_NK;
-                    const sellerResponse = await getSellerByIdApi(sellerID); // Gọi API để lấy tên người bán
-                    const sellerName = sellerResponse.name; // Giả sử API trả về một object với trường 'name'
-                    return { ...order, seller: sellerName };
-                }
-                return order;
-            }));
+            const updatedOrders = await Promise.all(
+                response.map(async (order) => {
+                    if (order.items && order.items.length > 0) {
+                        const firstItem = order.items[0];
+                        const sellerID = firstItem.product.sellerID_NK;
+                        const sellerResponse = await getSellerByIdApi(sellerID); // Gọi API để lấy tên người bán
+                        const sellerName = sellerResponse.name; // Giả sử API trả về một object với trường 'name'
+                        return { ...order, seller: sellerName };
+                    }
+                    return order;
+                }),
+            );
             setOrderData(updatedOrders);
         } catch (error) {
             console.error('Failed to fetch getOrdersOfUserApi:', error);
         }
-
     });
 
     useEffect(() => {
         const fetchData = async () => {
             await fetchUser();
             await fetchOrders();
-
         };
         fetchData();
     }, []);
@@ -64,12 +66,10 @@ const UserPage = () => {
         e.preventDefault();
         // Xử lý logic thay đổi mật khẩu ở đây
         try {
-
             const response = await changePasswordUserApi(oldPassword, newPassword, confirmPassword, token);
             if (response.status === '204') {
                 if (response.data === 0) {
                     toast.success('Đổi mật khẩu thành công');
-
                 }
                 if (response.data === 1) {
                     toast.error('Người dùng không tồn tại');
@@ -85,16 +85,22 @@ const UserPage = () => {
                 toast.error('Đổi mật khẩu thất bại');
             }
         } catch (error) {
-            console.log('error when call changePasswordApi', error)
+            console.log('error when call changePasswordApi', error);
         }
-    }
+    };
 
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = updateUserApi(userData.firstName,
-                userData.lastName, userData.email, userData.phoneNumber,
-                userData.address, userData.avatar, token);
+            const response = updateUserApi(
+                userData.firstName,
+                userData.lastName,
+                userData.email,
+                userData.phoneNumber,
+                userData.address,
+                userData.avatar,
+                token,
+            );
             if (response) {
                 toast.success('thay đổi thành công');
             }
@@ -104,8 +110,7 @@ const UserPage = () => {
     };
 
     const toggleDropdown = () => {
-        if (selectedOption === 'profile' || selectedOption === 'address'
-            || selectedOption === 'changepassword') {
+        if (selectedOption === 'profile' || selectedOption === 'address' || selectedOption === 'changepassword') {
             return;
         }
         setIsOpen(!isOpen);
@@ -125,19 +130,17 @@ const UserPage = () => {
     };
     // 0 Da Huy, 1 Cho xac nhan, 2 Cho giao hang, 3 Cho lay hang, 4 Da giao.
     const filteredOrders =
-        selectedStatus === 'all' ? ordersData : ordersData
-            .filter((order) => order.status === selectedStatus);
+        selectedStatus === 'all' ? ordersData : ordersData.filter((order) => order.status === selectedStatus);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        setUserData(prevState => ({
+        setUserData((prevState) => ({
             ...prevState,
-            [id]: value
+            [id]: value,
         }));
     };
     const [avatarFile, setAvatarFile] = useState(null);
     const fileInputRef = useRef(null);
-
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
@@ -154,7 +157,10 @@ const UserPage = () => {
             formData.append('upload_preset', cloudinaryConfig.upload_preset); // Đảm bảo bạn đã tạo upload preset trong Cloudinary
 
             try {
-                const response = await axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, formData);
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`,
+                    formData,
+                );
 
                 // Lấy URL của hình ảnh mới tải lên từ response
                 const fileURL = response.data.secure_url;
@@ -163,9 +169,15 @@ const UserPage = () => {
                 const updatedUserData = { ...userData };
                 // Thêm URL của hình ảnh mới vào userData
                 updatedUserData.avatar = fileURL;
-                const updateUser = updateUserApi(updatedUserData.firstName,
-                    updatedUserData.lastName, updatedUserData.email, updatedUserData.phoneNumber,
-                    updatedUserData.address, updatedUserData.avatar, token);
+                const updateUser = updateUserApi(
+                    updatedUserData.firstName,
+                    updatedUserData.lastName,
+                    updatedUserData.email,
+                    updatedUserData.phoneNumber,
+                    updatedUserData.address,
+                    updatedUserData.avatar,
+                    token,
+                );
                 if (!response) {
                     console.log('fail to call updateUserApi');
                 } else {
@@ -249,19 +261,15 @@ const UserPage = () => {
             {selectedOption && (
                 <main className="w-full min-h-screen py-1 mb-4 md:w-2/3 lg:w-3/4">
                     {selectedOption === 'profile' && (
-
                         <div className="flex justify-center bg-white ">
                             <div className="w-3/5 px-6 pb-8 mt-12 ">
                                 {/* <h2 className="pl-6 text-2xl font-bold sm:text-xl">Public Profile</h2> */}
 
-                                <form className="grid max-w-2xl mx-auto mt-8" >
+                                <form className="grid max-w-2xl mx-auto mt-8">
                                     <div className="flex flex-col items-center space-y-5 sm:flex-row sm:space-y-0">
-
-
                                         <img
-                                            className="object-cover  w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
+                                            className="object-cover w-40 h-40 p-1 rounded-full ring-2 ring-indigo-300 dark:ring-indigo-500"
                                             src={userData.avatar}
-
                                         />
                                         <div className="flex flex-col space-y-5 sm:ml-8">
                                             <button
@@ -520,7 +528,6 @@ const UserPage = () => {
                                                 Đã hủy
                                             </a>
                                         </li>
-
                                     </ul>
                                 </div>
                             </nav>
@@ -544,11 +551,14 @@ const UserPage = () => {
                                                                 <dt className="font-medium text-gray-900">Ngày đặt</dt>
                                                                 <dd className="mt-1 text-gray-500">
                                                                     <time dateTime={order.createdAt}>
-                                                                        {new Date(order.createdAt).toLocaleDateString('vi-VN', {
-                                                                            year: 'numeric',
-                                                                            month: 'long',
-                                                                            day: 'numeric',
-                                                                        })}
+                                                                        {new Date(order.createdAt).toLocaleDateString(
+                                                                            'vi-VN',
+                                                                            {
+                                                                                year: 'numeric',
+                                                                                month: 'long',
+                                                                                day: 'numeric',
+                                                                            },
+                                                                        )}
                                                                     </time>
                                                                 </dd>
                                                             </div>
@@ -563,7 +573,6 @@ const UserPage = () => {
                                                         </dl>
 
                                                         <div className="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
-
                                                             <div className="text-sm font-medium text-blue-700">
                                                                 <span>
                                                                     {(() => {
@@ -604,13 +613,14 @@ const UserPage = () => {
                                                                             <p className="mt-2 sm:mt-0">
                                                                                 {item.product.price}
                                                                             </p>
-
                                                                         </div>
-                                                                        {item.optionValues && item.optionValues.name && (
-                                                                            <p className="hidden text-gray-500 sm:block sm:mt-2">
-                                                                                Phân loại hàng: {item.optionValues.name}
-                                                                            </p>
-                                                                        )}
+                                                                        {item.optionValues &&
+                                                                            item.optionValues.name && (
+                                                                                <p className="hidden text-gray-500 sm:block sm:mt-2">
+                                                                                    Phân loại hàng:{' '}
+                                                                                    {item.optionValues.name}
+                                                                                </p>
+                                                                            )}
                                                                         <p className="hidden text-gray-500 sm:block sm:mt-2">
                                                                             X{item.quantity}
                                                                         </p>
@@ -618,8 +628,6 @@ const UserPage = () => {
                                                                 </div>
 
                                                                 <div className="mt-6 sm:flex sm:justify-between">
-
-
                                                                     <div className="flex items-center pt-4 mt-6 space-x-4 text-sm font-medium border-t border-gray-200 divide-x divide-gray-200 sm:mt-0 sm:ml-4 sm:border-none sm:pt-0">
                                                                         <div className="flex justify-center flex-1">
                                                                             <a
@@ -629,7 +637,6 @@ const UserPage = () => {
                                                                                 Xem sản phẩm
                                                                             </a>
                                                                         </div>
-
                                                                     </div>
                                                                 </div>
                                                             </li>

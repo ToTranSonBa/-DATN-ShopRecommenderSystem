@@ -18,4 +18,13 @@ const fetchCategories = async () => {
     }
 };
 
-export { ProductsApi, fetchCategories };
+const fetchTop10Seller = async () => {
+    try {
+        const response = await axios.get('https://localhost:7016/api/Sellers/Top10Seller');
+        return response;
+    } catch (error) {
+        console.log('Failed to fetch top 10 seller: ', error);
+        throw error;
+    }
+};
+export { ProductsApi, fetchCategories, fetchTop10Seller };

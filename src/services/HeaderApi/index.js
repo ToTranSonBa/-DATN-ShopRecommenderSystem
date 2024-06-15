@@ -9,4 +9,34 @@ const fetchCategories = async () => {
     }
 };
 
-export { fetchCategories };
+const fetchCartUser = async (token) => {
+    try {
+        const response = await axios.get('https://localhost:7016/api/CartItems/UserCartItems', {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        });
+        console.log('response cart user api: ', response);
+
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch CartUser: ', error);
+        throw error;
+    }
+};
+
+const fetchUserInformation = async (token) => {
+    try {
+        const response = await axios.get('https://localhost:7016/api/Accounts/UserInformation', {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        });
+        return response;
+        console.log('response user information api: ', response);
+    } catch (error) {
+        console.error('Failed to fetch User infomaton: ', error);
+        throw error;
+    }
+};
+export { fetchCategories, fetchCartUser, fetchUserInformation };

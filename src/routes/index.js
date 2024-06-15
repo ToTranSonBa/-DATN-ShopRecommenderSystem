@@ -21,7 +21,7 @@ const publicRoutes = [
     { path: '/shopdashboard', component: SellerDashboard, layout: HeaderOnly },
     { path: '/cartshoppingpage', component: CartShoppingPage },
     { path: '/userpage', component: UserPage },
-    { path: '/shoppage', component: ShopPage },
+    { path: '/shoppage/:id', component: ShopPage },
     { path: '/checkout', component: CheckoutForm },
 ];
 

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import jsVectorMap from 'jsvectormap';
 import 'jsvectormap/dist/jsvectormap.css'; // Import CSS nếu cần
 import '../../us-aea-en'; // Import bản đồ của bạn
+import 'jsvectormap/dist/maps/world.js';
 
 const Map01 = () => {
     useEffect(() => {
@@ -10,7 +11,7 @@ const Map01 = () => {
         if (mapSelector) {
             const mapOne = new jsVectorMap({
                 selector: '#mapOne',
-                map: 'us_aea_en',
+                map: 'world',
                 zoomButtons: true,
 
                 regionStyle: {

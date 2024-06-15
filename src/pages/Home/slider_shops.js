@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { BsChevronCompactLeft, BsChevronCompactRight } from 'react-icons/bs';
-import { RxDotFilled } from 'react-icons/rx';
+import DefaultAVT from '../../assets/default-avatar.png';
 
 // API
-import { fetchCategories } from '../../services/HomeApi/home';
+import { fetchTop10Seller } from '../../services/HomeApi/home';
 
 function SliderShops() {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,19 +13,18 @@ function SliderShops() {
     //
 
     useEffect(() => {
-        const getCategories = async () => {
+        const getTop10Seller = async () => {
             try {
-                const response = await fetchCategories();
-                const categoriesData = response.data;
-
-                createSlides(categoriesData);
+                const response = await fetchTop10Seller();
+                const top10SellerData = response;
+                createSlides(top10SellerData);
             } catch (error) {
                 setError('Failed to fetch categories');
                 console.error('Failed to fetch categories:', error);
             }
         };
 
-        getCategories();
+        getTop10Seller();
     }, []);
 
     const createSlides = (items) => {
@@ -68,60 +66,24 @@ function SliderShops() {
     }
 
     return (
-        <div className="relative min-h-[400px] w-full m-auto lg:px-4 lg:py-16 group ">
+        <div className="relative min-h-[500px] w-full m-auto lg:px-4 lg:py-16 group ">
             <div className="flex items-center justify-around">
                 {error && <div className="error">{error}</div>}
                 {columns.map((column, columnIndex) => (
-                    <div className="w-[150px] h-[150px]" key={columnIndex}>
+                    <div className="w-[200px] h-[200px]" key={columnIndex}>
                         {column.map((item, index) => (
-                            <div
+                            <a
+                                href={`/shoppage/${item.iD_NK}`}
                                 key={index}
                                 className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    className="mx-auto size-9"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-                                    />
-                                </svg>
+                                <div className="mx-auto size-16">
+                                    <img className="rounded-full" src={item.imageUrl ? item.imageUrl : DefaultAVT} />
+                                </div>
 
-                                <div className="mt-2 text-sm text-center lg:px-1">{item.category.name}</div>
-                            </div>
+                                <div className="mt-2 text-sm text-center lg:px-1">{item.name}</div>
+                            </a>
                         ))}
-                    </div>
-                ))}
-            </div>
-
-            {/* Left Arrow */}
-            {currentIndex > 0 && (
-                <div className="hidden lg:mt-6 group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] left-0 text-xl rounded-full p-2 bg-black/30 text-white cursor-pointer backdrop-blur-xl">
-                    <BsChevronCompactLeft onClick={prevSlide} size={20} />
-                </div>
-            )}
-            {/* Right Arrow */}
-            {currentIndex < slides.length - 1 && (
-                <div className="hidden lg:mt-6 group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] right-0 text-xl rounded-full p-2 bg-black/30 text-white cursor-pointer backdrop-blur-xl">
-                    <BsChevronCompactRight onClick={nextSlide} size={20} />
-                </div>
-            )}
-            <div className="absolute flex items-end justify-center w-full py-2 -bottom-4 ">
-                {slides.map((_, slideIndex) => (
-                    <div
-                        key={slideIndex}
-                        onClick={() => setCurrentIndex(slideIndex)}
-                        className={`text-2xl cursor-pointer ${
-                            currentIndex === slideIndex ? 'text-blue-500' : 'text-gray-500'
-                        }`}
-                    >
-                        <RxDotFilled />
                     </div>
                 ))}
             </div>
