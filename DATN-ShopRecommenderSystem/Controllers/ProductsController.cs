@@ -244,6 +244,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
         //    return Ok(pageResult.products);
         //}
+        [HttpGet("GetTopNew")]
+        public async Task<ActionResult> GetToDay()
+        {
+            var result = await _productsService.GetTopNew(5);
+            return Ok(result);
+        }
+        [HttpGet("GetTopPop")]
+        public async Task<ActionResult> GetPopular()
+        {
+            var result = await _productsService.GetPopular(10);
+            return Ok(result);
+        }
     }
-
+    
 }
