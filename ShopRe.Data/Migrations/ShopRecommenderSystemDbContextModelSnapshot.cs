@@ -195,7 +195,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID_NK");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ApplicationUser", b =>
@@ -320,7 +320,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID_NK");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.CartItem", b =>
@@ -366,7 +366,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItem", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Category", b =>
@@ -419,7 +419,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID_NK");
 
-                    b.ToTable("Category");
+                    b.ToTable("Category", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.DetailComment", b =>
@@ -473,7 +473,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("OrderID");
 
-                    b.ToTable("DetailComments");
+                    b.ToTable("DetailComments", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Images", b =>
@@ -494,7 +494,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID_NK");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Order", b =>
@@ -552,7 +552,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ShippingAddressId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.OrderItems", b =>
@@ -589,7 +589,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID_NK");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Product", b =>
@@ -683,7 +683,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID_NK");
 
-                    b.ToTable("Product");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductChild", b =>
@@ -725,7 +725,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID_NK");
 
-                    b.ToTable("ProductChild");
+                    b.ToTable("ProductChild", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOption", b =>
@@ -755,7 +755,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("ProductOptions");
+                    b.ToTable("ProductOptions", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductOptionValues", b =>
@@ -780,7 +780,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("OptionID", "OptionProductID");
 
-                    b.ToTable("ProductOptionValues");
+                    b.ToTable("ProductOptionValues", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ProductRecommendDaily", b =>
@@ -796,7 +796,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("ProductID_NK");
 
-                    b.ToTable("productRecommendDailies");
+                    b.ToTable("productRecommendDailies", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Seller", b =>
@@ -842,7 +842,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID_NK");
 
-                    b.ToTable("Seller");
+                    b.ToTable("Seller", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.SellerPriority", b =>
@@ -894,7 +894,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ShippingAddresses");
+                    b.ToTable("ShippingAddresses", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ShoppingSession", b =>
@@ -921,7 +921,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ShoppingSessions");
+                    b.ToTable("ShoppingSessions", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ShopRecommendDaily", b =>
@@ -937,7 +937,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("SellerID_NK");
 
-                    b.ToTable("shopRecommendDailies");
+                    b.ToTable("shopRecommendDailies", (string)null);
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.user_s_log.UserLog", b =>
@@ -972,7 +972,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLog");
+                    b.ToTable("UserLog", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

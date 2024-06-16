@@ -1,19 +1,11 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using static ShopRe.Service.ElasticSearchsService;
-using static ShopRe.Service.ProductService;
 
 namespace ShopRe.Service
 {
@@ -686,7 +678,7 @@ namespace ShopRe.Service
                 foreach (var item in latestProduct)
                 {
                     var productDetail = new ProductDetailDTO();
-                    var images = await _dbContext.Images.Where(i => i.Product.ID_NK == item.ID_NK).ToListAsync();
+                    var images = await _dbContext.Images.Where(i => i.ProductID_NK == item.ID_NK).ToListAsync();
 
                     productDetail.Product = _mapper.Map<ProductDTO>(item);
                     productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
