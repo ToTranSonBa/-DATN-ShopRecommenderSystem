@@ -44,7 +44,7 @@ namespace ShopRe.Data.Repositories
 
             return pagedData;
         }
-        public async Task<IEnumerable<Product>> GetTopNew(int number)
+        public async Task<List<Product>> GetTopNew(int number)
         {
             return await context.Products
                     .Where(p => p.CreatedAt.HasValue && p.CreatedAt.Value.Date == DateTime.Today)
@@ -52,7 +52,7 @@ namespace ShopRe.Data.Repositories
                     .Take(number)
                     .ToListAsync();
         }
-        public async Task<IEnumerable<Product>> GetProductPopular(int number)
+        public async Task<List<Product>> GetProductPopular(int number)
         {
             var firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             // Lấy ngày cuối cùng của tháng hiện tại

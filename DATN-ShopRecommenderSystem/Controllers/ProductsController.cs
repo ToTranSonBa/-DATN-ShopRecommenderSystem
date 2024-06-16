@@ -85,7 +85,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     var newlog = new UserLogDto
                     {
                         User = user,
-                        LogRate = LogRate._1MIN,
+                        LogRate = LogRate._1MIN, 
                         Detail = productParameters.ProductName,
                         SellerId = null
                     };

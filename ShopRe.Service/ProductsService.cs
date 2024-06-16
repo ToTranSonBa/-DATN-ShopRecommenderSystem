@@ -9,6 +9,7 @@ using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
+using ShopRe.Common.DTOs;
 using System.Linq.Expressions;
 
 namespace ShopRe.Service
@@ -31,9 +32,9 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
-        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
-        public Task<IEnumerable<Product>> GetTopNew(int number);
-        public Task<IEnumerable<Product>> GetPopular(int number);
+        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams);
+        public Task<List<ProductWithImages>> GetTopNew(int number);
+        public Task<List<ProductWithImages>> GetPopular(int number);
     }
     public class ProductService : IProductService
     {
@@ -430,14 +431,34 @@ namespace ShopRe.Service
 
             return products;
         }
-        public async Task<IEnumerable<Product>> GetTopNew(int number)
+        public async Task<List<ProductWithImages>> GetTopNew(int number)
         {
-
-            return await _productRepository.GetTopNew(number);
+            
+                return await _productRepository.GetTopNew(number);
         }
-        public async Task<IEnumerable<Product>> GetPopular(int number)
+        public async Task<List<ProductWithImages>> GetPopular(int number)
         {
-            return await _productRepository.GetProductPopular(number);
+            var result = await _productRepository.GetProductPopular(number);
+            var product = ConvertToProductWithImages(result);
+            return await product;
+        }
+        private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
+        {
+            var products = new List<ProductWithImages>();
+            foreach (dynamic document in documents)
+            {
+                var product = new ProductWithImages
+                {
+                    ID_NK = document.ID_NK,
+                    Name = document.Name,
+                    Price = document.Price,
+                    RatingAverage = document.RatingAverage,
+                    RatingCount = document.RatingCount
+                };
+                product.Images= await _dbContext.Images.Where(i=>i.ProductID_NK == product.ID_NK).Select(i=>i.Image).ToListAsync() ;
+                products.Add(product);
+            }
+            return products.ToList();
         }
 
         private async Task<List<Product>> GetProductByCate(int cateId, List<int> ProIds, int quantity)
