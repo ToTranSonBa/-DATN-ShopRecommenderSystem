@@ -23,16 +23,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _detailCommentService = detailCommentService;
         }
 
-        [HttpGet("Product{id}")]
-        public async Task<ActionResult> GetCommentsOfProduct([FromQuery] CommentParameters commentParameters, int id)
-        {
-            var res = await _elasticsearchService.DetailComments(commentParameters, id);
-            if (res == null)
-            {
-                return NotFound();
-            }
-            return Ok(res);
-        }
+        //[HttpGet("Product{id}")]
+        //public async Task<ActionResult> GetCommentsOfProduct([FromQuery] CommentParameters commentParameters, int id)
+        //{
+        //    var res = await _elasticsearchService.DetailComments(commentParameters, id);
+        //    if (res == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok(res);
+        //}
 
         [HttpGet("RattingCount/Product{id}")]
         public async Task<ActionResult> GetAllCountRattingCommentsOfProduct(int id)
@@ -59,7 +59,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var pageResult = await _detailCommentService.GetAllOnePro(id, commentParameters, false);
             Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
 
-            return Ok(pageResult.comments);
+            var reponse = new
+            {
+                Total = pageResult.total,
+                Comment = pageResult.comments,
+            };
+
+            return Ok(reponse);
         }
 
         // GET: api/detailcomments/5

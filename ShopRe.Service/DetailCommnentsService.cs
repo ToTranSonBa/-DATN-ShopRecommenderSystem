@@ -4,6 +4,8 @@ using ShopRe.Common.RequestFeatures;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
+using ShopRe.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopRe.Service
 {
@@ -11,7 +13,7 @@ namespace ShopRe.Service
     {
         Task<IEnumerable<DetailComment>> GetAll();
         Task<IQueryable<DetailComment>> GetAll(bool trackChanges);
-        Task<(IEnumerable<CommentDTO> comments, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
+        Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
         Task<DetailComment> GetById(int id);
         Task<DetailComment> Add(DetailComment entity);
         Task<int> AddRange(IEnumerable<DetailComment> entities);
@@ -22,10 +24,12 @@ namespace ShopRe.Service
     public class DetailCommentService : IDetailCommentService
     {
         private readonly IDetailCommentRepository _detailCommentRepository;
+        private readonly ShopRecommenderSystemDbContext _dbContext;
 
-        public DetailCommentService(IDetailCommentRepository detailCommentRepository)
+        public DetailCommentService(IDetailCommentRepository detailCommentRepository, ShopRecommenderSystemDbContext dbContext)
         {
             _detailCommentRepository = detailCommentRepository;
+            _dbContext = dbContext;
         }
 
         public Task<DetailComment> Add(DetailComment entity)
@@ -67,8 +71,9 @@ namespace ShopRe.Service
         {
             return _detailCommentRepository.Update(entity);
         }
-        public async Task<(IEnumerable<CommentDTO> comments, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
+        public async Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
         {
+            var total = await _dbContext.DetailComments.Where(c => c.ProductID == productId).CountAsync();
             var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters,trackChanges);
             var commentDTO = commentWithMetadata.Select(e => new CommentDTO
             {
@@ -82,7 +87,7 @@ namespace ShopRe.Service
                 CreatedAt = e.CreatedAt,
                 //userName = e.Order.Account.Username
             });
-            return (products: commentDTO, metaData: commentWithMetadata.MetaData);
+            return (products: commentDTO, total, metaData: commentWithMetadata.MetaData);
         }
     }
 }
