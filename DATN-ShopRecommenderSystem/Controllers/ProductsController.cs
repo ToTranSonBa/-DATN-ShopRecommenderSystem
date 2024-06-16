@@ -43,55 +43,38 @@ namespace DATN_ShopRecommenderSystem.Controllers
         {
             try
             {
-                var (product, totalCount) = await _elasticSearchService.ProductAfterTraining(productParameters);
-
-                var productResponse = new
-                {
-                    Product = product,
-                    TotalCount = totalCount
-                };
-
-                return Ok(productResponse);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
-            }
-        }
-        // GET: api/products
-
-        [HttpGet("GetAllProducts")]
-        public async Task<ActionResult> GetAll([FromQuery] ProductParameters productParameters)
-        {
-            try
-            {
-                var product = await _elasticSearchService.GetAllAsync(productParameters);
+                // Get token from the Authorization header
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
-                    var newlog = new UserLogDto
+                    var (product, totalCount, brands, categories) = await _elasticSearchService.GetAllAsync(productParameters);
+                    var productResponse = new
                     {
-                        LogRate = LogRate._1MIN,
-                        Detail = productParameters.ProductName,
-                        SellerId = null
+                        TotalCount = totalCount,
+                        Brands = brands,
+                        Categories = categories,
+                        Product = product
                     };
-                    await _logService.addSearch(newlog);
+                    return Ok(productResponse);
                 }
                 else
                 {
                     var token = authHeader.Substring("Bearer ".Length).Trim();
 
+                    // Get user from token
                     var user = await _accountService.GetUserFromTokenAsync(token);
-                    var newlog = new UserLogDto
+
+                    var (product, totalCount, brands, categories) = await _elasticSearchService.ProductAfterTraining(productParameters);
+                    var productResponse = new
                     {
-                        User = user,
-                        LogRate = LogRate._1MIN, 
-                        Detail = productParameters.ProductName,
-                        SellerId = null
+                        TotalCount = totalCount,
+                        Brands = brands,
+                        Categories = categories,
+                        Product = product
                     };
-                    await _logService.addSearch(newlog);
+                    return Ok(productResponse);
                 }
-                return Ok(product);
+
             }
             catch (Exception ex)
             {

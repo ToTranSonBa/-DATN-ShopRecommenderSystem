@@ -11,14 +11,15 @@ namespace ShopRe.Service
 {
     public interface IElasticSearchService
     {
-        Task<ProductResponse> GetAllAsync(ProductParameters productParameters);
+        Task<(List<Product> Products, int TotalCount, List<Brand> brands, List<Category> categories)> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
-        Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters);
+        Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters);
         Task<List<BrandDetailDTO>> GetBrands();
         Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId);
         Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct);
         Task<SellerDTO> GetLastestProductsOfSellerById(SellerParameters sellerParameters, int id);
         Task<SellerDTO> GetTopQuantitySoldProductsOfSellerById(SellerParameters sellerParameters, int id);
+        Task<SellerDTO> GetProductsBySeller(SellerParameters sellerParameters, int id);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -131,29 +132,114 @@ namespace ShopRe.Service
         }
 
         //
-        public async Task<(List<dynamic> Products, int TotalCount)> ProductAfterTraining(ProductParameters productParameters)
+
+        public async Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters)
         {
+            var filters = new List<QueryContainer>();
+
+            if (!string.IsNullOrEmpty(productParameters.ProductName))
+            {
+                filters.Add(new MatchPhraseQuery
+                {
+                    Field = "Name",
+                    Query = productParameters.ProductName
+                });
+            }
+
+            if (productParameters.CategoryIds.Any())
+            {
+                filters.Add(new TermsQuery
+                {
+                    Field = "Category_LV0_NK",
+                    Terms = productParameters.CategoryIds.Select(id => (object)id)
+                });
+            }
+
+            if (productParameters.BrandIds.Any())
+            {
+                filters.Add(new TermsQuery
+                {
+                    Field = "BrandID_NK",
+                    Terms = productParameters.BrandIds.Select(id => (object)id)
+                });
+            }
+
+            if (productParameters.MinPrice.HasValue || productParameters.MaxPrice.HasValue)
+            {
+                filters.Add(new NumericRangeQuery
+                {
+                    Field = "Price",
+                    GreaterThanOrEqualTo = (double)productParameters.MinPrice,
+                    LessThanOrEqualTo = (double)productParameters.MaxPrice
+                });
+            }
+
+            if (productParameters.MinReviewRating.HasValue)
+            {
+                filters.Add(new NumericRangeQuery
+                {
+                    Field = "RatingAverage",
+                    GreaterThanOrEqualTo = productParameters.MinReviewRating
+                });
+            }
+
+            var countResponse = await _elasticClient.CountAsync<object>(s => s
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
+                    )
+                )
+            );
+
+            var count = Convert.ToInt32(countResponse.Count);
 
             var response = await _elasticClient.SearchAsync<object>(s => s
                 .Index("shoprecommend")
+                .Size(count)
                 .Query(q => q
-                    .Term(t => t
-                        .Field("Name")
-                        .Value(productParameters.ProductName)
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
                     )
                 )
-                .Size(10000)
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
             );
 
-            if (!response.IsValid)
+            var all_response = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("shoprecommend")
+                    .Size(count)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(mu => mu
+                                .MatchAll()
+                            )
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                );
+
+            if (!response.IsValid || !all_response.IsValid)
             {
-                return (new List<dynamic>(), 0);
+                return (null, 0, null, null);
             }
 
 
             var products = ConvertToProduct(response.Documents.ToList());
-            var sellerIds = products.Select(p => p.SellerID_NK).ToList();
+            var all_products = ConvertToProduct(all_response.Documents.ToList());
 
+            var sellerIds = products.Select(p => p.SellerID_NK).ToList();
+            var brandIds = all_products.Select(p => p.BrandID_NK).Distinct().ToList();
+            var categoryIds = all_products.Select(p => p.Category_LV0_NK).Distinct().ToList();
 
             var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("accselpri")
@@ -174,7 +260,7 @@ namespace ShopRe.Service
 
             if (!priorityItems.IsValid)
             {
-                return (new List<dynamic>(), 0);
+                return (null, 0, null, null);
             }
 
 
@@ -195,16 +281,34 @@ namespace ShopRe.Service
                         IDX = priority.Idx
                     });
                 }
+                else
+                {
+                    combinedResults.Add(new
+                    {
+                        Product = product,
+                        IDX = 0
+                    });
+                }
             }
 
-            var sortedResults = combinedResults.OrderBy(r => r.IDX).Take(20).ToList();
+            var sortedResults = combinedResults.OrderBy(r => r.IDX)
+            .Skip(productParameters.PageNumber * productParameters.PageSize)
+            .Take(productParameters.PageSize)
+            .ToList();
 
-            var totalCount = (int)combinedResults.Count();
 
-            return (sortedResults, totalCount);
+            var brands = await _dbContext.Brands
+                .Where(b => brandIds.Contains(b.ID_NK))
+                .ToListAsync();
+
+            var categories = await _dbContext.Category
+                .Where(c => categoryIds.Contains(c.ID_NK))
+                .ToListAsync();
+
+            return (sortedResults, count, brands, categories);
         }
 
-        public async Task<ProductResponse> GetAllAsync(ProductParameters productParameters)
+        public async Task<(List<Product> Products, int TotalCount, List<Brand> brands, List<Category> categories)> GetAllAsync(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
 
@@ -268,7 +372,7 @@ namespace ShopRe.Service
                 )
                 .Aggregations(a => a
                     .ValueCount("total_products", vc => vc
-                            .Field("ID_NK") // Use the string literal for the field name
+                            .Field("ID_NK")
                     )
                 )
                 .Sort(ss => ss
@@ -286,41 +390,45 @@ namespace ShopRe.Service
                 )
             );
 
-            if (!response.IsValid)
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products").Value);
+
+            var all_response = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("shoprecommend")
+                    .Size(totalProducts)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(mu => mu
+                                .MatchAll()
+                            )
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                );
+
+            if (!response.IsValid || !all_response.IsValid)
             {
-                return new ProductResponse
-                {
-                    Products = new List<Product>(),
-                    TotalCount = 0
-                };
+                return (null, 0, null, null);
             }
 
-            var documents = ConvertToProduct(response.Documents.ToList());
+            var products = ConvertToProduct(response.Documents.ToList());
+            var products_infor = ConvertToProduct(all_response.Documents.ToList());
 
-            //var products = new List<ProductDto>();
+            var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
+            var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
 
-            //foreach (var product in documents)
-            //{
-            //    var images = await _dbContext.Images
-            //        .Where(img => img.Product.ID_NK == product.ID_NK)
-            //        .ToListAsync();
+            var brands = await _dbContext.Brands
+               .Where(b => brandIds.Contains(b.ID_NK))
+               .ToListAsync();
 
-            //    var productWithChildDto = new ProductDto
-            //    {
-            //        Product = product,
-            //        Images = images
-            //    };
+            var categories = await _dbContext.Category
+                .Where(c => categoryIds.Contains(c.ID_NK))
+                .ToListAsync();
 
-            //    products.Add(productWithChildDto);
-            //}
 
-            var totalProducts = response.Aggregations.ValueCount("total_products").Value;
-            return new ProductResponse
-            {
-                Products = documents,
-                TotalCount = Convert.ToInt32(totalProducts)
-            };
+
+            return (products, totalProducts, brands, categories);
         }
+
 
         public async Task<IEnumerable<Product>> GetByIdAsync(int id)
         {
@@ -786,7 +894,74 @@ namespace ShopRe.Service
             );
             return new List<Product>();
         }
+        public async Task<SellerDTO> GetProductsBySeller(SellerParameters sellerParameters, int id)
+        {
+            var res = await _dbContext.Sellers.FindAsync(id);
+            if (res == null)
+            {
+                return null;
+            }
 
+            var seller = _mapper.Map<SellerDTO>(res);
+
+            var countResponse = await _elasticClient.CountAsync<object>(c => c
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("SellerID_NK").Value(id))
+                        )
+                    )
+                )
+            );
+
+            if (countResponse.IsValid)
+            {
+                seller.Total = Convert.ToInt32(countResponse.Count);
+            }
+            else
+            {
+                seller.Total = 0;
+            }
+
+            var searchResponse = await _elasticClient.SearchAsync<object>(s => s
+                .Index("shoprecommend")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("SellerID_NK").Value(id))
+                        )
+                    )
+                )
+                .From(sellerParameters.PageNumber * sellerParameters.PageSize)
+                .Size(sellerParameters.PageSize)
+            );
+
+            var listProductDetail = new List<ProductDetailDTO>();
+
+            if (searchResponse.IsValid && searchResponse.Documents.Any())
+            {
+                var latestProduct = ConvertToProduct(searchResponse.Documents.ToList());
+                foreach (var item in latestProduct)
+                {
+                    var productDetail = new ProductDetailDTO();
+                    var images = await _dbContext.Images.Where(i => i.Product.ID_NK == item.ID_NK).ToListAsync();
+
+                    productDetail.Product = _mapper.Map<ProductDTO>(item);
+                    productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
+
+                    listProductDetail.Add(productDetail);
+                }
+
+                seller.Products = listProductDetail;
+            }
+            else
+            {
+                seller.Products = null;
+            }
+
+            return seller;
+        }
 
     }
 }

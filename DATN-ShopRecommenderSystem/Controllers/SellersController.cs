@@ -32,6 +32,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(res);
         }
 
+        // GET
+        [HttpGet("Products/{idSeller}")]
+        public async Task<ActionResult<SellerDTO>> GetProductsBySeller([FromQuery] SellerParameters sellerParameters, int idSeller)
+        {
+            var seller = await _elasticsearchService.GetProductsBySeller(sellerParameters, idSeller);
+            if (seller == null)
+            {
+                return NotFound();
+            }
+            return Ok(seller);
+        }
+
         // GET: api/sellers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SellerDTO>> GetSeller(int id)
