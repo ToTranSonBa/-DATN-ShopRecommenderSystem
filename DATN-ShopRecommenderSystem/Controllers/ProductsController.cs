@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
@@ -18,13 +19,23 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IElasticSearchService _elasticSearchService;
         private readonly IAccountService _accountService;
         private readonly ILogService _logService;
-        public ProductsController(ILogService logService, IAccountService accountService, IProductService productsService, ILogger<ProductsController> logger, IElasticSearchService elasticSearchService)
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProductsController(ILogService logService,
+            IAccountService accountService,
+            IProductService productsService,
+            ILogger<ProductsController> logger,
+            IElasticSearchService elasticSearchService,
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
         {
             _productsService = productsService;
             _logger = logger;
             _elasticSearchService = elasticSearchService;
             _accountService = accountService;
             _logService = logService;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
@@ -167,7 +178,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("RecommendProduct")]
         public async Task<ActionResult> logProductView(RecommendParamaters paramaters)
         {
-            var results = await _productsService.GetRecommendProductAsync(paramaters);
+            int userCode = 0;
+            if (_signInManager.IsSignedIn(User))
+            {
+                var userId = _userManager.GetUserId(User);
+                userCode = (await _userManager.FindByIdAsync(userId)).TrainCode;
+            }
+
+
+            var results = await _productsService.GetRecommendProductAsync(paramaters, userCode);
             if (results.Count() == 0)
             {
                 return NoContent();
@@ -257,5 +276,5 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(result);
         }
     }
-    
+
 }

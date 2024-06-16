@@ -197,9 +197,7 @@ namespace ShopRe.Service
                 }
             }
 
-
             var sortedResults = combinedResults.OrderBy(r => r.IDX).Take(20).ToList();
-
 
             var totalCount = (int)combinedResults.Count();
 
@@ -763,5 +761,32 @@ namespace ShopRe.Service
 
             return seller;
         }
+        public async Task<List<Product>> GetProductByCate(int cateId)
+        {
+            var countResponse = await _elasticClient.SearchAsync<object>(c => c
+                .Index("shoprecommend")
+                .Size(10)
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(p => p.Field("Category_LV0_NK").Value(cateId))
+                        )
+                    )
+                )
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("RatingCount")
+                        .Order(SortOrder.Descending)
+                    )
+                    .Field(f => f
+                        .Field("RatingAverage")
+                        .Order(SortOrder.Descending)
+                    )
+                )
+            );
+            return new List<Product>();
+        }
+
+
     }
 }

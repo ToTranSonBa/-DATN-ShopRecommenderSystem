@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data.Infrastructure;
 using ShopRe.Model.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ShopRe.Common;
-using ShopRe.Common.RequestFeatures;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace ShopRe.Data.Repositories
@@ -19,6 +13,10 @@ namespace ShopRe.Data.Repositories
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
         Task<IEnumerable<Product>> GetTopNew(int number);
         Task<IEnumerable<Product>> GetProductPopular(int number);
+        Task<List<Product>> GetProductByCateId(int cateId);
+        Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity);
+
+
     }
     public class ProductRepository : RepositoryBase<Product>, IProductRepository
     {
@@ -72,6 +70,22 @@ namespace ShopRe.Data.Repositories
                     .Where(p => topProductIDs.Contains(p.ID_NK))
                     .ToListAsync();
             return topProducts;
+        }
+        public async Task<List<Product>> GetProductByCateId(int cateId)
+        {
+            return await context.Products.Where(p => p.Category_LV0_NK == cateId)
+                .OrderBy(e => e.RatingCount)
+                .ThenBy(e => e.RatingAverage)
+                .Take(10)
+                .ToListAsync();
+        }
+        public async Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity)
+        {
+            return await context.Products.Where(p => p.Category_LV0_NK == cateId && !proIds.Contains(p.ID_NK))
+                .OrderBy(e => e.RatingCount)
+                .ThenBy(e => e.RatingAverage)
+                .Take(quantity)
+                .ToListAsync();
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Data.Repositories;
@@ -30,7 +31,7 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
-        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams);
+        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
         public Task<IEnumerable<Product>> GetTopNew(int number);
         public Task<IEnumerable<Product>> GetPopular(int number);
     }
@@ -127,7 +128,7 @@ namespace ShopRe.Service
         {
             public ProductOption? Option { get; set; }
             public List<ProductOptionValues> ProductOptionValues { get; set; } = new List<ProductOptionValues>();
-            public List<ProductChild> ProductChildren { get; set; } = new List<ProductChild> ();
+            public List<ProductChild> ProductChildren { get; set; } = new List<ProductChild>();
         }
         public class ProductDetail
         {
@@ -191,7 +192,7 @@ namespace ShopRe.Service
                 var optionValues = await _dbContext.ProductOptionValues.Where(p => p.Option == option).ToListAsync();
 
                 var productChildNames = optionValues.Select(ov => ov.Name).ToList();
-                
+
                 var productChildren = await _dbContext.ProductChild
                     .Where(pc => (productChildNames.Contains(pc.option1) || productChildNames.Contains(pc.option2) ||
                           productChildNames.Contains(pc.option3) || productChildNames.Contains(pc.option4)) &&
@@ -379,47 +380,100 @@ namespace ShopRe.Service
             return selprios.OrderBy(s => s.Idx).ToList();
         }
 
-        public async Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams)
+        public async Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode)
         {
-            var requestUri = $"http://127.0.0.1:8000/get/RecommendProduct?productId={reParams.productId}&cateid={reParams.CateId}";
+            var requestUri = $"http://127.0.0.1:8000/get/RecommendProduct?userid={userCode}&productId={reParams.productId}&cateid={reParams.CateId}";
 
+            var products = new List<Product>();
+            JObject result;
             try
             {
-                var products = new List<Product>();
                 var response = await _httpClient.GetAsync(requestUri);
                 response.EnsureSuccessStatusCode();
-
                 var content = await response.Content.ReadAsStringAsync();
-                var result = JObject.Parse(content);
+                result = JObject.Parse(content);
+            }
+            catch
+            {
+                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
 
-                if ((int)result["total"] == 0)
+            }
+
+            int total = (int)result["total"];
+
+            if (total == 0)
+            {
+                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
+            }
+
+            var productIds = new List<int>();
+            try
+            {
+                foreach (int productId in result["products"])
                 {
-                    return new List<Product>();
-                }
-
-                var productIds = result["products"];
-                foreach (var productId in productIds)
-                {
-                    var product = await _productRepository.GetById((int)productId);
-
+                    productIds.Add(productId);
+                    var product = await _productRepository.GetById(productId);
                     products.Add(product);
                 }
-
-                return products;
             }
-            catch (HttpRequestException ex)
+            catch
             {
-                return new List<Product>();
+                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
             }
+
+            var productDif = new List<Product>();
+            if (total < 10)
+            {
+                productDif = await GetProductByCate(reParams.CateId, productIds, 10 - total);
+            }
+            products.AddRange(productDif);
+
+            return products;
         }
         public async Task<IEnumerable<Product>> GetTopNew(int number)
         {
-            
-                return await _productRepository.GetTopNew(number);
+
+            return await _productRepository.GetTopNew(number);
         }
         public async Task<IEnumerable<Product>> GetPopular(int number)
         {
             return await _productRepository.GetProductPopular(number);
+        }
+
+        private async Task<List<Product>> GetProductByCate(int cateId, List<int> ProIds, int quantity)
+        {
+
+            var response = await _elasticClient.SearchAsync<object>(c => c
+                .Index("shoprecommend")
+                .Size(quantity)
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(p => p.Field("Category_LV0_NK").Value(cateId)))
+                        .MustNot(filter => ProIds.Count == 0 ? null : filter
+                            .Term(p => p
+                                .Field("ID_NK").Value(ProIds)
+                             )
+                        )
+                    )
+                )
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("RatingCount")
+                        .Order(SortOrder.Descending)
+                    )
+                    .Field(f => f
+                        .Field("RatingAverage")
+                        .Order(SortOrder.Descending)
+                    )
+                )
+            );
+            if (!response.IsValid)
+            {
+                return new List<Product>();
+            }
+            var products = FunctionCommon.ConvertToProduct(response.Documents.ToList());
+            return products;
         }
     }
 }
