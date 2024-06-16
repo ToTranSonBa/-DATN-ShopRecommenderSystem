@@ -11,8 +11,8 @@ namespace ShopRe.Data.Repositories
     {
         Task<PagedList<Product>?> GetAllProduct(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
-        Task<IEnumerable<Product>> GetTopNew(int number);
-        Task<IEnumerable<Product>> GetProductPopular(int number);
+        Task<List<Product>> GetTopNew(int number);
+        Task<List<Product>> GetProductPopular(int number);
         Task<List<Product>> GetProductByCateId(int cateId);
         Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity);
 

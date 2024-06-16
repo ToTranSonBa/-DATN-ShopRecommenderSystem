@@ -32,7 +32,7 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
-        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams);
+        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
         public Task<List<ProductWithImages>> GetTopNew(int number);
         public Task<List<ProductWithImages>> GetPopular(int number);
     }
@@ -434,13 +434,15 @@ namespace ShopRe.Service
         public async Task<List<ProductWithImages>> GetTopNew(int number)
         {
             
-                return await _productRepository.GetTopNew(number);
+                var result = await _productRepository.GetTopNew(number);
+                var product = await ConvertToProductWithImages(result);
+                return product;
         }
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
             var result = await _productRepository.GetProductPopular(number);
-            var product = ConvertToProductWithImages(result);
-            return await product;
+            var product = await ConvertToProductWithImages(result);
+            return  product;
         }
         private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
         {
