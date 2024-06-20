@@ -27,4 +27,15 @@ const fetchTop10Seller = async () => {
         throw error;
     }
 };
-export { ProductsApi, fetchCategories, fetchTop10Seller };
+
+const fetchTopPopProducts = async () => {
+    try {
+        const response = await axios.get('https://localhost:7016/api/Products/GetTopPop');
+        return response;
+    } catch (error) {
+        console.log('Failed to fetch Top product in home page: ', error);
+        throw error;
+    }
+};
+
+export { ProductsApi, fetchCategories, fetchTop10Seller, fetchTopPopProducts };

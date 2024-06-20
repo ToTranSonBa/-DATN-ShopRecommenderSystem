@@ -11,6 +11,7 @@ import CartShoppingPage from '../pages/CartsShoppingPage/CartShoppingPage';
 import UserPage from '../pages/UserPage/UserPage';
 import ShopPage from '../pages/ShopPage';
 import CheckoutForm from '../pages/CheckoutForm/CheckoutForm';
+import AdminDoashBoardManager from '../pages/AdminDoashboard';
 
 const publicRoutes = [
     { path: '/', component: Home },
@@ -23,6 +24,7 @@ const publicRoutes = [
     { path: '/userpage', component: UserPage },
     { path: '/shoppage/:id', component: ShopPage },
     { path: '/checkout', component: CheckoutForm },
+    { path: '/admin', component: AdminDoashBoardManager, layout: HeaderOnly },
 ];
 
 export { publicRoutes };

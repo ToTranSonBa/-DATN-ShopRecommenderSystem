@@ -5,6 +5,8 @@ const Trade = () => {
     return (
         <div className="relative w-full ">
             <img
+                data-twe-lazy-load-init
+                data-twe-lazy-src
                 className="hidden w-full h-full border-transparent lg:pd-20 md:block md:max-lg:object-cover md:max-lg:min-h-3/4 md:max-lg:h-imgBG"
                 src={HomeBG_Cart}
                 alt="This is home background"

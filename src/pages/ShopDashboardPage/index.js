@@ -8,7 +8,7 @@ import Calendar from './components/calendar';
 import Profile from './profile';
 import FormElement from './components/forms/form-elements';
 import FormLayout from './components/forms/form-layout';
-import FormAddProduct from './components/forms/form-add-product';
+import FormProductManager from './components/forms/form-product';
 import TableProduct from './components/tables/table-02';
 import TableOrder from './components/tables/table-01';
 import SellerSettings from './settings';
@@ -24,7 +24,10 @@ function SellerDashboard() {
                 </side>
                 <div className="w-full h-auto">
                     <header className="z-10 w-full">
-                        <DoashboardHeader />
+                        <DoashboardHeader
+                            useroption={setUserOption}
+                            setDropdownDashboardOpen={setDropdownDashboardOpen}
+                        />
                     </header>
                     <main className="w-full h-auto">
                         {useroption === 'ecommercedoashboard' && <ECommerceDoashboard />}
@@ -35,7 +38,7 @@ function SellerDashboard() {
                         {useroption === 'tableproduct' && <TableProduct />}
                         {useroption === 'tableorder' && <TableOrder />}
                         {useroption === 'settings' && <SellerSettings />}
-                        {useroption === 'formaddproduct' && <FormAddProduct />}
+                        {useroption === 'formaddproduct' && <FormProductManager />}
                     </main>
                 </div>
             </div>

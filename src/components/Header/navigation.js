@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Fragment, useState, useEffect, useCallback } from 'react';
 import Logo from '../../assets/BrandLogos/Logo.png';
 import MaxWidthWrapper from '../MaxWidthWrapper';
 import Search from './search';
 import Vietnam from '../../assets/vn.png';
 import DefaultAVT from '../../assets/default-avatar.png';
-
+//
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+//
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -16,13 +19,43 @@ import { userApi } from '../../services/UserApi/userApi';
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
 }
-
+// format number
+const formatNumber = (number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+};
+const products = [
+    {
+        id: 1,
+        name: 'Throwback Hip Bag',
+        href: '#',
+        color: 'Salmon',
+        price: '$90.00',
+        quantity: 1,
+        imageSrc: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg',
+        imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
+    },
+    {
+        id: 2,
+        name: 'Medium Stuff Satchel',
+        href: '#',
+        color: 'Blue',
+        price: '$32.00',
+        quantity: 1,
+        imageSrc: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg',
+        imageAlt:
+            'Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.',
+    },
+    // More products...
+];
 const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => {
+    const [open, setOpen] = useState(true);
+    //
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const [isMenuUserOpen, setIsMenuUserOpen] = useState(false);
     const [isHoverCart, setIsHoverCart] = useState(false);
     const [itemInCart, setItemInCart] = useState(0);
+    const [listsItemCart, setListsItemCart] = useState([]);
     const [error, setError] = useState(null);
     const [userInfor, setUserInfor] = useState([]);
     const handleMouseOnHoverMenuUser = () => {
@@ -32,18 +65,12 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
         setIsMenuUserOpen(false);
     };
 
-    const handleMouseOnCart = () => {
-        // if (onHover) {
-        //     onHover();
-        // }
-        setIsHoverCart(true);
+    const handleMouseOutCart = () => {
+        setIsHoverCart(false);
     };
 
-    const handleMouseOutCart = () => {
-        // if (onLeave) {
-        //     onLeave();
-        // }
-        setIsHoverCart(false);
+    const handleMouseOnCart = () => {
+        setIsHoverCart(true);
     };
     const handleLogout = () => {
         localStorage.clear();
@@ -76,8 +103,7 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
     const getCartUser = useCallback(async () => {
         try {
             const response = await fetchCartUser(token);
-            console.log('response cart item: ', response.data);
-
+            setListsItemCart(response.data);
             // Lấy chiều dài của mảng trả về từ API
             const itemInCartAPI = response.data.length;
 
@@ -118,9 +144,7 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
                                 {token ? (
                                     <div className="flex items-center lg:gap-12">
                                         <div
-                                            onMouseOver={handleMouseOnCart}
-                                            onMouseOut={handleMouseOutCart}
-                                            onClick={goToCart}
+                                            onClick={handleMouseOnCart}
                                             className="relative flex items-center justify-center h-16 mx-auto "
                                         >
                                             <div
@@ -149,73 +173,183 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
                                                 </span>
                                             </span>
 
-                                            {/* {isHoverCart && (
-                        <div className="absolute z-50 bg-gray-100 rounded-sm -right-10 w-96 top-10 lg:px-2 lg:py-2">
-                          <span className="font-light text-gray-500">
-                            Sản phẩm mới thêm
-                          </span>
-                          <div className="lg:py-1">
-                            <div className="flex lg:gap-2 lg:py-1">
-                              <img className="size-10" src={Logo} />
-                              <div className="flex justify-between lg:gap-2 ">
-                                <p className="w-64 overflow-hidden text-ellipsis whitespace-nowrap">
-                                  thời giant trang namm oafoas dhfahsdh ashfa
-                                  shfa shfashf aishf aio
-                                </p>
-                                <span className="ml-auto font-light text-red-500">
-                                  56.220
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex lg:gap-2 lg:py-1">
-                              <img className="size-10" src={Logo} />
-                              <div className="flex justify-between lg:gap-2 ">
-                                <p className="w-64 overflow-hidden text-ellipsis whitespace-nowrap">
-                                  thời giant trang namm oafoas dhfahsdh ashfa
-                                  shfa shfashf aishf aio
-                                </p>
-                                <span className="ml-auto font-light text-red-500">
-                                  56.220
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex lg:gap-2 lg:py-1">
-                              <img className="size-10" src={Logo} />
-                              <div className="flex justify-between lg:gap-2 ">
-                                <p className="w-64 overflow-hidden text-ellipsis whitespace-nowrap">
-                                  thời giant trang namm
-                                </p>
-                                <span className="font-light text-red-500 ">
-                                  56.220
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex lg:gap-2 lg:py-1">
-                              <img className="size-10" src={Logo} />
-                              <div className="flex justify-between lg:gap-2 ">
-                                <p className="w-64 overflow-hidden text-ellipsis whitespace-nowrap">
-                                  thời giant trang namm oafoas dhfahsdh ashfa
-                                  shfa shfashf aishf aio
-                                </p>
-                                <span className="ml-auto font-light text-red-500">
-                                  56.220
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-light text-gray-500">
-                              12 thêm hàng vào giỏ
-                            </span>
-                            <button
-                              onClick={goToCart}
-                              className="text-sm text-white rounded-md bg-primary lg:px-2 lg:py-2"
-                            >
-                              Xem giỏ hàng
-                            </button>
-                          </div>
-                        </div>
-                      )} */}
+                                            <Transition show={isHoverCart}>
+                                                <Dialog className="relative z-[100]" onClose={setIsHoverCart}>
+                                                    <TransitionChild
+                                                        enter="ease-in-out duration-500"
+                                                        enterFrom="opacity-0"
+                                                        enterTo="opacity-100"
+                                                        leave="ease-in-out duration-500"
+                                                        leaveFrom="opacity-100"
+                                                        leaveTo="opacity-0"
+                                                    >
+                                                        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                                    </TransitionChild>
+
+                                                    <div className="fixed inset-0 overflow-hidden">
+                                                        <div className="absolute inset-0 overflow-hidden">
+                                                            <div className="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none">
+                                                                <TransitionChild
+                                                                    enter="transform transition ease-in-out duration-500 sm:duration-700"
+                                                                    enterFrom="translate-x-full"
+                                                                    enterTo="translate-x-0"
+                                                                    leave="transform transition ease-in-out duration-500 sm:duration-700"
+                                                                    leaveFrom="translate-x-0"
+                                                                    leaveTo="translate-x-full"
+                                                                >
+                                                                    <DialogPanel className="w-screen max-w-md pointer-events-auto">
+                                                                        <div className="flex flex-col h-full overflow-y-scroll bg-white shadow-xl">
+                                                                            <div className="flex-1 px-4 py-6 overflow-y-auto sm:px-6">
+                                                                                <div className="flex items-start justify-between">
+                                                                                    <DialogTitle className="text-lg font-medium text-gray-900">
+                                                                                        Giỏ hàng
+                                                                                    </DialogTitle>
+                                                                                    <div className="flex items-center ml-3 h-7">
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="relative p-2 -m-2 text-gray-400 hover:text-gray-500"
+                                                                                            onClick={() =>
+                                                                                                setIsHoverCart(false)
+                                                                                            }
+                                                                                        >
+                                                                                            <span className="absolute -inset-0.5" />
+                                                                                            <span className="sr-only">
+                                                                                                Đóng
+                                                                                            </span>
+                                                                                            <XMarkIcon
+                                                                                                className="w-6 h-6"
+                                                                                                aria-hidden="true"
+                                                                                            />
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="mt-8">
+                                                                                    <div className="flow-root">
+                                                                                        <ul
+                                                                                            role="list"
+                                                                                            className="-my-6 divide-y divide-gray-200"
+                                                                                        >
+                                                                                            {listsItemCart.map(
+                                                                                                (product) => (
+                                                                                                    <li
+                                                                                                        key={product.id}
+                                                                                                        className="flex py-6"
+                                                                                                    >
+                                                                                                        <div className="flex-shrink-0 w-24 h-24 overflow-hidden border border-gray-200 rounded-md">
+                                                                                                            <img
+                                                                                                                src={
+                                                                                                                    product.productImgs
+                                                                                                                }
+                                                                                                                alt={
+                                                                                                                    product.productImgs
+                                                                                                                }
+                                                                                                                className="object-cover object-center w-full h-full"
+                                                                                                            />
+                                                                                                        </div>
+
+                                                                                                        <div className="flex flex-col flex-1 ml-4">
+                                                                                                            <div>
+                                                                                                                <div className="flex justify-between text-base font-medium text-gray-900">
+                                                                                                                    <h3>
+                                                                                                                        <a
+                                                                                                                            href={`/productdetail/${product.product.iD_NK}`}
+                                                                                                                        >
+                                                                                                                            {
+                                                                                                                                product
+                                                                                                                                    .product
+                                                                                                                                    .name
+                                                                                                                            }
+                                                                                                                        </a>
+                                                                                                                    </h3>
+                                                                                                                    <p>
+                                                                                                                        {formatNumber(
+                                                                                                                            product
+                                                                                                                                .product
+                                                                                                                                .price,
+                                                                                                                        )}
+                                                                                                                    </p>
+                                                                                                                </div>
+                                                                                                                <p className="mt-1 text-sm text-gray-500">
+                                                                                                                    {
+                                                                                                                        product
+                                                                                                                            .optionValues
+                                                                                                                            .name
+                                                                                                                    }
+                                                                                                                </p>
+                                                                                                            </div>
+                                                                                                            <div className="flex items-end justify-between flex-1 text-sm">
+                                                                                                                <p className="text-gray-500">
+                                                                                                                    Số
+                                                                                                                    lượng{' '}
+                                                                                                                    {
+                                                                                                                        product.quantity
+                                                                                                                    }
+                                                                                                                </p>
+
+                                                                                                                <div className="flex">
+                                                                                                                    <button
+                                                                                                                        type="button"
+                                                                                                                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                                                                                                                    >
+                                                                                                                        Xoá
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </li>
+                                                                                                ),
+                                                                                            )}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="px-4 py-6 border-t border-gray-200 sm:px-6">
+                                                                                <div className="flex justify-between text-base font-medium text-gray-900">
+                                                                                    <p>
+                                                                                        Các sản phẩm có trong giỏ hàng
+                                                                                    </p>
+                                                                                </div>
+                                                                                <p className="mt-0.5 text-sm text-gray-500">
+                                                                                    Đi đến giỏ hàng để chọn sản phẩm cần
+                                                                                    mua
+                                                                                </p>
+                                                                                <div className="mt-6">
+                                                                                    <a
+                                                                                        href="/cartshoppingpage"
+                                                                                        className="flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700"
+                                                                                    >
+                                                                                        Đến giỏ hàng
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div className="flex justify-center mt-6 text-sm text-center text-gray-500">
+                                                                                    <p>
+                                                                                        hoặc{' '}
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                                                                                            onClick={() =>
+                                                                                                setIsHoverCart(false)
+                                                                                            }
+                                                                                        >
+                                                                                            Tiếp tục mua sắm
+                                                                                            <span aria-hidden="true">
+                                                                                                {' '}
+                                                                                                &rarr;
+                                                                                            </span>
+                                                                                        </button>
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </DialogPanel>
+                                                                </TransitionChild>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Dialog>
+                                            </Transition>
                                         </div>
                                         <div
                                             className="relative ml-3"
@@ -227,7 +361,11 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
                                                 <span className="sr-only">Open user menu</span>
                                                 <img
                                                     className="object-cover rounded-full size-9 "
-                                                    src={userInfor.avatar ? userInfor.avatar : DefaultAVT}
+                                                    src={
+                                                        userInfor.avatar != 'No image yet'
+                                                            ? userInfor.avatar
+                                                            : DefaultAVT
+                                                    }
                                                     alt=""
                                                 />
                                             </button>
@@ -306,7 +444,7 @@ const Navigation = ({ className_bg, className_textcolor, onHover, onLeave }) => 
                                                     />
                                                 </svg>
                                                 <span className={`text-sm font-light ${className_textcolor}`}>
-                                                    Vietnamese
+                                                    Tiếng Việt
                                                 </span>
                                             </div>
                                             <div onClick={goToLogin} href="/login">

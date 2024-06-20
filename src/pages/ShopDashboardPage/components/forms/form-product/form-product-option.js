@@ -67,8 +67,8 @@ const FormProductOption = ({ useroption }) => {
     };
 
     return (
-        <div className="w-full h-full max-h-screen overflow-y-auto lg:px-6 lg:py-6">
-            <div className="w-full h-full max-w-5xl overflow-y-auto">
+        <div className="w-full h-full max-h-screen overflow-y-scroll lg:px-6 lg:pt-4 lg:pb-12">
+            <div className="w-full h-full max-w-5xl ">
                 {/* Hiển thị các product option */}
                 {options.map((option, optionIndex) => (
                     <div key={optionIndex} className="mb-4 bg-white shadow lg:px-6 lg:py-6 rounded-r-md">
@@ -98,7 +98,7 @@ const FormProductOption = ({ useroption }) => {
                         {/* Hiển thị các giá trị lựa chọn */}
                         {optionValues[optionIndex] &&
                             optionValues[optionIndex].map((value, valueIndex) => (
-                                <div key={valueIndex} className="flex items-center justify-between gap-4 mb-4 ml-auto">
+                                <div key={valueIndex} className="flex justify-between gap-12 mb-4 ml-auto">
                                     <div className="w-1/2">
                                         <label
                                             htmlFor={`optionValue-${optionIndex}-${valueIndex}`}
@@ -116,32 +116,32 @@ const FormProductOption = ({ useroption }) => {
                                             required
                                         />
                                     </div>
-                                    <div className="flex items-center w-1/2">
+                                    <div className="flex-col items-center w-1/2">
                                         <label
-                                            className="invisible text-sm font-medium text-gray-900 dark:text-white"
+                                            className="text-sm font-medium text-gray-900  dark:text-white"
                                             htmlFor="file_input"
                                         >
-                                            Upload file
+                                            Chọn ảnh
                                         </label>
                                         <input
                                             className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                                             id="file_input"
                                             type="file"
                                         />
-                                        <button
-                                            onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
-                                            className="ml-4 text-red-500"
-                                        >
-                                            Xóa
-                                        </button>
                                     </div>
+                                    <button
+                                        onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
+                                        className="ml-4 text-red-500"
+                                    >
+                                        Xóa
+                                    </button>
                                 </div>
                             ))}
 
                         {/* Nút thêm giá trị lựa chọn */}
                         <button
                             onClick={() => handleAddOptionValue(optionIndex)}
-                            className="flex items-center mb-4 ml-auto text-sm font-light border-1 border-primary lg:px-3 lg:py-3"
+                            className="flex items-center mb-4 ml-auto text-sm font-light text-white border-1 bg-primary/80 lg:px-4 lg:py-2"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -159,7 +159,10 @@ const FormProductOption = ({ useroption }) => {
                 ))}
 
                 {/* Nút thêm lựa chọn */}
-                <button onClick={handleAddOption} className="flex items-center border-red-700 border-1 lg:px-4 lg:py-4">
+                <button
+                    onClick={handleAddOption}
+                    className="flex items-center text-white bg-red-600 border-red-700 border-1 lg:px-4 lg:py-2"
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

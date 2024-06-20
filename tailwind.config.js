@@ -30,6 +30,9 @@ module.exports = {
     darkMode: 'class',
     theme: {
         extend: {
+            zIndex: {
+                100: '100',
+            },
             keyframes: {
                 'anim-in': {
                     '0%': { width: '0px', height: '0px', borderRadius: '100%', opacity: '20%' },
@@ -104,9 +107,15 @@ module.exports = {
             },
             gridAutoRows: {
                 '2fr': 'minmax(0, 2fr)',
-            }
+            },
         },
     },
 
-    plugins: [require('flowbite/plugin'), require('@tailwindcss/typography'), require('@tailwindcss/aspect-ratio')],
+    plugins: [
+        require('flowbite/plugin')({
+            charts: true,
+        }),
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/aspect-ratio'),
+    ],
 };

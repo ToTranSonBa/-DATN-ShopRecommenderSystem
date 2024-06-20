@@ -78,7 +78,12 @@ function SliderShops() {
                                 className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
                             >
                                 <div className="mx-auto size-16">
-                                    <img className="rounded-full" src={item.imageUrl ? item.imageUrl : DefaultAVT} />
+                                    <img
+                                        data-twe-lazy-load-init
+                                        data-twe-lazy-src
+                                        className="rounded-full"
+                                        src={item.imageUrl ? item.imageUrl : DefaultAVT}
+                                    />
                                 </div>
 
                                 <div className="mt-2 text-sm text-center lg:px-1">{item.name}</div>

@@ -24,7 +24,13 @@ const ProductCard = ({ product, image = null }) => {
                     <div></div>
                 )}
 
-                <img className="p-2 rounded-t-lg sm:p-4 h-72" src={image ? image : product.image} alt="product image" />
+                <img
+                    data-twe-lazy-load-init
+                    data-twe-lazy-src
+                    className="p-2 rounded-t-lg sm:p-4 h-72"
+                    src={image ? image : product.image}
+                    alt="product image"
+                />
             </a>
             <div className="items-baseline p-3 sm:p-5 align-bot">
                 <a href={`/productdetail/${product.iD_NK}`}>

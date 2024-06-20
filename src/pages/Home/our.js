@@ -22,14 +22,24 @@ const Our = () => {
                     </div>
                     <div className="grid h-auto lg:max-h-[650px] grid-cols-2 grid-rows-3 lg:gap-12">
                         <div className="relative col-span-1 row-span-3">
-                            <img src={HomeBG_mission} className="w-full h-full rounded-xl" />
+                            <img
+                                data-twe-lazy-load-init
+                                data-twe-lazy-src
+                                src={HomeBG_mission}
+                                className="w-full h-full rounded-xl"
+                            />
                             <div className="absolute z-10 flex-row lg:gap-12 lg:left-14 lg:bottom-8">
                                 <span className="uppercase text-primary lg:text-xl">SỨ MỆNH CỦA CHÚNG TÔI</span>
                                 <p className="text-white lg:text-3xl">Giúp bạn dễ dàng kinh doanh ở bất cứ đâu.</p>
                             </div>
                         </div>
                         <div className="relative col-span-1 row-span-2">
-                            <img src={HomeBG_map} className="w-full h-full rounded-xl" />
+                            <img
+                                data-twe-lazy-load-init
+                                data-twe-lazy-src
+                                src={HomeBG_map}
+                                className="w-full h-full rounded-xl"
+                            />
                             <div className="absolute flex h-full z-2 lg:top-8 lg:px-8">
                                 <div className="content-end lg:h-4/5 basis-3/4">
                                     <span className="block uppercase text-primary lg:text-xl">
@@ -47,7 +57,12 @@ const Our = () => {
                         </div>
 
                         <div className="relative col-span-1 row-span-1">
-                            <img src={HomeBG_esgpromies} className="w-full h-full rounded-xl" />
+                            <img
+                                data-twe-lazy-load-init
+                                data-twe-lazy-src
+                                src={HomeBG_esgpromies}
+                                className="w-full h-full rounded-xl"
+                            />
                             <div className="absolute z-10 flex-row lg:gap-12 lg:left-8 lg:bottom-8">
                                 <span className="uppercase text-primary lg:text-xl">CAM KẾT ESG CỦA CHÚNG TÔI</span>
                                 <p className="text-white lg:text-3xl">Công nghệ có trách nhiệm. Tương lai bền vững.</p>

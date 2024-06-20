@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import FormProduct from './form-product';
 import FormProductOption from './form-product-option';
 
-const FormAddProduct = () => {
+const FormProductManager = ({ action = 0, product }) => {
     const [useroption, setUserOption] = useState('formproduct');
     return (
         <>
@@ -12,4 +12,4 @@ const FormAddProduct = () => {
     );
 };
 
-export default FormAddProduct;
+export default FormProductManager;

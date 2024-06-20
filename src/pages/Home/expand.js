@@ -429,7 +429,12 @@ const ExpandProduct = () => {
                                     }`}
                                     onClick={() => handleClick(index)}
                                 >
-                                    <img src={item.src} className="mx-auto size-10" />
+                                    <img
+                                        data-twe-lazy-load-init
+                                        data-twe-lazy-src
+                                        src={item.src}
+                                        className="mx-auto size-10"
+                                    />
                                     <div className="text-nowrap">{item.label}</div>
                                 </li>
                             ))}
@@ -464,6 +469,8 @@ const ExpandProduct = () => {
 
                                         {product.image && product.image.length > 0 && (
                                             <img
+                                                data-twe-lazy-load-init
+                                                data-twe-lazy-src
                                                 className="p-4 rounded-t-lg"
                                                 src={product.image[0].base_url}
                                                 alt="product image"

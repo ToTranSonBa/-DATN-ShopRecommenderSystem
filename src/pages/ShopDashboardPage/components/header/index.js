@@ -5,17 +5,17 @@ import { vi } from 'date-fns/locale'; // Import locale for Vietnamese language
 import Logo from '../../../../assets/BrandLogos/Logo.png';
 import Home from '../../../../assets/HomeImg/home.jpg';
 
-const DoashboardHeader = () => {
+const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
     const messages = [
         {
             useImage: Home,
-            userName: 'Mariya Desoja',
+            userName: 'Hoàng Cầu',
             text: 'Tôi thích sự tự tin của bạn 💪',
             timeAgo: '2023-01-01 00:00:00',
         },
         {
             useImage: Home,
-            userName: 'Robert Jhon',
+            userName: 'Bạn A',
             text: 'Bạn có thể chia sẻ ưu đãi của mình không?',
             timeAgo: '2023-12-31 23:59:59',
         },
@@ -23,19 +23,15 @@ const DoashboardHeader = () => {
 
     const notification = [
         {
-            text: 'Chỉnh sửa thông tin của bạn bằng thao tác vuốt Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
+            text: 'Bạn A  đã mua sản phẩm A',
             time: '2023-12-31 23:59:59',
         },
         {
-            text: 'Chỉnh sửa thông tin của bạn bằng thao tác vuốt Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
+            text: 'Bạn A  đã mua sản phẩm C',
             time: '2023-12-31 23:59:59',
         },
         {
-            text: 'Chỉnh sửa thông tin của bạn bằng thao tác vuốt Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
-            time: '2023-12-31 23:59:59',
-        },
-        {
-            text: 'Chỉnh sửa thông tin của bạn bằng thao tác vuốt Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
+            text: 'Bạn C đã mua san phẩm',
             time: '2023-12-31 23:59:59',
         },
     ];
@@ -43,6 +39,13 @@ const DoashboardHeader = () => {
     const [dropdownMessageOpen, setDropdownMessageOpen] = useState(false);
     const [dropdownUserOpen, setDropdownUserOpen] = useState(false);
     const [dropdownNotificationOpen, setDropdownNotificationOpen] = useState(false);
+
+    const handleOptionClick = (option) => {
+        // Update useroption in SellerDashboard component
+        useroption(option);
+        // Close dropdown if necessary
+        setDropdownUserOpen(false);
+    };
 
     return (
         <header class="bg-primary/10 sticky top-0 z-50 flex w-full  drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
@@ -168,16 +171,16 @@ const DoashboardHeader = () => {
                             </a>
 
                             {dropdownNotificationOpen && (
-                                <div class="absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80">
+                                <div class="max-h-1/3 overflow-y-scroll absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default  sm:right-0 sm:w-80">
                                     <div class="px-4 py-3">
-                                        <h5 class="text-sm font-medium text-bodydark2">Thông báo</h5>
+                                        <h5 class="text-sm font-medium ">Thông báo</h5>
                                     </div>
 
                                     <ul class="flex h-auto flex-col overflow-y-auto">
                                         {notification.map((notification, index) => (
                                             <li key={index}>
                                                 <a
-                                                    class="flex flex-col gap-2.5 border-t border-stroke px-4 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                                                    class="flex flex-col gap-2.5 border-t border-stroke px-4 py-3 hover:bg-gray-2  dark:hover:bg-meta-4"
                                                     href="#"
                                                 >
                                                     <p class="text-sm">
@@ -242,7 +245,7 @@ const DoashboardHeader = () => {
                             {dropdownMessageOpen && (
                                 <div
                                     className={
-                                        'absolute -right-16 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80'
+                                        'absolute max-h-1/3 overflow-y-scroll -right-16 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80'
                                     }
                                 >
                                     <div className="px-4 py-3">
@@ -253,7 +256,7 @@ const DoashboardHeader = () => {
                                         {messages.map((message, index) => (
                                             <li key={index}>
                                                 <a
-                                                    className="flex gap-4 px-4 py-3 border-t border-stroke hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                                                    className="flex items-center gap-4 px-4 py-3 border-t border-stroke hover:bg-gray-2 dark:hover:bg-meta-4"
                                                     href="messages.html"
                                                 >
                                                     <div>
@@ -265,11 +268,11 @@ const DoashboardHeader = () => {
                                                     </div>
 
                                                     <div>
-                                                        <h6 className="text-sm font-medium text-black dark:text-white">
+                                                        <h6 className="text-sm font-medium text-black text-nowrap overflow-x-clip dark:text-white">
                                                             {message.userName}
                                                         </h6>
                                                         <p className="text-sm">{message.text}</p>
-                                                        <p className="text-xs">
+                                                        <p className="text-xs text-nowrap overflow-x-clip">
                                                             {formatDistanceToNow(new Date(message.timeAgo), {
                                                                 addSuffix: true,
                                                                 locale: vi,
@@ -328,8 +331,11 @@ const DoashboardHeader = () => {
                                 <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-4 dark:border-strokedark">
                                     <li>
                                         <a
-                                            href="profile.html"
                                             class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleOptionClick('profile');
+                                            }}
                                         >
                                             <svg
                                                 class="fill-current"

@@ -1,18 +1,14 @@
+import ImageDefault from '../../assets/imageDefault.jpg';
 const Profile = () => {
     return (
-        <body
-            x-data="{ page: 'profile', 'loaded': true, 'darkMode': true, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
-            x-init="
-          darkMode = JSON.parse(localStorage.getItem('darkMode'));
-          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
-        >
+        <body>
             <div class="flex h-screen overflow-hidden">
                 <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
                     <main>
                         <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                             <div class="mx-auto max-w-242.5">
                                 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                    <h2 class="text-title-md2 font-bold text-black dark:text-white">Profile</h2>
+                                    <h2 class="text-title-md2 font-bold text-black dark:text-white">Hồ sơ cửa hàng</h2>
 
                                     <nav>
                                         <ol class="flex items-center gap-2">
@@ -21,7 +17,7 @@ const Profile = () => {
                                                     Dashboard /
                                                 </a>
                                             </li>
-                                            <li class="text-primary">Profile</li>
+                                            <li class="text-primary">Hồ sơ cửa hàng</li>
                                         </ol>
                                     </nav>
                                 </div>
@@ -29,7 +25,7 @@ const Profile = () => {
                                 <div class="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                                     <div class="relative z-20 h-35 md:h-65">
                                         <img
-                                            src="./images/cover/cover-01.png"
+                                            src={ImageDefault}
                                             alt="profile cover"
                                             class="h-full w-full rounded-tl-sm rounded-tr-sm object-cover object-center"
                                         />
@@ -69,10 +65,10 @@ const Profile = () => {
                                     <div class="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
                                         <div class="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
                                             <div class="relative drop-shadow-2">
-                                                <img src="./images/user/user-06.png" alt="profile" />
+                                                <img className="" src={ImageDefault} alt="profile" />
                                                 <label
                                                     for="profile"
-                                                    class="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
+                                                    class="absolute rounded-full bottom-0 right-0 flex size-9 cursor-pointer items-center justify-center bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
                                                 >
                                                     <svg
                                                         class="fill-current"

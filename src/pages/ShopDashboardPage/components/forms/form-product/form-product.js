@@ -81,12 +81,12 @@ const FormProduct = ({ useroption }) => {
     };
 
     return (
-        <div>
-            <div className="flex h-auto max-h-screen sm:px-8 md:px-16 sm:py-8">
-                <main className="h-auto max-w-screen-sm">
+        <div className="max-w-screen-2xl ">
+            <div className="flex h-auto max-h-screen overflow-y-scroll sm:px-8 md:px-8 sm:py-8">
+                <main className="w-full h-auto max-w-sm">
                     <article
                         aria-label="File Upload Modal"
-                        className={`relative h-full flex flex-col bg-white shadow-xl rounded-md ${
+                        className={`relative h-full flex flex-col bg-white shadow rounded-md ${
                             isDraggedOver ? 'draggedover' : ''
                         }`}
                         onDrop={handleDrop}
@@ -94,30 +94,13 @@ const FormProduct = ({ useroption }) => {
                         onDragLeave={handleDragLeave}
                         onDragEnter={handleDragOver}
                     >
-                        <div
-                            id="overlay"
-                            className={`hidden w-full h-full absolute top-0 left-0 pointer-events-none z-50 flex flex-col items-center justify-center rounded-md ${
-                                isDraggedOver ? 'draggedover' : ''
-                            }`}
-                        >
-                            <i>
-                                <svg
-                                    className="w-12 h-12 mb-3 text-blue-700 fill-current"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092-4.005 0-7.267 3.141-7.479 7.092-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-7.479-1.092l4 4h-3v4h-2v-4h-3l4-4z" />
-                                </svg>
-                            </i>
-                            <p className="text-lg text-blue-700">Drop files to upload</p>
-                        </div>
-
-                        <section className="flex flex-col w-full h-full p-8 overflow-auto">
-                            <header className="flex flex-col items-center justify-center py-12 border-2 border-gray-400 border-dashed">
+                        <section className="flex flex-col w-full h-full max-w-sm p-8 overflow-auto">
+                            <header className="flex flex-col items-center justify-center w-full py-12 border-2 border-gray-400 border-dashed">
                                 <p className="flex flex-wrap justify-center mb-3 font-semibold text-gray-900">
-                                    <span>Drag and drop your</span>&nbsp;<span>files anywhere or</span>
+                                    <span className="text-sm text-center text-gray-500">
+                                        Kéo và thả ảnh của bạn <br />
+                                        hoặc
+                                    </span>
                                 </p>
                                 <input
                                     id="hidden-input"
@@ -129,16 +112,16 @@ const FormProduct = ({ useroption }) => {
                                 />
                                 <button
                                     id="button"
-                                    className="px-3 py-1 mt-2 bg-gray-200 rounded-sm hover:bg-gray-300 focus:shadow-outline focus:outline-none"
+                                    className="px-3 py-1 mt-2 text-sm bg-gray-200 rounded-sm hover:bg-gray-300 focus:shadow-outline focus:outline-none"
                                     onClick={() => document.getElementById('hidden-input').click()}
                                 >
-                                    Upload a file
+                                    Chọn ảnh
                                 </button>
                             </header>
 
-                            <h1 className="pt-8 pb-3 font-semibold text-gray-900 sm:text-lg">To Upload</h1>
+                            <h1 className="pt-8 pb-3 font-semibold text-gray-900 sm:text-lg">Ảnh đã chọn</h1>
 
-                            <ul id="gallery" className="flex flex-wrap flex-1 -m-1 overflow-auto">
+                            <ul id="gallery" className="flex flex-1 -m-1 overflow-auto flex-nowrap">
                                 {Object.keys(files).length === 0 && (
                                     <li
                                         id="empty"
@@ -149,7 +132,7 @@ const FormProduct = ({ useroption }) => {
                                             src="https://user-images.githubusercontent.com/507615/54591670-ac0a0180-4a65-11e9-846c-e55ffce0fe7b.png"
                                             alt="no data"
                                         />
-                                        <span className="text-gray-500 text-small">No files selected</span>
+                                        <span className="text-gray-500 text-small">Chưa có ảnh được chọn</span>
                                     </li>
                                 )}
                                 {Object.keys(files).map((key) => (

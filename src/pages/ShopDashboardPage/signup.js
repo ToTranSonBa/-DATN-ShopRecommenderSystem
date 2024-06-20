@@ -247,9 +247,9 @@ const SellerSignup = () => {
 
                                                 <div class="mt-6 text-center">
                                                     <p class="font-medium">
-                                                        Already have an account?
+                                                        Đã có tài khoản?
                                                         <a href="signin.html" class="text-primary">
-                                                            Sign in
+                                                            Đăng nhập
                                                         </a>
                                                     </p>
                                                 </div>

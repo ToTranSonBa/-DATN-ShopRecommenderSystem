@@ -71,7 +71,7 @@ function SliderCategories() {
         <div className="relative min-h-[400px] w-full m-auto lg:px-4 lg:py-16 group ">
             <div className="flex items-center justify-around">
                 {error && <div className="error">{error}</div>}
-                {columns.map((column, columnIndex) => (
+                {columns?.map((column, columnIndex) => (
                     <div className="w-[150px] h-[150px]" key={columnIndex}>
                         {column.map((item, index) => (
                             <div

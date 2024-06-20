@@ -9,6 +9,8 @@ const LoginElement = () => {
     return (
         <div className="relative w-full">
             <img
+                data-twe-lazy-load-init
+                data-twe-lazy-src
                 className="hidden w-full h-full border-transparent bl md:block md:max-lg:object-cover md:max-lg:min-h-3/4 md:max-lg:h-imgBG"
                 src={Home_login}
                 alt="This is home background"

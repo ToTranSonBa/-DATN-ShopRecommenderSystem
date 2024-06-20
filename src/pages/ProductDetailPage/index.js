@@ -364,13 +364,15 @@ const ProductDetailPage = () => {
                 <h3 class="text-xl font-semibold text-black mb-4">Mô tả sản phẩm</h3>
                 <div
                     className={classNames(
-                        hiddenDescription === true ? 'overflow-hidden max-h-screen' : 'overflow-visible h-auto',
+                        hiddenDescription === true
+                            ? 'overflow-hidden max-h-screen font-light'
+                            : ' font-light overflow-visible h-auto',
                     )}
                     dangerouslySetInnerHTML={{
                         __html: productDetail.product?.description,
                     }}
                 />
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center ">
                     <button
                         className="justify-center p-1 mt-6 underline underline-offset-2 hover:text-blue-500"
                         onClick={handleHiddenDescription}

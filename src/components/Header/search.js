@@ -135,7 +135,7 @@ const Search = () => {
         <form className={`w-full max-w-screen-lg  ${classNameHidden}`} onSubmit={handleSubmit}>
             {error && <div className="error">{error}</div>}
             <div className="flex">
-                <button
+                {/* <button
                     id="dropdown-button"
                     data-dropdown-toggle="dropdown"
                     className="relative z-10 inline-flex items-center flex-shrink-0 px-4 py-2 text-sm font-medium text-center text-black bg-gray-100 border border-gray-300 rounded-s-lg focus:ring-4 focus:outline-none focus:ring-gray-100 "
@@ -158,8 +158,8 @@ const Search = () => {
                             d="m1 1 4 4 4-4"
                         />
                     </svg>
-                </button>
-                {isChooseCategory && (
+                </button> */}
+                {/* {isChooseCategory && (
                     <div
                         id="dropdown"
                         class="z-10 absolute top-14 bg-white divide-y divide-gray-100 rounded-lg shadow w-64"
@@ -187,15 +187,14 @@ const Search = () => {
                             ))}
                         </ul>
                     </div>
-                )}
+                )} */}
 
                 <div className="relative w-full">
                     <input
                         type="search"
                         id="search-dropdown"
-                        className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-primary focus:border-primary  "
+                        className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
                         placeholder={searchPlaceholders[currentPlaceholderIndex].title}
-                        required
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         onChange={handleChange}

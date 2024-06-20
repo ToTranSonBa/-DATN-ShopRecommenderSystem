@@ -44,6 +44,7 @@ const CreditCard = ({ onCheckFullFill }) => {
         const isFull = cardNumber && expDate && ccv && cardName;
         onCheckFullFill(isFull);
     }, [cardNumber, expDate, ccv, cardName, onCheckFullFill]);
+
     return (
         <main class="flex h-auto w-full items-center justify-between lg:pb-8">
             <form className="bg-white w-full mx-auto px-6 py-8 shadow-md flex">
@@ -51,7 +52,7 @@ const CreditCard = ({ onCheckFullFill }) => {
                     <label className="block mb-2 font-bold text-md text-neutral-800">Số thẻ:</label>
                     <input
                         type="text"
-                        className="focus:outline-none flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
+                        className="focus:ring-0 focus:ring-offset-0 focus:outline-none flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
                         id="cardNumber"
                         onClick={() => handleFlip('flipToFront')}
                         maxLength="19"
@@ -64,7 +65,7 @@ const CreditCard = ({ onCheckFullFill }) => {
                             <label className="block mb-2 font-bold text-md text-neutral-800">Ngày hết hạn:</label>
                             <input
                                 type="text"
-                                className="focus:outline-none flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
+                                className="focus:ring-0 focus:ring-offset-0 focus:outline-none flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
                                 id="expDate"
                                 onClick={() => handleFlip('flipToFront')}
                                 maxLength="5"
@@ -77,7 +78,7 @@ const CreditCard = ({ onCheckFullFill }) => {
                             <label className="block mb-2 font-bold text-md text-neutral-800">CCV:</label>
                             <input
                                 type="text"
-                                className="flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
+                                className="flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
                                 id="ccvNumber"
                                 onClick={() => handleFlip('flipToRear')}
                                 maxLength="3"
@@ -91,7 +92,7 @@ const CreditCard = ({ onCheckFullFill }) => {
                     <label className="block mb-2 font-bold text-md text-neutral-800">Họ tên:</label>
                     <input
                         type="text"
-                        className="flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-md border-2 px-4 py-1.5 text-lg ring-offset-background focus-visible:outline-none focus-visible:border-purple-600 focus-visible:ring-ring focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         id="cardName"
                         onClick={() => handleFlip('flipToFront')}
                         placeholder="John Doe"
