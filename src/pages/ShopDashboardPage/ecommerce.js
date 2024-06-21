@@ -9,7 +9,7 @@ import ChartOne from './components/charts/chart-01';
 import ChartTwo from './components/charts/chart-02';
 import ChartThree from './components/charts/chart-03';
 import MapOne from './components/maps/map-01';
-import TableTwo from './components/tables/table-02';
+import TableTwo from './components/tables/table-product';
 //
 Alpine.plugin(persist);
 window.Alpine = Alpine;

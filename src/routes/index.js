@@ -12,6 +12,7 @@ import UserPage from '../pages/UserPage/UserPage';
 import ShopPage from '../pages/ShopPage';
 import CheckoutForm from '../pages/CheckoutForm/CheckoutForm';
 import AdminDoashBoardManager from '../pages/AdminDoashboard';
+import SellerSignUp from '../pages/ShopDashboardPage/signup';
 
 const publicRoutes = [
     { path: '/', component: Home },
@@ -25,6 +26,7 @@ const publicRoutes = [
     { path: '/shoppage/:id', component: ShopPage },
     { path: '/checkout', component: CheckoutForm },
     { path: '/admin', component: AdminDoashBoardManager, layout: HeaderOnly },
+    { path: '/signup/seller', component: SellerSignUp, layout: HeaderOnly },
 ];
 
 export { publicRoutes };

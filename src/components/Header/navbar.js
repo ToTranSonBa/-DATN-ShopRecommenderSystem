@@ -232,7 +232,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                 </li>
                                 <li className="hover:underline">
                                     <a
-                                        href="#"
+                                        href="/signup/seller"
                                         className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
                                     >
                                         Đăng kí trở thành nhà cung cấp

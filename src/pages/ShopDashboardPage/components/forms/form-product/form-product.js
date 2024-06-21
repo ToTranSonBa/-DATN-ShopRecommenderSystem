@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const FormProduct = ({ useroption }) => {
+const FormProduct = ({ action, product, useroption, open }) => {
     const [files, setFiles] = useState({});
     const [isDraggedOver, setIsDraggedOver] = useState(false);
+    const [mode, setMode] = useState(action); // Khởi tạo giá trị ban đầu cho mode bằng action
+
+    console.log('action in form product: ', action);
+    console.log('product data in form product: ', product);
 
     const addFile = (file) => {
         const isImage = file.type.startsWith('image');
@@ -38,11 +42,11 @@ const FormProduct = ({ useroption }) => {
         setIsDraggedOver(false);
     };
 
-    const handleFileInputChange = (e) => {
-        for (const file of e.target.files) {
-            addFile(file);
-        }
-    };
+    // const handleFileInputChange = (e) => {
+    //     for (const file of e.target.files) {
+    //         addFile(file);
+    //     }
+    // };
 
     const handleSubmit = (e) => {
         alert(`Submitted Files:\n${JSON.stringify(files)}`);
@@ -57,16 +61,7 @@ const FormProduct = ({ useroption }) => {
         // Implement your cancel logic here
     };
 
-    //form
-    const [formValues, setFormValues] = useState({
-        productName: '',
-        productPrice: '',
-        shortDescription: '',
-        description: '',
-        category: '',
-        productQuantitySold: '',
-    });
-
+    // //form
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormValues({
@@ -80,52 +75,140 @@ const FormProduct = ({ useroption }) => {
         useroption(option);
     };
 
+    const handleClose = () => {
+        open(false); // Call the 'open' function with 'false' to close the form
+    };
+
+    const [formValues, setFormValues] = useState({
+        productName: '',
+        productPrice: '',
+        shortDescription: '',
+        description: '',
+        category: '',
+        productQuantitySold: 0,
+    });
+
+    useEffect(() => {
+        if (action === 1 && product) {
+            // If action is 1 (edit) and product data is provided, populate formValues
+            setFormValues({
+                productName: product.name || '',
+                productPrice: product.price || '',
+                shortDescription: product.shortdes || '',
+                description: product.description || '',
+                category: product.Category || '',
+                productQuantitySold: product.QuantitySold || 0,
+            });
+            // Initialize existing images in the gallery
+            const initialFiles = product.images.reduce((acc, url, index) => {
+                acc[`image-${index}`] = {
+                    name: `Image ${index + 1}`,
+                    type: 'image',
+                    preview: url,
+                };
+                return acc;
+            }, {});
+            setFiles(initialFiles);
+        } else if (action === 2 && product) {
+            // If action is 2 (details), set formValues as read-only
+            setFormValues({
+                productName: product.name || '',
+                productPrice: product.price || '',
+                shortDescription: product.shortdes || '',
+                description: product.description || '',
+                category: product.Category || '',
+                productQuantitySold: product.QuantitySold || 0,
+            });
+            // Initialize existing images in the gallery
+            const initialFiles = product.images.reduce((acc, url, index) => {
+                acc[`image-${index}`] = {
+                    name: `Image ${index + 1}`,
+                    type: 'image',
+                    preview: url,
+                };
+                return acc;
+            }, {});
+            setFiles(initialFiles);
+        }
+    }, [action, product]);
+
+    const handleFileInputChange = (e) => {
+        const { files: newFiles } = e.target;
+        const newFilesObj = Array.from(newFiles).reduce((acc, file, index) => {
+            const fileURL = URL.createObjectURL(file);
+            acc[`new-image-${index}`] = {
+                name: file.name,
+                type: file.type.startsWith('image') ? 'image' : 'other',
+                preview: fileURL,
+            };
+            return acc;
+        }, {});
+        setFiles({ ...files, ...newFilesObj });
+    };
+    const handleRemoveFile = (key) => {
+        const newFiles = { ...files };
+        URL.revokeObjectURL(newFiles[key].preview);
+        delete newFiles[key];
+        setFiles(newFiles);
+    };
     return (
-        <div className="max-w-screen-2xl ">
-            <div className="flex h-auto max-h-screen overflow-y-scroll sm:px-8 md:px-8 sm:py-8">
-                <main className="w-full h-auto max-w-sm">
+        <div className="relative max-w-screen-2xl">
+            <div onClick={handleClose} className="absolute top-0 right-0 cursor-pointer">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-7"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                </svg>
+            </div>
+            <div className="flex overflow-hidden sm:px-8 md:px-8 sm:py-8">
+                <main className="w-full max-w-sm mx-auto lg:p-4">
                     <article
                         aria-label="File Upload Modal"
-                        className={`relative h-full flex flex-col bg-white shadow rounded-md ${
-                            isDraggedOver ? 'draggedover' : ''
-                        }`}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDragEnter={handleDragOver}
+                        className={`relative flex flex-col h-full w-full shadow rounded-md`}
                     >
-                        <section className="flex flex-col w-full h-full max-w-sm p-8 overflow-auto">
-                            <header className="flex flex-col items-center justify-center w-full py-12 border-2 border-gray-400 border-dashed">
-                                <p className="flex flex-wrap justify-center mb-3 font-semibold text-gray-900">
-                                    <span className="text-sm text-center text-gray-500">
-                                        Kéo và thả ảnh của bạn <br />
-                                        hoặc
-                                    </span>
-                                </p>
-                                <input
-                                    id="hidden-input"
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleFileInputChange}
-                                    accept="image/*"
-                                />
-                                <button
-                                    id="button"
-                                    className="px-3 py-1 mt-2 text-sm bg-gray-200 rounded-sm hover:bg-gray-300 focus:shadow-outline focus:outline-none"
-                                    onClick={() => document.getElementById('hidden-input').click()}
-                                >
-                                    Chọn ảnh
-                                </button>
-                            </header>
+                        <section className="flex flex-col w-full h-full overflow-y-scroll">
+                            {action !== 2 && (
+                                <header className="flex flex-col items-center justify-center w-full py-12 border-2 border-gray-400 border-dashed">
+                                    <p className="flex flex-wrap justify-center mb-3 font-semibold text-gray-900">
+                                        <span className="text-sm text-center text-gray-500">
+                                            Kéo và thả ảnh của bạn <br />
+                                            hoặc
+                                        </span>
+                                    </p>
+                                    <input
+                                        id="hidden-input"
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        onChange={handleFileInputChange}
+                                        accept="image/*"
+                                    />
+                                    <button
+                                        id="button"
+                                        className="px-3 py-1 mt-2 text-sm bg-gray-200 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                        onClick={() => document.getElementById('hidden-input').click()}
+                                    >
+                                        Chọn ảnh
+                                    </button>
+                                </header>
+                            )}
 
                             <h1 className="pt-8 pb-3 font-semibold text-gray-900 sm:text-lg">Ảnh đã chọn</h1>
 
-                            <ul id="gallery" className="flex flex-1 -m-1 overflow-auto flex-nowrap">
+                            <ul id="gallery" className="grid h-auto max-h-full grid-cols-2 gap-2 overflow-y-auto">
                                 {Object.keys(files).length === 0 && (
                                     <li
                                         id="empty"
-                                        className="flex flex-col items-center justify-center w-full h-full text-center"
+                                        className="flex flex-col items-center justify-center w-full h-full col-span-2 text-center"
                                     >
                                         <img
                                             className="w-32 mx-auto"
@@ -136,61 +219,44 @@ const FormProduct = ({ useroption }) => {
                                     </li>
                                 )}
                                 {Object.keys(files).map((key) => (
-                                    <li key={key} className="block w-1/2 h-24 p-1 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8">
-                                        <article className="relative w-full h-full bg-gray-100 rounded-md cursor-pointer group focus:outline-none focus:shadow-outline">
-                                            {files[key].type.startsWith('image') ? (
+                                    <li key={key} className="block w-full p-1 max-h-28">
+                                        <article className="relative w-full h-full bg-gray-100 rounded-md cursor-pointer max-h-28 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                            {files[key].type === 'image' ? (
                                                 <img
-                                                    src={key}
+                                                    src={files[key].preview}
                                                     alt={files[key].name}
-                                                    className="object-cover w-full h-full bg-fixed rounded-md img-preview"
+                                                    className="object-cover w-full rounded-md h-28"
                                                 />
                                             ) : (
                                                 <h1 className="flex-1">{files[key].name}</h1>
                                             )}
-                                            <div className="flex">
-                                                <span className="p-1 text-blue-800">
-                                                    <i>
-                                                        <svg
-                                                            className="w-4 h-4 pt-1 ml-auto fill-current"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            width="24"
-                                                            height="24"
-                                                            viewBox="0 0 24 24"
+                                            {action !== 2 && (
+                                                <div className="absolute top-0 left-0 flex flex-col justify-between w-full h-full p-2 text-white bg-black bg-opacity-50 opacity-0 group-hover:opacity-100">
+                                                    <span className="truncate">{files[key].name}</span>
+                                                    <div className="flex items-center justify-between w-full mt-auto">
+                                                        <span className="text-xs">
+                                                            {files[key].type === 'image' ? 'Image' : 'File'}
+                                                        </span>
+                                                        <button
+                                                            className="p-1 ml-2 bg-gray-700 rounded hover:bg-gray-600 focus:outline-none"
+                                                            onClick={() => handleRemoveFile(key)}
                                                         >
-                                                            <path d="M15 2v5h5v15h-16v-20h11zm1-2h-14v24h20v-18l-6-6z" />
-                                                        </svg>
-                                                    </i>
-                                                </span>
-                                                <p className="p-1 text-xs text-gray-700 size">
-                                                    {files[key].size > 1024
-                                                        ? files[key].size > 1048576
-                                                            ? Math.round(files[key].size / 1048576) + 'mb'
-                                                            : Math.round(files[key].size / 1024) + 'kb'
-                                                        : files[key].size + 'b'}
-                                                </p>
-                                                <button
-                                                    className="p-1 ml-auto text-gray-800 rounded-md delete focus:outline-none hover:bg-gray-300"
-                                                    onClick={() => {
-                                                        const newFiles = { ...files };
-                                                        URL.revokeObjectURL(key); // Cleanup object URL
-                                                        delete newFiles[key];
-                                                        setFiles(newFiles);
-                                                    }}
-                                                >
-                                                    <svg
-                                                        className="w-4 h-4 ml-auto pointer-events-none fill-current"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            className="pointer-events-none"
-                                                            d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
-                                                        />
-                                                    </svg>
-                                                </button>
-                                            </div>
+                                                            <svg
+                                                                className="w-4 h-4 pointer-events-none fill-current"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="24"
+                                                                height="24"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    className="pointer-events-none"
+                                                                    d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </article>
                                     </li>
                                 ))}
@@ -198,7 +264,8 @@ const FormProduct = ({ useroption }) => {
                         </section>
                     </article>
                 </main>
-                <div className="w-full max-w-screen-lg p-5 mx-auto mt-10 border rounded shadow">
+
+                <div className="w-full max-w-screen-lg mx-auto border rounded shadow h-min lg:p-4 lg:ml-4">
                     <div className="mb-4">
                         <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
                             Tên sản phẩm
@@ -211,6 +278,7 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                     <div className="mb-4">
@@ -225,6 +293,7 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                     <div className="mb-4">
@@ -239,6 +308,7 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                     <div className="mb-4">
@@ -252,6 +322,7 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded min-h-44"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                     <div className="mb-4">
@@ -265,6 +336,7 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         >
                             <option value="">Select a category</option>
                             <option value="electronics">Electronics</option>
@@ -285,10 +357,12 @@ const FormProduct = ({ useroption }) => {
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
                             required
+                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                 </div>
             </div>
+
             <button
                 onClick={(e) => {
                     e.preventDefault();

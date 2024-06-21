@@ -9,7 +9,7 @@ import Profile from './profile';
 import FormElement from './components/forms/form-elements';
 import FormLayout from './components/forms/form-layout';
 import FormProductManager from './components/forms/form-product';
-import TableProduct from './components/tables/table-02';
+import TableProduct from './components/tables/table-product';
 import TableOrder from './components/tables/table-01';
 import SellerSettings from './settings';
 function SellerDashboard() {

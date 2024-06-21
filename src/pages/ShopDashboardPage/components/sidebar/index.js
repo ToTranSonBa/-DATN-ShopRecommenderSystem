@@ -17,7 +17,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
     };
 
     return (
-        <aside class="bg-primary/10 absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden  duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0">
+        <aside class="bg-sky-300/20 absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden  duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0">
             <div class="flex items-center justify-between gap-2 px-6 pt-5 lg:pt-7">
                 <a className="items-center hidden md:flex md:gap-1 lg:gap-2">
                     <img className="size-6" src={Logo} alt="Logo" />
@@ -171,7 +171,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                 </a>
                             </li>
 
-                            <li className="cursor-pointer">
+                            {/* <li className="cursor-pointer">
                                 <a
                                     class="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
                                     onClick={(e) => {
@@ -265,7 +265,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                         </ul>
                                     </div>
                                 )}
-                            </li>
+                            </li> */}
 
                             <li className="cursor-pointer">
                                 <a

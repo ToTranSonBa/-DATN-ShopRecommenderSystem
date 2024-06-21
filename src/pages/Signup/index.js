@@ -335,7 +335,7 @@ const SignUp = () => {
                     <ol class="relative lg:mt-8 justify-self-end  text-gray-500  ">
                         <div className="border-gray-200 border-s ">
                             <li class="mb-10 ms-6 ">
-                                {(step === 2 || step === 3) && isPersonalInfoFilled ? (
+                                {(step === 2 || step === 3) && isPersonalInfoFilled() ? (
                                     <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -377,7 +377,7 @@ const SignUp = () => {
                                 <p class="text-sm">Số điện thoại</p>
                             </li>
                             <li class="mb-10 ms-6">
-                                {step === 3 && isAccountInfoFilled ? (
+                                {step === 3 && isAccountInfoFilled() ? (
                                     <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -418,9 +418,9 @@ const SignUp = () => {
                             </li>
                             <li class="mb-10 ms-6">
                                 {step === 3 &&
-                                    isPersonalInfoFilled &&
-                                    isPersonalInfoFilled &&
-                                    termsAccepted === true ? (
+                                isPersonalInfoFilled() &&
+                                isAccountInfoFilled() &&
+                                termsAccepted === true ? (
                                     <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

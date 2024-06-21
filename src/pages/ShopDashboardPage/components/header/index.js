@@ -48,7 +48,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
     };
 
     return (
-        <header class="bg-primary/10 sticky top-0 z-50 flex w-full  drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
+        <header class="bg-sky-300/20 sticky top-0 z-50 flex w-full  drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
             <div class="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
                 <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
                     <button class="z-50 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden">
@@ -78,7 +78,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                     viewBox="0 0 24 24"
                                     stroke-width="1.5"
                                     stroke="currentColor"
-                                    class="size-5 fill-body hover:fill-primary dark:fill-bodydark dark:hover:fill-primary"
+                                    class="size-5 fill-body "
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -91,7 +91,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                             <input
                                 type="text"
                                 placeholder="Nhập từ khoá để tìm kiếm"
-                                className="w-full pr-4 bg-transparent border-none pl-9 focus:outline-none focus:ring-2 focus:ring-blue-500 xl:w-96"
+                                className="w-full pr-4 bg-transparent border-none pl-9 focus:outline-none focus:ring-0 xl:w-96"
                             />
                         </div>
                     </form>

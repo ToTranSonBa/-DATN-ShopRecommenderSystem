@@ -1,40 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const FormProductOption = ({ useroption }) => {
-    const handleOptionClick = (option) => {
-        // Update useroption in SellerDashboard component
-        useroption(option);
-    };
+const FormProductOption = ({ action, product, useroption, open }) => {
+    const [mode, setMode] = useState(action); // Khởi tạo giá trị ban đầu cho mode bằng action
 
-    //form
     const [formValues, setFormValues] = useState({
         optionName: '',
     });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormValues({
-            ...formValues,
-            [name]: value,
-        });
-    };
-
     const [options, setOptions] = useState([{ name: '', values: [] }]);
-    const [optionValues, setOptionValues] = useState({ 0: [''] });
+    const [optionValues, setOptionValues] = useState([]);
+
+    useEffect(() => {
+        if (action === 2) {
+            // Chế độ xem
+            const initialOptions = product.Option.Value.map((option) => ({
+                name: option.namevalue,
+                values: option.optionvalue.map((value) => value.name),
+            }));
+            const initialOptionValues = product.Option.Value.map((option) =>
+                option.optionvalue.map((value) => value.imagechild),
+            );
+            setOptions(initialOptions);
+            setOptionValues(initialOptionValues);
+        } else if (action === 1) {
+            // Chế độ sửa
+            const initialOptions = product.Option.Value.map((option) => ({
+                name: option.namevalue,
+                values: option.optionvalue.map((value) => value.name),
+            }));
+            const initialOptionValues = product.Option.Value.map((option) =>
+                option.optionvalue.map((value) => value.imagechild),
+            );
+            setOptions(initialOptions);
+            setOptionValues(initialOptionValues);
+        } else {
+            // Chế độ thêm
+            setOptions([{ name: '', values: [''] }]);
+            setOptionValues(['']);
+        }
+    }, [action, product]);
+    const handleOptionClick = (option) => {
+        useroption(option);
+    };
 
     const handleAddOption = () => {
-        const newOptionIndex = options.length;
         setOptions([...options, { name: '', values: [] }]);
-        setOptionValues({ ...optionValues, [newOptionIndex]: [''] });
+        setOptionValues([...optionValues, '']);
     };
 
-    const handleAddOptionValue = (index) => {
-        const newOptionValues = { ...optionValues };
-        if (!newOptionValues[index]) {
-            newOptionValues[index] = [''];
-        } else {
-            newOptionValues[index].push('');
-        }
+    const handleRemoveOption = (index) => {
+        const newOptions = [...options];
+        newOptions.splice(index, 1);
+        setOptions(newOptions);
+
+        const newOptionValues = [...optionValues];
+        newOptionValues.splice(index, 1);
         setOptionValues(newOptionValues);
     };
 
@@ -44,34 +63,71 @@ const FormProductOption = ({ useroption }) => {
         setOptions(newOptions);
     };
 
-    const handleOptionValueChange = (e, optionIndex, valueIndex) => {
-        const newOptionValues = { ...optionValues };
-        newOptionValues[optionIndex][valueIndex] = e.target.value;
+    const handleAddOptionValue = (index) => {
+        const newOptions = [...options];
+        newOptions[index].values.push('');
+        setOptions(newOptions);
+
+        const newOptionValues = [...optionValues];
+        newOptionValues[index].push('');
         setOptionValues(newOptionValues);
     };
 
-    const handleRemoveOption = (index) => {
-        const newOptions = options.filter((_, i) => i !== index);
-        const newOptionValues = { ...optionValues };
-        delete newOptionValues[index];
-
+    const handleOptionValueChange = (e, optionIndex, valueIndex) => {
+        const newOptions = [...options];
+        newOptions[optionIndex].values[valueIndex] = e.target.value;
         setOptions(newOptions);
-        setOptionValues(newOptionValues);
     };
 
     const handleRemoveOptionValue = (optionIndex, valueIndex) => {
-        const newOptionValues = { ...optionValues };
-        newOptionValues[optionIndex] = newOptionValues[optionIndex].filter((_, i) => i !== valueIndex);
+        const newOptions = [...options];
+        newOptions[optionIndex].values.splice(valueIndex, 1);
+        setOptions(newOptions);
 
+        const newOptionValues = [...optionValues];
+        newOptionValues[optionIndex].splice(valueIndex, 1);
         setOptionValues(newOptionValues);
     };
 
+    const handleClose = () => {
+        open(false); // Đóng form bằng cách gọi hàm 'open' với giá trị 'false'
+    };
+    const handleFileInputChange = (e, optionIndex, valueIndex) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const newOptions = [...options];
+            newOptions[optionIndex].values[valueIndex].image = reader.result;
+            setOptions(newOptions);
+        };
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
-        <div className="w-full h-full max-h-screen overflow-y-scroll lg:px-6 lg:pt-4 lg:pb-12">
-            <div className="w-full h-full max-w-5xl ">
+        <div className="relative h-full max-h-screen overflow-y-scroll placeholder:w-full lg:px-6 lg:pt-4 lg:pb-12">
+            <div onClick={handleClose} className="absolute top-0 right-0 cursor-pointer">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-7"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                </svg>
+            </div>
+
+            <div className="w-full h-[95%] max-w-5xl mx-auto overflow-y-scroll ">
                 {/* Hiển thị các product option */}
                 {options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="mb-4 bg-white shadow lg:px-6 lg:py-6 rounded-r-md">
+                    <div key={optionIndex} className="mb-4 shadow lg:px-6 lg:py-6 rounded-r-md">
                         <div className="flex items-center justify-between lg:mb-4">
                             <div className="w-4/5">
                                 <label
@@ -88,93 +144,86 @@ const FormProductOption = ({ useroption }) => {
                                     onChange={(e) => handleOptionNameChange(e, optionIndex)}
                                     className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                     required
+                                    disabled={mode === 2} // Disable for details mode
                                 />
                             </div>
-                            <button onClick={() => handleRemoveOption(optionIndex)} className="text-red-500">
-                                Xóa lựa chọn
-                            </button>
+                            {action !== 2 && (
+                                <button onClick={() => handleRemoveOption(optionIndex)} className="text-red-500">
+                                    Xóa lựa chọn
+                                </button>
+                            )}
                         </div>
 
                         {/* Hiển thị các giá trị lựa chọn */}
-                        {optionValues[optionIndex] &&
-                            optionValues[optionIndex].map((value, valueIndex) => (
-                                <div key={valueIndex} className="flex justify-between gap-12 mb-4 ml-auto">
-                                    <div className="w-1/2">
-                                        <label
-                                            htmlFor={`optionValue-${optionIndex}-${valueIndex}`}
-                                            className="block text-sm font-medium text-gray-700"
-                                        >
-                                            Giá trị lựa chọn
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id={`optionValue-${optionIndex}-${valueIndex}`}
-                                            name={`optionValue-${optionIndex}-${valueIndex}`}
-                                            value={value}
-                                            onChange={(e) => handleOptionValueChange(e, optionIndex, valueIndex)}
-                                            className="block w-full p-2 mt-1 border border-gray-300 rounded"
-                                            required
-                                        />
-                                    </div>
+                        {option.values.map((value, valueIndex) => (
+                            <div key={valueIndex} className="flex justify-between gap-12 mb-4 ml-auto">
+                                <div className="w-1/2">
+                                    <label
+                                        htmlFor={`optionValue-${optionIndex}-${valueIndex}`}
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        Giá trị lựa chọn
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id={`optionValue-${optionIndex}-${valueIndex}`}
+                                        name={`optionValue-${optionIndex}-${valueIndex}`}
+                                        value={value}
+                                        onChange={(e) => handleOptionValueChange(e, optionIndex, valueIndex)}
+                                        className="block w-full p-2 mt-1 border border-gray-300 rounded"
+                                        required
+                                        disabled={mode === 2} // Disable for details mode
+                                    />
+                                </div>
+                                {action !== 2 && (
                                     <div className="flex-col items-center w-1/2">
                                         <label
-                                            className="text-sm font-medium text-gray-900  dark:text-white"
-                                            htmlFor="file_input"
+                                            className="text-sm font-medium text-gray-900 dark:text-white"
+                                            htmlFor={`file_input_${optionIndex}_${valueIndex}`}
                                         >
                                             Chọn ảnh
                                         </label>
                                         <input
                                             className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                            id="file_input"
+                                            id={`file_input_${optionIndex}_${valueIndex}`}
                                             type="file"
+                                            onChange={(e) => handleFileInputChange(e, optionIndex, valueIndex)}
+                                            disabled={mode === 2} // Disable for details mode
                                         />
                                     </div>
+                                )}
+                                {action !== 2 && (
                                     <button
                                         onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
                                         className="ml-4 text-red-500"
                                     >
                                         Xóa
                                     </button>
-                                </div>
-                            ))}
+                                )}
+                            </div>
+                        ))}
 
                         {/* Nút thêm giá trị lựa chọn */}
-                        <button
-                            onClick={() => handleAddOptionValue(optionIndex)}
-                            className="flex items-center mb-4 ml-auto text-sm font-light text-white border-1 bg-primary/80 lg:px-4 lg:py-2"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="currentColor"
-                                className="mr-1 size-3"
+                        {action !== 2 && (
+                            <button
+                                onClick={() => handleAddOptionValue(optionIndex)}
+                                className="flex items-center mb-4 ml-auto text-sm font-light text-white border-1 bg-primary/80 lg:px-4 lg:py-2"
                             >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                            {''}Thêm giá trị lựa chọn
-                        </button>
+                                Thêm giá trị lựa chọn
+                            </button>
+                        )}
                     </div>
                 ))}
 
                 {/* Nút thêm lựa chọn */}
-                <button
-                    onClick={handleAddOption}
-                    className="flex items-center text-white bg-red-600 border-red-700 border-1 lg:px-4 lg:py-2"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="size-4"
+                {action !== 2 && (
+                    <button
+                        onClick={handleAddOption}
+                        className="flex items-center text-white bg-red-600 border-red-700 border-1 lg:px-4 lg:py-2"
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    {''}Thêm lựa chọn
-                </button>
+                        Thêm lựa chọn
+                    </button>
+                )}
             </div>
             <div className="flex lg:mt-4">
                 <button
@@ -184,33 +233,16 @@ const FormProductOption = ({ useroption }) => {
                     }}
                     className="flex items-center underline lg:ml-4 lg:px-4 lg:py-3"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-4 font-semibold rotate-180"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                    Quay lại{' '}
+                    Quay lại
                 </button>
-                <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3">
-                    Đăng kí{' '}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-4 font-semibold"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </button>
+                {action !== 2 && (
+                    <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3">
+                        Đăng kí
+                    </button>
+                )}
             </div>
         </div>
     );
 };
+
 export default FormProductOption;
