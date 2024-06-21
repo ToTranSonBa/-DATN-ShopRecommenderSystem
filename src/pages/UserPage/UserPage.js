@@ -268,6 +268,51 @@ const UserPage = () => {
             },
         }));
     };
+
+    // upload image
+    const [files, setFiles] = useState({});
+    const [isDraggedOver, setIsDraggedOver] = useState(false);
+
+    const addFile = (file) => {
+        const isImage = file.type.startsWith('image');
+        if (!isImage) {
+            alert('Only image files are allowed!');
+            return;
+        }
+
+        const objectURL = URL.createObjectURL(file);
+
+        setFiles((prevFiles) => ({
+            ...prevFiles,
+            [objectURL]: file,
+        }));
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDraggedOver(false);
+        for (const file of e.dataTransfer.files) {
+            addFile(file);
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        if (!isDraggedOver) {
+            setIsDraggedOver(true);
+        }
+    };
+
+    const handleDragLeave = () => {
+        setIsDraggedOver(false);
+    };
+
+    const handleFileInputChange = (e) => {
+        for (const file of e.target.files) {
+            addFile(file);
+        }
+    };
+
     return (
         <>
             <div className="relative bg-background">
@@ -989,6 +1034,147 @@ const UserPage = () => {
                                                             />
                                                         </div>
                                                     </div>
+                                                    <main className="w-full h-auto lg:py-2">
+                                                        <article
+                                                            className={`relative h-full flex flex-col ${
+                                                                isDraggedOver ? 'draggedover' : ''
+                                                            }`}
+                                                            onDrop={handleDrop}
+                                                            onDragOver={handleDragOver}
+                                                            onDragLeave={handleDragLeave}
+                                                            onDragEnter={handleDragOver}
+                                                        >
+                                                            <section className="flex flex-col">
+                                                                <ul
+                                                                    id="gallery"
+                                                                    className="flex flex-1 -m-1 overflow-auto flex-nowrap"
+                                                                >
+                                                                    {Object.keys(files).map((key) => (
+                                                                        <li key={key} className="block size-20 lg:px-1">
+                                                                            <article className="relative w-full h-full bg-gray-100  cursor-pointer group focus:outline-none focus:shadow-outline">
+                                                                                {files[key].type.startsWith('image') ? (
+                                                                                    <img
+                                                                                        src={key}
+                                                                                        alt={files[key].name}
+                                                                                        className="object-cover w-full h-full bg-fixed  img-preview"
+                                                                                    />
+                                                                                ) : (
+                                                                                    <h1 className="flex-1">
+                                                                                        {files[key].name}
+                                                                                    </h1>
+                                                                                )}
+
+                                                                                <button
+                                                                                    className="absolute z-10 top-0 right-0 ml-auto  text-white rounded-md delete focus:outline-none hover:bg-gray-300"
+                                                                                    onClick={() => {
+                                                                                        const newFiles = {
+                                                                                            ...files,
+                                                                                        };
+                                                                                        URL.revokeObjectURL(key); // Cleanup object URL
+                                                                                        delete newFiles[key];
+                                                                                        setFiles(newFiles);
+                                                                                    }}
+                                                                                >
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        fill="none"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        stroke-width="1.5"
+                                                                                        stroke="currentColor"
+                                                                                        class="size-3"
+                                                                                    >
+                                                                                        <path
+                                                                                            stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                                                                        />
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </article>
+                                                                        </li>
+                                                                    ))}
+                                                                    {Object.keys(files).length >=
+                                                                    5 ? null : Object.keys(files).length === 0 ? (
+                                                                        <div className="px-1">
+                                                                            <input
+                                                                                id="hidden-input"
+                                                                                type="file"
+                                                                                multiple
+                                                                                className="hidden"
+                                                                                onChange={handleFileInputChange}
+                                                                                accept="image/*"
+                                                                            />
+                                                                            <button
+                                                                                id="button"
+                                                                                className="text-xs flex items-center justify-center lg:gap-2 lg:px-3 text-primary lg:py-2 border-primary border-1 bg-primary/5 rounded-sm focus:shadow-outline focus:outline-none"
+                                                                                onClick={() =>
+                                                                                    document
+                                                                                        .getElementById('hidden-input')
+                                                                                        .click()
+                                                                                }
+                                                                            >
+                                                                                <svg
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    fill="none"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    strokeWidth="1.5"
+                                                                                    stroke="currentColor"
+                                                                                    className="size-4"
+                                                                                >
+                                                                                    <path
+                                                                                        strokeLinecap="round"
+                                                                                        strokeLinejoin="round"
+                                                                                        d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
+                                                                                    />
+                                                                                    <path
+                                                                                        strokeLinecap="round"
+                                                                                        strokeLinejoin="round"
+                                                                                        d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
+                                                                                    />
+                                                                                </svg>
+                                                                                Thêm hình ảnh
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="size-20 flex items-center justify-center border-2 lg:ml-2 border-dashed">
+                                                                            <input
+                                                                                id="hidden-input"
+                                                                                type="file"
+                                                                                multiple
+                                                                                className="hidden"
+                                                                                onChange={handleFileInputChange}
+                                                                                accept="image/*"
+                                                                            />
+                                                                            <button
+                                                                                id="button"
+                                                                                className="text-sm text-gray-300 flex-row items-center justify-center lg:gap-2 lg:px-4 lg:py-2 rounded-sm focus:shadow-outline focus:outline-none"
+                                                                                onClick={() =>
+                                                                                    document
+                                                                                        .getElementById('hidden-input')
+                                                                                        .click()
+                                                                                }
+                                                                            >
+                                                                                <svg
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    fill="currentColor"
+                                                                                    className="size-5"
+                                                                                >
+                                                                                    <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
+                                                                                    <path
+                                                                                        fillRule="evenodd"
+                                                                                        d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                                                                                        clipRule="evenodd"
+                                                                                    />
+                                                                                </svg>
+                                                                                {Object.keys(files).length}/5
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </ul>
+                                                            </section>
+                                                        </article>
+                                                    </main>
                                                 </div>
                                             </React.Fragment>
                                         ))}
@@ -1195,7 +1381,7 @@ const UserPage = () => {
                                     <div className="w-1/3">
                                         <header className="lg:text-xl lg:mb-4">Địa chỉ nhận hàng</header>
                                         <div className="flex-row text-xs font-light">
-                                            <p className="text-sm">Hoàng Cầu</p>
+                                            <p className="text-base lg:py-2 font-medium">Hoàng Cầu</p>
                                             <p className="lg:py-1">0845718717</p>
                                             <p>
                                                 C3/40/3, Phạm Hùng, Ấp 4, Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí
@@ -1429,22 +1615,13 @@ const UserPage = () => {
                                                             </li>
                                                         ))}
                                                     </ul>
-                                                    <div>
-                                                        {/* <div className="flex items-center border-dashed border-1">
-                                                            <div className="text-sm font-light border-dashed lg:py-4 lg:px-4 text-end basis-4/6 border-r-1">
-                                                                Tổng tiền hàng
-                                                            </div>
-                                                            <div className="text-sm font-medium text-end lg:py-4 lg:px-4 basis-2/6">
-                                                                ₫{formatNumber(order.totalPrice)}
-                                                            </div>
-                                                        </div> */}
-                                                        <div className="flex items-center border-dashed border-1 ">
-                                                            <div className="h-auto text-sm font-light border-dashed lg:py-4 lg:px-4 text-end border-r-1 basis-4/6 ">
-                                                                Thành tiền
-                                                            </div>
-                                                            <div className="text-lg font-medium text-end text-primary lg:py-4 lg:px-4 basis-2/6">
-                                                                ₫{formatNumber(order.totalPrice)}
-                                                            </div>
+
+                                                    <div className="flex items-center border-dashed border-1 ">
+                                                        <div className="h-auto text-sm font-light border-dashed lg:py-4 lg:px-4 text-end border-r-1 basis-4/6 ">
+                                                            Thành tiền
+                                                        </div>
+                                                        <div className="text-lg font-medium text-end text-primary lg:py-4 lg:px-4 basis-2/6">
+                                                            ₫{formatNumber(order.totalPrice)}
                                                         </div>
                                                     </div>
                                                 </div>
