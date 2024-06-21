@@ -85,11 +85,20 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
+
             var product = await _productsService.GetProductDetail(id);
             if (product == null)
             {
                 return NotFound();
             }
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader) || authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                var res = await _logService.addView(product.Seller.ID_NK, user);
+            }            
             return Ok(product);
         }
 
@@ -154,7 +163,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var token = authHeader.Substring("Bearer ".Length).Trim();
 
             var user = await _accountService.GetUserFromTokenAsync(token);
-            var res = await _logService.addView(min, sellerId, user);
+            var res = await _logService.addView( sellerId, user);
             return Ok(res);
         }
 

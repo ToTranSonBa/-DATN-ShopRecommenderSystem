@@ -455,7 +455,7 @@ namespace ShopRe.Service
                     Name = document.Name,
                     Price = document.Price,
                     RatingAverage = document.RatingAverage,
-                    RatingCount = document.RatingCount
+                    RatingCount = document.RatingCount,
                 };
                 product.Images= await _dbContext.Images.Where(i=>i.ProductID_NK == product.ID_NK).Select(i=>i.Image).ToListAsync() ;
                 products.Add(product);

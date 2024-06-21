@@ -17,22 +17,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using ShopRe.Data.Migrations;
+using System.Security.Cryptography;
 
 namespace ShopRe.Data.Repositories
 {
-    public interface IAccountRepository
+    public interface IAccountRepository: IRepository<ApplicationUser>
     {
         public Task<IdentityResult> SignUpAsync(SignUpModel signUp);
         public Task<string> SignInAsync(SignInModel signIn);
         Task<ApplicationUser> Update(ApplicationUser user, int ship);
+        public string GenerateRefreshToken();
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        Task<ApplicationUser> GetCustomerByEmail(string Email, bool trackChange);
     }
-    public class AccountRepository : IAccountRepository
+    public class AccountRepository : RepositoryBase<ApplicationUser>, IAccountRepository
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ShopRecommenderSystemDbContext _context;
-        public AccountRepository(ShopRecommenderSystemDbContext context,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AccountRepository(ShopRecommenderSystemDbContext context,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IMapper mapper): base( context, mapper)
         {
             _context = context;
             _userManager = userManager;
@@ -40,7 +44,7 @@ namespace ShopRe.Data.Repositories
             _configuration = configuration;
         }
 
-       
+        
 
         public async Task<string> SignInAsync(SignInModel signIn)
         {
@@ -62,9 +66,52 @@ namespace ShopRe.Data.Repositories
                 expires: DateTime.Now.AddMinutes(180),
                 claims: authClaims,
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(authenKey,
-                    SecurityAlgorithms.HmacSha256Signature)
+                    SecurityAlgorithms.HmacSha256)
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        /*public string GenerateAccessToken(IEnumerable<Claim> claims)
+        {
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var tokeOptions = new JwtSecurityToken(
+                issuer: "https://localhost:5001",
+                audience: "https://localhost:5001",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: signinCredentials
+            );
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            return tokenString;
+        }*/
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
+                ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+            return principal;
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel signUp)
@@ -111,6 +158,12 @@ namespace ShopRe.Data.Repositories
             user.ShippingAddress = ship;
             await _context.SaveChangesAsync();
             return user;
+        }
+
+        //Customer
+        public async Task<ApplicationUser> GetCustomerByEmail(string Email, bool trackChange)
+        {
+            return await FindByCondition(e => e.Email == Email, trackChange).SingleOrDefaultAsync();
         }
     }
 }

@@ -159,7 +159,7 @@ namespace ShopRe.Service
             {
                 Detail = "add to cart",
                 SellerId = product.SellerID_NK,
-                LogRate = LogRate.ADCART,
+                LogRate = LogRate._YES,
                 User = user
             };
             await _UserLogRepository.AddL(newLog);

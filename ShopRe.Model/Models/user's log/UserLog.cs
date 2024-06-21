@@ -14,10 +14,7 @@
 
     public enum LogRate
     {
-        _1MIN = 1,
-        _5MIN = 2,
-        _15MIN = 3,
-        _LONGER_15_MIN = 4,
-        ADCART = 5
+        _YES = 1,
+        _NO = 0
     }
 }

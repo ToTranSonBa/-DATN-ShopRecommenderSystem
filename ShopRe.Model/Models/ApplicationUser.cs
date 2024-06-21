@@ -20,7 +20,9 @@ namespace ShopRe.Model.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TrainCode { get; set; }
         public DateTime? DayOfBirth { get; set; }
-        public ICollection<ShippingAddress> ShippingAddresses { get; set; } 
+        public ICollection<ShippingAddress> ShippingAddresses { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiry { get; set; }
 
         public string GetFullName()
         {

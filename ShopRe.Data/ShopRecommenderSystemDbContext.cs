@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using ShopRe.Data.ConfigurationRole;
 using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
 
@@ -56,6 +57,7 @@ namespace ShopRe.Data
                 ;
             });
             modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.ApplyConfiguration(new RoleConfig());
 
         }
 

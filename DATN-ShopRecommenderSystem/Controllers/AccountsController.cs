@@ -11,6 +11,7 @@ using ShopRe.Model.Authentication;
 using ShopRe.Model.Models;
 using ShopRe.Service;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 
 namespace DATN_ShopRecommenderSystem.Controllers
 {
@@ -19,14 +20,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
+        private IConfiguration _configuration;
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IShoppingSessionService _shopSessionService;
-        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService)
+        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService, IConfiguration configuration)
         {
             _accountService = accountService;
             _userManager = userManager;
             _shopSessionService = shopSessionService;
+            _configuration = configuration;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
@@ -46,7 +49,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return Unauthorized();
             }
-
+            var refreshToken = _accountService.GenerateRefreshToken();
             ApplicationUser user = await _accountService.GetUserFromTokenAsync(token);
             await _shopSessionService.CreateCart(user);
 
@@ -151,6 +154,53 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
+        [HttpPost("Register/Customer")]
+        public async Task<IActionResult> RegisterCustomer([FromBody] CustomerCreateDto customerCreateDto)
+        {
+            if (customerCreateDto == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    "Invalid user!");
+            }
+            else
+            {
+                var userForRegistrationDto = new UserRegistrationDto
+                {
+                    Email = customerCreateDto.Email,
+                    PhoneNumber = customerCreateDto.PhoneNumber,
+                    Password = customerCreateDto.Password,
+                    FirstName = customerCreateDto.FirstName,
+                    LastName = customerCreateDto.LastName,
+                    Roles = customerCreateDto.Roles,
+                    UserName =customerCreateDto.Email,
+                    Address = customerCreateDto.Address
+                };
+                var result = await _accountService.RegisterAsync(userForRegistrationDto);
+                if ((int)result == ((int)RegisterUserStatus.FAILED))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                        "User failed to create");
+                }
+                if ((int)result == ((int)RegisterUserStatus.ROLEERROR))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                         "Roles not exist" );
+                }
+                if ((int)result == ((int)RegisterUserStatus.USEREXIST))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                       "User already exist" );
+                }
+                
+                // Send email comfirm
+                /*var token = await _service.AuthenticationService.GenerateEmailConfirmationTokeAsync(userForRegistrationDto.Email ?? throw new Exception("Invalid Mail"));
+                var confirmLink = _configuration["ApplicationUrl:Url"] + Url.Action(nameof(ComfirmEmail), new { token, email = userForRegistrationDto.Email });
+                var message = new EmailMessage(new string[] { userForRegistrationDto.Email }, "Confirm email link", ConfirmEmailMessage.Message(userForRegistrationDto.Email, confirmLink)!);
+                _service.EmailService.SendEmail(message);
+*/
+                return StatusCode(StatusCodes.Status201Created,"User created successfully");
+            }
+        } 
     }
-}
+
+} 

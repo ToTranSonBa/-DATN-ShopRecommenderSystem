@@ -23,6 +23,7 @@ namespace DATN_ShopRecommenderSystem.Helpers
             CreateMap<Account, AccountDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             CreateMap<ApplicationUser, AccountDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserRegistrationDto>().ReverseMap();
         }
     }
 }

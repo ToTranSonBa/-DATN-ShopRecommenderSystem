@@ -11,6 +11,7 @@ using System.Security.Claims;
 using AutoMapper;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
+using Microsoft.Extensions.Configuration;
 
 namespace ShopRe.Service
 {
@@ -23,6 +24,8 @@ namespace ShopRe.Service
         Task<ApplicationUser> UpdateShip(ApplicationUser user, int id);
         Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user);
         Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
+        Task<RegisterUserStatus> RegisterAsync(UserRegistrationDto userForRegistration);
+        public Task<string> GenerateRefreshToken();
     }
     public class AccountService : IAccountService
     {
@@ -30,17 +33,24 @@ namespace ShopRe.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ShopRecommenderSystemDbContext _context;
 
-        public AccountService(IAccountRepository accountRepository, UserManager<ApplicationUser> userManager,
-            ShopRecommenderSystemDbContext dbContext, IMapper mapper)
+        public AccountService(ShopRecommenderSystemDbContext context, IAccountRepository accountRepository, UserManager<ApplicationUser> userManager,
+            ShopRecommenderSystemDbContext dbContext, RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
+            _context = context;
             _accountRepository = accountRepository;
-            _userManager = userManager;
+            this._userManager = userManager;
+            this._roleManager = roleManager;
             _dbContext = dbContext;
             _mapper= mapper;
         }
         public Task<string> SignInAsync(SignInModel signIn)
         {
+
+
             //throw new NotImplementedException();
             return _accountRepository.SignInAsync(signIn);
         }
@@ -141,6 +151,106 @@ namespace ShopRe.Service
         public async Task<ApplicationUser> UpdateShip(ApplicationUser user, int id)
         {
             return await _accountRepository.Update(user, id);
+        }
+
+        public async Task<string> GenerateRefreshToken()
+        {
+            return  _accountRepository.GenerateRefreshToken();
+        }
+        public async Task<RegisterUserStatus> RegisterAsync(UserRegistrationDto userForRegistration)
+        {
+            var userRegister = _mapper.Map<ApplicationUser>(userForRegistration);
+            userRegister.Avatar = "No Avatar yet !";
+
+            //Check user exits
+            var userExist = await _userManager.FindByEmailAsync(userRegister.Email);
+            if (userExist != null)
+            {
+                return RegisterUserStatus.USEREXIST;
+            }
+            var listUserRoles = new List<string>();
+            foreach (var role in userForRegistration.Roles)
+            {
+                var roleExist = await _roleManager.FindByNameAsync(role);
+                if (roleExist != null)
+                {
+                    listUserRoles.Add(roleExist.Name);
+                }
+            }
+            if (listUserRoles.Count > 0)
+            {
+                // Create user
+                var result = await _userManager.CreateAsync(userRegister, userForRegistration.Password);
+                if (!result.Succeeded)
+                {
+                    return RegisterUserStatus.FAILED;
+                }
+
+                // Add roles to user
+                await _userManager.AddToRolesAsync(userRegister, listUserRoles);
+
+                await _context.SaveChangesAsync();
+                var shippingAddress = new ShippingAddress
+                {
+                    Address = userForRegistration.Address,
+                    FullName = userForRegistration.FirstName + userForRegistration.LastName,
+                    PhoneNumber = userForRegistration.PhoneNumber,
+                    Type = "Văn phòng",
+                    Email = userForRegistration.Email,
+                    UserId = userRegister.Id
+                };
+                _context.ShippingAddresses.Add(shippingAddress);
+                await _context.SaveChangesAsync();
+
+                // Cập nhật defaultAddress của user với Id của địa chỉ giao hàng mới tạo
+                userRegister.ShippingAddress = shippingAddress.Id;
+                await _userManager.UpdateAsync(userRegister);
+
+                return RegisterUserStatus.SUCCESS;
+            }
+            else
+            {
+                return RegisterUserStatus.ROLEERROR;
+            }
+        }
+        //custommer
+        /*public async Task<CustomerDto> CreateCustomerAsync(CustomerCreateDto CustomerDto)
+        {
+
+            var user = await _userManager.FindByEmailAsync(CustomerDto.Email);
+            var existCustomer = await GetCustomerByEmail(CustomerDto.Email, true);
+            if (existCustomer != null)
+            {
+                existCustomer.User = user;
+                existCustomer.UserID = user.Id;
+                await _dbContext.SaveChangesAsync();
+                var customerReturn = _mapper.Map<CustomerDto>(existCustomer);
+                return customerReturn;
+            }
+            var customer = _mapper.Map<Customer>(CustomerDto);
+            var result = _repositoryManager.Customers.CreateCusomter(customer);
+            customer.UserID = user.Id;
+            customer.User = user;
+            await _repositoryManager.SaveAsync();
+            if (result)
+            {
+                var customerReturn = _mapper.Map<CustomerDto>(customer);
+                return customerReturn;
+            }
+            else
+            {
+                return null;
+            }
+        }*/
+        public async Task<CustomerDto> GetCustomerByEmail(string email)
+        {
+            var customer = await _accountRepository.GetCustomerByEmail(email, false);
+            if (customer == null)
+            {
+                throw new Exception($"Email not found {email}");
+            }
+            var customerReturn = _mapper.Map<CustomerDto>(customer);
+            return customerReturn;
         }
     }
 }
