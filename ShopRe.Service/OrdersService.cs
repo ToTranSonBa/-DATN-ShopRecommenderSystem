@@ -207,5 +207,48 @@ namespace ShopRe.Service
         {
             return _orderRepository.Update(entity);
         }
+
+        //public async Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller)
+        //{
+        //    var orders = await _dbContext.Order
+        //                                 .Where(o => o.Seller.ID_NK == seller.Id)
+        //                                 .ToListAsync();
+
+
+        //    List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+
+        //    foreach (var order in listOrder)
+        //    {
+        //        var orderItems = await _dbContext.OrderItems
+        //                                     .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+        //                                     .ToListAsync();
+
+        //        var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+        //        order.Items = Items;
+        //    }
+
+        //    return listOrder;
+        //}
+
+        //public async Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller)
+        //{
+        //    var orders = await _dbContext.Order
+        //                         .Where(o => o.Seller.ID_NK == seller.Id && o.Status == status).ToListAsync();
+
+
+        //    List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+
+        //    foreach (var order in listOrder)
+        //    {
+        //        var orderItems = await _dbContext.OrderItems
+        //                                     .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+        //                                     .ToListAsync();
+
+        //        var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+        //        order.Items = Items;
+        //    }
+
+        //    return listOrder;
+        //}
     }
 }

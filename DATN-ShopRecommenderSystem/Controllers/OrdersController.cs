@@ -324,6 +324,93 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 });
             }
         }
-        
+        //[Authorize]
+        //[HttpGet("ListOfSeller")]
+        //public async Task<ActionResult<Order>> GetOrdersBySeller()
+        //{
+        //    try
+        //    {
+        //        // Lấy token từ header Authorization
+        //        var authHeader = Request.Headers["Authorization"].ToString();
+        //        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        //        {
+        //            return Unauthorized();
+        //        }
+        //        var token = authHeader.Substring("Bearer ".Length).Trim();
+
+        //        var user = await _accountService.GetUserFromTokenAsync(token);
+        //        if (user == null)
+        //        {
+        //            return Unauthorized(new Response<CartItem>()
+        //            {
+        //                message = "Unauthorized!",
+        //                status = "401",
+        //                token = token,
+        //                Data = null,
+        //            });
+        //        }
+
+        //        var order = await _orderService.GetOrdersOfSeller(user);
+        //        if (order == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        return Ok(order);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+        //        {
+        //            message = $"Internal server error: {ex.Message}",
+        //            status = "500",
+        //            token = null,
+        //            Data = null
+        //        });
+        //    }
+        //}
+        //[Authorize]
+        //[HttpGet("OrdersByStatusOfSeller")]
+        //public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByStatusOfSeller(int status)
+        //{
+        //    try
+        //    {
+        //        // Lấy token từ header Authorization
+        //        var authHeader = Request.Headers["Authorization"].ToString();
+        //        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        //        {
+        //            return Unauthorized();
+        //        }
+        //        var token = authHeader.Substring("Bearer ".Length).Trim();
+
+        //        var user = await _accountService.GetUserFromTokenAsync(token);
+        //        if (user == null)
+        //        {
+        //            return Unauthorized(new Response<CartItem>()
+        //            {
+        //                message = "Unauthorized!",
+        //                status = "401",
+        //                token = token,
+        //                Data = null,
+        //            });
+        //        }
+
+        //        var orders = await _orderService.GetOrdersByStatusOfSeller(status, user);
+        //        if (orders == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        return Ok(orders);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+        //        {
+        //            message = $"Internal server error: {ex.Message}",
+        //            status = "500",
+        //            token = null,
+        //            Data = null
+        //        });
+        //    }
+        //}
     }
 }

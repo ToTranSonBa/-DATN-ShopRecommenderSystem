@@ -73,8 +73,15 @@ namespace ShopRe.Service
         }
         public async Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
         {
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == productId);
+
+            if (product == null)
+            {
+                throw new InvalidOperationException("Sản phẩm không tồn tại!");
+            }
+
             var total = await _dbContext.DetailComments.Where(c => c.ProductID == productId).CountAsync();
-            var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters,trackChanges);
+            var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters, trackChanges);
             var commentDTO = commentWithMetadata.Select(e => new CommentDTO
             {
                 ID = e.ID,
@@ -89,5 +96,6 @@ namespace ShopRe.Service
             });
             return (products: commentDTO, total, metaData: commentWithMetadata.MetaData);
         }
+
     }
 }

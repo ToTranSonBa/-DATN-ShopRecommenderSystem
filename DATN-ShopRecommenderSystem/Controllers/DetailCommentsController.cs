@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
@@ -56,16 +57,30 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("List{id}")]
         public async Task<ActionResult<IEnumerable<DetailComment>>> GetDetailCommentsForProduct(int id, [FromQuery] CommentParameters commentParameters)
         {
-            var pageResult = await _detailCommentService.GetAllOnePro(id, commentParameters, false);
-            Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
-
-            var reponse = new
+            try
             {
-                Total = pageResult.total,
-                Comment = pageResult.comments,
-            };
 
-            return Ok(reponse);
+                var pageResult = await _detailCommentService.GetAllOnePro(id, commentParameters, false);
+                Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
+
+                var reponse = new
+                {
+                    Total = pageResult.total,
+                    Comment = pageResult.comments,
+                };
+
+                return Ok(reponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
         }
 
         // GET: api/detailcomments/5
