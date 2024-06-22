@@ -38,7 +38,7 @@ namespace ShopRe.Model.Models
 
         public int Category_LV6_NK { get; set; }
 
-        public int SellerID_NK { get; set; }
+        public int? SellerID_NK { get; set; }
         public string? ShortUrl { get; set; }
         public List<ProductOption> productOptions { get; set; }
     }

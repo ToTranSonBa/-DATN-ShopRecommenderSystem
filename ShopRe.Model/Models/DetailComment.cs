@@ -24,6 +24,9 @@ namespace ShopRe.Model.Models
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
+        public int? OrderID { get; set; }
         public Order? Order { get; set; }
+        public int? AccountCommentId { get; set; }
+        public Account? AccountComment { get; set; }
     }
 }

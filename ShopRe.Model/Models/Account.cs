@@ -22,5 +22,6 @@ namespace ShopRe.Model.Models
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
+        public ICollection<DetailComment> DetailComments { get; set; }
     }
 }
