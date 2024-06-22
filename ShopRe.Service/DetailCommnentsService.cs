@@ -6,6 +6,7 @@ using ShopRe.Model.Models;
 using System.Linq.Expressions;
 using ShopRe.Data;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace ShopRe.Service
 {
@@ -25,11 +26,14 @@ namespace ShopRe.Service
     {
         private readonly IDetailCommentRepository _detailCommentRepository;
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public DetailCommentService(IDetailCommentRepository detailCommentRepository, ShopRecommenderSystemDbContext dbContext)
+        public DetailCommentService(IDetailCommentRepository detailCommentRepository, ShopRecommenderSystemDbContext dbContext,
+            IMapper mapper)
         {
             _detailCommentRepository = detailCommentRepository;
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public Task<DetailComment> Add(DetailComment entity)
@@ -82,7 +86,8 @@ namespace ShopRe.Service
 
             var total = await _dbContext.DetailComments.Where(c => c.ProductID == productId).CountAsync();
             var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters, trackChanges);
-            var commentDTO = commentWithMetadata.Select(e => new CommentDTO
+
+            var commentDTOs = await Task.WhenAll(commentWithMetadata.Select(async e => new CommentDTO
             {
                 ID = e.ID,
                 AccountID = e.AccountID,
@@ -92,10 +97,13 @@ namespace ShopRe.Service
                 Rating = e.Rating,
                 Content = e.Content,
                 CreatedAt = e.CreatedAt,
-                //userName = e.Order.Account.Username
-            });
-            return (products: commentDTO, total, metaData: commentWithMetadata.MetaData);
+                Account = _mapper.Map<AccountDTO>( await _dbContext.Accounts.FirstOrDefaultAsync(a => a.ID_NK == e.AccountID))
+            }));
+
+            return (comments: commentDTOs, total, metaData: commentWithMetadata.MetaData);
         }
+
+
 
     }
 }
