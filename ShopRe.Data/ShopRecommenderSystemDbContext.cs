@@ -33,6 +33,7 @@ namespace ShopRe.Data
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }
         public DbSet<ShopRecommendDaily> shopRecommendDailies { get; set; }
         public DbSet<ProductRecommendDaily> productRecommendDailies { get; set; }
+        public DbSet<CommentImages> CommentImages { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

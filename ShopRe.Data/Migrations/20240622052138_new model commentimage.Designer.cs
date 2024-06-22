@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240622052138_new model commentimage")]
+    partial class newmodelcommentimage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace ShopRe.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2fcb258d-f589-469e-859d-8144a0a9220a",
-                            ConcurrencyStamp = "67d69c22-ba21-41dd-856d-d58822d5b1c0",
+                            Id = "7fb07894-fde3-4e33-bb97-f3aeebc56b16",
+                            ConcurrencyStamp = "12c154af-7cbe-4c0c-8502-d99631cbb52d",
                             Name = "Seller",
                             NormalizedName = "SELLER"
                         },
                         new
                         {
-                            Id = "d98c83ca-fd00-4010-b9c8-756a62b2603a",
-                            ConcurrencyStamp = "c0465da4-9698-4b56-9273-a0ee4a06c640",
+                            Id = "90f8ebd7-99e6-43b7-92fc-857ccd8607de",
+                            ConcurrencyStamp = "fb565396-b35c-44b9-9f27-ffbe2a029acf",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "8efa6942-db55-4be0-8515-8a196526088c",
-                            ConcurrencyStamp = "2fb21553-c815-48da-80cf-1546d43b1bf6",
+                            Id = "06152ee5-2f91-4ea7-a94e-01033227abc5",
+                            ConcurrencyStamp = "04994691-53dd-4663-9d2c-71632ba8c35c",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "439f2071-b9c3-4eae-b3d9-356eab746ccc",
-                            ConcurrencyStamp = "e3e19aff-b642-4294-90c4-7852cb973e55",
+                            Id = "ef4e1f69-586e-4940-acd5-fd4a191a143e",
+                            ConcurrencyStamp = "ca0ae26f-fa81-4922-a1ea-3d656d8e1137",
                             Name = "Shipper",
                             NormalizedName = "SHIPPER"
                         });
@@ -700,9 +702,6 @@ namespace ShopRe.Data.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<decimal?>("ListPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -806,14 +805,8 @@ namespace ShopRe.Data.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

@@ -9,6 +9,7 @@ namespace ShopRe.Model.Models
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID_NK { get; set; }
+        public bool IsDeleted { get; set; }
         public int? ID_SK { get; set; }
         public string? Name { get; set; }
         public string? ShortDescription { get; set; } // Mô tả ngắn
