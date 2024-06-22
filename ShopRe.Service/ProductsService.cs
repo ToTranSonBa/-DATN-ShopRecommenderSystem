@@ -23,8 +23,9 @@ namespace ShopRe.Service
         Task<Product> GetById(int id);
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
-        Task<Product> Update(Product entity);
-        void Remove(int id);
+        Task<Product> AddProduct(CreateProductParameters entity);
+        Task<Product> Update(UpdateProductParameters entity, int id);
+        Task Remove(int id);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
         Task SaveManyAsync(Product[] products);
@@ -251,15 +252,150 @@ namespace ShopRe.Service
         //    return list;
         //}
 
-        public void Remove(int id)
+        public async Task<Product> AddProduct(CreateProductParameters entity)
         {
-            _productRepository.Remove(id);
+            try
+            {
+                var category = await _dbContext.Category.FirstOrDefaultAsync(c => c.ID_NK == Convert.ToInt32(entity.Categories));
+
+                if (category == null)
+                {
+                    throw new ArgumentException("Invalid category ID.");
+                }
+
+                var product = new Product
+                {
+                    Name = entity.ProductName,
+                    ShortDescription = entity.ShortDescription,
+                    Description = entity.ProductDescription,
+                    Price = entity.Price,
+                    Quantity = entity.Quantity,
+                    Category_LV0_NK = category.ID_NK,
+                    IsDeleted = false,
+                    AllTimeQuantitySold = 0,
+                    RatingAverage = 0,
+                    RatingCount = 0,
+                    MaxSaleQuantity = 0,
+                    MinSaleQuantity = 0,
+                    OriginalPrice = entity.Price,
+                    BrandID_NK = Convert.ToInt32(entity.BrandID),
+
+                };
+
+                var productEntityEntry = await _dbContext.Products.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var item in entity.Images)
+                {
+                    var image = new Images
+                    {
+                        ProductID_NK = productEntityEntry.Entity.ID_NK,
+                        Image = item,
+                    };
+                    await _dbContext.Images.AddAsync(image);
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                var indexResponse = await _elasticClient.IndexDocumentAsync(product);
+
+                if (!indexResponse.IsValid)
+                {
+                    throw new Exception($"Failed to index product {product.ID_NK} into Elasticsearch: {indexResponse.ServerError?.Error?.Reason}");
+                }
+
+                return productEntityEntry.Entity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add product.", ex);
+            }
         }
 
-        public Task<Product> Update(Product entity)
+        public async Task Remove(int id)
         {
-            return _productRepository.Update(entity);
+            try
+            {
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+
+                if (product == null)
+                {
+                    throw new ArgumentException("Product not found.");
+                }
+
+                product.IsDeleted = true;
+
+                _dbContext.Update(product);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add product.", ex);
+            }
+
         }
+
+        public async Task<Product> Update(UpdateProductParameters entity, int id)
+        {
+            try
+            {
+                var categoryId = Convert.ToInt32(entity.Categories);
+                var category = await _dbContext.Category.FirstOrDefaultAsync(c => c.ID_NK == categoryId);
+
+                if (category == null)
+                {
+                    throw new ArgumentException("Invalid category ID.");
+                }
+
+
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+
+                if (product == null)
+                {
+                    throw new ArgumentException("Product not found.");
+                }
+
+                product.Name = entity.ProductName;
+                product.ShortDescription = entity.ShortDescription;
+                product.Description = entity.ProductDescription;
+                product.Price = entity.Price;
+                product.Quantity = entity.Quantity;
+                product.Category_LV0_NK = category.ID_NK;
+                product.BrandID_NK = Convert.ToInt32(entity.Brand);
+
+                _dbContext.Products.Update(product);
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var item in entity.Images)
+                {
+                    var image = await _dbContext.Images.FirstOrDefaultAsync(i => i.ProductID_NK == id);
+
+                    if (image == null)
+                    {
+                        image = new Images
+                        {
+                            ProductID_NK = id,
+                            Image = item
+                        };
+                        _dbContext.Images.Add(image);
+                    }
+                    else
+                    {
+                        image.Image = item;
+                        _dbContext.Images.Update(image);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update product.", ex);
+            }
+        }
+
         public async Task<(IEnumerable<ProductDetailDTO> products, MetaData metaData)> GetAll(ProductParameters productParameters)
         {
             var productWithMetadata = await _productRepository.GetAllProduct(productParameters);

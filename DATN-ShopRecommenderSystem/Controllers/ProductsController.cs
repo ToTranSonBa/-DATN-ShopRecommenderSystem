@@ -109,29 +109,43 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var option = await _productsService.GetProductValues(id);
             return Ok(option);
         }
-
         // POST: api/products
         [HttpPost("AddProduct")]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<IActionResult> PostProduct([FromBody] CreateProductParameters product)
         {
-            var res = await _productsService.Add(product);
+            try
+            {
+                var res = await _productsService.AddProduct(product);
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.ID_NK }, product);
+                return CreatedAtAction(nameof(GetProduct), new { id = res.ID_NK }, product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể thêm sản phẩm.");
+            }
         }
 
-        // DELETE: api/products/5
+        //DELETE: api/products/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Product>> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            _productsService.Remove(id);
+            try
+            {
+                await _productsService.Remove(id);
 
-            return NoContent();
+                return NoContent();
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể xóa sản phẩm.");
+            }
         }
         // PUT: api/products/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct([FromBody] UpdateProductParameters updateProduct, int id)
         {
-            var res = await _productsService.Update(product);
+            var res = await _productsService.Update(updateProduct, id);
 
             return NoContent();
         }
