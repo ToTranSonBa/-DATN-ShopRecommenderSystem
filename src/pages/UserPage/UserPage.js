@@ -144,7 +144,7 @@ const UserPage = () => {
                 token,
             );
             if (response) {
-                toast.success('thay đổi thành công');
+                toast.success('Thay đổi thành công');
             }
         } catch (error) {
             console.log('error when call updateUserApi', error);
@@ -1051,12 +1051,12 @@ const UserPage = () => {
                                                                 >
                                                                     {Object.keys(files).map((key) => (
                                                                         <li key={key} className="block size-20 lg:px-1">
-                                                                            <article className="relative w-full h-full bg-gray-100  cursor-pointer group focus:outline-none focus:shadow-outline">
+                                                                            <article className="relative w-full h-full bg-gray-100 cursor-pointer group focus:outline-none focus:shadow-outline">
                                                                                 {files[key].type.startsWith('image') ? (
                                                                                     <img
                                                                                         src={key}
                                                                                         alt={files[key].name}
-                                                                                        className="object-cover w-full h-full bg-fixed  img-preview"
+                                                                                        className="object-cover w-full h-full bg-fixed img-preview"
                                                                                     />
                                                                                 ) : (
                                                                                     <h1 className="flex-1">
@@ -1065,7 +1065,7 @@ const UserPage = () => {
                                                                                 )}
 
                                                                                 <button
-                                                                                    className="absolute z-10 top-0 right-0 ml-auto  text-white rounded-md delete focus:outline-none hover:bg-gray-300"
+                                                                                    className="absolute top-0 right-0 z-10 ml-auto text-white rounded-md delete focus:outline-none hover:bg-gray-300"
                                                                                     onClick={() => {
                                                                                         const newFiles = {
                                                                                             ...files,
@@ -1106,7 +1106,7 @@ const UserPage = () => {
                                                                             />
                                                                             <button
                                                                                 id="button"
-                                                                                className="text-xs flex items-center justify-center lg:gap-2 lg:px-3 text-primary lg:py-2 border-primary border-1 bg-primary/5 rounded-sm focus:shadow-outline focus:outline-none"
+                                                                                className="flex items-center justify-center text-xs rounded-sm lg:gap-2 lg:px-3 text-primary lg:py-2 border-primary border-1 bg-primary/5 focus:shadow-outline focus:outline-none"
                                                                                 onClick={() =>
                                                                                     document
                                                                                         .getElementById('hidden-input')
@@ -1136,7 +1136,7 @@ const UserPage = () => {
                                                                             </button>
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="size-20 flex items-center justify-center border-2 lg:ml-2 border-dashed">
+                                                                        <div className="flex items-center justify-center border-2 border-dashed size-20 lg:ml-2">
                                                                             <input
                                                                                 id="hidden-input"
                                                                                 type="file"
@@ -1147,7 +1147,7 @@ const UserPage = () => {
                                                                             />
                                                                             <button
                                                                                 id="button"
-                                                                                className="text-sm text-gray-300 flex-row items-center justify-center lg:gap-2 lg:px-4 lg:py-2 rounded-sm focus:shadow-outline focus:outline-none"
+                                                                                className="flex-row items-center justify-center text-sm text-gray-300 rounded-sm lg:gap-2 lg:px-4 lg:py-2 focus:shadow-outline focus:outline-none"
                                                                                 onClick={() =>
                                                                                     document
                                                                                         .getElementById('hidden-input')
@@ -1239,8 +1239,8 @@ const UserPage = () => {
                             <div className="overflow-auto h-5/6">
                                 <div class="bg-white rounded-md shadow-sm lg:px-4 lg:pt-4 lg:pb-2">
                                     <ol class="relative border-s border-neutral-300 dark:border-neutral-500 md:flex md:justify-center md:gap-6 md:border-s-0 ">
-                                        <li className="w-full border-t-1 absolute z-10 top-4"></li>
-                                        <li className="flex-1 flex flex-col bg-transparent items-start md:items-center md:text-center">
+                                        <li className="absolute z-10 w-full border-t-1 top-4"></li>
+                                        <li className="flex flex-col items-start flex-1 bg-transparent md:items-center md:text-center">
                                             <div class="relative flex items-center pt-2 md:flex-col md:pt-0 md:items-center">
                                                 <div>
                                                     <svg
@@ -1266,7 +1266,7 @@ const UserPage = () => {
                                                 <p class="mb-3 text-sm dark:text-neutral-300">Đơn Hàng Đã Đặt</p>
                                             </div>
                                         </li>
-                                        <li className="flex-1 flex flex-col items-start md:items-center md:text-center">
+                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                             <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
                                                 <div>
                                                     <svg
@@ -1294,7 +1294,7 @@ const UserPage = () => {
                                                 </p>
                                             </div>
                                         </li>
-                                        <li className="flex-1 flex flex-col items-start md:items-center md:text-center">
+                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                             <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
                                                 <div>
                                                     <svg
@@ -1321,7 +1321,7 @@ const UserPage = () => {
                                             </div>
                                         </li>
 
-                                        <li className="flex-1 flex flex-col items-start md:items-center md:text-center">
+                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                             <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
                                                 <div>
                                                     <svg
@@ -1347,7 +1347,7 @@ const UserPage = () => {
                                                 <p class="mb-3 text-sm dark:text-neutral-300">Đã Nhận Được Hàng</p>
                                             </div>
                                         </li>
-                                        <li className="flex-1  flex flex-col items-start md:items-center md:text-center">
+                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                             <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
                                                 <div>
                                                     <svg
@@ -1381,7 +1381,7 @@ const UserPage = () => {
                                     <div className="w-1/3">
                                         <header className="lg:text-xl lg:mb-4">Địa chỉ nhận hàng</header>
                                         <div className="flex-row text-xs font-light">
-                                            <p className="text-base lg:py-2 font-medium">Hoàng Cầu</p>
+                                            <p className="text-base font-medium lg:py-2">Hoàng Cầu</p>
                                             <p className="lg:py-1">0845718717</p>
                                             <p>
                                                 C3/40/3, Phạm Hùng, Ấp 4, Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí
@@ -1556,11 +1556,11 @@ const UserPage = () => {
                                                     key={order.id}
                                                     className="border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border"
                                                 >
-                                                    <div className="flex items-center text-sm lg:px-6 lg:py-2 font-medium text-gray-500 lg:gap-2">
+                                                    <div className="flex items-center text-sm font-medium text-gray-500 lg:px-6 lg:py-2 lg:gap-2">
                                                         {order.seller}
                                                         <a
                                                             href={`/shoppage/${order.seller.iD_NK}`}
-                                                            className="flex items-center justify-center hover:border-primary hover:text-primary text-xs lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
+                                                            className="flex items-center justify-center text-xs hover:border-primary hover:text-primary lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
                                                         >
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"

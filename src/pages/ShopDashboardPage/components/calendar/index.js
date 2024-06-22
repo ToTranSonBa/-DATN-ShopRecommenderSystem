@@ -1,11 +1,6 @@
 const Calendar = () => {
     return (
-        <body
-            x-data="{ page: 'calendar', 'loaded': true, 'darkMode': true, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
-            x-init="
-          darkMode = JSON.parse(localStorage.getItem('darkMode'));
-          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
-        >
+        <body>
             <div class="flex h-screen overflow-hidden">
                 <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
                     <main>

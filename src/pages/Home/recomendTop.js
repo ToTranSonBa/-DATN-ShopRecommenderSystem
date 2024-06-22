@@ -7,63 +7,6 @@ import { Title } from 'chart.js';
 // API
 import { fetchTopPopProducts } from '../../services/HomeApi/home';
 
-const TopRank = [
-    {
-        title: "Men's T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-    {
-        title: "Women's T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-    {
-        title: "Kids' T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-    {
-        title: "Men's T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-    {
-        title: "Women's T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-    {
-        title: "Kids' T-shirt's",
-        images: [
-            'https://via.placeholder.com/150?text=Image+1',
-            'https://via.placeholder.com/150?text=Image+2',
-            'https://via.placeholder.com/150?text=Image+3',
-        ],
-        href: '#',
-    },
-];
-
 const NewArrivalsToDay = [
     {
         image: ['https://via.placeholder.com/150?text=Image+1'],
@@ -152,7 +95,7 @@ const RecommendTop = () => {
                     <div className="col-span-3 col-start-1 row-span-5 row-start-1 h-[800px]">
                         <div className="flex justify-between col-span-3 row-span-1 row-start-1 lg:pb-4">
                             <span className="font-semibold lg:text-2xl">Xếp hạng hàng đầu</span>
-                            <a className="font-light underline cursor-pointer">Xem thêm</a>
+                            {/* <a className="font-light underline cursor-pointer">Xem thêm</a> */}
                         </div>
                         <div className="relative col-span-3 col-start-1 row-span-4 row-start-2 bg-white rounded-lg h-max">
                             {topPopProducts.length > 0 && (
@@ -259,8 +202,8 @@ const RecommendTop = () => {
                     {/* saving spotlight */}
                     <div className="col-span-3 col-start-7 row-span-5 row-start-1 h-[800px]">
                         <div className="flex justify-between col-span-3 row-span-1 row-start-1 ">
-                            <span className="font-semibold lg:text-2xl">Tiêu điểm tiết kiệm</span>
-                            <a className="font-light underline cursor-pointer">Xem thêm</a>
+                            <span className="font-semibold lg:text-2xl">Được quan tâm nhiều nhất</span>
+                            {/* <a className="font-light underline cursor-pointer">Xem thêm</a> */}
                         </div>
 
                         <div className="lg:py-4">
@@ -276,14 +219,16 @@ const RecommendTop = () => {
                                             alt="This is image"
                                         />
                                     ))}
-                                    <span className="font-normal lg:text-2xl">Giá thấp nhất trong 180 ngày</span>
+                                    <span className="font-normal lg:text-2xl">
+                                        Sản phẩm được quan tâm nhiều nhất ngày hôm qua
+                                    </span>
                                 </div>
                             </div>
 
                             <div className="lg:mt-8">
                                 <div className="bg-white rounded-xl">
                                     <span className="block lg:px-4 lg:py-4 lg:text-xl">
-                                        Ưu đãi cho các mặt hàng bán chạy nhất
+                                        Cửa hàng được quan tâm nhiều nhất ngày hôm qua
                                     </span>
                                     <img
                                         data-twe-lazy-load-init

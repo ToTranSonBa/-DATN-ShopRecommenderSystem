@@ -7,10 +7,10 @@ import ECommerceDoashboard from './ecommerce';
 import Calendar from './components/calendar';
 import Profile from './profile';
 import FormElement from './components/forms/form-elements';
-import FormLayout from './components/forms/form-layout';
+import FormLayoutProfile from './components/forms/form-layout-profile';
 import FormProductManager from './components/forms/form-product';
 import TableProduct from './components/tables/table-product';
-import TableOrder from './components/tables/table-01';
+import TableOrder from './components/tables/table-order';
 import SellerSettings from './settings';
 function SellerDashboard() {
     const [useroption, setUserOption] = useState('ecommercedoashboard');
@@ -33,8 +33,8 @@ function SellerDashboard() {
                         {useroption === 'ecommercedoashboard' && <ECommerceDoashboard />}
                         {useroption === 'calendar' && <Calendar />}
                         {useroption === 'profile' && <Profile />}
-                        {useroption === 'formslayout' && <FormLayout />}
-                        {useroption === 'formselements' && <FormElement />}
+                        {/* {useroption === 'formslayout' && <FormLayout />}
+                        {useroption === 'formselements' && <FormElement />} */}
                         {useroption === 'tableproduct' && <TableProduct />}
                         {useroption === 'tableorder' && <TableOrder />}
                         {useroption === 'settings' && <SellerSettings />}
