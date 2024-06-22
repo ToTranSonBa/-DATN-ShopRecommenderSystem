@@ -139,10 +139,30 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(productParameters.ProductName))
             {
-                filters.Add(new MatchPhraseQuery
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = productParameters.ProductName,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
                 {
                     Field = "Name",
-                    Query = productParameters.ProductName
+                    Query = productParameters.ProductName,
+                    Boost = 2.0 // Trọng số cao cho MatchPhrasePrefixQuery
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
                 });
             }
 
@@ -314,10 +334,30 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(productParameters.ProductName))
             {
-                filters.Add(new MatchPhraseQuery
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = productParameters.ProductName,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
                 {
                     Field = "Name",
-                    Query = productParameters.ProductName
+                    Query = productParameters.ProductName,
+                    Boost = 2.0 // Trọng số cao cho MatchPhrasePrefixQuery
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
                 });
             }
 
