@@ -1,13 +1,10 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, WebSocket
-import pyodbc 
-import numpy as np
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-from scipy.sparse import csr_matrix
 import ContentBased as cb
 import uvicorn
 import pickle
+import NeighborhoodBased as nb
+
 app = FastAPI()
 
 # run App: uvicorn main:app --reload
@@ -20,130 +17,12 @@ app.add_middleware(
     allow_headers=["*"],  # Or specify the allowed headers
 )
 
-def prepare_data():
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
-    with pyodbc.connect(conn_str) as conn:
-        cursor = conn.cursor()
-        cursor.execute("exec [SetAvgRating]")
-        cursor.execute("exec [SetBehaviorRating]")
-        conn.commit()
-
-
-def write_rating_to_csv():
-    def ParseRating(rating):
-        d = dict()
-        d["SELLERID"] = rating[0]
-        d["ACCOUNTID"] = rating[1]
-        d["RATING"] = rating[2]
-        return d
-
-    # Thiết lập chuỗi kết nối
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
-    # Kết nối đến SQL Server
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-
-    # lấy dữ liệu Rating
-
-    cursor.execute("SELECT [ACCOUNTID] ,[SELLERID] ,[RATING] FROM [ShopRecommend].[dbo].[AVG_RATING]")
-    result = cursor.fetchall()
-    df = []
-    for rating in result:
-        df.append(ParseRating(rating))
-    df = pd.DataFrame(df)
-
-    df.to_csv("RatingCustomerWithSeller.csv", mode='w')
-    #đóng chuỗi kết nối
-    conn.commit()
-    conn.close()
-
-def read_rating_matrix():
-    df = pd.read_csv("RatingCustomerWithSeller.csv")
-    df = df.drop(df.columns[0], axis=1)
-    x  = df['ACCOUNTID'].value_counts() > 10
-    y = x[x].index
-    df = df[df['ACCOUNTID'].isin(y)]
-    rating_pivot = df.pivot_table(columns='SELLERID', index='ACCOUNTID', values='RATING')
-    rating_pivot.fillna(-1, inplace=True)
-    return rating_pivot
-
-def read_similarity_matrix():
-    df = pd.read_csv("similarity.csv")
-    return df
-
-def write_similarity_matrix():
-    rating_pivot = read_rating_matrix()
-    rating_sparse = csr_matrix(rating_pivot)
-
-    similarity =  cosine_similarity(rating_sparse)
-    df_similarity = pd.DataFrame(similarity)
-    df_similarity.to_csv('similarity.csv', index=False)
-
-def get__UserAvgRating(user):
-        # Thiết lập chuỗi kết nối
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
-    # Kết nối đến SQL Server
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-    cursor.execute("SELECT [RATING] FROM [dbo].[ACCOUNT_AVG_RATING] WHERE [ACCOUNTID] = ?", user)
-    result = cursor.fetchone()
-    conn.close()
-    return result[0]
-
-async def fake_training_process(websocket: WebSocket):
-    rating_pivot = read_rating_matrix()
-    similarity_matrix = read_similarity_matrix()
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-
-    cursor.execute("truncate table [dbo].[ACCOUNT_SELLER_PRIORITY]")
-    num_users = len(rating_pivot.index)
-    oldvalue = 0
-
-    # todo
-    for idx, user in enumerate(rating_pivot.index.tolist()):
-        user_index = rating_pivot.index.get_loc(user)
-
-        user_ratings = rating_pivot.iloc[user_index] # mảng 1 chiều, rating của user với các item
-        user_similarity = similarity_matrix.iloc[user_index]
-
-        avg_rating = get__UserAvgRating(user)
-        
-        for i in range(0, rating_pivot.shape[1]):
-            neighbor_rating_matrix = rating_pivot.iloc[:,i]
-            neighbor_rating_matrix = np.array(neighbor_rating_matrix)
-            similarity_arr = np.array(user_similarity)
-            mask = neighbor_rating_matrix != -1
-            avg = np.average(neighbor_rating_matrix[mask] * similarity_arr[mask])
-            user_ratings.iloc[i] = avg + avg_rating
-        user_ratings = user_ratings.reset_index()
-        user_ratings.columns = ['sellerid', 'rating']
-        user_ratings = user_ratings.sort_values(by='rating', ascending=False)
-        i = 0
-        for index, row in user_ratings.iterrows():   
-            cursor.execute(f"INSERT INTO [dbo].[ACCOUNT_SELLER_PRIORITY] ([ACCOUNTID] ,[SELLERID] ,[PRIO] ,[IDX]) VALUES (?,?,?,?)", (user, int(row['sellerid']), row['rating'], i))
-            i = i + 1
-        conn.commit()
-
-                # Update progress every 1%
-        progress = int((idx + 1) / num_users * 100)
-        if progress % 1 == 0 and progress != oldvalue:
-            await websocket.send_text(f"Training progress: {progress}%")
-            oldvalue = progress
-    # end todo
-    conn.close()
-
-async def write_rating_to_csv_process(websocket: WebSocket):
-    write_rating_to_csv()
-    await websocket.send_text(f"Kết thúc ghi file rating")
-
-async def write_similarity_matrix_process(websocket: WebSocket):
-    write_similarity_matrix()
-    await websocket.send_text(f"Kết thúc ghi file similarity")
+async def Knn_train(websocket: WebSocket):
+    nb.train()
+    await websocket.send_text(f"Kết thúc ghi train")
 
 async def prepare_data_async(websocket: WebSocket):
-    prepare_data()
+    nb.prepare_data()
     await websocket.send_text(f"Chuẩn bị data xong")
 
 @app.websocket("/ws/offline")
@@ -151,12 +30,8 @@ async def train_data_offline(websocket: WebSocket):
     await websocket.accept()
     await websocket.send_text(f"Chuẩn bị dữ liệu")
     await prepare_data_async()
-    await websocket.send_text(f"Bắt đầu ghi file rating")
-    await write_rating_to_csv_process(websocket)
-    await websocket.send_text(f"Bắt đầu ghi file Similarity")
-    await write_similarity_matrix_process(websocket)
-    await websocket.send_text(f"Bắt đầu training")
-    await fake_training_process(websocket)
+    await websocket.send_text(f"Train")
+    await Knn_train(websocket)
     await websocket.send_text(f"Kết thúc training")
     await websocket.close()
 
@@ -168,7 +43,10 @@ for i in cate:
     movies[i] = pickle.load(open(f'artifacts/movie_list_cate_{i}.pkl','rb'))
     similarites[i] = pickle.load(open(f'artifacts/similarity_cate_{i}.pkl','rb'))
 
-
+def load_cb():
+    for i in cate:
+        movies[i] = pickle.load(open(f'artifacts/movie_list_cate_{i}.pkl','rb'))
+        similarites[i] = pickle.load(open(f'artifacts/similarity_cate_{i}.pkl','rb'))
 
 @app.websocket("/ws/TraingProduct")
 async def TraingProduct(websocket: WebSocket):
@@ -177,16 +55,15 @@ async def TraingProduct(websocket: WebSocket):
     for i in cate:
         print(i)
         await websocket.send_text(f"{cate.index(i) / len(cate) * 100}%")
-        check = cb.fetch_products_by_cate(i)
-        if check == False:
-            
-            continue
+        cb.fetch_products_by_cate(i)
         cb.training(i)
     await websocket.send_text(f"Kết thúc training")
     await websocket.close()
+    load_cb()
+    print('load lai model')
 
 @app.get("/get/RecommendProduct")
-def RecommendProduct(userid: int, productId: int, cateid: int):
+async def RecommendProduct(userid: int, productId: int, cateid: int):
     movie = []
     similarity = []
     if(cateid in cate):
@@ -195,7 +72,7 @@ def RecommendProduct(userid: int, productId: int, cateid: int):
 
     result = []
     if len(movie) > 0 and len(similarity > 0):
-        result = cb.recommend(productId, movie, similarity)
+        result = await cb.recommend(productId, movie, similarity)
         result = [int(x) for x in result]
 
     if userid != 0:
@@ -205,7 +82,6 @@ def RecommendProduct(userid: int, productId: int, cateid: int):
         "total": len(result),
         "products": result
     }
-
 
 @app.get("/get/RecommendProductForUser")
 def RecommendProduct(userid: int):
@@ -229,4 +105,5 @@ def RecommendProduct(userid: int):
     }
 
 if __name__ == '__main__':
+    load_cb()
     uvicorn.run(app, port=8888, host='localhost')

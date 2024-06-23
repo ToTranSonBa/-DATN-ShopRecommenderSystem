@@ -20,19 +20,24 @@ def ParseProduct(rating):
     return d
 
 def remove_space(L):
+    if(L is None):
+        return ""
     L1 = []
     for i in L:
         L1.append(i.replace(" ",""))
     return L1
 
 def fetch_array(text):
+    if(text is None):
+        return [""]
     L = []
     L.append(text)
     return L
 
 def stems(text):
+    if(text is None):
+        return ""
     T = []
-    
     for i in text.split():
         T.append(ps.stem(i))
     
@@ -41,29 +46,31 @@ def stems(text):
 def fetch_products_by_cate(cate):
     conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
 # Kết nối đến SQL Server
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
-    cursor.execute("SELECT p.[ID_NK],p.[Name] ,"
-                +"s.Name as selName,"
-                +"b.Name as BrandName from Product p "
-                +"left join Brands b on p.BrandID_NK = b.ID_NK "
-                +"left join Seller s on p.SellerID_NK = s.ID_NK "
-                +f"where p.[Category_LV0_NK] = {cate}")
-    result = cursor.fetchall()
-    df = []
-    for rating in result:
-        df.append(ParseProduct(rating))
-    df = pd.DataFrame(df)
-
-    df.to_csv(f"CSV/Product_cate_{cate}.csv", mode='w', index=False)
-    conn.close()
+    with pyodbc.connect(conn_str) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT p.[ID_NK],p.[Name] ,"
+                    +"s.Name as selName,"
+                    +"b.Name as BrandName from Product p "
+                    +"left join Brands b on p.BrandID_NK = b.ID_NK "
+                    +"left join Seller s on p.SellerID_NK = s.ID_NK "
+                    +f"where p.[Category_LV0_NK] = {cate}")
+        result = cursor.fetchall()
+        df = []
+        for rating in result:
+            df.append(ParseProduct(rating))
+        df = pd.DataFrame(df)
+        return df
 
 def training(cate):
 
     try:
-        products = pd.read_csv(f"CSV/Product_cate_{cate}.csv")
-    
-        products.dropna(inplace=True)
+        products = fetch_products_by_cate(cate)
+
+        if(len(products) == 0):
+            with open(f'artifacts/movie_list_cate_{cate}.pkl', 'wb') as file:
+                pickle.dump([], file)
+            with open(f'artifacts/similarity_cate_{cate}.pkl', 'wb') as file:
+                pickle.dump([], file)
 
         products['selName'] = products['selName'].apply(fetch_array)
         products['BrandName'] = products['BrandName'].apply(fetch_array)
@@ -92,17 +99,20 @@ def training(cate):
         return True
     except:
         with open(f'artifacts/movie_list_cate_{cate}.pkl', 'wb') as file:
-            print("tao file")
+            pickle.dump([], file)
         return False
 
-def recommend(productid, new_df, similarity, len=10):
+async def recommend(productid, new_df, similarity, lenght=10):
     try:
+        if(len(new_df) == 0):
+            return []
+        
         new_df = new_df.reset_index(drop=True)
 
         index = new_df[new_df['ID_NK'] == productid].index.tolist()
         distances = sorted(list(enumerate(similarity[index[0]])),reverse=True,key = lambda x: x[1])
         result = []
-        for i in distances[:len]:
+        for i in distances[:lenght]:
             result.append(new_df.iloc[i[0]].ID_NK)
         return result
     except:
@@ -129,9 +139,3 @@ def get_recommend_for_user(user):
 
 if __name__=="__main__":
     print(1)
-# def recommend(productid):
-#     index = new_df[new_df['ID_NK'] == productid].index[0]
-#     print(new_df.iloc[index])
-#     distances = sorted(list(enumerate(similarity[index])),reverse=True,key = lambda x: x[1])
-#     for i in distances[1:10]:
-#         print(new_df.iloc[i[0]].Name)
