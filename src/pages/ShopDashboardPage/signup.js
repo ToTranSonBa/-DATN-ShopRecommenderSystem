@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { SignupApi } from '../../services/SignupApi/SignUpApi';
 
 const SellerSignUp = () => {
-    const [step, setStep] = useState(1);
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,30 +19,32 @@ const SellerSignUp = () => {
     const [shopPhoneNumber, setShopPhoneNumber] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
 
-    const isPersonalInfoFilled = () => {
-        return lastName.trim() !== '' && firstName.trim() !== '' && address.trim() !== '' && phoneNumber.trim() !== '';
+    const handleShopNameChange = (e) => {
+        if (e.target.value.length <= 50) {
+            setShopName(e.target.value);
+        }
     };
 
-    const isAccountInfoFilled = () => {
-        return email.trim() !== '' && password.trim() !== '' && confirmPassword.trim() !== '';
+    const isShopNameFilled = () => {
+        return shopName.trim() !== '';
+    };
+
+    const isShopAddressFilled = () => {
+        return shopAddress.trim() !== '';
+    };
+
+    const isShopPhoneNumberFilled = () => {
+        return shopPhoneNumber.trim() !== '';
     };
 
     const isShopInfoFilled = () => {
         return shopName.trim() !== '' && shopAddress.trim() !== '' && shopPhoneNumber.trim() !== '';
     };
 
-    console.log('isPersonalInfoFilled ', isPersonalInfoFilled());
-    console.log('isAccountInfoFilled ', isAccountInfoFilled());
-    console.log('isShopInfoFilled ', isShopInfoFilled());
-    console.log('termsAccepted ', termsAccepted);
+    console.log('shop name fill: ', isShopNameFilled());
+    console.log('shop address fill: ', isShopAddressFilled());
+    console.log('shop phone fill: ', isShopPhoneNumberFilled());
 
-    const handleNextStep = () => {
-        setStep(step + 1);
-    };
-
-    const handlePrevStep = () => {
-        setStep(step - 1);
-    };
     const handleTermsChange = (e) => {
         setTermsAccepted(e.target.checked);
     };
@@ -127,270 +128,85 @@ const SellerSignUp = () => {
                                 handleClick();
                             }}
                         >
-                            {(step === 1 || step === 4) && (
-                                <>
-                                    <div className="flex lg:gap-2">
-                                        <div className="w-1/2">
-                                            <label
-                                                htmlFor="last-name"
-                                                className="block mb-2 text-sm font-medium text-gray-900 "
-                                            >
-                                                Họ
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="last-name"
-                                                id="last-name"
-                                                placeholder="Nguyễn"
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                                value={lastName}
-                                                onChange={(e) => setLastName(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="w-1/2">
-                                            <label
-                                                htmlFor="first-name"
-                                                className="block mb-2 text-sm font-medium text-gray-900 "
-                                            >
-                                                Tên
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="first-name"
-                                                id="first-name"
-                                                placeholder="Văn A"
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                                value={firstName}
-                                                onChange={(e) => setFirstName(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="address"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Địa chỉ
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="address"
-                                            id="address"
-                                            placeholder="Số nhà, Đường, Quận, Thành phố"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={address}
-                                            onChange={(e) => setAddress(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="phone-number"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Số điện thoại
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            name="phone-number"
-                                            id="phone-number"
-                                            placeholder="0123456789"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={phoneNumber}
-                                            onChange={(e) => setPhoneNumber(e.target.value)}
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            {(step === 2 || step === 4) && (
-                                <>
-                                    <div>
-                                        <label
-                                            htmlFor="email"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Email của bạn
-                                        </label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            id="email"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block min-w-[390px] w-full p-2.5 "
-                                            placeholder="name@company.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label
-                                            htmlFor="password"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Mật khẩu
-                                        </label>
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            id="password"
-                                            placeholder="••••••••"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label
-                                            htmlFor="confirm-password"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Nhập lại mật khẩu
-                                        </label>
-                                        <input
-                                            type="password"
-                                            name="confirm-password"
-                                            id="confirm-password"
-                                            placeholder="••••••••"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            {(step === 3 || step === 4) && (
-                                <>
-                                    <div>
-                                        <label
-                                            htmlFor="shop-name"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Tên cửa hàng
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="shop-name"
-                                            id="shop-name"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block min-w-[390px] w-full p-2.5 "
-                                            placeholder="ShopLY"
-                                            value={shopName}
-                                            onChange={(e) => setShopName(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label
-                                            htmlFor="shop-address"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Địa chỉ cửa hàng
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="shop-address"
-                                            id="shop-address"
-                                            placeholder="Số nhà, Đường, Quận, Thành phố"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={shopAddress}
-                                            onChange={(e) => setShopAddress(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label
-                                            htmlFor="shop-phone-number"
-                                            className="block mb-2 text-sm font-medium text-gray-900 "
-                                        >
-                                            Số điện thoại liên hệ
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            name="shop-phone-number"
-                                            id="shop-phone-number"
-                                            placeholder="0123456789"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
-                                            value={shopPhoneNumber}
-                                            onChange={(e) => setShopPhoneNumber(e.target.value)}
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            <div className="flex justify-between">
-                                {step !== 1 && (
-                                    <button
-                                        className="flex items-center justify-start w-1/2 hover:underline"
-                                        type="button"
-                                        onClick={handlePrevStep}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-4"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M15.75 19.5 8.25 12l7.5-7.5"
-                                            />
-                                        </svg>{' '}
-                                        Quay lại
-                                    </button>
-                                )}
-                                {step !== 4 && (
-                                    <button
-                                        className="flex items-center justify-end w-full hover:underline"
-                                        type="button"
-                                        onClick={handleNextStep}
-                                    >
-                                        Tiếp tục{' '}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-4"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                                            />
-                                        </svg>
-                                    </button>
-                                )}
+                            <div className="relative">
+                                <label htmlFor="shop-name" className="block mb-2 text-sm font-medium text-gray-900 ">
+                                    Tên cửa hàng
+                                </label>
+                                <input
+                                    type="text"
+                                    name="shop-name"
+                                    id="shop-name"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block min-w-[390px] w-full lg:pr-16 py-2.5 pl-2.5"
+                                    placeholder="ShopLY"
+                                    onChange={handleShopNameChange}
+                                    maxLength="50"
+                                    required
+                                />
+                                <span className="absolute text-sm text-gray-400 right-3 top-10">
+                                    {shopName.length} / 50
+                                </span>
                             </div>
-                            {step === 4 && (
-                                <>
-                                    <div className="flex items-start">
-                                        <div className="flex items-center h-5">
-                                            <input
-                                                id="terms"
-                                                aria-describedby="terms"
-                                                type="checkbox"
-                                                onChange={handleTermsChange}
-                                                className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 "
-                                                required=""
-                                            />
-                                        </div>
-                                        <div className="ml-3 text-sm">
-                                            <label htmlFor="terms" className="font-light text-gray-500 ">
-                                                Tôi chấp nhận tất cả{' '}
-                                                <a className="font-medium text-primary-600 hover:underline " href="#">
-                                                    điều khoản
-                                                </a>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500"
-                                    >
-                                        Đăng kí
-                                    </button>
-                                </>
-                            )}
+                            <div>
+                                <label htmlFor="shop-address" className="block mb-2 text-sm font-medium text-gray-900 ">
+                                    Địa chỉ cửa hàng
+                                </label>
+                                <input
+                                    type="text"
+                                    name="shop-address"
+                                    id="shop-address"
+                                    placeholder="Số nhà, Đường, Quận, Thành phố"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
+                                    value={shopAddress}
+                                    onChange={(e) => setShopAddress(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    htmlFor="shop-phone-number"
+                                    className="block mb-2 text-sm font-medium text-gray-900 "
+                                >
+                                    Số điện thoại liên hệ
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="shop-phone-number"
+                                    id="shop-phone-number"
+                                    placeholder="0123456789"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
+                                    value={shopPhoneNumber}
+                                    onChange={(e) => setShopPhoneNumber(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex items-start">
+                                <div className="flex items-center h-5">
+                                    <input
+                                        id="terms"
+                                        aria-describedby="terms"
+                                        type="checkbox"
+                                        onChange={handleTermsChange}
+                                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 "
+                                        required=""
+                                    />
+                                </div>
+                                <div className="ml-3 text-sm">
+                                    <label htmlFor="terms" className="font-light text-gray-500 ">
+                                        Tôi chấp nhận tất cả{' '}
+                                        <a className="font-medium text-primary-600 hover:underline " href="#">
+                                            điều khoản
+                                        </a>
+                                    </label>
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500"
+                            >
+                                Đăng kí
+                            </button>
+
                             <ToastContainer />
                             <p className="flex justify-between text-sm font-light text-gray-500 ">
                                 Đã có tài khoản?{' '}
@@ -405,171 +221,101 @@ const SellerSignUp = () => {
                     </div>
                     <ol class="relative lg:mt-8 justify-self-end  text-gray-500  ">
                         <div className="border-gray-200 border-s ">
-                            <li class="mb-10 ms-6 ">
-                                {(step === 2 || step == 3 || step === 4) && isPersonalInfoFilled() ? (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
+                            <li className="mb-10 ms-6">
+                                {isShopInfoFilled() ? (
+                                    <span className="absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4 ring-white">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
                                             viewBox="0 0 24 24"
-                                            stroke-width="1.5"
+                                            strokeWidth="1.5"
                                             stroke="currentColor"
-                                            class="size-6 text-white bg-green-500 rounded-full"
+                                            className="text-white bg-green-500 rounded-full size-6"
                                         >
                                             <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
                                                 d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                                             />
                                         </svg>
                                     </span>
                                 ) : (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
+                                    <span className="absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4 ring-white">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
                                             viewBox="0 0 24 24"
-                                            stroke-width="1.5"
+                                            strokeWidth="1.5"
                                             stroke="currentColor"
-                                            class="size-7"
+                                            className="size-7"
                                         >
                                             <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
                                                 d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
                                             />
                                         </svg>
                                     </span>
                                 )}
-
-                                <h3 class="font-medium leading-tight">Thông tin cá nhân</h3>
-                                <p class="text-sm">Họ và tên</p>
-                                <p class="text-sm">Địa chỉ</p>
-                                <p class="text-sm">Số điện thoại cá nhân</p>
+                                <h3
+                                    className={`${
+                                        isShopInfoFilled() ? 'text-green-700' : ''
+                                    } font-medium leading-tight`}
+                                >
+                                    Thông tin cửa hàng
+                                </h3>
+                                <p className={`${isShopNameFilled() ? 'text-green-700' : ''} text-sm`}>Tên cửa hàng</p>
+                                <p className={`${isShopAddressFilled() ? 'text-green-700' : ''} text-sm`}>
+                                    Địa chỉ cửa hàng
+                                </p>
+                                <p className={`${isShopPhoneNumberFilled() ? 'text-green-700' : ''} text-sm`}>
+                                    Số điện thoại liên hệ
+                                </p>
                             </li>
                             <li class="mb-10 ms-6">
-                                {(step === 3 || step === 4) && isAccountInfoFilled() ? (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-6 text-white bg-green-500 rounded-full"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                            />
-                                        </svg>
-                                    </span>
+                                {isShopInfoFilled() && termsAccepted === true ? (
+                                    <>
+                                        <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="1.5"
+                                                stroke="currentColor"
+                                                class="size-6 text-white bg-green-500 rounded-full"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <h3 class="text-green-700 font-medium leading-tight">Tổng quan</h3>
+                                        <p class="text-green-700 text-sm">Hoàn thành</p>
+                                    </>
                                 ) : (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-7"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                                            />
-                                        </svg>
-                                    </span>
+                                    <>
+                                        <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="1.5"
+                                                stroke="currentColor"
+                                                class="size-7"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <h3 class="font-medium leading-tight">Tổng quan</h3>
+                                        <p class="text-sm">Hoàn thành</p>
+                                    </>
                                 )}
-                                <h3 class="font-medium leading-tight">Thông tin tài khoản</h3>
-                                <p class="text-sm">Email</p>
-                                <p class="text-sm">Mật khẩu</p>
-                            </li>
-                            <li class="mb-10 ms-6">
-                                {step === 4 && isShopInfoFilled() ? (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-6 text-white bg-green-500 rounded-full"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                ) : (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-7"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                )}
-                                <h3 class="font-medium leading-tight">Thông tin cửa hàng</h3>
-                                <p class="text-sm">Tên cửa hàng</p>
-                                <p class="text-sm">Địa chỉ cửa hàng</p>
-                                <p class="text-sm">Số điện thoại liên hệ</p>
-                            </li>
-                            <li class="mb-10 ms-6">
-                                {step === 4 &&
-                                isPersonalInfoFilled() &&
-                                isAccountInfoFilled() &&
-                                isShopInfoFilled() &&
-                                termsAccepted === true ? (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-6 text-white bg-green-500 rounded-full"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                ) : (
-                                    <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-7"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                )}
-                                <h3 class="font-medium leading-tight">Tổng quan</h3>
-                                <p class="text-sm">Hoàn thành</p>
                             </li>
                         </div>
                     </ol>

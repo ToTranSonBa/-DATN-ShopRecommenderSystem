@@ -972,7 +972,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                         <p class="mb-3 text-sm dark:text-neutral-300">Đã Xác Nhận Thông Tin Đơn Hàng</p>
                                     </div>
                                 </li>
-                                {order.status == 2 && (
+                                {order.status === 2 && (
                                     <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                         <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
                                             <div>
@@ -1001,7 +1001,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                     </li>
                                 )}
 
-                                {order.status == 3 && (
+                                {order.status === 3 && (
                                     <>
                                         <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
                                             <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
