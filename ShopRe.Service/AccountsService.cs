@@ -12,6 +12,10 @@ using AutoMapper;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Cryptography;
+
 
 namespace ShopRe.Service
 {
@@ -26,6 +30,9 @@ namespace ShopRe.Service
         Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
         Task<RegisterUserStatus> RegisterAsync(UserRegistrationDto userForRegistration);
         public Task<string> GenerateRefreshToken();
+        Task<RegisterSellerStatus> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO);
+        Task<(LoginStatus status, LoginRespone Token)> LoginAsync(SignInModel userLoginDto);
+
     }
     public class AccountService : IAccountService
     {
@@ -38,7 +45,7 @@ namespace ShopRe.Service
         private readonly ShopRecommenderSystemDbContext _context;
 
         public AccountService(ShopRecommenderSystemDbContext context, IAccountRepository accountRepository, UserManager<ApplicationUser> userManager,
-            ShopRecommenderSystemDbContext dbContext, RoleManager<IdentityRole> roleManager, IMapper mapper)
+            ShopRecommenderSystemDbContext dbContext, RoleManager<IdentityRole> roleManager, IMapper mapper,IConfiguration configuration)
         {
             _context = context;
             _accountRepository = accountRepository;
@@ -46,6 +53,7 @@ namespace ShopRe.Service
             this._roleManager = roleManager;
             _dbContext = dbContext;
             _mapper= mapper;
+            _configuration = configuration;
         }
         public Task<string> SignInAsync(SignInModel signIn)
         {
@@ -213,35 +221,67 @@ namespace ShopRe.Service
                 return RegisterUserStatus.ROLEERROR;
             }
         }
-        //custommer
-        /*public async Task<CustomerDto> CreateCustomerAsync(CustomerCreateDto CustomerDto)
+        public async Task<RegisterSellerStatus> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO)
         {
+            if (sellerRegistrationDTO == null)
+                return RegisterSellerStatus.FAILED;
+            var sellerExitst = await _context.Sellers.Where(s => s.ApplicationUserId == sellerRegistrationDTO.user.Id).ToListAsync();
+            if(sellerExitst.Count > 0) 
+                return RegisterSellerStatus.SELLEREXIST;
+            await _userManager.AddToRoleAsync(sellerRegistrationDTO.user,"Seller");
+            await _context.SaveChangesAsync();
+            var seller = new Seller
+            {
+                Name = sellerRegistrationDTO.StoreName,
+                ApplicationUser = sellerRegistrationDTO.user
+            };
+            var addingSeller = await _context.Sellers.AddAsync(seller);
+            await _context.SaveChangesAsync();
+            if (addingSeller == null)
+                return RegisterSellerStatus.FAILED_TO_ADD_SELLER;
+            return RegisterSellerStatus.SUCCESS;
 
-            var user = await _userManager.FindByEmailAsync(CustomerDto.Email);
-            var existCustomer = await GetCustomerByEmail(CustomerDto.Email, true);
-            if (existCustomer != null)
+        }
+
+        public async Task<(LoginStatus status, LoginRespone Token)> LoginAsync(SignInModel userLoginDto)
+        {
+            var resultUsername = await _userManager.FindByEmailAsync(userLoginDto.Email);
+            if (resultUsername != null)
             {
-                existCustomer.User = user;
-                existCustomer.UserID = user.Id;
-                await _dbContext.SaveChangesAsync();
-                var customerReturn = _mapper.Map<CustomerDto>(existCustomer);
-                return customerReturn;
-            }
-            var customer = _mapper.Map<Customer>(CustomerDto);
-            var result = _repositoryManager.Customers.CreateCusomter(customer);
-            customer.UserID = user.Id;
-            customer.User = user;
-            await _repositoryManager.SaveAsync();
-            if (result)
-            {
-                var customerReturn = _mapper.Map<CustomerDto>(customer);
-                return customerReturn;
+                var result = await _userManager.CheckPasswordAsync(resultUsername, userLoginDto.Password);
+                if (!result)
+                {
+                    return (LoginStatus.INCORRECTPASSWORD, new LoginRespone());
+                }
+                /*var checkConfirmEmail = await _userManager.IsEmailConfirmedAsync(resultUsername);
+                if (!checkConfirmEmail)
+                {
+                    return (LoginStatus.EMAILNOTCONFIRMED, new LoginRespone());
+                }*/
+
+                var refreshToken = await GenerateRefreshToken();
+                resultUsername.RefreshToken = refreshToken;
+                resultUsername.RefreshTokenExpiry = DateTime.Now.AddDays(1);
+                await _userManager.UpdateAsync(resultUsername);
+
+                var accessToken = await GenerateJWTToken(userLoginDto.Email);
+                var role = await _userManager.GetRolesAsync(resultUsername);
+
+                var response = new LoginRespone
+                {
+                    AccessToken = accessToken.token,
+                    RefreshToken = refreshToken,
+                    ValidTo = accessToken.ValidTo,
+                    Role = role.ToList()
+                };
+                return (LoginStatus.SUCCESS, response);
             }
             else
             {
-                return null;
+                return (LoginStatus.USERNOTEXIST, new LoginRespone());
             }
-        }*/
+        }
+
         public async Task<CustomerDto> GetCustomerByEmail(string email)
         {
             var customer = await _accountRepository.GetCustomerByEmail(email, false);
@@ -251,6 +291,44 @@ namespace ShopRe.Service
             }
             var customerReturn = _mapper.Map<CustomerDto>(customer);
             return customerReturn;
+        }
+
+        public async Task<(string token, DateTime ValidTo)> GenerateJWTToken(string Email)
+        {
+            var resultUser = await _userManager.FindByEmailAsync(Email);
+            if (resultUser == null)
+            {
+                return new(string.Empty, DateTime.Now);
+            }
+            var role = await _userManager.GetRolesAsync(resultUser);
+            if (role.Count == 0)
+            {
+                var customerRole = await _roleManager.GetRoleNameAsync(new IdentityRole
+                {
+                    Name = "Customer",
+                    NormalizedName = "CUSTOMER"
+                });
+                await _userManager.AddToRoleAsync(resultUser, customerRole);
+                role = await _userManager.GetRolesAsync(resultUser);
+            }
+            var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Email, Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, role.First())
+
+                };
+
+            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var token = new JwtSecurityToken
+            (
+                audience: _configuration["JWT:ValidAudience"],
+                issuer: _configuration["JWT:ValidIssuer"],
+                expires: DateTime.UtcNow.AddDays(1),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha256Signature)
+            );
+            return new(new JwtSecurityTokenHandler().WriteToken(token), token.ValidTo);
         }
     }
 }

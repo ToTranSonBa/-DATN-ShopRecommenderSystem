@@ -16,4 +16,11 @@ namespace ShopRe.Model.Authentication
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
     }
+    public enum LoginStatus
+    {
+        USERNOTEXIST,
+        INCORRECTPASSWORD,
+        EMAILNOTCONFIRMED,
+        SUCCESS
+    }
 }

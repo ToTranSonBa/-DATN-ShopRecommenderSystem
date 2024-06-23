@@ -77,7 +77,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             var userDTO = await _accountService.GetUserInformation(user);
 
-            
+
             return Ok(userDTO);
         }
         [Authorize]
@@ -119,7 +119,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         [Authorize]
         [HttpPut("UpdatePassword")]
-        public async Task<IActionResult> ChangePassword([FromQuery]ChangePasswordParameters changePasswordParams)
+        public async Task<IActionResult> ChangePassword([FromQuery] ChangePasswordParameters changePasswordParams)
         {
             try
             {
@@ -142,11 +142,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
                 if (result != 4)
                 {
-                    return Ok(new { message = "Call Api success", token = token, status="204" , Data=result});
+                    return Ok(new { message = "Call Api success", token = token, status = "204", Data = result });
                 }
                 else
                 {
-                    return BadRequest(new { message = "Failed to change password" ,token = token, status = "400" });
+                    return BadRequest(new { message = "Failed to change password", token = token, status = "400" });
                 }
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     FirstName = customerCreateDto.FirstName,
                     LastName = customerCreateDto.LastName,
                     Roles = customerCreateDto.Roles,
-                    UserName =customerCreateDto.Email,
+                    UserName = customerCreateDto.Email,
                     Address = customerCreateDto.Address
                 };
                 var result = await _accountService.RegisterAsync(userForRegistrationDto);
@@ -184,23 +184,72 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 if ((int)result == ((int)RegisterUserStatus.ROLEERROR))
                 {
                     return StatusCode(StatusCodes.Status400BadRequest,
-                         "Roles not exist" );
+                         "Roles not exist");
                 }
                 if ((int)result == ((int)RegisterUserStatus.USEREXIST))
                 {
                     return StatusCode(StatusCodes.Status400BadRequest,
-                       "User already exist" );
+                       "User already exist");
                 }
-                
+
                 // Send email comfirm
                 /*var token = await _service.AuthenticationService.GenerateEmailConfirmationTokeAsync(userForRegistrationDto.Email ?? throw new Exception("Invalid Mail"));
                 var confirmLink = _configuration["ApplicationUrl:Url"] + Url.Action(nameof(ComfirmEmail), new { token, email = userForRegistrationDto.Email });
                 var message = new EmailMessage(new string[] { userForRegistrationDto.Email }, "Confirm email link", ConfirmEmailMessage.Message(userForRegistrationDto.Email, confirmLink)!);
                 _service.EmailService.SendEmail(message);
 */
-                return StatusCode(StatusCodes.Status201Created,"User created successfully");
+                return StatusCode(StatusCodes.Status201Created, "User created successfully");
             }
-        } 
+        }
+        [HttpPost("RegisterSeller")]
+        [Authorize(Roles ="Customer")]
+        public async Task<IActionResult> RegisterSeller(string storeName)
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var userCurrent = await _accountService.GetUserFromTokenAsync(token);
+            if (userCurrent == null)
+            {
+                return Unauthorized();
+            }
+            var dto = new SellerRegistrationDTO
+            {
+                StoreName = storeName,
+                user = userCurrent
+            };
+            var result = await _accountService.RegisterSeller(dto);
+            return StatusCode(StatusCodes.Status201Created, "Seller registered successfully");
+        }
+        [HttpPost("Login")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> LoginUser([FromBody] SignInModel userLogin)
+        {
+            var result = await _accountService.LoginAsync(userLogin);
+            switch ((int)result.status)
+            {
+                case (int)LoginStatus.USERNOTEXIST:
+                    return StatusCode(StatusCodes.Status401Unauthorized,"User Not Exist" );
+                case (int)LoginStatus.INCORRECTPASSWORD:
+                    return StatusCode(StatusCodes.Status401Unauthorized,"Incorreted Password" );
+                
+                default:
+                    return StatusCode(StatusCodes.Status200OK,
+                        new LoginRespone
+                        {
+                            AccessToken = result.Token.AccessToken,
+                            RefreshToken = result.Token.RefreshToken,
+                            ValidTo = result.Token.ValidTo,
+                            Role = result.Token.Role,
+                        });
+            }
+        }
     }
 
 } 
