@@ -15,16 +15,8 @@ def ParseProduct(rating):
     d = dict()
     d["ID_NK"] = rating[0]
     d["Name"] = rating[1]
-    d["ShortDescription"] = rating[2]
-    d["Description"] = rating[3]
-    d["OriginalPrice"] = rating[4]
-    d["RatingAverage"] = rating[5]
-    d["RatingCount"] = rating[6]
-    d["selName"] = rating[17]
-    d["selRvCount"] = rating[18]
-    d["selRating"] = rating[19]
-    d["selFlow"] = rating[20]
-    d["BrandName"] = rating[21]
+    d["selName"] = rating[2]
+    d["BrandName"] = rating[3]
     return d
 
 def remove_space(L):
@@ -51,10 +43,9 @@ def fetch_products_by_cate(cate):
 # Kết nối đến SQL Server
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
-    cursor.execute("SELECT p.[ID_NK],p.[Name] ,p.[ShortDescription] ,p.[Description] ,p.[OriginalPrice],p.[RatingAverage],p.[RatingCount] ,p.[BrandID_NK] ,p.[Category_LV0_NK] ,p.[Category_LV1_NK]"
-                +"      ,p.[Category_LV2_NK],p.[Category_LV3_NK],p.[SellerID_NK],p.[ShortUrl] ,p.[Category_LV4_NK] ,p.[Category_LV5_NK] ,p.[Category_LV6_NK],"
-                +"s.Name as selName, s.ReviewCount as selRvCount, "
-                +"s.AvgRatingPoint as selRating, s.TotalFollower as selFlow, b.Name as BrandName from Product p "
+    cursor.execute("SELECT p.[ID_NK],p.[Name] ,"
+                +"s.Name as selName,"
+                +"b.Name as BrandName from Product p "
                 +"left join Brands b on p.BrandID_NK = b.ID_NK "
                 +"left join Seller s on p.SellerID_NK = s.ID_NK "
                 +f"where p.[Category_LV0_NK] = {cate}")
@@ -64,13 +55,13 @@ def fetch_products_by_cate(cate):
         df.append(ParseProduct(rating))
     df = pd.DataFrame(df)
 
-    df.to_csv(f"Product_cate_{cate}.csv", mode='w', index=False)
+    df.to_csv(f"CSV/Product_cate_{cate}.csv", mode='w', index=False)
     conn.close()
 
 def training(cate):
 
     try:
-        products = pd.read_csv(f"Product_cate_{cate}.csv")
+        products = pd.read_csv(f"CSV/Product_cate_{cate}.csv")
     
         products.dropna(inplace=True)
 
@@ -104,18 +95,37 @@ def training(cate):
             print("tao file")
         return False
 
-def recommend(productid, new_df, similarity):
+def recommend(productid, new_df, similarity, len=10):
     try:
         new_df = new_df.reset_index(drop=True)
 
         index = new_df[new_df['ID_NK'] == productid].index.tolist()
         distances = sorted(list(enumerate(similarity[index[0]])),reverse=True,key = lambda x: x[1])
         result = []
-        for i in distances[1:10]:
+        for i in distances[:len]:
             result.append(new_df.iloc[i[0]].ID_NK)
         return result
     except:
         return []
+
+def write_recommend(user, cateid, proid):
+    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    with pyodbc.connect(conn_str) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"exec DropLastRecommend @N__USER_ID = {user}")
+        cursor.execute(f"INSERT INTO UserRecommend VALUES (SYSDATETIME(), {user}, {proid}, {cateid})")
+        conn.commit()
+
+def get_recommend_for_user(user):
+    df = []
+    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    with pyodbc.connect(conn_str) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT [ProductId] ,[CateId] FROM [ShopRecommend].[dbo].[UserRecommend] WHERE UserId = {user} ORDER BY AdDate")
+        result = cursor.fetchall()
+        for i in result:
+            df.append(i)
+    return df
 
 if __name__=="__main__":
     print(1)

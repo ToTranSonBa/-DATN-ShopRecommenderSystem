@@ -1,0 +1,14 @@
+docker pull mcr.microsoft.com/mssql/server:2022-latest
+tag = version
+
+docker run ^
+-e "ACCEPT_EULA=Y" ^
+-e "SA_PASSWORD=Abc@123456789" ^
+--name sql-server-container ^
+-p 1435:1433 ^
+-v my-volume-1:/var/opt/mssql ^
+-d mcr.microsoft.com/mssql/server:2022-latest
+
+
+
+docker run -d --network my_network --name new_container img-schedule-py

@@ -1,0 +1,10 @@
+elasticsearch
+fastapi
+numpy
+pandas
+pyodbc
+requests
+scikit-learn
+tqdm
+uvicorn
+schedule
