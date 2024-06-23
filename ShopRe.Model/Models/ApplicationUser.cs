@@ -23,6 +23,7 @@ namespace ShopRe.Model.Models
         public ICollection<ShippingAddress> ShippingAddresses { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiry { get; set; }
+        public virtual Account? Account { get; set; }
 
         public string GetFullName()
         {

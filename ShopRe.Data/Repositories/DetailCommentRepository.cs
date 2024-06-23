@@ -24,7 +24,7 @@ namespace ShopRe.Data.Repositories
         public async Task<PagedList<DetailComment>?> GetAllComment(int productId, CommentParameters commentParameters, bool trackChanges)
         {
             var obj = FindByCondition(p => p.ProductID == productId, trackChanges)
-                .Include(p => p.Order).Include(p=>p.AccountComment);
+                .Include(p => p.Order).Include(p=>p.Account);
             return PagedList<DetailComment>
                 .ToPagedList(obj, commentParameters.PageNumber,
                 commentParameters.PageSize);

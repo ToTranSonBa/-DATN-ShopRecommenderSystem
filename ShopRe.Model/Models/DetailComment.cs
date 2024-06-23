@@ -26,7 +26,6 @@ namespace ShopRe.Model.Models
         public DateTime? DeletedAt { get; set; }
         public int? OrderID { get; set; }
         public Order? Order { get; set; }
-        public int? AccountCommentId { get; set; }
-        public Account? AccountComment { get; set; }
+        public Account? Account { get; set; }
     }
 }

@@ -169,13 +169,14 @@ namespace ShopRe.Service
         {
             var userRegister = _mapper.Map<ApplicationUser>(userForRegistration);
             userRegister.Avatar = "No Avatar yet !";
-
+            
             //Check user exits
             var userExist = await _userManager.FindByEmailAsync(userRegister.Email);
             if (userExist != null)
             {
                 return RegisterUserStatus.USEREXIST;
             }
+            
             var listUserRoles = new List<string>();
             foreach (var role in userForRegistration.Roles)
             {
@@ -213,6 +214,20 @@ namespace ShopRe.Service
                 // Cập nhật defaultAddress của user với Id của địa chỉ giao hàng mới tạo
                 userRegister.ShippingAddress = shippingAddress.Id;
                 await _userManager.UpdateAsync(userRegister);
+                var accountRegister = new Account
+                {
+                    FullName = $"{userForRegistration.FirstName} {userForRegistration.LastName}",
+                    Username = userForRegistration.UserName,
+                    Avatar = "No Avatar yet !",
+                    TotalReview = 0,
+                    UserID = userRegister.TrainCode
+                };
+                if (accountRegister == null)
+                {
+                    return RegisterUserStatus.FAILED;
+                }
+                await _context.Accounts.AddAsync(accountRegister);
+                await _context.SaveChangesAsync();
 
                 return RegisterUserStatus.SUCCESS;
             }

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using ShopRe.Data.ConfigurationRole;
 using ShopRe.Model.Models;
 using ShopRe.Model.Models.user_s_log;
+using System.Numerics;
+using System.Reflection.Metadata;
 
 namespace ShopRe.Data
 {
@@ -57,7 +59,30 @@ namespace ShopRe.Data
                 .HasForeignKey(e => e.ProductID)
                 ;
             });
-            modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            //modelBuilder.Entity<ApplicationUser>()
+            //    .HasOne(e => e.Account)
+            //        .WithOne(e => e.User)
+            //    .HasForeignKey<Account>(e => e.UserID)
+            //    .IsRequired(false);
+
+            modelBuilder.Entity<ApplicationUser>().Property(p => p.TrainCode)
+            .UseIdentityColumn()
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(e => e.Account)
+                .WithOne(e => e.User)
+                .HasPrincipalKey<ApplicationUser>(e => e.TrainCode)
+                .IsRequired(false);
+
+            //modelBuilder.Entity<Post>()
+            //    .HasOne(p => p.Blog)
+            //    .WithMany(b => b.Posts)
+            //    .HasForeignKey(p => p.BlogUrl)
+            //    .HasPrincipalKey(b => b.Url);
+
+
+            //modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             modelBuilder.ApplyConfiguration(new RoleConfig());
 
         }

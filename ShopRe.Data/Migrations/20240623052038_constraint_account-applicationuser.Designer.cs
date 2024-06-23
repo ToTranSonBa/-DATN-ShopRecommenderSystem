@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240623052038_constraint_account-applicationuser")]
+    partial class constraint_accountapplicationuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace ShopRe.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d3b4bb5a-e808-4f14-8eb5-2b556d56d9ed",
-                            ConcurrencyStamp = "595ed232-5bb9-468c-8db6-d9fd9b487bb4",
+                            Id = "a1235d65-0063-40e3-808a-f43db323cac8",
+                            ConcurrencyStamp = "9fa0fab5-5f02-43cf-9dce-e0d96a54cba4",
                             Name = "Seller",
                             NormalizedName = "SELLER"
                         },
                         new
                         {
-                            Id = "d270f2ce-dc00-4270-a717-0377fbda95c3",
-                            ConcurrencyStamp = "5bad03d6-f49a-4b89-b635-2039c6622cd5",
+                            Id = "7ce16cb5-6590-4f35-83e2-0d8fb98d76ef",
+                            ConcurrencyStamp = "848077a8-9849-4b8f-b379-0b3eb51745d2",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "26d19264-01f9-46ad-86c8-cd2ad5390773",
-                            ConcurrencyStamp = "8eecb76d-ce96-48bc-819e-e4e606f8f716",
+                            Id = "ab33493d-e9b5-4a11-9afb-620386bcd8dd",
+                            ConcurrencyStamp = "1fabc5c7-9029-47db-b0c1-bc306b29dfb7",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "3ffaf8da-66c8-4ff2-adbc-c06faf5d190b",
-                            ConcurrencyStamp = "ec557251-0557-4df5-bd99-2c0694e7fc26",
+                            Id = "834bd71c-17f5-4d5a-a51a-d74b1618407b",
+                            ConcurrencyStamp = "367b1507-d6d4-4381-91d8-71601b25e02e",
                             Name = "Shipper",
                             NormalizedName = "SHIPPER"
                         });
@@ -495,6 +497,9 @@ namespace ShopRe.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
+                    b.Property<int?>("AccountCommentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
@@ -536,7 +541,7 @@ namespace ShopRe.Data.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("AccountID");
+                    b.HasIndex("AccountCommentId");
 
                     b.HasIndex("OrderID");
 
@@ -1187,17 +1192,15 @@ namespace ShopRe.Data.Migrations
 
             modelBuilder.Entity("ShopRe.Model.Models.DetailComment", b =>
                 {
-                    b.HasOne("ShopRe.Model.Models.Account", "Account")
+                    b.HasOne("ShopRe.Model.Models.Account", "AccountComment")
                         .WithMany("DetailComments")
-                        .HasForeignKey("AccountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AccountCommentId");
 
                     b.HasOne("ShopRe.Model.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderID");
 
-                    b.Navigation("Account");
+                    b.Navigation("AccountComment");
 
                     b.Navigation("Order");
                 });

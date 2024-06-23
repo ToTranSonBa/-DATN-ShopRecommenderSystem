@@ -23,5 +23,7 @@ namespace ShopRe.Model.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public ICollection<DetailComment> DetailComments { get; set; }
+        public int? UserID { get; set; }
+        public virtual ApplicationUser? User { get; set; }
     }
 }
