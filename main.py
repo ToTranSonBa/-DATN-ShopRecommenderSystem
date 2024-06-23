@@ -12,8 +12,8 @@ import asyncio
 import ContentBased as cb
 import uvicorn
 import pickle
-
-
+import schedule
+import Schedule as daily
 app = FastAPI()
 
 # run App: uvicorn main:app --reload
@@ -25,6 +25,15 @@ app.add_middleware(
     allow_methods=["*"],  # Or specify the allowed HTTP methods
     allow_headers=["*"],  # Or specify the allowed headers
 )
+
+def prepare_data():
+    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    with pyodbc.connect(conn_str) as conn:
+        cursor = conn.cursor()
+        cursor.execute("exec [SetAvgRating]")
+        cursor.execute("exec [SetBehaviorRating]")
+        conn.commit()
+
 
 def write_rating_to_csv():
     def ParseRating(rating):
@@ -139,11 +148,15 @@ async def write_similarity_matrix_process(websocket: WebSocket):
     write_similarity_matrix()
     await websocket.send_text(f"Kết thúc ghi file similarity")
 
-
+async def prepare_data_async(websocket: WebSocket):
+    prepare_data()
+    await websocket.send_text(f"Chuẩn bị data xong")
 
 @app.websocket("/ws/offline")
 async def train_data_offline(websocket: WebSocket):
     await websocket.accept()
+    await websocket.send_text(f"Chuẩn bị dữ liệu")
+    await prepare_data_async()
     await websocket.send_text(f"Bắt đầu ghi file rating")
     await write_rating_to_csv_process(websocket)
     await websocket.send_text(f"Bắt đầu ghi file Similarity")
@@ -162,6 +175,7 @@ for i in cate:
     similarites[i] = pickle.load(open(f'artifacts/similarity_cate_{i}.pkl','rb'))
 
 
+
 @app.websocket("/ws/TraingProduct")
 async def TraingProduct(websocket: WebSocket):
     await websocket.accept()
@@ -178,20 +192,47 @@ async def TraingProduct(websocket: WebSocket):
     await websocket.close()
 
 @app.get("/get/RecommendProduct")
-def RecommendProduct(productId: int, cateid: int):
+def RecommendProduct(userid: int, productId: int, cateid: int):
     movie = []
     similarity = []
     if(cateid in cate):
         movie = movies[cateid]
         similarity = similarites[cateid]
+
     result = []
     if len(movie) > 0 and len(similarity > 0):
         result = cb.recommend(productId, movie, similarity)
         result = [int(x) for x in result]
 
+    if userid != 0:
+        cb.write_recommend(userid, productId, cateid)
+    
     return {
         "total": len(result),
         "products": result
     }
+
+
+@app.get("/get/RecommendProductForUser")
+def RecommendProduct(userid: int):
+    user_log = cb.get_recommend_for_user(userid)
+    results = []        
+    for cateid, productId  in user_log:
+        movie = []
+        similarity = []
+        if(cateid in cate):
+            movie = movies[cateid]
+            similarity = similarites[cateid]
+
+        if len(movie) > 0 and len(similarity > 0):
+            result = cb.recommend(productId, movie, similarity, 5)
+            results.extend(result)
+    results = [int(x) for x in results]
+    results = list(set(results))
+    return {
+        "total": len(results),
+        "products": results
+    }
+
 if __name__ == '__main__':
     uvicorn.run(app, port=8888, host='localhost')
