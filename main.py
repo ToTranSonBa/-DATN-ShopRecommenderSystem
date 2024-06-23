@@ -1,19 +1,13 @@
-from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, WebSocket
-from typing import Optional
-import os
 import pyodbc 
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
-import asyncio
 import ContentBased as cb
 import uvicorn
 import pickle
-import schedule
-import Schedule as daily
 app = FastAPI()
 
 # run App: uvicorn main:app --reload
