@@ -29,7 +29,7 @@ async def prepare_data_async(websocket: WebSocket):
 async def train_data_offline(websocket: WebSocket):
     await websocket.accept()
     await websocket.send_text(f"Chuẩn bị dữ liệu")
-    await prepare_data_async()
+    await prepare_data_async(websocket)
     await websocket.send_text(f"Train")
     await Knn_train(websocket)
     await websocket.send_text(f"Kết thúc training")

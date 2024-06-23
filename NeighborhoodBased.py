@@ -33,7 +33,7 @@ def prepare_data():
         cursor.execute("Exec SellerAvg")
         cursor.execute("Exec SetAvgRating")
         conn.commit()
-
+    behavior_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
         cursor.execute("select ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING")
@@ -41,7 +41,7 @@ def prepare_data():
         for rating in result:
             behavior_df.append(ParseBehavior(rating))
         behavior_df = pd.DataFrame(behavior_df)
-
+    ratings_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT ACCOUNTID, SELLERID, RATING FROM AVG_RATING")
@@ -63,7 +63,20 @@ def prepare_data():
     with open('artifacts/Knn_List_Seller.pkl', 'wb') as f:
         pickle.dump(seller, f)
 
-    return user, seller
+    df_rate = pd.DataFrame(np.zeros((len(user), len(seller)), dtype=int), index=user, columns=seller)
+    df_rate.index.name = 'user'
+    df_rate.columns.name = 'seller'
+    df_behavior  = pd.DataFrame(df_rate)
+
+    # Điền rating và matrix
+    for idex, rate in ratings_df.iterrows():
+        df_rate.loc[int(rate['user']), int(rate['sellerid'])] = float(rate['rating'])
+
+    # Điền rating và matrix
+    for idex, rate in behavior_df.iterrows():
+        df_behavior.loc[int(rate['user']), int(rate['sellerid'])] = float(rate['behavior'])
+        
+    return df_rate, df_behavior
 
 
 class MatrixFactorization:
@@ -166,6 +179,7 @@ def recommend(user_id, final_predictions, user_rating_matrix, top_n=5):
 
 def train():
     df_rate, df_behavior = prepare_data()
+    print("chuan bi xong du lieu")
     final_predictions = knn_with_weights_and_mf(df_rate, df_behavior)
     with open('artifacts/final_predictions.pkl', 'wb') as f:
         pickle.dump(final_predictions, f)
