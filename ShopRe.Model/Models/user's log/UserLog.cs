@@ -9,6 +9,7 @@
         public int? SellerId { get; set; }
         public Seller? Seller { get; set; }
         public Product? Product { get; set; }
+        public int? TrainCode { get; set; }
         public ApplicationUser? User { get; set; }
     }
 
