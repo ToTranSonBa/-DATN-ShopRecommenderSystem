@@ -138,20 +138,35 @@ namespace ShopRe.Service
             var total = await _dbContext.DetailComments.Where(c => c.ProductID == productId).CountAsync();
             var commentWithMetadata = await _detailCommentRepository.GetAllComment(productId, commentParameters, trackChanges);
 
-            var commentDTOs = await Task.WhenAll(commentWithMetadata.Select(async e => new CommentDTO
+            //var commentDTOs = await Task.WhenAll(commentWithMetadata.Select(async e => new CommentDTO
+            //{
+            //    ID = e.ID,
+            //    AccountID = e.AccountID,
+            //    SellerID = e.SellerID,
+            //    ProductID = e.ProductID,
+            //    Image = e.Image,
+            //    Rating = e.Rating,
+            //    Content = e.Content,
+            //    CreatedAt = e.CreatedAt,
+            //    Account = _mapper.Map<AccountDTO>( await _dbContext.Accounts.FirstOrDefaultAsync(a => a.ID_NK == e.AccountID))
+            //}));
+            var listCmt = new List<CommentDTO>();
+            foreach ( var c in commentWithMetadata) 
             {
-                ID = e.ID,
-                AccountID = e.AccountID,
-                SellerID = e.SellerID,
-                ProductID = e.ProductID,
-                Image = e.Image,
-                Rating = e.Rating,
-                Content = e.Content,
-                CreatedAt = e.CreatedAt,
-                Account = _mapper.Map<AccountDTO>( await _dbContext.Accounts.FirstOrDefaultAsync(a => a.ID_NK == e.AccountID))
-            }));
-
-            return (comments: commentDTOs, total, metaData: commentWithMetadata.MetaData);
+                listCmt.Add(new CommentDTO
+                {
+                    ID = c.ID,
+                    AccountID = c.AccountID,
+                    SellerID = c.SellerID,
+                    ProductID = c.ProductID,
+                    Image = c.Image,
+                    Rating = c.Rating,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    Account = _mapper.Map<AccountDTO>(_dbContext.Accounts.FirstOrDefault(a => a.ID_NK == c.AccountID))
+                });
+            }
+            return (comments: listCmt, total, metaData: commentWithMetadata.MetaData);
         }
 
 
