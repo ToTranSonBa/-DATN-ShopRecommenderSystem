@@ -20,6 +20,7 @@ namespace ShopRe.Service
         Task<SellerDTO> GetLastestProductsOfSellerById(SellerParameters sellerParameters, int id);
         Task<SellerDTO> GetTopQuantitySoldProductsOfSellerById(SellerParameters sellerParameters, int id);
         Task<SellerDTO> GetProductsBySeller(SellerParameters sellerParameters, int id);
+        Task<int> TestElastic(ProductParameters productParameters);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -106,7 +107,6 @@ namespace ShopRe.Service
             }
             return brands.ToList();
         }
-
         private List<DetailComment> ConvertToComment(List<object> documents)
         {
             var commments = new List<DetailComment>();
@@ -130,8 +130,35 @@ namespace ShopRe.Service
             }
             return commments.ToList();
         }
-
         //
+
+        public async Task<int> TestElastic(ProductParameters productParameters)
+        {
+            try
+            {
+                var response = await _elasticClient.SearchAsync<dynamic>(s => s
+                    .Index("products")
+                    .Size(0)
+                    .Aggregations(a => a
+                        .ValueCount("total_products", vc => vc.Field("ID_NK"))
+                    )
+                );
+
+                if (!response.IsValid)
+                {
+                    var errorDetails = response.ServerError?.Error?.Reason ?? "Unknown error";
+                    throw new Exception($"Failed to retrieve product count: {errorDetails}");
+                }
+
+                var totalProducts = response.Aggregations.ValueCount("total_products")?.Value ?? 0;
+                return Convert.ToInt32(totalProducts);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to retrieve product count: {ex.Message}");
+            }
+        }
+
 
         public async Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters)
         {
@@ -204,7 +231,7 @@ namespace ShopRe.Service
             }
 
             var countResponse = await _elasticClient.CountAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Must(mu => mu
@@ -218,7 +245,7 @@ namespace ShopRe.Service
             var count = Convert.ToInt32(countResponse.Count);
 
             var response = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Size(count)
                 .Query(q => q
                     .Bool(b => b
@@ -236,7 +263,7 @@ namespace ShopRe.Service
             );
 
             var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("shoprecommend")
+                    .Index("products")
                     .Size(count)
                     .Query(q => q
                         .Bool(b => b
@@ -347,7 +374,7 @@ namespace ShopRe.Service
                 {
                     Field = "Name",
                     Query = productParameters.ProductName,
-                    Boost = 2.0 // Trọng số cao cho MatchPhrasePrefixQuery
+                    Boost = 2.0 
                 };
 
                 filters.Add(new BoolQuery
@@ -399,7 +426,7 @@ namespace ShopRe.Service
             }
 
             var response = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .From(productParameters.PageNumber * productParameters.PageSize)
                 .Size(productParameters.PageSize)
                 .Query(q => q
@@ -430,10 +457,10 @@ namespace ShopRe.Service
                 )
             );
 
-            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products").Value);
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
             var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("shoprecommend")
+                    .Index("products")
                     .Size(totalProducts)
                     .Query(q => q
                         .Bool(b => b
@@ -473,7 +500,7 @@ namespace ShopRe.Service
         public async Task<IEnumerable<Product>> GetByIdAsync(int id)
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("shoprecommend")
+                    .Index("products")
                     .From(0)
                     .Size(10)
                     .Query(q => q
@@ -504,7 +531,7 @@ namespace ShopRe.Service
         public async Task<ProductRatingCountDTO> ProductRatingCount()
         {
             var countResponse1 = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -515,7 +542,7 @@ namespace ShopRe.Service
             );
 
             var countResponse2 = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -526,7 +553,7 @@ namespace ShopRe.Service
             );
 
             var countResponse3 = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -537,7 +564,7 @@ namespace ShopRe.Service
             );
 
             var countResponse4 = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -548,7 +575,7 @@ namespace ShopRe.Service
             );
 
             var countResponse5 = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -572,7 +599,7 @@ namespace ShopRe.Service
         private async Task<int> GetTotalProductCountForBrand(int brandId)
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -593,7 +620,7 @@ namespace ShopRe.Service
         {
 
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Size(0)
                 .Aggregations(a => a
                     .Terms("brands", t => t
@@ -783,7 +810,7 @@ namespace ShopRe.Service
             var seller = _mapper.Map<SellerDTO>(res);
 
             var countResponse = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -803,7 +830,7 @@ namespace ShopRe.Service
             }
 
             var searchResponse = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -852,7 +879,7 @@ namespace ShopRe.Service
             var seller = _mapper.Map<SellerDTO>(res);
 
             var countResponse = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -872,7 +899,7 @@ namespace ShopRe.Service
             }
 
             var searchResponse = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -912,7 +939,7 @@ namespace ShopRe.Service
         public async Task<List<Product>> GetProductByCate(int cateId)
         {
             var countResponse = await _elasticClient.SearchAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Size(10)
                 .Query(q => q
                     .Bool(b => b
@@ -945,7 +972,7 @@ namespace ShopRe.Service
             var seller = _mapper.Map<SellerDTO>(res);
 
             var countResponse = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
@@ -965,7 +992,7 @@ namespace ShopRe.Service
             }
 
             var searchResponse = await _elasticClient.SearchAsync<object>(s => s
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters => filters
