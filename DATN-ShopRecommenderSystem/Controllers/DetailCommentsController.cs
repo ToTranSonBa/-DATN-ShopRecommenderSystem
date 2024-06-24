@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +19,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
     {
         readonly IDetailCommentService _detailCommentService;
         private readonly IElasticSearchService _elasticsearchService;
-        public DetailCommentsController(IDetailCommentService detailCommentService, IElasticSearchService elasticSearchService)
+        private readonly IAccountService _accountService;
+        private readonly ShopRecommenderSystemDbContext _dbContext;
+        public DetailCommentsController(IDetailCommentService detailCommentService, IElasticSearchService elasticSearchService,
+            IAccountService accountService, ShopRecommenderSystemDbContext dbContext)
         {
             _elasticsearchService = elasticSearchService;
             _detailCommentService = detailCommentService;
+            _accountService = accountService;
+            _dbContext = dbContext;
         }
 
         //[HttpGet("Product{id}")]
@@ -55,21 +61,25 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/detailcomments
         [HttpGet("List{id}")]
-        public async Task<ActionResult<IEnumerable<DetailComment>>> GetDetailCommentsForProduct(int id, [FromQuery] CommentParameters commentParameters)
+        public async Task<IActionResult> GetDetailCommentsForProduct(int id, [FromQuery] CommentParameters commentParameters)
         {
             try
             {
-
                 var pageResult = await _detailCommentService.GetAllOnePro(id, commentParameters, false);
                 Response.Headers.Add("X-paginatioin", JsonSerializer.Serialize(pageResult.metaData));
 
-                var reponse = new
+                var response = new
                 {
                     Total = pageResult.total,
                     Comment = pageResult.comments,
                 };
 
-                return Ok(reponse);
+                //var response = await _dbContext.DetailComments
+                //    .Where(c => c.ProductID == id)  // Take the first 10 results
+                //    .ToListAsync(); // Execute query and retrieve results as a list
+
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -96,12 +106,49 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         // POST: api/detailcomments
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<DetailComment>> PostDetailComment(DetailComment detailComment)
+        public async Task<IActionResult> PostDetailComment([FromBody] CreateDetailCommentPrarameters detailComment)
         {
-            var res = await _detailCommentService.Add(detailComment);
+            try
+            {
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            return CreatedAtAction(nameof(GetDetailComment), new { id = detailComment.ID }, detailComment);
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _detailCommentService.Add(detailComment, user);
+                if (res == null)
+                {
+                    return NotFound();
+                }
+                return CreatedAtAction(nameof(GetDetailComment), new { id = res.ID }, res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response<object>
+                {
+                    message = $"Internal server error: {ex.Message}",
+                    status = "500",
+                    token = null,
+                    Data = null
+                });
+            }
         }
 
         // DELETE: api/detailcomments/5
