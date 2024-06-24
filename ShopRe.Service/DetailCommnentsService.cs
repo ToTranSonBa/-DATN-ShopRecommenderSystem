@@ -16,7 +16,7 @@ namespace ShopRe.Service
         Task<IQueryable<DetailComment>> GetAll(bool trackChanges);
         Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
         Task<DetailComment> GetById(int id);
-        Task<DetailComment> Add(DetailComment entity);
+        Task<DetailComment> Add(CreateDetailCommentPrarameters entity, ApplicationUser user);
         Task<int> AddRange(IEnumerable<DetailComment> entities);
         Task<DetailComment> Update(DetailComment entity);
         void Remove(int id);
@@ -36,10 +36,61 @@ namespace ShopRe.Service
             _mapper = mapper;
         }
 
-        public Task<DetailComment> Add(DetailComment entity)
+        public async Task<DetailComment> Add(CreateDetailCommentPrarameters entity, ApplicationUser user)
         {
-            return _detailCommentRepository.Add(entity);
+            // Ensure the product exists
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.ProductId && p.SellerID_NK == entity.SellerId);
+            if (product == null)
+            {
+                throw new ArgumentException("Sản phẩm không tồn tại!");
+            }
+
+            var order = await _dbContext.Order.FirstOrDefaultAsync(o => o.ID == entity.OrderId && o.ApplicationUser.Id == user.Id);
+            if (order == null)
+            {
+                throw new ArgumentException("Đơn hàng không tồn tại!");
+            }
+
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.UserID == user.TrainCode);
+
+            try
+            {
+                var detailComment = new DetailComment
+                {
+                    Content = entity.Content ?? "",
+                    ProductID = entity.ProductId,
+                    Rating = entity.Rating,
+                    SellerID = entity.SellerId,
+                    AccountID = account.ID_NK,
+                    OrderID = entity.OrderId,
+                };
+
+                await _dbContext.DetailComments.AddAsync(detailComment);
+                await _dbContext.SaveChangesAsync();
+
+                if (entity.Images.Count > 0)
+                {
+                    foreach (var item in entity.Images)
+                    {
+                        var imageComment = new CommentImages
+                        {
+                            DetailCommentID = detailComment.ID,
+                            ImageUrl = item
+                        };
+                        await _dbContext.CommentImages.AddAsync(imageComment);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return detailComment;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while adding a detail comment.", ex);
+            }
         }
+
 
         public Task<int> AddRange(IEnumerable<DetailComment> entities)
         {
