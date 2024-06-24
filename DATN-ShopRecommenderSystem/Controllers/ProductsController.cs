@@ -37,6 +37,22 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _signInManager = signInManager;
             _userManager = userManager;
         }
+        //
+        [HttpGet("Test")]
+        public async Task<ActionResult> TestES([FromQuery] ProductParameters productParameters)
+        {
+            try
+            {
+                var total = await _elasticSearchService.TestElastic(productParameters);
+                return Ok(total);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
         public async Task<ActionResult> GetProductByTrainning([FromQuery] ProductParameters productParameters)

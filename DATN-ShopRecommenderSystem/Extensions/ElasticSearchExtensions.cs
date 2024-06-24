@@ -1,5 +1,8 @@
-﻿using Nest;
+﻿using Elasticsearch.Net;
+using Microsoft.Extensions.Configuration;
+using Nest;
 using ShopRe.Model.Models;
+using System;
 
 namespace DATN_ShopRecommenderSystem.Extensions
 {
@@ -8,17 +11,25 @@ namespace DATN_ShopRecommenderSystem.Extensions
 
         public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
         {
-            var url = configuration["ELKConfiguration:Uri"];
-            var defaultIndex = configuration["ELKConfiguration:index"];
-            var defaultIndex2 = configuration["ELKConfiguration:index2"];
-            var defaultIndex3 = configuration["ELKConfiguration:index3"];
-            var defaultIndex4 = configuration["ELKConfiguration:index4"];
+            var CloudId = configuration["ElasticsearchSettings:CloudId"];
+            var ApiKey = configuration["ElasticsearchSettings:ApiKey"];
+            var defaultIndex = configuration["ElasticsearchSettings:index"];
+            var defaultIndex2 = configuration["ElasticsearchSettings:index2"];
+            var defaultIndex3 = configuration["ElasticsearchSettings:index3"];
+            var defaultIndex4 = configuration["ElasticsearchSettings:index4"];
 
-            var setting = new ConnectionSettings(new Uri(url)).PrettyJson().DefaultIndex(defaultIndex).BasicAuthentication(configuration["ELKConfiguration:username"], configuration["ELKConfiguration:password"]);
+            //var elasticsearchSettings = configuration.GetSection("ElasticsearchSettings").Get<ElasticsearchSettings>();
 
-            AddDefaultMappings(setting);
+            var pool = new CloudConnectionPool(CloudId, new ApiKeyAuthenticationCredentials(ApiKey));
+            var settings = new ConnectionSettings(pool)
+                .DefaultIndex(defaultIndex)
+                .DefaultIndex(defaultIndex2)
+                .DefaultIndex(defaultIndex3)
+                .DefaultIndex(defaultIndex4);
 
-            var client = new ElasticClient(setting);
+            AddDefaultMappings(settings);
+            var client = new ElasticClient(settings);
+
             services.AddSingleton<IElasticClient>(client);
 
             CreateIndex(client, defaultIndex, defaultIndex2, defaultIndex3, defaultIndex4);
