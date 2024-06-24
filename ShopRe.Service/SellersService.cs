@@ -2,6 +2,10 @@
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
+using ShopRe.Common.DTOs;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
+using Nest;
 
 namespace ShopRe.Service
 {
@@ -15,14 +19,19 @@ namespace ShopRe.Service
         Task<Seller> Update(Seller entity);
         void Remove(int id);
         IEnumerable<Seller> Find(Expression<Func<Seller, bool>> expression);
+        Task<SellerInfo> GetUserSerller(string userId);
+        Task<SellerInfo> UpdateUserSeller(ChangeUserSeller entity, string userId);
     }
     public class SellerService : ISellerService
     {
         private readonly ISellerRepository _sellerRepository;
+        private readonly IMapper _mapper;
 
-        public SellerService( ISellerRepository sellerRepository)
+
+        public SellerService( ISellerRepository sellerRepository, IMapper mapper )
         {
             _sellerRepository = sellerRepository;
+            _mapper = mapper;
         }
 
         public Task<Seller> Add(Seller entity)
@@ -63,6 +72,24 @@ namespace ShopRe.Service
         public Task<Seller> Update(Seller entity)
         {
             return _sellerRepository.Update(entity);
+        }
+        public async Task<SellerInfo> GetUserSerller(string userId) 
+        {
+            var info = await _sellerRepository.GetUserSeller(userId);
+            var sellerDTO = _mapper.Map<SellerInfo>(info);
+            return sellerDTO;
+        }
+        public async Task<SellerInfo> UpdateUserSeller(ChangeUserSeller entity,string userId)
+        {
+            var seller = await _sellerRepository.GetUserSeller(userId);
+            seller.Address= entity.Address;
+            seller.Name= entity.Name;
+            seller.ImageUrl= entity.ImageUrl;
+            seller.Phone= entity.Phone;
+
+            var result = await _sellerRepository.Update(seller);
+            var sellerDto= _mapper.Map<SellerInfo>(result);
+            return sellerDto;
         }
     }
 }

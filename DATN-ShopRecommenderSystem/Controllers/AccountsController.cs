@@ -24,12 +24,14 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IAccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IShoppingSessionService _shopSessionService;
-        public AccountsController(IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService, IConfiguration configuration)
+        private readonly ISellerService _sellerService;
+        public AccountsController(ISellerService sellerService,IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService, IConfiguration configuration)
         {
             _accountService = accountService;
             _userManager = userManager;
             _shopSessionService = shopSessionService;
             _configuration = configuration;
+            _sellerService = sellerService;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
@@ -249,6 +251,49 @@ namespace DATN_ShopRecommenderSystem.Controllers
                             Role = result.Token.Role,
                         });
             }
+        }
+        [HttpGet("GetUserSeller")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> GetUserSeller()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Error getting user");
+            }
+            var seller = await _sellerService.GetUserSerller(user.Id);
+            if (seller == null)
+                return StatusCode(StatusCodes.Status400BadRequest, "Error getting seller");
+            return Ok(seller);
+        }
+        [HttpPut("UpdateUserSeller")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> UpdateUserSeller(ChangeUserSeller seller)
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Error getting user");
+            }
+
+            var result = await _sellerService.UpdateUserSeller(seller,user.Id);
+            return Ok(result);
         }
     }
 
