@@ -12,6 +12,9 @@ namespace ShopRe.Common.DTOs
     {
         public string StoreName { get; set; }  
         public ApplicationUser user { get; set; }
+        public string Phone { get; set; }
+        public string Address { get; set; }
+        public string ImageUrl { get; set; }
     }
     public enum RegisterSellerStatus
     {

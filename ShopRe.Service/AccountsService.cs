@@ -248,6 +248,9 @@ namespace ShopRe.Service
             var seller = new Seller
             {
                 Name = sellerRegistrationDTO.StoreName,
+                Phone = sellerRegistrationDTO.Phone,
+                Address = sellerRegistrationDTO.Address,
+                ImageUrl = sellerRegistrationDTO.ImageUrl,
                 ApplicationUser = sellerRegistrationDTO.user
             };
             var addingSeller = await _context.Sellers.AddAsync(seller);

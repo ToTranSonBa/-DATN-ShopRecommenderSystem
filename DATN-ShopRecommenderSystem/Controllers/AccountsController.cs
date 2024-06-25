@@ -10,6 +10,7 @@ using ShopRe.Model;
 using ShopRe.Model.Authentication;
 using ShopRe.Model.Models;
 using ShopRe.Service;
+using System.Diagnostics.Contracts;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
 
@@ -205,24 +206,20 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         [HttpPost("RegisterSeller")]
         [Authorize(Roles ="Customer")]
-        public async Task<IActionResult> RegisterSeller(string storeName)
+        public async Task<IActionResult> RegisterSeller(SellerRegistInfo seller)
         {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                return Unauthorized();
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var userCurrent = await _accountService.GetUserFromTokenAsync(token);
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var userCurrent = await _userManager.FindByEmailAsync(userEmail);
             if (userCurrent == null)
             {
                 return Unauthorized();
             }
             var dto = new SellerRegistrationDTO
             {
-                StoreName = storeName,
+                StoreName = seller.StoreName,
+                Phone = seller.Phone,
+                Address = seller.Address,
+                ImageUrl = seller.ImageUrl,
                 user = userCurrent
             };
             var result = await _accountService.RegisterSeller(dto);
@@ -256,44 +253,35 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> GetUserSeller()
         {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            if (HttpContext.User != null)
             {
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+
+                var seller = await _sellerService.GetUserSerller(user.Id);
+                if (seller == null)
+                    return StatusCode(StatusCodes.Status400BadRequest, "Error getting seller");
+                return Ok(seller);
+            }
+            else
                 return Unauthorized();
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user == null)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, "Error getting user");
-            }
-            var seller = await _sellerService.GetUserSerller(user.Id);
-            if (seller == null)
-                return StatusCode(StatusCodes.Status400BadRequest, "Error getting seller");
-            return Ok(seller);
         }
         [HttpPut("UpdateUserSeller")]
         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> UpdateUserSeller(ChangeUserSeller seller)
         {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            if (HttpContext.User != null)
+            { 
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+
+                var result = await _sellerService.UpdateUserSeller(seller, user.Id);
+                return Ok(result);
+            }
+            else
             {
                 return Unauthorized();
             }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user == null)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, "Error getting user");
-            }
-
-            var result = await _sellerService.UpdateUserSeller(seller,user.Id);
-            return Ok(result);
         }
     }
 
