@@ -4,6 +4,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.neighbors import NearestNeighbors
 import pyodbc 
 import pickle
+from sklearn.cluster import KMeans
+import Environments as env
 
 # Dữ liệu rating
 user = []
@@ -25,7 +27,7 @@ def prepare_data():
         d["sellerid"] = rating[1]
         d["behavior"] = rating[2]
         return d
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    conn_str = env.CONN_STR
 
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
@@ -133,39 +135,61 @@ class MatrixFactorization:
     def full_matrix(self):
         return self.b + self.b_u[:, np.newaxis] + self.b_s[np.newaxis:, ] + self.P.dot(self.Q.T)
 
-def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5):
-    # Train Matrix Factorization model
+def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=5):
+    # Train Matrix Factorization model (assuming MatrixFactorization class exists)
     mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=20)
     mf.train()
     predicted_ratings = mf.full_matrix()
     
-    # Compute cosine similarity between users based on rating matrix and implicit matrix
-    user_similarity1 = cosine_similarity(predicted_ratings)
-    user_similarity2 = cosine_similarity(user_implicit_matrix)
-    user_similarity = (user_similarity1 + user_similarity2) / 2.0  # Combine similarities
+    # Compute user averages
+    user_means = np.mean(predicted_ratings, axis=1, keepdims=True)
     
-    # Create a Nearest Neighbors model based on combined cosine similarity
-    knn = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=n_neighbors, n_jobs=-1)
-    knn.fit(user_similarity)
+    # Apply K-means clustering
+    user_kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+    user_clusters = user_kmeans.fit_predict(predicted_ratings)
     
-    # Find nearest neighbors for each user
-    _, neighbor_indices = knn.kneighbors(user_similarity, n_neighbors=n_neighbors + 1)  # +1 to exclude self
-    
-    # Calculate weights based on similarity
-    weights = np.zeros_like(user_similarity)
-    for i in range(user_similarity.shape[0]):
-        neighbor_indexes = neighbor_indices[i, 1:]  # exclude self
-        neighbor_similarities = user_similarity[i, neighbor_indexes]
-        weights[i, neighbor_indexes] = neighbor_similarities / np.sum(neighbor_similarities)
-    
-    # Combine MF predictions with weighted neighbor ratings
-    final_predictions = np.zeros_like(predicted_ratings)
-    for i in range(user_similarity.shape[0]):
-        neighbor_indexes = neighbor_indices[i, 1:]  # exclude self
-        neighbor_ratings = user_rating_matrix.values[neighbor_indexes]
-        final_predictions[i] = predicted_ratings[i] + np.sum(weights[i, neighbor_indexes, np.newaxis] * (neighbor_ratings - predicted_ratings[neighbor_indexes]), axis=0)
+
+    # Initialize final predictions DataFrame
+
+    final_predictions = pd.DataFrame(np.zeros_like(predicted_ratings), columns=user_rating_matrix.columns, index=user_rating_matrix.index)
+    predicted_ratings = pd.DataFrame(predicted_ratings, columns=user_rating_matrix.columns, index=user_rating_matrix.index)
+
+    # Loop through each cluster
+    for cluster_id in range(n_clusters):
+        # Select users belonging to the current cluster
+        cluster_users = np.where(user_clusters == cluster_id)[0]
+        
+        # Select corresponding predicted ratings and implicit matrix
+        cluster_predicted_ratings = predicted_ratings.iloc[cluster_users]
+        cluster_implicit_matrix = user_implicit_matrix.iloc[cluster_users]
+        
+        # Compute cosine similarity within the cluster
+        cluster_similarity1 = cosine_similarity(cluster_predicted_ratings)
+        cluster_similarity2 = cosine_similarity(cluster_implicit_matrix)
+        cluster_similarity = (cluster_similarity1 + cluster_similarity2) / 2.0
+        
+        # Create a Nearest Neighbors model based on combined cosine similarity
+        knn = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=n_neighbors+1, n_jobs=-1)
+        knn.fit(cluster_similarity)
+        
+        # Find nearest neighbors for each user within the cluster
+        _, neighbor_indices = knn.kneighbors(cluster_similarity, n_neighbors=n_neighbors + 1)  # +1 to exclude self
+        
+        # Calculate weights based on similarity and apply bias correction
+        weights = np.zeros_like(cluster_similarity)
+        for i in range(cluster_similarity.shape[0]):
+            neighbor_indexes = neighbor_indices[i, 1:]  # exclude self
+            neighbor_similarities = cluster_similarity[i, neighbor_indexes]
+            neighbor_ratings = predicted_ratings.iloc[cluster_users[neighbor_indexes]].values
+            neighbor_means = user_means[cluster_users[neighbor_indexes]].flatten()
+            weights[i, neighbor_indexes] = neighbor_similarities / np.sum(neighbor_similarities)
+            
+            # Predict ratings with bias correction and add back user mean
+            corrected_predictions = user_means[cluster_users[i]].flatten()[0] + np.sum(weights[i, neighbor_indexes, np.newaxis] * (neighbor_ratings - neighbor_means[:, np.newaxis]), axis=0)
+            final_predictions.iloc[cluster_users[i]] = corrected_predictions
     
     return final_predictions
+
 
 def recommend(user_id, final_predictions, user_rating_matrix, top_n=5):
     # Sort predicted ratings for the user and get top n recommendations
@@ -185,7 +209,7 @@ def train():
         pickle.dump(final_predictions, f)
 
 def write_model_to_db():
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    conn_str = env.CONN_STR
     users = pickle.load(open(f'artifacts/Knn_List_User.pkl','rb'))
     sellers = pickle.load(open(f'artifacts/Knn_List_Seller.pkl','rb'))
     final_predictions = pickle.load(open(f'artifacts/final_predictions.pkl','rb'))

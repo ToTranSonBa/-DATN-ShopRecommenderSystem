@@ -4,6 +4,8 @@ import ContentBased as cb
 import uvicorn
 import pickle
 import NeighborhoodBased as nb
+import UpdateModelEs as nb
+import Environments as env
 
 app = FastAPI()
 
@@ -35,8 +37,7 @@ async def train_data_offline(websocket: WebSocket):
     await websocket.send_text(f"Kết thúc training")
     await websocket.close()
 
-cate = [1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127] 
-
+cate = env.CONTENT_BASED_CLUSTER
 movies = {}
 similarites = {}
 for i in cate:
@@ -106,4 +107,4 @@ def RecommendProduct(userid: int):
 
 if __name__ == '__main__':
     load_cb()
-    uvicorn.run(app, port=8888, host='localhost')
+    uvicorn.run(app, port=env.FASTAPI_HOST, host=env.FASTAPI_HOST)

@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 import pickle
 from scipy.sparse import csr_matrix
-
+import Environments as env
 
 ps = PorterStemmer()
 
@@ -44,7 +44,7 @@ def stems(text):
     return " ".join(T)
 
 def fetch_products_by_cate(cate):
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    conn_str = env.CONN_STR
 # Kết nối đến SQL Server
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
@@ -119,7 +119,7 @@ async def recommend(productid, new_df, similarity, lenght=10):
         return []
 
 def write_recommend(user, cateid, proid):
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    conn_str = env.CONN_STR
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
         cursor.execute(f"exec DropLastRecommend @N__USER_ID = {user}")
@@ -128,7 +128,7 @@ def write_recommend(user, cateid, proid):
 
 def get_recommend_for_user(user):
     df = []
-    conn_str = 'DRIVER=ODBC Driver 17 for SQL Server; Server=localhost; Database=ShopRecommend; Trusted_Connection=yes;'
+    conn_str = env.CONN_STR
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT [ProductId] ,[CateId] FROM [ShopRecommend].[dbo].[UserRecommend] WHERE UserId = {user} ORDER BY AdDate")
