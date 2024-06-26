@@ -109,7 +109,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                 handleOptionClick('ecommercedoashboard');
                                             }}
                                         >
-                                            <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                            <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                 eCommerce
                                             </a>
                                         </li>
@@ -117,7 +117,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                 </div>
                             )}
 
-                            <li
+                            {/* <li
                                 className="cursor-pointer"
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -140,7 +140,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                     </svg>
                                     Lịch biểu
                                 </a>
-                            </li>
+                            </li> */}
 
                             <li
                                 className="cursor-pointer"
@@ -236,7 +236,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                     handleOptionClick('formselements');
                                                 }}
                                             >
-                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                     Form Elements
                                                 </a>
                                             </li>
@@ -247,7 +247,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                     handleOptionClick('formslayout');
                                                 }}
                                             >
-                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                     Form Layout
                                                 </a>
                                             </li>
@@ -258,7 +258,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                     handleOptionClick('formaddproduct');
                                                 }}
                                             >
-                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                     Thêm sản phẩm
                                                 </a>
                                             </li>
@@ -328,7 +328,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                     handleOptionClick('tableproduct');
                                                 }}
                                             >
-                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                     Bảng sản phẩm
                                                 </a>
                                             </li>
@@ -339,7 +339,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                     handleOptionClick('tableorder');
                                                 }}
                                             >
-                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white">
+                                                <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
                                                     Bảng đơn hàng
                                                 </a>
                                             </li>
@@ -348,7 +348,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                 )}
                             </li>
 
-                            <li
+                            {/* <li
                                 className="cursor-pointer"
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -387,7 +387,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                     </svg>
                                     Cài đặt
                                 </a>
-                            </li>
+                            </li> */}
                         </ul>
                     </div>
                 </nav>

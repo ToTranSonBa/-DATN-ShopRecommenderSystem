@@ -6,13 +6,13 @@ const ChartOne = () => {
         const chartOneOptions = {
             series: [
                 {
-                    name: 'Product One',
-                    data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45],
+                    name: 'Doanh thu',
+                    data: [37, 31, 30, 23, 26, 22, 29],
                 },
-                {
-                    name: 'Product Two',
-                    data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
-                },
+                // {
+                //     name: 'Product Two',
+                //     data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
+                // },
             ],
             legend: {
                 show: false,
@@ -96,7 +96,7 @@ const ChartOne = () => {
             },
             xaxis: {
                 type: 'category',
-                categories: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                 axisBorder: {
                     show: false,
                 },
@@ -111,7 +111,7 @@ const ChartOne = () => {
                     },
                 },
                 min: 0,
-                max: 100,
+                max: 50,
             },
         };
 
@@ -124,37 +124,37 @@ const ChartOne = () => {
     }, []);
 
     return (
-        <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
+        <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
             <div className="flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
                 <div className="flex flex-wrap w-full gap-3 sm:gap-5">
-                    <div className="flex min-w-47.5">
+                    <div className="flex min-w-48">
                         <span className="flex items-center justify-center w-full h-4 mt-1 mr-2 border rounded-full max-w-4 border-primary">
                             <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
                         </span>
-                        <div className="w-full">
-                            <p className="font-semibold text-primary">Total Revenue</p>
-                            <p className="text-sm font-medium">12.04.2022 - 12.05.2022</p>
+                        <div className="w-full ">
+                            <p className="font-semibold text-primary">Tổng doanh thu</p>
+                            <p className="text-sm font-medium text-nowrap">01.01.2024 - 01.07.2024</p>
                         </div>
                     </div>
-                    <div className="flex min-w-47.5">
+                    {/* <div className="flex min-w-47.5">
                         <span className="flex items-center justify-center w-full h-4 mt-1 mr-2 border rounded-full max-w-4 border-secondary">
                             <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-secondary"></span>
                         </span>
                         <div className="w-full">
-                            <p className="font-semibold text-secondary">Total Sales</p>
+                            <p className="font-semibold text-secondary">Tô</p>
                             <p className="text-sm font-medium">12.04.2022 - 12.05.2022</p>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
-                <div className="flex justify-end w-full max-w-45">
-                    <div className="inline-flex items-center rounded-md bg-whiter p-1.5 dark:bg-meta-4">
-                        <button className="px-3 py-1 text-xs font-medium text-black bg-white rounded shadow-card hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
+                <div className="flex justify-end w-full max-w-44">
+                    <div className="inline-flex items-center rounded-md bg-gray-100 p-1.5 dark:bg-meta-4">
+                        <button className="px-3 py-1 text-xs font-medium text-black rounded hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
                             Day
                         </button>
                         <button className="px-3 py-1 text-xs font-medium text-black rounded hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
                             Week
                         </button>
-                        <button className="px-3 py-1 text-xs font-medium text-black rounded hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
+                        <button className="px-3 py-1 text-xs font-medium text-black bg-white rounded shadow-sm hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
                             Month
                         </button>
                     </div>

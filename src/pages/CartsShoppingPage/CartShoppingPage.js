@@ -177,7 +177,7 @@ const CartShoppingPage = () => {
                                                     data-twe-lazy-src
                                                     src={data.productImgs}
                                                     alt="chua co hinh"
-                                                    className="object-cover object-center size-24 rounded-md"
+                                                    className="object-cover object-center rounded-md size-24"
                                                 />
                                             </div>
 
@@ -310,13 +310,13 @@ const CartShoppingPage = () => {
                                         </dd>
                                     </div>
                                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                                        <dt className="flex-row lg:gap-2 items-center text-sm text-gray-600">
+                                        <dt className="flex-row items-center text-sm text-gray-600 lg:gap-2">
                                             <span>Phí vận chuyển</span>
                                             <div
                                                 onClick={() => {
                                                     setChooseShippingMethod(true);
                                                 }}
-                                                className="lg:mt-2 flex hover:cursor-pointer items-center justify-center hover:border-primary hover:text-primary text-xs lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
+                                                className="flex items-center justify-center text-xs lg:mt-2 hover:cursor-pointer hover:border-primary hover:text-primary lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
                                             >
                                                 {shippingMethod}
                                             </div>
@@ -352,8 +352,8 @@ const CartShoppingPage = () => {
             {chooseShippingMethod && (
                 <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
                     <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
-                        <div className="max-w-screen-sm w-3/4 overflow-auto lg:px-2 lg:py-2">
-                            <div className="max-w-screen-sm w-3/4 overflow-auto lg:px-2 lg:py-2">
+                        <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
+                            <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
                                 <div className="bg-background">
                                     <header className="lg:py-4 lg:px-4">Chọn phương thức vận chuyển</header>
                                     <div className="lg:px-4 lg:py-4">
@@ -393,7 +393,7 @@ const CartShoppingPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-background flex items-center justify-end lg:gap-4 lg:px-4 lg:py-6">
+                                <div className="flex items-center justify-end bg-background lg:gap-4 lg:px-4 lg:py-6">
                                     <button
                                         onClick={() => {
                                             if (selectedOption) {

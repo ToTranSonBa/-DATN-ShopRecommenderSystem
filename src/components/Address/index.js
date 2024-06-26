@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AddressForm from './AddressForm';
 
-import { AddressesApi, addNewAddressesApi, updateAddressDefaultApi, updateAddressApi } from '../../services/addressApi/addressApi'
+import {
+    AddressesApi,
+    addNewAddressesApi,
+    updateAddressDefaultApi,
+    updateAddressApi,
+} from '../../services/addressApi/addressApi';
 
 // Component chính để hiển thị danh sách địa chỉ và form
 const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAddressCheckout }) => {
@@ -14,7 +19,7 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
     const fetchAddresses = useCallback(async () => {
         try {
             const response = await AddressesApi(token);
-            console.log('response', response)
+            console.log('response', response);
             setAddresses(response);
             setCheckChange(false);
         } catch (error) {
@@ -28,13 +33,9 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
             if (selectedAddressCheckout) {
                 setSelectedAddress(selectedAddressCheckout);
             }
-
         };
         fetchData();
-
     }, [checkChange]);
-
-
 
     const handleEdit = (address) => {
         setEditingAddress(address);
@@ -52,20 +53,30 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
     };
 
     const handleSubmit = async (newAddress) => {
-
         try {
-
             if (editingAddress) {
                 const addressDefault = newAddress.addressID === newAddress.shippingAddress ? true : false;
-                const addressUpdate = await updateAddressApi(newAddress.addressID, newAddress.fullName,
-                    newAddress.phoneNumber, newAddress.address, 'nhà riêng', newAddress.email, addressDefault, token);
+                const addressUpdate = await updateAddressApi(
+                    newAddress.addressID,
+                    newAddress.fullName,
+                    newAddress.phoneNumber,
+                    newAddress.address,
+                    'nhà riêng',
+                    newAddress.email,
+                    addressDefault,
+                    token,
+                );
             }
 
-
             if (!editingAddress) {
-                const addAddress = await addNewAddressesApi(newAddress.fullName, newAddress.phoneNumber,
-                    newAddress.address, 'nhà riêng', newAddress.email, token
-                )
+                const addAddress = await addNewAddressesApi(
+                    newAddress.fullName,
+                    newAddress.phoneNumber,
+                    newAddress.address,
+                    'nhà riêng',
+                    newAddress.email,
+                    token,
+                );
                 if (addAddress && newAddress.checkedState) {
                     const addressDefaultUpdate = await updateAddressDefaultApi(addAddress.id, token);
                 }
@@ -76,8 +87,6 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
         } catch (error) {
             console.log('error to update or create address', error);
         }
-
-
     };
 
     const handleAddressSelect = (address) => {
@@ -86,13 +95,13 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
 
     return (
         <div className={`relative max-w-screen-lg ${className}`}>
-            <div className="max-w-screen-md w-full mx-auto my-auto bg-white font-extralight lg:px-6 l:py-6">
+            <div className="w-full max-w-screen-md mx-auto my-auto bg-white font-extralight lg:px-6 lg:py-6">
                 <p className="border-b-1 lg:py-3">Địa chỉ của tôi</p>
                 {addresses.map((address, index) => (
                     <div key={index} className="lg:py-4">
                         <div className="flex items-center lg:gap-4">
                             <input
-                                className="form-checkbox h-5 w-5 rounded-full focus:ring-0 focus:ring-offset-0 focus:outline-none checked:bg-red-600"
+                                className="w-5 h-5 rounded-full form-checkbox focus:ring-0 focus:ring-offset-0 focus:outline-none checked:bg-red-600"
                                 type="checkbox"
                                 checked={selectedAddress.id === address.id}
                                 onChange={() => handleAddressSelect(address)}
@@ -120,7 +129,7 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
                     </div>
                 ))}
                 <button
-                    className="flex items-center justify-center text-red-600 text-sm border-red-600 lg:mt-4 w-40 border-1 lg:px-1 lg:py-2 lg:gap-1"
+                    className="flex items-center justify-center w-40 text-sm text-red-600 border-red-600 lg:mt-4 border-1 lg:px-1 lg:py-2 lg:gap-1"
                     onClick={handleCreateNew}
                 >
                     <svg
