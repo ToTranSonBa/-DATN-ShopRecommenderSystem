@@ -83,7 +83,6 @@ namespace ShopRe.Data.Infrastructure
             if(entity!=null)
             {
                 var result = await _context.Set<T>().AddAsync(entity);
-                _ = SaveChangesAsync();
                 return result;
             }
             return null;
