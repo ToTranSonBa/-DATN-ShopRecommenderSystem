@@ -57,9 +57,10 @@ function Checkout() {
 
     const [selectedAddress, setSelectedAddress] = useState({});
     const [addresses, setAddresses] = useState([]);
+
     const subTotal = selectedItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
-    const total = subTotal + shippingFee;
+    const total = subTotal;
     // Tạo state để kiểm soát việc hiển thị của thẻ div
     const [isVisible, setIsVisible] = useState(false);
 
@@ -130,11 +131,11 @@ function Checkout() {
         console.log('selectedItems: ', selectedItems);
 
         try {
-            inprocessing = true;
+
             for (const item of selectedItems) {
                 const sellerId = item.sellerId;
                 console.log(`Processing item with sellerId: ${sellerId}`);
-
+                console.log(`Processing item : `, item);
                 if (sellerOrderMap.has(sellerId)) {
                     // Get the existing order ID
                     const orderId = sellerOrderMap.get(sellerId);
@@ -247,9 +248,8 @@ function Checkout() {
                     <div className="grid grid-cols-3 gap-8">
                         <div className="col-span-3 px-12 space-y-8 lg:col-span-2 pb- bg-indigo-50 lg:pb-12">
                             <div
-                                className={`relative flex flex-col p-4 mt-8 bg-white rounded-md border-red-600 border-1 shadow-md sm:flex-row sm:items-center ${
-                                    !isFullFill ? 'visible' : 'invisible'
-                                }`}
+                                className={`relative flex flex-col p-4 mt-8 bg-white rounded-md border-red-600 border-1 shadow-md sm:flex-row sm:items-center ${!isFullFill ? 'visible' : 'invisible'
+                                    }`}
                             >
                                 <div className="flex flex-row items-center w-full pb-4 border-b sm:border-b-0 sm:w-auto sm:pb-0">
                                     <div className="text-yellow-500">
@@ -361,7 +361,7 @@ function Checkout() {
                                 {selectedItems.map((item, index) => (
                                     <OrderItem
                                         key={index}
-                                        imgSrc={item.product.image}
+                                        imgSrc={item.productImgs}
                                         title={item.product.name}
                                         description={item?.optionValues?.name || ''}
                                         quantity={item.quantity}
@@ -385,7 +385,7 @@ function Checkout() {
                                             {shippingMethod}
                                         </div>
                                     </div>
-                                    <span className="font-semibold text-blue-500">+ {formatNumber(shippingFee)}</span>
+                                    {shippingFee !== 0 && <span className="font-semibold text-blue-500">+ {formatNumber(shippingFee)}</span>}
                                 </div>
                                 <div className="flex-row w-full px-4 py-2 text-gray-600 border-dashed min-h-10 border-y-1">
                                     <div className="flex items-center justify-between">
@@ -430,9 +430,9 @@ function Checkout() {
                                 <span>
                                     {formatNumber(
                                         total +
-                                            shippingFee -
-                                            (selectedShippingVoucher ? selectedShippingVoucher.discount : 0) -
-                                            (selectedDiscountVoucher ? selectedDiscountVoucher.discount : 0),
+                                        shippingFee -
+                                        (selectedShippingVoucher ? selectedShippingVoucher.discount : 0) -
+                                        (selectedDiscountVoucher ? selectedDiscountVoucher.discount : 0),
                                     )}
                                 </span>
                             </div>
@@ -528,33 +528,30 @@ function Checkout() {
                                     <div className="lg:px-4 lg:py-4">
                                         <div
                                             onClick={() => handleOptionClickMeThod(35000, 'Vận chuyển Nhanh')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Nhanh'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Nhanh'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Nhanh</div>
                                             <div className="font-light text-red-600">{formatNumber(35000)}</div>
                                         </div>
                                         <div
                                             onClick={() => handleOptionClickMeThod(100000, 'Vận chuyển Hoả Tốc')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Hoả Tốc'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Hoả Tốc'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Hoả tốc</div>
                                             <div className="font-light text-red-600">{formatNumber(100000)}</div>
                                         </div>
                                         <div
                                             onClick={() => handleOptionClickMeThod(15000, 'Vận chuyển Tiết Kiệm')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Tiết Kiệm'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Tiết Kiệm'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Tiết Kiệm</div>
                                             <div className="font-light text-red-600">{formatNumber(15000)}</div>
@@ -612,9 +609,8 @@ const VoucherShipping = ({ id, type, discount, minOrder, onSelect, isSelected, t
 
     return (
         <div
-            className={`flex lg:gap-4 border shadow-md rounded-lg p-4 my-4 ${isSelected ? 'bg-gray-200' : ''} ${
-                isDisabled ? 'opacity-50 pointer-events-none' : ''
-            }`}
+            className={`flex lg:gap-4 border shadow-md rounded-lg p-4 my-4 ${isSelected ? 'bg-gray-200' : ''} ${isDisabled ? 'opacity-50 pointer-events-none' : ''
+                }`}
         >
             <div className="relative justify-center p-2 rounded-l-lg item-center basis-1/4 bg-secondary">
                 <div className="absolute z-10 text-lg font-bold text-white border-4 border-white top-8 left-12 lg:p-2 rounded-tl-xl rounded-br-xl">
@@ -637,9 +633,8 @@ const VoucherShipping = ({ id, type, discount, minOrder, onSelect, isSelected, t
             </div>
             <div className="flex items-center justify-end basis-1/4">
                 <div
-                    className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${
-                        isSelected ? 'bg-primary' : ''
-                    }`}
+                    className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${isSelected ? 'bg-primary' : ''
+                        }`}
                     aria-label=""
                     role="radio"
                     aria-checked={isSelected}
@@ -658,9 +653,8 @@ const VoucherDiscount = ({ id, type, discount, minOrder, onSelect, isSelected, t
 
     return (
         <div
-            className={`flex lg:gap-4 border shadow-md rounded-lg p-4 my-4 ${isSelected ? 'bg-gray-200' : ''} ${
-                isDisabled ? 'opacity-50 pointer-events-none' : ''
-            }`}
+            className={`flex lg:gap-4 border shadow-md rounded-lg p-4 my-4 ${isSelected ? 'bg-gray-200' : ''} ${isDisabled ? 'opacity-50 pointer-events-none' : ''
+                }`}
         >
             <div className="relative justify-center p-2 rounded-l-lg item-center basis-1/4 bg-primary">
                 <div className="absolute z-10 text-lg font-bold text-white border-4 border-white top-8 left-12 lg:p-2 rounded-tl-xl rounded-br-xl">
@@ -683,9 +677,8 @@ const VoucherDiscount = ({ id, type, discount, minOrder, onSelect, isSelected, t
             </div>
             <div className="flex items-center justify-end basis-1/4">
                 <div
-                    className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${
-                        isSelected ? 'bg-primary' : ''
-                    }`}
+                    className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${isSelected ? 'bg-primary' : ''
+                        }`}
                     aria-label=""
                     role="radio"
                     aria-checked={isSelected}

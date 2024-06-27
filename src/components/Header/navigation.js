@@ -289,8 +289,8 @@ const Navigation = ({
                                                         </div>
                                                         <p className="mt-1 text-sm text-gray-500">
                                                           {
-                                                            product.optionValues
-                                                              .name
+                                                            product?.optionValues
+                                                              ?.name
                                                           }
                                                         </p>
                                                       </div>

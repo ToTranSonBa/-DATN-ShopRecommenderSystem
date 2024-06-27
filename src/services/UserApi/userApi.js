@@ -35,6 +35,7 @@ const getOrdersOfUserApi = async (token) => {
         }
     });
 };
+
 const getSellerByIdApi = async (ID) => {
     return axios.get(`/Sellers/${ID}`);
 };
@@ -55,5 +56,30 @@ const changePasswordUserApi = async (oldPassword, newPassword, confirmPassword, 
     }
 }
 
+const addReviewApi = async (review, token) => {
 
-export { userApi, updateUserApi, getOrdersOfUserApi, changePasswordUserApi, getSellerByIdApi };
+    // Hợp nhất các trường vào contentReview
+    const content1 = review.content ? `<p>Đúng mô tả: ${review.content}</p>` : '';
+    const quality = review.quality ? `<p>Chất lượng sản phẩm: ${review.quality}</p>` : '';
+    const comment = review.comment ? `<p>Cảm nhận về sản phẩm: ${review.comment}</p>` : '';
+
+    const contentReview = `${content1}${quality}${comment}`;
+    console.log('review: ', review);
+
+    console.log('contentReview: ', contentReview);
+    return axios.post(`/DetailComments`, {
+        orderId: review.orderId,
+        productId: review.productId,
+        sellerId: review.sellerId,
+        images: review.images,
+        content: contentReview,
+        rating: review.rating,
+    }, {
+        headers: {
+            Authorization: "Bearer " + token,
+        }
+    });
+};
+
+
+export { userApi, updateUserApi, getOrdersOfUserApi, changePasswordUserApi, getSellerByIdApi, addReviewApi };

@@ -8,6 +8,18 @@ const cartsApi = async (token) => {
     });
 };
 
+const addCartApi = async (idProduct, idProductOptionValue, ProductOptionImage, token) => {
+    let url = `/CartItems/AddToCart?idProduct=${idProduct}&ProductOptionImage=${ProductOptionImage}`;
+    if (idProductOptionValue !== null && idProductOptionValue !== undefined) {
+        url += `&idProductOptionValue=${idProductOptionValue}`;
+    }
+    return axios.post(url, {}, {
+        headers: {
+            Authorization: "Bearer " + token,
+        }
+    });
+}
+
 const deleteCartItem = async (idCartItem, token) => {
     return axios.delete(`/CartItems/DeleteCartItems?idCartItem=${idCartItem}`, {
         headers: {
@@ -39,5 +51,5 @@ const updateProduct = async (idProduct, quantity, token) => {
     });
 };
 export {
-    cartsApi, deleteCartItem, increaseProduct, decreaseProduct, updateProduct
+    cartsApi, deleteCartItem, increaseProduct, decreaseProduct, updateProduct, addCartApi
 };

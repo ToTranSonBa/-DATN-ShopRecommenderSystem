@@ -40,8 +40,8 @@ const LoginPage = () => {
             }
             const response = await loginApi(email, password);
 
-            if (response && response.token) {
-                const token = response.token;
+            if (response && response.accessToken) {
+                const token = response.accessToken;
                 localStorage.setItem('token', token);
                 navigate('/');
             } else if (response && response.status === 401) {

@@ -1,24 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Logo from '../../assets/BrandLogos/Logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SignupApi } from '../../services/SignupApi/SignUpApi';
-
+import { signupSellerApi } from '../../services/SignupApi/SignUpApi';
+import {
+    userApi,
+} from '../../services/UserApi/userApi';
 const SellerSignUp = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [address, setAddress] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+
+    const token = localStorage.getItem('token');
     const [shopName, setShopName] = useState('');
     const [shopAddress, setShopAddress] = useState('');
     const [shopPhoneNumber, setShopPhoneNumber] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const fetchUser = useCallback(async () => {
+        try {
+            const response = await userApi(token);
+            setShopAddress(response.address);
+            setShopPhoneNumber(response.phoneNumber);
+            console.log('user data in ussepage: ', response);
+        } catch (error) {
+            console.error('Failed to fetch userApi:', error);
+        }
+    });
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchUser();
+        };
+        fetchData();
+    }, []);
 
+    const handleShopNumberChange = (e) => {
+        if (e.target.value.length <= 50) {
+            setShopPhoneNumber(e.target.value);
+        }
+    };
+    const handleShopAddressChange = (e) => {
+        if (e.target.value.length <= 50) {
+            setShopAddress(e.target.value);
+        }
+    };
     const handleShopNameChange = (e) => {
         if (e.target.value.length <= 50) {
             setShopName(e.target.value);
@@ -41,59 +64,33 @@ const SellerSignUp = () => {
         return shopName.trim() !== '' && shopAddress.trim() !== '' && shopPhoneNumber.trim() !== '';
     };
 
-    console.log('shop name fill: ', isShopNameFilled());
-    console.log('shop address fill: ', isShopAddressFilled());
-    console.log('shop phone fill: ', isShopPhoneNumberFilled());
-
     const handleTermsChange = (e) => {
         setTermsAccepted(e.target.checked);
     };
     const handleClick = async () => {
         try {
-            if (!lastName) {
-                toast.error('Vui lòng nhập họ');
+            if (!shopName) {
+                toast.error('Vui lòng nhập tên cửa hàng');
                 return;
             }
-            if (!firstName) {
-                toast.error('Vui lòng nhập tên');
+            if (!shopPhoneNumber) {
+                toast.error('Vui lòng nhập số điện thoại liên hệ');
                 return;
             }
-            if (!address) {
-                toast.error('Vui lòng nhập địa chỉ');
-                return;
-            }
-            if (!phoneNumber) {
-                toast.error('Vui lòng nhập số điện thoại');
-                return;
-            }
-            //Validate email
-            if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-                toast.error('Vui lòng nhập đúng cấu trúc email');
-                return;
-            }
-            if (
-                !password ||
-                !password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d][A-Za-z\d!@#$%^&*()_+]{7,19}$/)
-            ) {
-                toast.error(
-                    'Mật khẩu phải có ít nhất 10 kí tự và bao gồm ít nhất một chữ cái, một số và một kí tự đặc biệt',
-                );
-                return;
-            }
-
-            if (confirmPassword !== password) {
-                toast.error('Xác nhận mật khẩu không đúng');
+            if (!shopAddress) {
+                toast.error('Vui lòng nhập địa chỉ cửa hàng');
                 return;
             }
             if (termsAccepted !== true) {
                 toast.error('Vui lòng đọc kĩ điều khoản của chúng tôi');
                 return;
             }
-            const response = await SignupApi(email, password, firstName, lastName, address, phoneNumber);
-            if (response === true) {
+            const response = await signupSellerApi(shopName, shopPhoneNumber, shopAddress, token);
+            if (response === 'Seller registered successfully') {
                 toast.success('Tạo tài khoản thành công');
+                localStorage.setItem('token', response.token);
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/shopdashboard');
                 }, 2000);
             } else {
                 if (response) {
@@ -157,7 +154,7 @@ const SellerSignUp = () => {
                                     placeholder="Số nhà, Đường, Quận, Thành phố"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
                                     value={shopAddress}
-                                    onChange={(e) => setShopAddress(e.target.value)}
+                                    onChange={handleShopAddressChange}
                                     required
                                 />
                             </div>
@@ -175,7 +172,7 @@ const SellerSignUp = () => {
                                     placeholder="0123456789"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
                                     value={shopPhoneNumber}
-                                    onChange={(e) => setShopPhoneNumber(e.target.value)}
+                                    onChange={handleShopNumberChange}
                                     required
                                 />
                             </div>
@@ -258,9 +255,8 @@ const SellerSignUp = () => {
                                     </span>
                                 )}
                                 <h3
-                                    className={`${
-                                        isShopInfoFilled() ? 'text-green-700' : ''
-                                    } font-medium leading-tight`}
+                                    className={`${isShopInfoFilled() ? 'text-green-700' : ''
+                                        } font-medium leading-tight`}
                                 >
                                     Thông tin cửa hàng
                                 </h3>
@@ -268,7 +264,7 @@ const SellerSignUp = () => {
                                 <p className={`${isShopAddressFilled() ? 'text-green-700' : ''} text-sm`}>
                                     Địa chỉ cửa hàng
                                 </p>
-                                <p className={`${isShopPhoneNumberFilled() ? 'text-green-700' : ''} text-sm`}>
+                                <p className={`${isShopPhoneNumberFilled() ? 'text-green-700' : ''} text-sm`} r>
                                     Số điện thoại liên hệ
                                 </p>
                             </li>

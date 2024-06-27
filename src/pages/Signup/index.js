@@ -75,16 +75,14 @@ const SignUp = () => {
                 toast.error('Vui lòng đọc kĩ điều khoản của chúng tôi');
                 return;
             }
-            const response = await SignupApi(email, password, firstName, lastName, address, phoneNumber);
-            if (response === true) {
+            const response = await SignupApi(email, password, firstName, lastName, address, phoneNumber, ['Customer']);
+            if (response === 'User created successfully') {
                 toast.success('Tạo tài khoản thành công');
                 setTimeout(() => {
                     navigate('/login');
                 }, 2000);
             } else {
-                if (response) {
-                    toast.error(response);
-                }
+                toast.error('email của tài khoản đã tồn tại');
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -418,9 +416,9 @@ const SignUp = () => {
                             </li>
                             <li class="mb-10 ms-6">
                                 {step === 3 &&
-                                isPersonalInfoFilled() &&
-                                isAccountInfoFilled() &&
-                                termsAccepted === true ? (
+                                    isPersonalInfoFilled() &&
+                                    isAccountInfoFilled() &&
+                                    termsAccepted === true ? (
                                     <span class="absolute flex items-center justify-center w-8 h-8  rounded-full -start-4 ring-4 ring-white ">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

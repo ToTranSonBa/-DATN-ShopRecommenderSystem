@@ -146,11 +146,10 @@ const RecommendTop = () => {
                                             <div
                                                 key={slideIndex}
                                                 onClick={() => setCurrentIndex(slideIndex)}
-                                                className={`cursor-pointer rounded-full ${
-                                                    currentIndex === slideIndex
+                                                className={`cursor-pointer rounded-full ${currentIndex === slideIndex
                                                         ? 'bg-gray-500 h-2 w-2 lg:px-3'
                                                         : 'bg-gray-500 h-2 w-2'
-                                                }`}
+                                                    }`}
                                             ></div>
                                         ))}
                                     </div>
