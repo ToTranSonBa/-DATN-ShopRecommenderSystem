@@ -46,14 +46,14 @@ function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
     const token = localStorage.getItem('token');
-    const { selectedItems, shippingFee, shippingMethod } = location.state || {
-        selectedItems: [],
-        shippingFee: 0,
-        shippingMethod: '',
-    };
+    const [shippingFee, setShippingFee] = useState(location.state?.shippingFee || 0);
+    const [shippingMethod, setShippingMethod] = useState(
+        location.state?.shippingMethod || 'Chọn phương thức vận chuyển',
+    );
+    const { selectedItems = [] } = location.state || {};
 
-    console.log('Shipping Fee: ', shippingFee);
-    console.log('Shipping Method: ', shippingMethod);
+    console.log('Shipping FEE, ', shippingFee);
+    console.log('Shipping Method, ', shippingMethod);
 
     const [selectedAddress, setSelectedAddress] = useState({});
     const [addresses, setAddresses] = useState([]);
@@ -197,9 +197,9 @@ function Checkout() {
 
     const [voucher, setVoucher] = useState('Chọn phiếu giảm giá');
     const [voucherFee, setVoucherFee] = useState(15000);
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOptionVoucher, setSelectedOptionVoucher] = useState(null);
     const handleOptionClickVoucher = (fee, voucher) => {
-        setSelectedOption(voucher);
+        setSelectedOptionVoucher(voucher);
         setVoucherFee(fee);
         setVoucher(voucher);
     };
@@ -231,6 +231,14 @@ function Checkout() {
         console.log('Selected Discount Voucher:', selectedDiscountVoucher);
         // Handle further logic here, like applying discounts
         setChooseVoucher(false);
+    };
+    //
+    const [chooseShippingMethod, setChooseShippingMethod] = useState(false);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const handleOptionClickMeThod = (fee, method) => {
+        setSelectedOption(method);
+        setShippingFee(fee);
+        setShippingMethod(method);
     };
     return (
         <>
@@ -276,13 +284,13 @@ function Checkout() {
                                     onSubmit={handleSubmit}
                                 >
                                     <section>
-                                        <div className=" flex justify-between lg:pb-3">
+                                        <div className="flex justify-between lg:pb-3">
                                             <h2 className="my-2 text-lg font-semibold tracking-wide text-gray-700 uppercase">
                                                 Giao hàng & thông tin hóa đơn{' '}
                                             </h2>
                                             <button
                                                 onClick={handleOpenAddressManager}
-                                                className="border-1 font-light text-sm text-primary border-primary lg:px-6 cursor-pointer"
+                                                className="text-sm font-light cursor-pointer border-1 text-primary border-primary lg:px-6"
                                             >
                                                 {' '}
                                                 Thay đổi
@@ -361,35 +369,39 @@ function Checkout() {
                                     />
                                 ))}
                             </ul>
-                            <div className="border-b w-full">
-                                <div className="flex justify-between min-h-10 border-y-1 border-dashed px-4 w-full py-2 text-gray-600">
+                            <div className="w-full border-b">
+                                <div className="flex justify-between w-full px-4 py-2 text-gray-600 border-dashed min-h-10 border-y-1">
                                     <span>Tạm tính</span>
                                     <span className="font-semibold text-blue-500">{formatNumber(subTotal)}</span>
                                 </div>
-                                <div className="flex justify-between min-h-10 border-y-1 border-dashed px-4 w-full py-2 text-gray-600">
-                                    <div>
+                                <div className="flex justify-between w-full px-4 py-2 text-gray-600 border-dashed min-h-10 border-y-1">
+                                    <div
+                                        onClick={() => {
+                                            setChooseShippingMethod(true);
+                                        }}
+                                    >
                                         <span>Phí vận chuyển</span>
-                                        <div className="lg:mt-2 flex items-center justify-center text-xs lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1">
+                                        <div className="flex items-center justify-center text-xs lg:mt-2 lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1">
                                             {shippingMethod}
                                         </div>
                                     </div>
                                     <span className="font-semibold text-blue-500">+ {formatNumber(shippingFee)}</span>
                                 </div>
-                                <div className="flex-row min-h-10 border-y-1 border-dashed px-4 w-full py-2 text-gray-600">
-                                    <div className="flex justify-between items-center">
+                                <div className="flex-row w-full px-4 py-2 text-gray-600 border-dashed min-h-10 border-y-1">
+                                    <div className="flex items-center justify-between">
                                         <span>Phiếu giảm giá</span>
                                         <div
                                             onClick={() => {
                                                 setChooseVoucher(true);
                                             }}
-                                            className="lg:mt-2 flex hover:cursor-pointer items-center justify-center hover:border-primary hover:text-primary text-xs lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
+                                            className="flex items-center justify-center text-xs lg:mt-2 hover:cursor-pointer hover:border-primary hover:text-primary lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
                                         >
                                             Chọn phiếu giảm giá
                                         </div>
                                     </div>
                                     <div className="mt-4 lg:pl-6">
                                         {selectedShippingVoucher ? (
-                                            <div className="flex justify-between min-h-10 text-sm text-gray-600">
+                                            <div className="flex justify-between text-sm text-gray-600 min-h-10">
                                                 <span>Giảm phí vận chuyển</span>
                                                 <span className="font-semibold text-blue-500">
                                                     - {formatNumber(selectedShippingVoucher.discount)}
@@ -400,7 +412,7 @@ function Checkout() {
                                         )}
 
                                         {selectedDiscountVoucher ? (
-                                            <div className="flex justify-between min-h-10 text-sm text-gray-600">
+                                            <div className="flex justify-between text-sm text-gray-600 min-h-10">
                                                 <span>Giảm giá</span>
                                                 <span className="font-semibold text-blue-500">
                                                     - {formatNumber(selectedDiscountVoucher.discount)}
@@ -419,8 +431,8 @@ function Checkout() {
                                     {formatNumber(
                                         total +
                                             shippingFee -
-                                            selectedShippingVoucher.discount -
-                                            selectedDiscountVoucher.discount,
+                                            (selectedShippingVoucher ? selectedShippingVoucher.discount : 0) -
+                                            (selectedDiscountVoucher ? selectedDiscountVoucher.discount : 0),
                                     )}
                                 </span>
                             </div>
@@ -429,7 +441,7 @@ function Checkout() {
                 </MaxWidthWrapper>
 
                 {isAddressManagerOpen && (
-                    <div className="absolute z-50 bg-gray-600/70 h-full  w-screen top-0 left-0">
+                    <div className="absolute top-0 left-0 z-50 w-screen h-full bg-gray-600/70">
                         <MaxWidthWrapper className={'flex justify-center items-center'}>
                             <AddressManager
                                 onCancel={handleCloseAddressManager}
@@ -444,8 +456,8 @@ function Checkout() {
             {chooseVoucher && (
                 <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
                     <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
-                        <div className="w-1/2 max-h-3/4 overflow-y-scroll lg:px-2 lg:py-2">
-                            <div className="w-full h-full  bg-background lg:px-2 lg:py-2">
+                        <div className="w-1/2 overflow-y-scroll max-h-3/4 lg:px-2 lg:py-2">
+                            <div className="w-full h-full bg-background lg:px-2 lg:py-2">
                                 <header className="lg:pt-4 lg:px-4 lg:text-2xl">Chọn phiếu giảm giá</header>
                                 <div className="lg:px-4 lg:py-4">
                                     <div className="lg:mb-12">
@@ -470,7 +482,7 @@ function Checkout() {
                                                 ))}
                                         </div>
                                     </div>
-                                    <div className="lg:mb-4 shadow-sm">
+                                    <div className="shadow-sm lg:mb-4">
                                         <header>Mã Giảm Giá</header>
                                         <div className="lg:px-6">
                                             {vouchers
@@ -493,10 +505,71 @@ function Checkout() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-background flex items-center justify-end lg:gap-4 lg:px-4 lg:py-6">
+                                <div className="flex items-center justify-end bg-background lg:gap-4 lg:px-4 lg:py-6">
                                     <button
                                         className="font-light text-white rounded-sm text-md bg-primary lg:px-12 lg:py-2 h-min"
                                         onClick={handleConfirm}
+                                    >
+                                        Xác nhận
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </MaxWidthWrapper>
+                </div>
+            )}
+            {chooseShippingMethod && (
+                <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
+                    <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
+                        <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
+                            <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
+                                <div className="bg-background">
+                                    <header className="lg:py-4 lg:px-4">Chọn phương thức vận chuyển</header>
+                                    <div className="lg:px-4 lg:py-4">
+                                        <div
+                                            onClick={() => handleOptionClickMeThod(35000, 'Vận chuyển Nhanh')}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
+                                                selectedOption === 'Vận chuyển Nhanh'
+                                                    ? 'border-l-4 border-primary shadow-md my-2'
+                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                            }`}
+                                        >
+                                            <div>Vận chuyển Nhanh</div>
+                                            <div className="font-light text-red-600">{formatNumber(35000)}</div>
+                                        </div>
+                                        <div
+                                            onClick={() => handleOptionClickMeThod(100000, 'Vận chuyển Hoả Tốc')}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
+                                                selectedOption === 'Vận chuyển Hoả Tốc'
+                                                    ? 'border-l-4 border-primary shadow-md my-2'
+                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                            }`}
+                                        >
+                                            <div>Vận chuyển Hoả tốc</div>
+                                            <div className="font-light text-red-600">{formatNumber(100000)}</div>
+                                        </div>
+                                        <div
+                                            onClick={() => handleOptionClickMeThod(15000, 'Vận chuyển Tiết Kiệm')}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
+                                                selectedOption === 'Vận chuyển Tiết Kiệm'
+                                                    ? 'border-l-4 border-primary shadow-md my-2'
+                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                            }`}
+                                        >
+                                            <div>Vận chuyển Tiết Kiệm</div>
+                                            <div className="font-light text-red-600">{formatNumber(15000)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-end bg-background lg:gap-4 lg:px-4 lg:py-6">
+                                    <button
+                                        onClick={() => {
+                                            if (selectedOption) {
+                                                setChooseShippingMethod(false);
+                                            }
+                                        }}
+                                        className="font-light text-white rounded-sm text-md bg-primary lg:px-12 lg:py-2 h-min"
                                     >
                                         Xác nhận
                                     </button>
@@ -513,13 +586,13 @@ function Checkout() {
 const OrderItem = ({ imgSrc, title, description, quantity, price }) => {
     const totalPrice = quantity * price;
     return (
-        <li className="grid grid-cols-6 gap-2 lg:py-2 border-b-1 items-start">
+        <li className="grid items-start grid-cols-6 gap-2 lg:py-2 border-b-1">
             <div className="self-center col-span-1">
-                <img src={imgSrc} alt="Product" className="size-14 rounded" />
+                <img src={imgSrc} alt="Product" className="rounded size-14" />
             </div>
             <div className="flex flex-col col-span-3 pt-2">
                 <span className="text-gray-600 text-md text-nowrap overflow-x-clip font-semi-bold">{title}</span>
-                <span className="inline-block pt-2 text-sm text-nowrap overflow-x-clip text-gray-400">
+                <span className="inline-block pt-2 text-sm text-gray-400 text-nowrap overflow-x-clip">
                     {description}
                 </span>
             </div>
@@ -543,26 +616,26 @@ const VoucherShipping = ({ id, type, discount, minOrder, onSelect, isSelected, t
                 isDisabled ? 'opacity-50 pointer-events-none' : ''
             }`}
         >
-            <div className="relative justify-center item-center basis-1/4 bg-secondary p-2 rounded-l-lg">
-                <div className="text-white border-4 top-8 left-12 border-white lg:p-2 rounded-tl-xl rounded-br-xl font-bold text-lg absolute z-10">
+            <div className="relative justify-center p-2 rounded-l-lg item-center basis-1/4 bg-secondary">
+                <div className="absolute z-10 text-lg font-bold text-white border-4 border-white top-8 left-12 lg:p-2 rounded-tl-xl rounded-br-xl">
                     Free <br />
                     <span className="ml-4">Ship</span>
                 </div>
-                <div className="flex mx-auto lg:pt-28 items-center">
-                    <div className="mx-auto text-white font-semibold text-md">Mã vận chuyển</div>
+                <div className="flex items-center mx-auto lg:pt-28">
+                    <div className="mx-auto font-semibold text-white text-md">Mã vận chuyển</div>
                 </div>
             </div>
-            <div className="basis-2/4 flex flex-col items-start justify-between">
+            <div className="flex flex-col items-start justify-between basis-2/4">
                 <div className="flex flex-col space-y-2" role="presentation">
                     <div className="flex items-center">
-                        <div className="bg-secondary text-white py-1 px-2 rounded">
+                        <div className="px-2 py-1 text-white rounded bg-secondary">
                             Giảm tối đa {formatNumber(discount)}
                         </div>
                     </div>
                     <div className="text-gray-500">Đơn Tối Thiểu {formatNumber(minOrder)}</div>
                 </div>
             </div>
-            <div className="basis-1/4 justify-end flex items-center">
+            <div className="flex items-center justify-end basis-1/4">
                 <div
                     className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${
                         isSelected ? 'bg-primary' : ''
@@ -573,7 +646,7 @@ const VoucherShipping = ({ id, type, discount, minOrder, onSelect, isSelected, t
                     onClick={() => !isDisabled && onSelect({ id, type, discount, minOrder })}
                     tabIndex="0"
                 >
-                    {isSelected && <div className="h-2 w-2 bg-white rounded-full"></div>}
+                    {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
                 </div>
             </div>
         </div>
@@ -589,26 +662,26 @@ const VoucherDiscount = ({ id, type, discount, minOrder, onSelect, isSelected, t
                 isDisabled ? 'opacity-50 pointer-events-none' : ''
             }`}
         >
-            <div className="relative justify-center item-center basis-1/4 bg-primary p-2 rounded-l-lg">
-                <div className="text-white border-4 top-8 left-12 border-white lg:p-2 rounded-tl-xl rounded-br-xl font-bold text-lg absolute z-10">
+            <div className="relative justify-center p-2 rounded-l-lg item-center basis-1/4 bg-primary">
+                <div className="absolute z-10 text-lg font-bold text-white border-4 border-white top-8 left-12 lg:p-2 rounded-tl-xl rounded-br-xl">
                     Giảm <br />
                     <span className="ml-6">Giá</span>
                 </div>
-                <div className="flex mx-auto lg:pt-28 items-center">
-                    <div className="mx-auto text-white font-semibold text-md">Mã giảm giá</div>
+                <div className="flex items-center mx-auto lg:pt-28">
+                    <div className="mx-auto font-semibold text-white text-md">Mã giảm giá</div>
                 </div>
             </div>
-            <div className="basis-2/4 flex flex-col items-start justify-between">
+            <div className="flex flex-col items-start justify-between basis-2/4">
                 <div className="flex flex-col space-y-2" role="presentation">
                     <div className="flex items-center">
-                        <div className="bg-primary text-white py-1 px-2 rounded">
+                        <div className="px-2 py-1 text-white rounded bg-primary">
                             Giảm tối đa {formatNumber(discount)}
                         </div>
                     </div>
                     <div className="text-gray-500">Đơn Tối Thiểu {formatNumber(minOrder)}</div>
                 </div>
             </div>
-            <div className="basis-1/4 justify-end flex items-center">
+            <div className="flex items-center justify-end basis-1/4">
                 <div
                     className={`flex items-center justify-center h-4 w-4 bg-gray-300 rounded-full cursor-pointer ${
                         isSelected ? 'bg-primary' : ''
@@ -619,7 +692,7 @@ const VoucherDiscount = ({ id, type, discount, minOrder, onSelect, isSelected, t
                     onClick={() => !isDisabled && onSelect({ id, type, discount, minOrder })}
                     tabIndex="0"
                 >
-                    {isSelected && <div className="h-2 w-2 bg-white rounded-full"></div>}
+                    {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
                 </div>
             </div>
         </div>

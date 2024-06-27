@@ -121,8 +121,8 @@ const FormLayoutProfile = () => {
                             </div>
 
                             <div class="grid grid-cols-1 gap-9 sm:grid-cols-2">
-                                <div class="flex flex-col gap-9">
-                                    <div class="rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">
+                                <div class="col-span-2 flex flex-col gap-9">
+                                    <div class=" mx-auto w-1/2 rounded-sm border border-stroke ">
                                         <form action="#" onSubmit={handleFileChangeAndSubmitShopInfo}>
                                             <div className="flex flex-col items-center justify-center w-full p-[18px] mx-auto space-y-5 sm:flex-row sm:space-y-0">
                                                 <img
@@ -198,7 +198,7 @@ const FormLayoutProfile = () => {
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col h-max gap-9">
+                                {/* <div class="flex flex-col h-max gap-9">
                                     <div class="rounded-sm border border-stroke bg-white shadow-default p-8 dark:border-strokedark dark:bg-boxdark">
                                         <div class="border-b border-stroke pb-6 dark:border-strokedark">
                                             <h3 class="font-medium text-black dark:text-white">
@@ -272,7 +272,7 @@ const FormLayoutProfile = () => {
                                             </button>
                                         </form>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </main>

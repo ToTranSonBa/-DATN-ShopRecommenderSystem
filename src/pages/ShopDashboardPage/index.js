@@ -37,7 +37,7 @@ function SellerDashboard() {
                         {useroption === 'formselements' && <FormElement />} */}
                         {useroption === 'tableproduct' && <TableProduct />}
                         {useroption === 'tableorder' && <TableOrder />}
-                        {useroption === 'settings' && <SellerSettings />}
+                        {useroption === 'settings' && <Profile />}
                         {useroption === 'formaddproduct' && <FormProductManager />}
                     </main>
                 </div>

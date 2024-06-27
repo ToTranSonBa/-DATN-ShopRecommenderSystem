@@ -6,12 +6,8 @@ const ChartTwo = () => {
         const chartTwoOptions = {
             series: [
                 {
-                    name: 'Sales',
+                    name: 'Follower',
                     data: [44, 55, 41, 67, 22, 43, 65],
-                },
-                {
-                    name: 'Revenue',
-                    data: [13, 23, 20, 8, 13, 27, 15],
                 },
             ],
             colors: ['#3056D3', '#80CAEE'],
@@ -57,7 +53,7 @@ const ChartTwo = () => {
             legend: {
                 position: 'top',
                 horizontalAlign: 'left',
-                fontFamily: 'Satoshi',
+
                 fontWeight: 500,
                 fontSize: '14px',
                 markers: {
@@ -78,20 +74,20 @@ const ChartTwo = () => {
     }, []);
 
     return (
-        <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
+        <div className="col-span-12 bg-white border rounded-sm border-stroke p-7 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
             <div className="justify-between gap-4 mb-4 sm:flex">
                 <div>
-                    <h4 className="text-xl font-bold text-black dark:text-white">Profit this week</h4>
+                    <h4 className="text-xl font-bold text-black dark:text-white">Tăng theo dõi tuần này</h4>
                 </div>
                 <div>
                     <div className="relative z-20 inline-block">
                         <select
                             name="#"
                             id="#"
-                            className="relative z-20 inline-flex py-1 pl-3 pr-8 text-sm font-medium bg-transparent outline-none appearance-none"
+                            className="relative z-20 inline-flex py-1 pl-3 pr-8 text-sm font-medium bg-transparent appearance-none focus:outline-none focus:ring-0"
                         >
-                            <option value="">This Week</option>
-                            <option value="">Last Week</option>
+                            <option value="">Tuần này</option>
+                            <option value="">Tuần trước</option>
                         </select>
                         <span className="absolute z-10 -translate-y-1/2 right-3 top-1/2">
                             <svg
