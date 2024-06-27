@@ -39,12 +39,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("CategoriesLV0BySearch")]
         public async Task<IActionResult> GetCategoriesLV0BySearching(string SearchKey)
         {
-            var (total, categories) = await _elasticSearchService.GetCategoryLevel0BySearch(SearchKey);
+            var categories = await _elasticSearchService.GetCategoryLevel0BySearch(SearchKey);
             return Ok(new
             {
                 message = "Success!",
                 status = "200",
-                Total = total,
                 Categories = categories
             });
         }

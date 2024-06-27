@@ -24,8 +24,9 @@ namespace ShopRe.Service
         Task DeleteDocumentByIDNK(int idNK);
         Task AddProductToIndex(Product product);
         Task UpdateDocumentByIDNK(int ProductID, Product product);
-        Task<(int TotalCount, List<Category> categories)> GetCategoryLevel0BySearch(string keyWord);
-        Task<(int TotalCount, List<Brand> Brands)> GetBrandsBySearch(string keyWord);
+        Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord);
+        Task<List<dynamic>> GetBrandsBySearch(string keyWord);
+
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -510,7 +511,7 @@ namespace ShopRe.Service
                     combinedResults.Add(new
                     {
                         Product = product,
-                        IDX = 0
+                        IDX = 999999
                     });
                 }
             }
@@ -818,7 +819,7 @@ namespace ShopRe.Service
 
             return sortedList;
         }
-        public async Task<(int TotalCount, List<Brand> Brands)> GetBrandsBySearch(string keyWord)
+        public async Task<List<dynamic>> GetBrandsBySearch(string keyWord)
         {
             var filters = new List<QueryContainer>();
 
@@ -885,17 +886,33 @@ namespace ShopRe.Service
 
             if (!response.IsValid || !all_response.IsValid)
             {
-                return (0, null);
+                return null;
             }
+
             var products_infor = ConvertToProduct(all_response.Documents.ToList());
 
             var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
 
-            var brands = await _dbContext.Brands
-               .Where(b => brandIds.Contains(b.ID_NK))
-               .ToListAsync();
+            var list_brands_response = new List<dynamic>();
 
-            return (brands.Count(), brands);
+            var results = await _dbContext.Brands.ToListAsync();
+
+            foreach (var brand in results)
+            {
+                var count = products_infor.Where(p => p.BrandID_NK == brand.ID_NK).ToList();
+                var brandObject = new
+                {
+                    Total = count.Count(),
+                    Brand = brand,
+                };
+                list_brands_response.Add(brandObject);
+            }
+
+            var sortedList = list_brands_response
+                .OrderByDescending(c => c.Total).Take(15)
+                .ToList();
+
+            return sortedList;
         }
         //Comments
         public async Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId)
@@ -1216,7 +1233,7 @@ namespace ShopRe.Service
             return seller;
         }
         //Category
-        public async Task<(int TotalCount, List<Category> categories)> GetCategoryLevel0BySearch(string keyWord)
+        public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
         {
             var filters = new List<QueryContainer>();
 
@@ -1283,17 +1300,33 @@ namespace ShopRe.Service
 
             if (!response.IsValid || !all_response.IsValid)
             {
-                return (0, null);
+                return null;
             }
+
             var products_infor = ConvertToProduct(all_response.Documents.ToList());
 
             var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
 
-            var categories = await _dbContext.Category
-                .Where(c => categoryIds.Contains(c.ID_NK))
-                .ToListAsync();
+            var list_categories_response = new List<dynamic>();
 
-            return (categories.Count(), categories);
+            var results = await _dbContext.Category.Where(p => p.Level == 0).ToListAsync();
+
+            foreach (var category in results)
+            {
+                var count = products_infor.Where(p => p.Category_LV0_NK == category.ID_NK).ToList();
+                var categoryObject = new
+                {
+                    Total = count.Count(),
+                    Category = category,
+                };
+                list_categories_response.Add(categoryObject);
+            }
+
+            var sortedList = list_categories_response
+                .OrderByDescending(c => c.Total)
+                .ToList();
+
+            return sortedList;
         }
     }
 }

@@ -39,13 +39,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("BrandsBySearch")]
         public async Task<IActionResult> GetBrandsBySearching(string KeyWord)
         {
-            var (total, brands) = await _elasticsearchService.GetBrandsBySearch(KeyWord);
+            var brands = await _elasticsearchService.GetBrandsBySearch(KeyWord);
 
             return Ok(new
             {
                 message = "Success!",
                 status = "200",
-                Total = total,
                 Brands = brands
             });
         }
