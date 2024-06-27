@@ -6,6 +6,7 @@ namespace ShopRe.Model.Models
     {
         [Key]
         public Guid Id { get; set; }
+        public int? ProductID_NK { get; set; }
         public Product? Product { get; set; }
     }
 }

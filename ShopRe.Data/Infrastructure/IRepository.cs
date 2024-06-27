@@ -19,5 +19,6 @@ namespace ShopRe.Data.Infrastructure
         void Remove(int id);
         IEnumerable<T> Find(Expression<Func<T, bool>> expression);
         ValueTask<EntityEntry<T>> AddAsync(T entity);
+        Task<T> UpdateUofW(T entity);
     }
 }

@@ -54,6 +54,11 @@ namespace ShopRe.Data.Infrastructure
             _ = SaveChangesAsync();
             return entity;
         }
+        public async Task<T> UpdateUofW(T entity)
+        {
+            var result = _context.Set<T>().Update(entity);
+            return entity;
+        }
         public Task<int> AddRange(IEnumerable<T> entities)
         {
             throw new NotImplementedException();

@@ -26,8 +26,8 @@ namespace ShopRe.Service
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
         Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
-        Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller);
-        Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller);
+        Task<PagedList<OrderDTO>> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller);
+        Task<PagedList<OrderDTO>> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller);
     }
     public class OrderService : IOrderService
     {
@@ -211,7 +211,7 @@ namespace ShopRe.Service
             return _orderRepository.Update(entity);
         }
 
-        public async Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller)
+        public async Task<PagedList<OrderDTO>> GetOrdersOfSeller(OrdersParameters ordersParameters,ApplicationUser seller)
         {
             var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId==seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
             var orders = await _dbContext.Order
@@ -231,10 +231,11 @@ namespace ShopRe.Service
                 order.Items = Items;
             }
 
-            return listOrder;
+            return PagedList<OrderDTO>
+                .ToPagedList(listOrder,ordersParameters.PageNumber, ordersParameters.PageSize);
         }
 
-        public async Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller)
+        public async Task<PagedList<OrderDTO>> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller)
         {
             var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId == seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
             var orders = await _dbContext.Order
@@ -253,7 +254,8 @@ namespace ShopRe.Service
                 order.Items = Items;
             }
 
-            return listOrder;
+            return PagedList<OrderDTO>
+                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize);
         }
     }
 }

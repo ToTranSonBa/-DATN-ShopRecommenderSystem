@@ -295,14 +295,14 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         [HttpGet("Seller/GetListOrder")]
         [Authorize(Roles ="Seller")]
-        public async Task<IActionResult> GetListOrder()
+        public async Task<IActionResult> GetListOrder([FromQuery]OrdersParameters ordersParameters)
         {
             if (HttpContext.User != null)
             {
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
-                var result = await _orderService.GetOrdersOfSeller(user);
+                var result = await _orderService.GetOrdersOfSeller(ordersParameters,user);
                 return Ok(result);
             }
             else
@@ -311,16 +311,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        [HttpGet("Seller/GetListOrderByStatus{id}")]
+        [HttpGet("Seller/GetListOrderByStatus{status}")]
         [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> GetListOrderByStatus(int status)
+        public async Task<IActionResult> GetListOrderByStatus(int status, [FromQuery] OrdersParameters ordersParameters)
         {
             if (HttpContext.User != null)
             {
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
-                var result = await _orderService.GetOrdersByStatusOfSeller(status,user);
+                var result = await _orderService.GetOrdersByStatusOfSeller(status, ordersParameters, user);
                 return Ok(result);
             }
             else
