@@ -137,7 +137,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 {
                     return NotFound();
                 }
-                return CreatedAtAction(nameof(GetDetailComment), new { id = res.ID }, res);
+                //return CreatedAtAction(nameof(GetDetailComment), new { id = res.ID }, res);
+                return StatusCode(StatusCodes.Status200OK, "Successfully rated");
             }
             catch (Exception ex)
             {

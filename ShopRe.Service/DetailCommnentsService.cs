@@ -16,7 +16,7 @@ namespace ShopRe.Service
         Task<IQueryable<DetailComment>> GetAll(bool trackChanges);
         Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId,CommentParameters commentParameters, bool trackChanges);
         Task<DetailComment> GetById(int id);
-        Task<DetailComment> Add(CreateDetailCommentPrarameters entity, ApplicationUser user);
+        Task<bool> Add(CreateDetailCommentPrarameters entity, ApplicationUser user);
         Task<int> AddRange(IEnumerable<DetailComment> entities);
         Task<DetailComment> Update(DetailComment entity);
         void Remove(int id);
@@ -36,7 +36,7 @@ namespace ShopRe.Service
             _mapper = mapper;
         }
 
-        public async Task<DetailComment> Add(CreateDetailCommentPrarameters entity, ApplicationUser user)
+        public async Task<bool> Add(CreateDetailCommentPrarameters entity, ApplicationUser user)
         {
             // Ensure the product exists
             var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.ProductId && p.SellerID_NK == entity.SellerId);
@@ -82,8 +82,11 @@ namespace ShopRe.Service
                 }
 
                 await _dbContext.SaveChangesAsync();
+                order.IsRated = true;
+                _dbContext.Order.Update(order);
+                await _dbContext.SaveChangesAsync();
 
-                return detailComment;
+                return true;
             }
             catch (Exception ex)
             {

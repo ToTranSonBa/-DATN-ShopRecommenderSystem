@@ -23,6 +23,7 @@ namespace ShopRe.Model.Models
         public DateTime? UpdatedAt { get; set; }
         public string? Email { get; set; }
         public string? Name { get; set; }
+        public bool? IsRated { get; set; }
         public int? SellerID_NK { get; set; }
         public Seller? Seller { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
