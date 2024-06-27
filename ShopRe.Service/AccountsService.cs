@@ -30,7 +30,7 @@ namespace ShopRe.Service
         Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user);
         Task<RegisterUserStatus> RegisterAsync(UserRegistrationDto userForRegistration);
         public Task<string> GenerateRefreshToken();
-        Task<RegisterSellerStatus> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO);
+        Task<(RegisterSellerStatus status, LoginRespone Token)> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO, string email);
         Task<(LoginStatus status, LoginRespone Token)> LoginAsync(SignInModel userLoginDto);
 
     }
@@ -236,13 +236,13 @@ namespace ShopRe.Service
                 return RegisterUserStatus.ROLEERROR;
             }
         }
-        public async Task<RegisterSellerStatus> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO)
+        public async Task<(RegisterSellerStatus status, LoginRespone Token)> RegisterSeller(SellerRegistrationDTO sellerRegistrationDTO, string email)
         {
             if (sellerRegistrationDTO == null)
-                return RegisterSellerStatus.FAILED;
+                return (RegisterSellerStatus.FAILED, null);
             var sellerExitst = await _context.Sellers.Where(s => s.ApplicationUserId == sellerRegistrationDTO.user.Id).ToListAsync();
             if(sellerExitst.Count > 0) 
-                return RegisterSellerStatus.SELLEREXIST;
+                return (RegisterSellerStatus.SELLEREXIST, null);
             await _userManager.AddToRoleAsync(sellerRegistrationDTO.user,"Seller");
             await _context.SaveChangesAsync();
             var seller = new Seller
@@ -256,8 +256,23 @@ namespace ShopRe.Service
             var addingSeller = await _context.Sellers.AddAsync(seller);
             await _context.SaveChangesAsync();
             if (addingSeller == null)
-                return RegisterSellerStatus.FAILED_TO_ADD_SELLER;
-            return RegisterSellerStatus.SUCCESS;
+                return (RegisterSellerStatus.FAILED_TO_ADD_SELLER, null) ;
+            var refreshToken = await GenerateRefreshToken();
+            sellerRegistrationDTO.user.RefreshToken = refreshToken;
+            sellerRegistrationDTO.user.RefreshTokenExpiry = DateTime.Now.AddDays(1);
+            await _userManager.UpdateAsync(sellerRegistrationDTO.user);
+
+            var accessToken = await GenerateJWTToken(email);
+            var role = await _userManager.GetRolesAsync(sellerRegistrationDTO.user);
+
+            var response = new LoginRespone
+            {
+                AccessToken = accessToken.token,
+                RefreshToken = refreshToken,
+                ValidTo = accessToken.ValidTo,
+                Role = role.ToList()
+            };
+            return (RegisterSellerStatus.SUCCESS, response);
 
         }
 
@@ -332,10 +347,13 @@ namespace ShopRe.Service
             var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Email, Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Role, role.First())
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 
                 };
+            foreach(var rl in role)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, rl));
+            }
 
             var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var token = new JwtSecurityToken

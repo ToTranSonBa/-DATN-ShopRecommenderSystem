@@ -222,8 +222,14 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 ImageUrl = seller.ImageUrl,
                 user = userCurrent
             };
-            var result = await _accountService.RegisterSeller(dto);
-            return StatusCode(StatusCodes.Status201Created, "Seller registered successfully");
+            var result = await _accountService.RegisterSeller(dto,userEmail);
+            return StatusCode(StatusCodes.Status200OK, new LoginRespone
+            {
+                AccessToken = result.Token.AccessToken,
+                RefreshToken = result.Token.RefreshToken,
+                ValidTo = result.Token.ValidTo,
+                Role = result.Token.Role,
+            });
         }
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
