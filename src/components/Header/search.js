@@ -1,141 +1,150 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from "react";
 // API
-import { fetchCategories } from '../../services/HomeApi/home';
-import { SearchContext } from '../searchContext';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { fetchCategories } from "../../services/HomeApi/home";
+import { SearchContext } from "../searchContext";
+import { useLocation, useNavigate } from "react-router-dom";
 const recentSearch = [
-    { searchkey: 'điện thoại' },
-    { searchkey: 'quần áo' },
-    { searchkey: 'trang trí' },
-    { searchkey: 'sách vở' },
+  { searchkey: "điện thoại" },
+  { searchkey: "quần áo" },
+  { searchkey: "trang trí" },
+  { searchkey: "sách vở" },
 ];
 
 const searchPlaceholders = [
-    {
-        title: 'iphone',
-    },
-    {
-        title: 'điện thoại',
-    },
-    {
-        title: 'quần áo',
-    },
+  {
+    title: "iphone",
+  },
+  {
+    title: "điện thoại",
+  },
+  {
+    title: "quần áo",
+  },
 ];
 
 const Search = () => {
-    const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-    const [scrollPosition, setScrollPosition] = useState(0);
-    const [classNameHidden, setClassNameHidden] = useState('');
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [classNameHidden, setClassNameHidden] = useState("");
 
-    const [isFocused, setIsFocused] = useState(false);
-    const [isChooseCategory, setIsChooseCategory] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState('All categories');
-    const [categories, setCategories] = useState([]);
-    const [error, setError] = useState(null);
-    const location = useLocation();
+  const [isFocused, setIsFocused] = useState(false);
+  const [isChooseCategory, setIsChooseCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All categories");
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState(null);
+  const location = useLocation();
 
-    //
-    useEffect(() => {
-        const getCategories = async () => {
-            try {
-                const response = await fetchCategories();
-                const categoriesData = response.data;
-                setCategories(categoriesData);
-            } catch (error) {
-                setError('Failed to fetch categories');
-                console.error('Failed to fetch categories:', error);
-            }
-        };
-
-        getCategories();
-    }, []);
-
-    const { searchQuery, setSearchQuery } = useContext(SearchContext);
-    const [inputValue, setInputValue] = useState('');
-
-    const handleScroll = () => {
-        if (location.pathname === '/') {
-            const currentScrollPos = window.scrollY;
-
-            if (currentScrollPos > 800) {
-                setClassNameHidden('');
-            } else {
-                setClassNameHidden('hidden');
-            }
-
-            setScrollPosition(currentScrollPos);
-        }
+  //
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const response = await fetchCategories();
+        const categoriesData = response.data;
+        setCategories(categoriesData);
+      } catch (error) {
+        setError("Failed to fetch categories");
+        console.error("Failed to fetch categories:", error);
+      }
     };
 
-    useEffect(() => {
-        window.addEventListener('scroll', handleScroll);
+    getCategories();
+  }, []);
 
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, [location.pathname]);
+  const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const [inputValue, setInputValue] = useState("");
 
-    const getInitialStates = () => {
-        if (location.pathname === '/') {
-            return {
-                classNameHidden: 'hidden',
-            };
-        } else {
-            return {
-                classNameHidden: '',
-            };
-        }
-    };
+  const handleScroll = () => {
+    if (location.pathname === "/") {
+      const currentScrollPos = window.scrollY;
 
-    useEffect(() => {
-        const newStates = getInitialStates();
-        setClassNameHidden(newStates.classNameHidden);
-    }, [location.pathname]);
+      if (currentScrollPos > 800) {
+        setClassNameHidden("");
+      } else {
+        setClassNameHidden("hidden");
+      }
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const currentPlaceholder = searchPlaceholders[currentPlaceholderIndex];
-    const navigate = useNavigate();
-
-    function handleChange(e) {
-        setInputValue(e.target.value);
+      setScrollPosition(currentScrollPos);
     }
+  };
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        setSearchQuery(inputValue);
-        localStorage.setItem('searchQuery', inputValue);
-        window.location.reload();
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [location.pathname]);
+
+  const getInitialStates = () => {
+    if (location.pathname === "/") {
+      return {
+        classNameHidden: "hidden",
+      };
+    } else {
+      return {
+        classNameHidden: "",
+      };
     }
+  };
 
-    const handleSelectCategory = (category) => {
-        setSelectedCategory(category);
-        setIsChooseCategory(false); // Đóng dropdown sau khi chọn
-    };
+  useEffect(() => {
+    const newStates = getInitialStates();
+    setClassNameHidden(newStates.classNameHidden);
+  }, [location.pathname]);
 
-    const handleToggleChooseCategory = () => {
-        setIsChooseCategory((prevState) => !prevState);
-    };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPlaceholderIndex(
+        (prevIndex) => (prevIndex + 1) % searchPlaceholders.length
+      );
+    }, 3000);
 
-    const handleFocus = () => {
-        setIsFocused(true);
-    };
+    return () => clearInterval(interval);
+  }, []);
 
-    const handleBlur = () => {
-        setIsFocused(false);
-    };
+  const currentPlaceholder = searchPlaceholders[currentPlaceholderIndex];
+  const navigate = useNavigate();
 
-    return (
-        <form className={`w-full max-w-screen-lg  ${classNameHidden}`} onSubmit={handleSubmit}>
-            {error && <div className="error">{error}</div>}
-            <div className="flex">
-                {/* <button
+  function handleChange(e) {
+    setInputValue(e.target.value);
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setSearchQuery(inputValue);
+    localStorage.setItem("searchQuery", inputValue);
+    const currentUrl = window.location.href;
+    console.log(currentUrl);
+    if (currentUrl === "http://localhost:3001/productpage")
+      window.location.reload();
+    else navigate("/productpage");
+  }
+
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category);
+    setIsChooseCategory(false); // Đóng dropdown sau khi chọn
+  };
+
+  const handleToggleChooseCategory = () => {
+    setIsChooseCategory((prevState) => !prevState);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  return (
+    <form
+      className={`w-full max-w-screen-lg  ${classNameHidden}`}
+      onSubmit={handleSubmit}
+    >
+      {error && <div className="error">{error}</div>}
+      <div className="flex">
+        {/* <button
                     id="dropdown-button"
                     data-dropdown-toggle="dropdown"
                     className="relative z-10 inline-flex items-center flex-shrink-0 px-4 py-2 text-sm font-medium text-center text-black bg-gray-100 border border-gray-300 rounded-s-lg focus:ring-4 focus:outline-none focus:ring-gray-100 "
@@ -159,7 +168,7 @@ const Search = () => {
                         />
                     </svg>
                 </button> */}
-                {/* {isChooseCategory && (
+        {/* {isChooseCategory && (
                     <div
                         id="dropdown"
                         class="z-10 absolute top-14 bg-white divide-y divide-gray-100 rounded-lg shadow w-64"
@@ -189,100 +198,104 @@ const Search = () => {
                     </div>
                 )} */}
 
-                <div className="relative w-full">
-                    <input
-                        type="search"
-                        id="search-dropdown"
-                        className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
-                        placeholder={searchPlaceholders[currentPlaceholderIndex].title}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                    />
-                    <button
-                        type="submit"
-                        className="absolute top-0 h-full px-4 text-sm font-medium text-white border border-primary bg-primary end-0 rounded-e-lg hover:bg-primary/80 focus:ring-4 focus:outline-none focus:ring-primary "
+        <div className="relative w-full">
+          <input
+            type="search"
+            id="search-dropdown"
+            className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
+            placeholder={searchPlaceholders[currentPlaceholderIndex].title}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onChange={handleChange}
+          />
+          <button
+            type="submit"
+            className="absolute top-0 h-full px-4 text-sm font-medium text-white border border-primary bg-primary end-0 rounded-e-lg hover:bg-primary/80 focus:ring-4 focus:outline-none focus:ring-primary "
+          >
+            <svg
+              className="w-4 h-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </button>
+          <div
+            id="searchexpand"
+            className={` ${
+              isFocused ? "block" : "hidden"
+            } absolute left-0 z-50  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 shadow-lg`}
+          >
+            <div class=" w-full text-sm text-gray-900 ">
+              <span className="font-semibold lg:ml-10 lg:text-lg">
+                Tìm kiếm gần đây
+              </span>
+              {recentSearch.map((search, index) => (
+                <div
+                  className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                  key={index}
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-4 h-4"
                     >
-                        <svg
-                            className="w-4 h-4"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                            />
-                        </svg>
-                    </button>
-                    <div
-                        id="searchexpand"
-                        className={` ${
-                            isFocused ? 'block' : 'hidden'
-                        } absolute left-0 z-50  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 shadow-lg`}
-                    >
-                        <div class=" w-full text-sm text-gray-900 ">
-                            <span className="font-semibold lg:ml-10 lg:text-lg">Tìm kiếm gần đây</span>
-                            {recentSearch.map((search, index) => (
-                                <div
-                                    className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
-                                    key={index}
-                                >
-                                    <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            stroke="currentColor"
-                                            className="w-4 h-4"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <span className="font-light ">{search.searchkey}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <div class=" w-full  text-sm text-gray-900  ">
-                            <span className="font-semibold lg:ml-10 lg:text-lg">Đề xuất cho bạn</span>
-                            {recentSearch.map((search, index) => (
-                                <div
-                                    className="flex items-center hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
-                                    key={index}
-                                >
-                                    <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="size-4"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <span className="font-light ">{search.searchkey}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                      />
+                    </svg>
+                  </div>
+                  <span className="font-light ">{search.searchkey}</span>
                 </div>
+              ))}
             </div>
-        </form>
-    );
+            <div class=" w-full  text-sm text-gray-900  ">
+              <span className="font-semibold lg:ml-10 lg:text-lg">
+                Đề xuất cho bạn
+              </span>
+              {recentSearch.map((search, index) => (
+                <div
+                  className="flex items-center hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                  key={index}
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                      />
+                    </svg>
+                  </div>
+                  <span className="font-light ">{search.searchkey}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
 };
 export default Search;
