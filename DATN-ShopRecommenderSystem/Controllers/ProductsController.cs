@@ -78,13 +78,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
-                    var (product, totalCount, brands, categories) = await _elasticSearchService.GetAllAsync(productParameters);
+                    var (totalCount, products) = await _elasticSearchService.GetAllAsync(productParameters);
                     var productResponse = new
                     {
                         TotalCount = totalCount,
-                        Brands = brands,
-                        Categories = categories,
-                        Product = product
+                        Product = products
                     };
                     return Ok(productResponse);
                 }
@@ -95,13 +93,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     // Get user from token
                     var user = await _accountService.GetUserFromTokenAsync(token);
 
-                    var (product, totalCount, brands, categories) = await _elasticSearchService.ProductAfterTraining(productParameters);
+                    var (totalCount, products) = await _elasticSearchService.ProductAfterTraining(productParameters);
                     var productResponse = new
                     {
                         TotalCount = totalCount,
-                        Brands = brands,
-                        Categories = categories,
-                        Product = product
+                        Product = products
                     };
                     return Ok(productResponse);
                 }

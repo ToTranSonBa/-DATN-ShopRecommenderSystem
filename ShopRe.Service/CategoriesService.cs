@@ -87,8 +87,9 @@ namespace ShopRe.Service
                 var categoryId = category.GetType().GetProperty("ID_NK").GetValue(category);
 
                 // Using Elasticsearch to count products
-                var countResponse = await _elasticClient.CountAsync<Product>(s => s
-                    .Query(q => q
+                var countResponse = await _elasticClient.CountAsync<dynamic>(s => s
+                .Index("products")    
+                .Query(q => q
                         .Term(t => t.Field(levelProduct).Value(categoryId))
                     )
                 );

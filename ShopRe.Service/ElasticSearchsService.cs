@@ -11,9 +11,9 @@ namespace ShopRe.Service
 {
     public interface IElasticSearchService
     {
-        Task<(List<Product> Products, int TotalCount, List<Brand> brands, List<Category> categories)> GetAllAsync(ProductParameters productParameters);
+        Task<(int TotalCount, List<Product> Products)> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
-        Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters);
+        Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters);
         Task<List<BrandDetailDTO>> GetBrands();
         Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId);
         Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct);
@@ -24,6 +24,8 @@ namespace ShopRe.Service
         Task DeleteDocumentByIDNK(int idNK);
         Task AddProductToIndex(Product product);
         Task UpdateDocumentByIDNK(int ProductID, Product product);
+        Task<(int TotalCount, List<Category> categories)> GetCategoryLevel0BySearch(string keyWord);
+        Task<(int TotalCount, List<Brand> Brands)> GetBrandsBySearch(string keyWord);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -351,7 +353,7 @@ namespace ShopRe.Service
                 throw new Exception($"Failed to index document: {ex.Message}");
             }
         }
-        public async Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters)
+        public async Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
 
@@ -452,32 +454,16 @@ namespace ShopRe.Service
                     )
                 )
             );
-
-            var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("products")
-                    .Size(count)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(mu => mu
-                                .MatchAll()
-                            )
-                            .Filter(filters.ToArray())
-                        )
-                    )
-                );
-
-            if (!response.IsValid || !all_response.IsValid)
+            if (!response.IsValid)
             {
-                return (null, 0, null, null);
+                return ( 0, null);
             }
 
 
             var products = ConvertToProduct(response.Documents.ToList());
-            var all_products = ConvertToProduct(all_response.Documents.ToList());
+           
 
             var sellerIds = products.Select(p => p.SellerID_NK).ToList();
-            var brandIds = all_products.Select(p => p.BrandID_NK).Distinct().ToList();
-            var categoryIds = all_products.Select(p => p.Category_LV0_NK).Distinct().ToList();
 
             var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("accselpri")
@@ -498,7 +484,7 @@ namespace ShopRe.Service
 
             if (!priorityItems.IsValid)
             {
-                return (null, 0, null, null);
+                return (0, null);
             }
 
 
@@ -534,18 +520,9 @@ namespace ShopRe.Service
             .Take(productParameters.PageSize)
             .ToList();
 
-
-            var brands = await _dbContext.Brands
-                .Where(b => brandIds.Contains(b.ID_NK))
-                .ToListAsync();
-
-            var categories = await _dbContext.Category
-                .Where(c => categoryIds.Contains(c.ID_NK))
-                .ToListAsync();
-
-            return (sortedResults, count, brands, categories);
+            return (count, sortedResults);
         }
-        public async Task<(List<Product> Products, int TotalCount, List<Brand> brands, List<Category> categories)> GetAllAsync(ProductParameters productParameters)
+        public async Task<(int TotalCount, List<Product> Products)> GetAllAsync(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
 
@@ -649,41 +626,14 @@ namespace ShopRe.Service
 
             var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
-            var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("products")
-                    .Size(totalProducts)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(mu => mu
-                                .MatchAll()
-                            )
-                            .Filter(filters.ToArray())
-                        )
-                    )
-                );
-
-            if (!response.IsValid || !all_response.IsValid)
+            if (!response.IsValid)
             {
-                return (null, 0, null, null);
+                return (0, null);
             }
 
             var products = ConvertToProduct(response.Documents.ToList());
-            var products_infor = ConvertToProduct(all_response.Documents.ToList());
-
-            var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
-            var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
-
-            var brands = await _dbContext.Brands
-               .Where(b => brandIds.Contains(b.ID_NK))
-               .ToListAsync();
-
-            var categories = await _dbContext.Category
-                .Where(c => categoryIds.Contains(c.ID_NK))
-                .ToListAsync();
-
-
-
-            return (products, totalProducts, brands, categories);
+            
+            return (totalProducts, products);
         }
         public async Task<IEnumerable<Product>> GetByIdAsync(int id)
         {
@@ -868,6 +818,85 @@ namespace ShopRe.Service
 
             return sortedList;
         }
+        public async Task<(int TotalCount, List<Brand> Brands)> GetBrandsBySearch(string keyWord)
+        {
+            var filters = new List<QueryContainer>();
+
+            if (!string.IsNullOrEmpty(keyWord))
+            {
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = keyWord,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                {
+                    Field = "Name",
+                    Query = keyWord,
+                    Boost = 2.0
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
+                });
+            }
+
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("products")
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
+            );
+
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+
+            var all_response = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("products")
+                    .Size(totalProducts)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(mu => mu
+                                .MatchAll()
+                            )
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                );
+
+            if (!response.IsValid || !all_response.IsValid)
+            {
+                return (0, null);
+            }
+            var products_infor = ConvertToProduct(all_response.Documents.ToList());
+
+            var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
+
+            var brands = await _dbContext.Brands
+               .Where(b => brandIds.Contains(b.ID_NK))
+               .ToListAsync();
+
+            return (brands.Count(), brands);
+        }
         //Comments
         public async Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId)
         {
@@ -905,7 +934,6 @@ namespace ShopRe.Service
 
             return new List<DetailCommentDTO> { comments };
         }
-
         public class CommentsRatingCountDTO
         {
             public long RatingLessThanOrEqual1 { get; set; }
@@ -914,76 +942,46 @@ namespace ShopRe.Service
             public long Rating3To4 { get; set; }
             public long Rating4To5 { get; set; }
         }
-
         public async Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct)
         {
-            var countResponse1 = await _elasticClient.CountAsync<object>(c => c
-                .Index("comments")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
-                            filters.Range(r => r.Field("Rating").LessThanOrEquals(1))
-                        )
-                    )
-                )
-            );
+            var comments = await _dbContext.DetailComments.Where(c=>c.ProductID == idProduct).ToListAsync();
 
-            var countResponse2 = await _elasticClient.CountAsync<object>(c => c
-                .Index("comments")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
-                            filters.Range(r => r.Field("Rating").LessThanOrEquals(2).GreaterThan(1))
-                        )
-                    )
-                )
-            );
+            var countResponse1 = 0;
+            var countResponse2 = 0;
+            var countResponse3 = 0;
+            var countResponse4 = 0;
+            var countResponse5 = 0;
+            foreach (var comment in comments)
+            {
+                if (comment.Rating <= 1)
+                {
+                    countResponse1 += 1;
+                }else if(comment.Rating <= 2)
+                {
+                    countResponse2 += 1;
+                }
+                else if (comment.Rating <= 3)
+                {
+                    countResponse3 += 1;
+                }
+                else if (comment.Rating <= 4)
+                {
+                    countResponse4 += 1;
+                }
+                else
+                {
+                    countResponse5 += 1;
+                }
+            }
 
-            var countResponse3 = await _elasticClient.CountAsync<object>(c => c
-                .Index("comments")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
-                            filters.Range(r => r.Field("Rating").LessThanOrEquals(3).GreaterThan(2))
-                        )
-                    )
-                )
-            );
-
-            var countResponse4 = await _elasticClient.CountAsync<object>(c => c
-                .Index("comments")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
-                            filters.Range(r => r.Field("Rating").LessThanOrEquals(4).GreaterThan(3))
-                        )
-                    )
-                )
-            );
-
-            var countResponse5 = await _elasticClient.CountAsync<object>(c => c
-                .Index("comments")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("ProductID").Value(idProduct)) &&
-                            filters.Range(r => r.Field("Rating").LessThanOrEquals(5).GreaterThan(4))
-                        )
-                    )
-                )
-            );
 
             return new CommentsRatingCountDTO
             {
-                RatingLessThanOrEqual1 = countResponse1.Count,
-                Rating1To2 = countResponse2.Count,
-                Rating2To3 = countResponse3.Count,
-                Rating3To4 = countResponse4.Count,
-                Rating4To5 = countResponse5.Count
+                RatingLessThanOrEqual1 = countResponse1,
+                Rating1To2 = countResponse2,
+                Rating2To3 = countResponse3,
+                Rating3To4 = countResponse4,
+                Rating4To5 = countResponse5
             };
         }
         //Seller
@@ -1217,6 +1215,85 @@ namespace ShopRe.Service
 
             return seller;
         }
+        //Category
+        public async Task<(int TotalCount, List<Category> categories)> GetCategoryLevel0BySearch(string keyWord)
+        {
+            var filters = new List<QueryContainer>();
 
+            if (!string.IsNullOrEmpty(keyWord))
+            {
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = keyWord,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                {
+                    Field = "Name",
+                    Query = keyWord,
+                    Boost = 2.0
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
+                });
+            }
+
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("products")
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
+            );
+
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+
+            var all_response = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("products")
+                    .Size(totalProducts)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(mu => mu
+                                .MatchAll()
+                            )
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                );
+
+            if (!response.IsValid || !all_response.IsValid)
+            {
+                return (0, null);
+            }
+            var products_infor = ConvertToProduct(all_response.Documents.ToList());
+
+            var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
+
+            var categories = await _dbContext.Category
+                .Where(c => categoryIds.Contains(c.ID_NK))
+                .ToListAsync();
+
+            return (categories.Count(), categories);
+        }
     }
 }
