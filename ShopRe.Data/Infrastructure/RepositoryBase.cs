@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
@@ -76,6 +77,16 @@ namespace ShopRe.Data.Infrastructure
         public void Remove(int id)
         {
             throw new NotImplementedException();
+        }
+        public async ValueTask<EntityEntry<T>> AddAsync(T entity)
+        {
+            if(entity!=null)
+            {
+                var result = await _context.Set<T>().AddAsync(entity);
+                _ = SaveChangesAsync();
+                return result;
+            }
+            return null;
         }
     }
 }

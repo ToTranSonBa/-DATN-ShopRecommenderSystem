@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,5 +18,6 @@ namespace ShopRe.Data.Infrastructure
         Task<T> Update(T entity);
         void Remove(int id);
         IEnumerable<T> Find(Expression<Func<T, bool>> expression);
+        ValueTask<EntityEntry<T>> AddAsync(T entity);
     }
 }

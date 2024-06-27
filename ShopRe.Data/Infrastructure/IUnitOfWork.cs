@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShopRe.Data.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace ShopRe.Data.Infrastructure
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
-        void Commit();
+        IProductRepository Products { get; }
+        int Save();
 
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using ShopRe.Service;
@@ -75,6 +76,7 @@ builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerPriorityRepository, SellerPriorityRepository>();
 builder.Services.AddScoped<IUserLogRepository, UserLogRepository>();
 builder.Services.AddScoped<IShippingAddressRepository, ShippingAddressRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 
