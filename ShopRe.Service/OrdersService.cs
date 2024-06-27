@@ -26,6 +26,8 @@ namespace ShopRe.Service
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
         Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
+        Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller);
+        Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller);
     }
     public class OrderService : IOrderService
     {
@@ -139,7 +141,8 @@ namespace ShopRe.Service
 
         public async Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder)
         {
-            var order = await _dbContext.Order.FirstOrDefaultAsync(o => o.ID == idOrder && o.ApplicationUser.Id == user.Id);
+            var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId == user.Id).ToListAsync()).FirstOrDefault().ID_NK;
+            var order = await _dbContext.Order.FirstOrDefaultAsync(o => o.ID == idOrder && o.SellerID_NK == sellerId);
             if (order == null)
             {
                 return null;
@@ -208,47 +211,49 @@ namespace ShopRe.Service
             return _orderRepository.Update(entity);
         }
 
-        //public async Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller)
-        //{
-        //    var orders = await _dbContext.Order
-        //                                 .Where(o => o.Seller.ID_NK == seller.Id)
-        //                                 .ToListAsync();
+        public async Task<List<OrderDTO>> GetOrdersOfSeller(ApplicationUser seller)
+        {
+            var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId==seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
+            var orders = await _dbContext.Order
+                                         .Where(o => o.Seller.ID_NK == sellerId).OrderByDescending(o => o.CreatedAt)
+                                         .ToListAsync();
 
 
-        //    List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
 
-        //    foreach (var order in listOrder)
-        //    {
-        //        var orderItems = await _dbContext.OrderItems
-        //                                     .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-        //                                     .ToListAsync();
+            foreach (var order in listOrder)
+            {
+                var orderItems = await _dbContext.OrderItems
+                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+                                             .ToListAsync();
 
-        //        var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
-        //        order.Items = Items;
-        //    }
+                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+                order.Items = Items;
+            }
 
-        //    return listOrder;
-        //}
+            return listOrder;
+        }
 
-        //public async Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller)
-        //{
-        //    var orders = await _dbContext.Order
-        //                         .Where(o => o.Seller.ID_NK == seller.Id && o.Status == status).ToListAsync();
+        public async Task<List<OrderDTO>> GetOrdersByStatusOfSeller(int status, ApplicationUser seller)
+        {
+            var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId == seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
+            var orders = await _dbContext.Order
+                                 .Where(o => o.Seller.ID_NK == sellerId && o.Status == status).ToListAsync();
 
 
-        //    List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
 
-        //    foreach (var order in listOrder)
-        //    {
-        //        var orderItems = await _dbContext.OrderItems
-        //                                     .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-        //                                     .ToListAsync();
+            foreach (var order in listOrder)
+            {
+                var orderItems = await _dbContext.OrderItems
+                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+                                             .ToListAsync();
 
-        //        var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
-        //        order.Items = Items;
-        //    }
+                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+                order.Items = Items;
+            }
 
-        //    return listOrder;
-        //}
+            return listOrder;
+        }
     }
 }

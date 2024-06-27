@@ -26,13 +26,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IShoppingSessionService _shopSessionService;
         private readonly ISellerService _sellerService;
-        public AccountsController(ISellerService sellerService,IAccountService accountService, UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService, IConfiguration configuration)
+        private readonly IOrderService _orderService;
+        public AccountsController(ISellerService sellerService,IAccountService accountService
+            , UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService
+            , IConfiguration configuration, IOrderService orderService)
         {
             _accountService = accountService;
             _userManager = userManager;
             _shopSessionService = shopSessionService;
             _configuration = configuration;
             _sellerService = sellerService;
+            _orderService = orderService;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
@@ -282,6 +286,41 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
                 var result = await _sellerService.UpdateUserSeller(seller, user.Id);
+                return Ok(result);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+        [HttpGet("Seller/GetListOrder")]
+        [Authorize(Roles ="Seller")]
+        public async Task<IActionResult> GetListOrder()
+        {
+            if (HttpContext.User != null)
+            {
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+
+                var result = await _orderService.GetOrdersOfSeller(user);
+                return Ok(result);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpGet("Seller/GetListOrderByStatus{id}")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> GetListOrderByStatus(int status)
+        {
+            if (HttpContext.User != null)
+            {
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+
+                var result = await _orderService.GetOrdersByStatusOfSeller(status,user);
                 return Ok(result);
             }
             else

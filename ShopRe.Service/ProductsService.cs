@@ -11,6 +11,7 @@ using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using ShopRe.Common.DTOs;
 using System.Linq.Expressions;
+using ShopRe.Data.Infrastructure;
 
 namespace ShopRe.Service
 {
@@ -46,10 +47,11 @@ namespace ShopRe.Service
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
+        public IUnitOfWork _unitOfWork;
 
         public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository,
             ILogger<ProductService> logger, IElasticClient elasticClient,
-            ShopRecommenderSystemDbContext dbContext, IMapper mapper,
+            ShopRecommenderSystemDbContext dbContext, IMapper mapper, IUnitOfWork unitOfWork,
             HttpClient httpClient)
         {
             _mapper = mapper;
@@ -59,6 +61,7 @@ namespace ShopRe.Service
             _logger = logger;
             _dbContext = dbContext;
             _httpClient = httpClient;
+            _unitOfWork = unitOfWork;
         }
         //Elastic Service
 
@@ -141,7 +144,8 @@ namespace ShopRe.Service
         {
             ProductDetailDTO productDetail = new ProductDetailDTO();
 
-            Product product = await _productRepository.GetById(idProduct);
+            //Product product = await _productRepository.GetById(idProduct);
+            Product product = await _unitOfWork.Products.GetById(idProduct);
             if (product == null)
             {
                 return null;
@@ -282,7 +286,7 @@ namespace ShopRe.Service
 
                 };
 
-                var productEntityEntry = await _dbContext.Products.AddAsync(product);
+                var productEntityEntry = await _unitOfWork.Products.AddAsync(product);
                 await _dbContext.SaveChangesAsync();
 
                 foreach (var item in entity.Images)

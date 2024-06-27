@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nest;
@@ -21,13 +22,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IAccountService _accountService;
         private readonly ICartItemsService _cartItemsService;
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        private readonly UserManager<ApplicationUser> _userManager;
         public OrdersController(IOrderService orderService, IAccountService accountService, 
-            ICartItemsService cartItemsService, ShopRecommenderSystemDbContext dbContext)
+            ICartItemsService cartItemsService, ShopRecommenderSystemDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
             _accountService = accountService;
             _cartItemsService = cartItemsService;
             _dbContext = dbContext;
+            _userManager = userManager;
         }
         [Authorize]
         [HttpGet("UserOrders")]
@@ -263,22 +266,21 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpPut("UpdateStatusOrder{id}")]
+        [Authorize(Roles = "Seller")]
         public async Task<ActionResult<Order>> UpdateStatusOrder(int id, int status)
         {
             try
             {
-                // Get token from the Authorization header
-                var authHeader = Request.Headers["Authorization"].ToString();
-                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                if (HttpContext.User == null)
                 {
                     return Unauthorized();
                 }
-                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var token = HttpContext.User.Claims.ElementAt(1).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
 
-                // Get user from token
-                var user = await _accountService.GetUserFromTokenAsync(token);
                 if (user == null)
                 {
                     return Unauthorized(new Response<CartItem>
