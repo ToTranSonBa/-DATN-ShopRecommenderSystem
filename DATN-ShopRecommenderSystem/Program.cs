@@ -29,7 +29,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.Al
 
 //DbContext
 builder.Services.AddDbContext<ShopRecommenderSystemDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ShopRecommenderSystem")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ShopRecommendAzureDB")));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ShopRecommenderSystemDbContext>()

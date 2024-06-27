@@ -20,7 +20,10 @@ namespace ShopRe.Service
         Task<SellerDTO> GetLastestProductsOfSellerById(SellerParameters sellerParameters, int id);
         Task<SellerDTO> GetTopQuantitySoldProductsOfSellerById(SellerParameters sellerParameters, int id);
         Task<SellerDTO> GetProductsBySeller(SellerParameters sellerParameters, int id);
-        Task<int> TestElastic(ProductParameters productParameters);
+        Task<int> TestElastic();
+        Task DeleteDocumentByIDNK(int idNK);
+        Task AddProductToIndex(Product product);
+        Task UpdateDocumentByIDNK(int ProductID, Product product);
     }
     public class ElasticSearchsService : IElasticSearchService
     {
@@ -51,26 +54,57 @@ namespace ShopRe.Service
             {
                 var product = new Product
                 {
-                    ID_NK = document.ContainsKey("ID_NK") ? Convert.ToInt32(document["ID_NK"]) : 0,
-                    ID_SK = document.ContainsKey("ID_SK") ? Convert.ToInt32(document["ID_SK"]) : 0,
-                    Name = document.ContainsKey("Name") ? document["Name"].ToString() : "",
-                    Description = document.ContainsKey("Description") ? document["Description"].ToString() : "",
-                    ShortDescription = document.ContainsKey("ShortDescription") ? document["ShortDescription"].ToString() : "",
-                    Image = document.ContainsKey("Image") ? document["Image"].ToString() : "",
-                    Price = document.ContainsKey("Price") ? Convert.ToDecimal(document["Price"]) : 0,
-                    ListPrice = document.ContainsKey("ListPrice") ? Convert.ToDecimal(document["ListPrice"]) : 0,
-                    OriginalPrice = document.ContainsKey("OriginalPrice") ? Convert.ToDecimal(document["OriginalPrice"]) : 0,
-                    RatingAverage = document.ContainsKey("RatingAverage") ? Convert.ToDouble(document["RatingAverage"]) : 0,
-                    RatingCount = document.ContainsKey("RatingCount") ? Convert.ToInt32(document["RatingCount"]) : 0,
-                    MaxSaleQuantity = document.ContainsKey("MaxSaleQuantity") ? Convert.ToInt32(document["MaxSaleQuantity"]) : 0,
-                    MinSaleQuantity = document.ContainsKey("MinSaleQuantity") ? Convert.ToInt32(document["MinSaleQuantity"]) : 0,
-                    Quantity = document.ContainsKey("Quantity") ? Convert.ToInt32(document["Quantity"]) : 0,
-                    AllTimeQuantitySold = document.ContainsKey("AllTimeQuantitySold") ? Convert.ToInt32(document["AllTimeQuantitySold"]) : 0,
-                    ShortUrl = document.ContainsKey("ShortUrl") ? document["ShortUrl"].ToString() : "",
-                    SellerID_NK = document.ContainsKey("SellerID_NK") ? Convert.ToInt32(document["SellerID_NK"]) : 0,
-                    BrandID_NK = document.ContainsKey("BrandID_NK") ? Convert.ToInt32(document["BrandID_NK"]) : 0,
-                    Category_LV0_NK = document.ContainsKey("Category_LV0_NK") ? Convert.ToInt32(document["Category_LV0_NK"]) : 0,
-                    CreatedAt = DateTime.Parse(document.ContainsKey("CreatedAt") ? document["CreatedAt"].ToString() : "")
+                    ID_NK = document.ContainsKey("ID_NK") && document["ID_NK"] != null ? Convert.ToInt32(document["ID_NK"]) : 0,
+                    ID_SK = document.ContainsKey("ID_SK") && document["ID_SK"] != null ? Convert.ToInt32(document["ID_SK"]) : (int?)null,
+                    Name = document.ContainsKey("Name") && document["Name"] != null ? document["Name"].ToString() : "",
+                    Description = document.ContainsKey("Description") && document["Description"] != null ? document["Description"].ToString() : "",
+                    ShortDescription = document.ContainsKey("ShortDescription") && document["ShortDescription"] != null ? document["ShortDescription"].ToString() : "",
+                    Image = document.ContainsKey("Image") && document["Image"] != null ? document["Image"].ToString() : "",
+                    Price = document.ContainsKey("Price") && document["Price"] != null ? Convert.ToDecimal(document["Price"]) : 0,
+                    ListPrice = document.ContainsKey("ListPrice") && document["ListPrice"] != null ? Convert.ToDecimal(document["ListPrice"]) : (decimal?)null,
+                    OriginalPrice = document.ContainsKey("OriginalPrice") && document["OriginalPrice"] != null ? Convert.ToDecimal(document["OriginalPrice"]) : (decimal?)null,
+                    RatingAverage = document.ContainsKey("RatingAverage") && document["RatingAverage"] != null ? Convert.ToDouble(document["RatingAverage"]) : (double?)null,
+                    RatingCount = document.ContainsKey("RatingCount") && document["RatingCount"] != null ? Convert.ToInt32(document["RatingCount"]) : (int?)null,
+                    MaxSaleQuantity = document.ContainsKey("MaxSaleQuantity") && document["MaxSaleQuantity"] != null ? Convert.ToInt32(document["MaxSaleQuantity"]) : (int?)null,
+                    MinSaleQuantity = document.ContainsKey("MinSaleQuantity") && document["MinSaleQuantity"] != null ? Convert.ToInt32(document["MinSaleQuantity"]) : (int?)null,
+                    Quantity = document.ContainsKey("Quantity") && document["Quantity"] != null ? Convert.ToInt32(document["Quantity"]) : 0,
+                    AllTimeQuantitySold = document.ContainsKey("AllTimeQuantitySold") && document["AllTimeQuantitySold"] != null ? Convert.ToInt32(document["AllTimeQuantitySold"]) : (int?)null,
+                    ShortUrl = document.ContainsKey("ShortUrl") && document["ShortUrl"] != null ? document["ShortUrl"].ToString() : "",
+                    SellerID_NK = document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0,
+                    BrandID_NK = document.ContainsKey("BrandID_NK") && document["BrandID_NK"] != null ? Convert.ToInt32(document["BrandID_NK"]) : 0,
+                    Category_LV0_NK = document.ContainsKey("Category_LV0_NK") && document["Category_LV0_NK"] != null ? Convert.ToInt32(document["Category_LV0_NK"]) : 0,
+                    CreatedAt = document.ContainsKey("CreatedAt") && document["CreatedAt"] != null ? DateTime.Parse(document["CreatedAt"].ToString()) : DateTime.MinValue,
+                    UpdatedAt = document.ContainsKey("UpdatedAt") && document["UpdatedAt"] != null ? DateTime.Parse(document["UpdatedAt"].ToString()) : (DateTime?)null,
+                    DeletedAt = document.ContainsKey("DeletedAt") && document["DeletedAt"] != null ? DateTime.Parse(document["DeletedAt"].ToString()) : (DateTime?)null,
+                    Category_LV1_NK = document.ContainsKey("Category_LV1_NK") && document["Category_LV1_NK"] != null ? Convert.ToInt32(document["Category_LV1_NK"]) : 0,
+                    Category_LV2_NK = document.ContainsKey("Category_LV2_NK") && document["Category_LV2_NK"] != null ? Convert.ToInt32(document["Category_LV2_NK"]) : 0,
+                    Category_LV3_NK = document.ContainsKey("Category_LV3_NK") && document["Category_LV3_NK"] != null ? Convert.ToInt32(document["Category_LV3_NK"]) : 0,
+                    Category_LV4_NK = document.ContainsKey("Category_LV4_NK") && document["Category_LV4_NK"] != null ? Convert.ToInt32(document["Category_LV4_NK"]) : 0,
+                    Category_LV5_NK = document.ContainsKey("Category_LV5_NK") && document["Category_LV5_NK"] != null ? Convert.ToInt32(document["Category_LV5_NK"]) : 0,
+                    Category_LV6_NK = document.ContainsKey("Category_LV6_NK") && document["Category_LV6_NK"] != null ? Convert.ToInt32(document["Category_LV6_NK"]) : 0,
+                    IsDeleted = document.ContainsKey("IsDeleted") && document["IsDeleted"] != null ? Convert.ToBoolean(document["IsDeleted"]) : false,
+
+
+                    //ID_NK = document.ContainsKey("ID_NK") ? Convert.ToInt32(document["ID_NK"]) : 0,
+                    //ID_SK = document.ContainsKey("ID_SK") ? Convert.ToInt32(document["ID_SK"]) : 0,
+                    //Name = document.ContainsKey("Name") ? document["Name"].ToString() : "",
+                    //Description = document.ContainsKey("Description") ? document["Description"].ToString() : "",
+                    //ShortDescription = document.ContainsKey("ShortDescription") ? document["ShortDescription"].ToString() : "",
+                    //Image = document.ContainsKey("Image") ? document["Image"].ToString() : "",
+                    //Price = document.ContainsKey("Price") ? Convert.ToDecimal(document["Price"]) : 0,
+                    //ListPrice = document.ContainsKey("ListPrice") ? Convert.ToDecimal(document["ListPrice"]) : 0,
+                    //OriginalPrice = document.ContainsKey("OriginalPrice") ? Convert.ToDecimal(document["OriginalPrice"]) : 0,
+                    //RatingAverage = document.ContainsKey("RatingAverage") ? Convert.ToDouble(document["RatingAverage"]) : 0,
+                    //RatingCount = document.ContainsKey("RatingCount") ? Convert.ToInt32(document["RatingCount"]) : 0,
+                    //MaxSaleQuantity = document.ContainsKey("MaxSaleQuantity") ? Convert.ToInt32(document["MaxSaleQuantity"]) : 0,
+                    //MinSaleQuantity = document.ContainsKey("MinSaleQuantity") ? Convert.ToInt32(document["MinSaleQuantity"]) : 0,
+                    //Quantity = document.ContainsKey("Quantity") ? Convert.ToInt32(document["Quantity"]) : 0,
+                    //AllTimeQuantitySold = document.ContainsKey("AllTimeQuantitySold") ? Convert.ToInt32(document["AllTimeQuantitySold"]) : 0,
+                    //ShortUrl = document.ContainsKey("ShortUrl") ? document["ShortUrl"].ToString() : "",
+                    //SellerID_NK = document.ContainsKey("SellerID_NK") ? Convert.ToInt32(document["SellerID_NK"]) : 0,
+                    //BrandID_NK = document.ContainsKey("BrandID_NK") ? Convert.ToInt32(document["BrandID_NK"]) : 0,
+                    //Category_LV0_NK = document.ContainsKey("Category_LV0_NK") ? Convert.ToInt32(document["Category_LV0_NK"]) : 0,
+                    //CreatedAt = DateTime.Parse(document.ContainsKey("CreatedAt") ? document["CreatedAt"].ToString() : "")
                 };
                 products.Add(product);
             }
@@ -131,8 +165,42 @@ namespace ShopRe.Service
             return commments.ToList();
         }
         //
+        public async Task DeleteDocumentByIDNK(int idNK)
+        {
+            try
+            {
+                // Tìm tài liệu theo ID_NK
+                var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                    .Index("products")
+                    .Query(q => q
+                        .Term(t => t.Field("ID_NK").Value(idNK))
+                    )
+                );
 
-        public async Task<int> TestElastic(ProductParameters productParameters)
+                if (!searchResponse.IsValid || !searchResponse.Documents.Any())
+                {
+                    throw new Exception($"Document with ID_NK {idNK} not found in the products index.");
+                }
+
+                // Lấy ID của tài liệu
+                var documentId = searchResponse.Hits.First().Id;
+
+                // Xóa tài liệu theo ID
+                var deleteResponse = await _elasticClient.DeleteAsync<dynamic>(documentId, d => d.Index("products"));
+
+                if (!deleteResponse.IsValid)
+                {
+                    throw new Exception($"Failed to delete document with ID {documentId}: {deleteResponse.ServerError?.Error?.Reason}");
+                }
+
+                Console.WriteLine($"Document with ID_NK {idNK} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete document: {ex.Message}");
+            }
+        }
+        public async Task<int> TestElastic()
         {
             try
             {
@@ -158,8 +226,131 @@ namespace ShopRe.Service
                 throw new Exception($"Failed to retrieve product count: {ex.Message}");
             }
         }
+        public async Task UpdateDocumentByIDNK(int ProductID, Product product)
+        {
+            try
+            {
+                var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                    .Index("products")
+                    .Query(q => q
+                        .Term(t => t.Field("ID_NK").Value(ProductID))
+                    )
+                );
 
+                if (!searchResponse.IsValid || !searchResponse.Documents.Any())
+                {
+                    throw new Exception($"Document with ID_NK {ProductID} not found in the products index.");
+                }
 
+                var updatedFields = new Dictionary<string, object>
+                {
+                    { "ID_NK", product.ID_NK },
+                    { "ID_SK", product.ID_SK },
+                    { "Name", product.Name },
+                    { "Description", product.Description },
+                    { "ShortDescription", product.ShortDescription },
+                    { "Image", product.Image },
+                    { "Price", product.Price },
+                    { "ListPrice", product.ListPrice },
+                    { "OriginalPrice", product.OriginalPrice },
+                    { "RatingAverage", product.RatingAverage },
+                    { "RatingCount", product.RatingCount },
+                    { "MaxSaleQuantity", product.MaxSaleQuantity },
+                    { "MinSaleQuantity", product.MinSaleQuantity },
+                    { "Quantity", product.Quantity },
+                    { "AllTimeQuantitySold", product.AllTimeQuantitySold },
+                    { "ShortUrl", product.ShortUrl },
+                    { "SellerID_NK", product.SellerID_NK },
+                    { "BrandID_NK", product.BrandID_NK },
+                    { "Category_LV0_NK", product.Category_LV0_NK },
+                    { "CreatedAt", product.CreatedAt },
+                    { "UpdatedAt", product.UpdatedAt },
+                    { "DeletedAt", product.DeletedAt },
+                    { "Category_LV1_NK", product.Category_LV1_NK },
+                    { "Category_LV2_NK", product.Category_LV2_NK },
+                    { "Category_LV3_NK", product.Category_LV3_NK },
+                    { "Category_LV4_NK", product.Category_LV4_NK },
+                    { "Category_LV5_NK", product.Category_LV5_NK },
+                    { "Category_LV6_NK", product.Category_LV6_NK },
+                    { "IsDeleted", product.IsDeleted }
+                };
+
+                var updateResponse = await _elasticClient.UpdateAsync<object>(DocumentPath<object>.Id(ProductID), u => u
+                    .Index("products")
+                    .Doc(updatedFields)
+                );
+
+                if (updateResponse.IsValid)
+                {
+                    Console.WriteLine("Document updated successfully");
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to update document: {updateResponse.ServerError.Error.Reason}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to update document: {ex.Message}");
+            }
+        }
+        public async Task AddProductToIndex(Product product)
+        {
+            try
+            {
+                var addFields = new Dictionary<string, object>
+                {
+                    { "ID_NK", product.ID_NK },
+                    { "ID_SK", product.ID_SK },
+                    { "Name", product.Name },
+                    { "Description", product.Description },
+                    { "ShortDescription", product.ShortDescription },
+                    { "Image", product.Image },
+                    { "Price", product.Price },
+                    { "ListPrice", product.ListPrice },
+                    { "OriginalPrice", product.OriginalPrice },
+                    { "RatingAverage", product.RatingAverage },
+                    { "RatingCount", product.RatingCount },
+                    { "MaxSaleQuantity", product.MaxSaleQuantity },
+                    { "MinSaleQuantity", product.MinSaleQuantity },
+                    { "Quantity", product.Quantity },
+                    { "AllTimeQuantitySold", product.AllTimeQuantitySold },
+                    { "ShortUrl", product.ShortUrl },
+                    { "SellerID_NK", product.SellerID_NK },
+                    { "BrandID_NK", product.BrandID_NK },
+                    { "Category_LV0_NK", product.Category_LV0_NK },
+                    { "CreatedAt", product.CreatedAt },
+                    { "UpdatedAt", product.UpdatedAt },
+                    { "DeletedAt", product.DeletedAt },
+                    { "Category_LV1_NK", product.Category_LV1_NK },
+                    { "Category_LV2_NK", product.Category_LV2_NK },
+                    { "Category_LV3_NK", product.Category_LV3_NK },
+                    { "Category_LV4_NK", product.Category_LV4_NK },
+                    { "Category_LV5_NK", product.Category_LV5_NK },
+                    { "Category_LV6_NK", product.Category_LV6_NK },
+                    { "IsDeleted", product.IsDeleted }
+                };
+
+                var indexResponse = await _elasticClient.IndexAsync(addFields, idx => idx
+                    .Index("products")
+                    .Id(addFields["ID_NK"].ToString()));
+
+                if (!indexResponse.IsValid)
+                {
+                    throw new Exception($"Failed to index document: {indexResponse.ServerError?.Error?.Reason}");
+                }
+
+                if (!indexResponse.IsValid)
+                {
+                    throw new Exception($"Failed to index document: {indexResponse.ServerError?.Error?.Reason}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to index document: {ex.Message}");
+            }
+        }
         public async Task<(List<dynamic> Products, int TotalCount, List<Brand> brands, List<Category> categories)> ProductAfterTraining(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
@@ -354,7 +545,6 @@ namespace ShopRe.Service
 
             return (sortedResults, count, brands, categories);
         }
-
         public async Task<(List<Product> Products, int TotalCount, List<Brand> brands, List<Category> categories)> GetAllAsync(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
@@ -374,7 +564,7 @@ namespace ShopRe.Service
                 {
                     Field = "Name",
                     Query = productParameters.ProductName,
-                    Boost = 2.0 
+                    Boost = 2.0
                 };
 
                 filters.Add(new BoolQuery
@@ -427,8 +617,6 @@ namespace ShopRe.Service
 
             var response = await _elasticClient.SearchAsync<object>(s => s
                 .Index("products")
-                .From(productParameters.PageNumber * productParameters.PageSize)
-                .Size(productParameters.PageSize)
                 .Query(q => q
                     .Bool(b => b
                         .Must(mu => mu
@@ -455,6 +643,8 @@ namespace ShopRe.Service
                         .Order(SortOrder.Descending)
                     )
                 )
+                .From(productParameters.PageNumber * productParameters.PageSize)
+                .Size(productParameters.PageSize)
             );
 
             var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
@@ -495,8 +685,6 @@ namespace ShopRe.Service
 
             return (products, totalProducts, brands, categories);
         }
-
-
         public async Task<IEnumerable<Product>> GetByIdAsync(int id)
         {
             var response = await _elasticClient.SearchAsync<object>(s => s

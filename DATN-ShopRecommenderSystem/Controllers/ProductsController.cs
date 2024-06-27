@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShopRe.Common.DTOs;
@@ -38,13 +39,27 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _userManager = userManager;
         }
         //
-        [HttpGet("Test")]
-        public async Task<ActionResult> TestES([FromQuery] ProductParameters productParameters)
+        [HttpGet("CheckConnectES")]
+        public async Task<ActionResult> TotalProductES()
         {
             try
             {
-                var total = await _elasticSearchService.TestElastic(productParameters);
+                var total = await _elasticSearchService.TestElastic();
                 return Ok(total);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        [HttpDelete("DeleteDocumentES{id}")]
+        public async Task<ActionResult> TestES(int id)
+        {
+            try
+            {
+                await _elasticSearchService.DeleteDocumentByIDNK(id);
+                return Ok();
 
             }
             catch (Exception ex)
@@ -126,12 +141,34 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(option);
         }
         // POST: api/products
+        [Authorize]
         [HttpPost("AddProduct")]
         public async Task<IActionResult> PostProduct([FromBody] CreateProductParameters product)
         {
             try
             {
-                var res = await _productsService.AddProduct(product);
+                //Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.AddProduct(product, user);
+                await _elasticSearchService.AddProductToIndex(res);
 
                 return CreatedAtAction(nameof(GetProduct), new { id = res.ID_NK }, product);
             }
@@ -142,14 +179,40 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
 
         //DELETE: api/products/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
-                await _productsService.Remove(id);
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
-                return NoContent();
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                await _productsService.Remove(id, user);
+                await _elasticSearchService.DeleteDocumentByIDNK(id);
+
+                return Ok(new
+                {
+                    status = 204,
+                    message = "Xóa sản phẩm thành công",
+                });
 
             }
             catch (Exception ex)
@@ -158,14 +221,48 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
         // PUT: api/products/5
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct([FromBody] UpdateProductParameters updateProduct, int id)
         {
-            var res = await _productsService.Update(updateProduct, id);
+            try
+            {
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            return NoContent();
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.Update(updateProduct, id, user);
+
+                await _elasticSearchService.UpdateDocumentByIDNK(id, res);
+
+                return Ok(new
+                {
+                    status = 202,
+                    message = "Sửa sản phẩm thành công",
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể xóa sản phẩm.");
+            }
         }
-
         [HttpGet("abdcde")]
         public async Task<ActionResult> Get([FromQuery] ProductParameters productParameters, string keyWord, int user)
         {

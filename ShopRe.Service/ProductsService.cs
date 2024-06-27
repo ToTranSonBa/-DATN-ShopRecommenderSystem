@@ -24,9 +24,9 @@ namespace ShopRe.Service
         Task<Product> GetById(int id);
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
-        Task<Product> AddProduct(CreateProductParameters entity);
-        Task<Product> Update(UpdateProductParameters entity, int id);
-        Task Remove(int id);
+        Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser seller);
+        Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user);
+        Task Remove(int id, ApplicationUser user);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
         Task SaveManyAsync(Product[] products);
@@ -256,7 +256,7 @@ namespace ShopRe.Service
         //    return list;
         //}
 
-        public async Task<Product> AddProduct(CreateProductParameters entity)
+        public async Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser user)
         {
             try
             {
@@ -265,6 +265,13 @@ namespace ShopRe.Service
                 if (category == null)
                 {
                     throw new ArgumentException("Invalid category ID.");
+                }
+
+                var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
+
+                if (seller == null)
+                {
+                    throw new ArgumentException("Invalid seller.");
                 }
 
                 var product = new Product
@@ -283,9 +290,11 @@ namespace ShopRe.Service
                     MinSaleQuantity = 0,
                     OriginalPrice = entity.Price,
                     BrandID_NK = Convert.ToInt32(entity.BrandID),
+                    SellerID_NK = seller.ID_NK,
 
                 };
 
+                //var productEntityEntry = await _dbContext.Products.AddAsync(product);
                 var productEntityEntry = await _unitOfWork.Products.AddAsync(product);
                 await _dbContext.SaveChangesAsync();
 
@@ -316,7 +325,7 @@ namespace ShopRe.Service
             }
         }
 
-        public async Task Remove(int id)
+        public async Task Remove(int id, ApplicationUser user)
         {
             try
             {
@@ -325,6 +334,12 @@ namespace ShopRe.Service
                 if (product == null)
                 {
                     throw new ArgumentException("Product not found.");
+                }
+
+                var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
+                if (seller == null)
+                {
+                    throw new ArgumentException("Seller not found.");
                 }
 
                 product.IsDeleted = true;
@@ -339,7 +354,7 @@ namespace ShopRe.Service
 
         }
 
-        public async Task<Product> Update(UpdateProductParameters entity, int id)
+        public async Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user)
         {
             try
             {
@@ -359,15 +374,22 @@ namespace ShopRe.Service
                     throw new ArgumentException("Product not found.");
                 }
 
+                var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
+                if (seller == null)
+                {
+                    throw new ArgumentException("Seller not found.");
+                }
+
                 product.Name = entity.ProductName;
                 product.ShortDescription = entity.ShortDescription;
                 product.Description = entity.ProductDescription;
                 product.Price = entity.Price;
                 product.Quantity = entity.Quantity;
                 product.Category_LV0_NK = category.ID_NK;
-                product.BrandID_NK = Convert.ToInt32(entity.Brand);
+                product.BrandID_NK = Convert.ToInt32(entity.BrandId);
+                product.SellerID_NK = seller.ID_NK;
 
-                _dbContext.Products.Update(product);
+                var product_entity = _dbContext.Products.Update(product);
                 await _dbContext.SaveChangesAsync();
 
                 foreach (var item in entity.Images)
@@ -392,7 +414,7 @@ namespace ShopRe.Service
 
                 await _dbContext.SaveChangesAsync();
 
-                return product;
+                return product_entity.Entity;
             }
             catch (Exception ex)
             {

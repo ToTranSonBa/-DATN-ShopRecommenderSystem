@@ -13,7 +13,7 @@ namespace ShopRe.Common.RequestFeatures
         public int Price { get; set; }
         public string ShortDescription { get; set; }
         public string Categories { get; set; }
-        public string Brand { get; set; }
+        public string BrandId { get; set; }
         public int Quantity { get; set; }
         public List<string> Images { get; set; }
     }
