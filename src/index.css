@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Lexend Deca', sans-serif;
+    scrollbar-width: none;
+}
+
+.limit-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+@layer utilities {
+    .rotate-y-180 {
+        transform: rotateY(180deg);
+    }
+    .rotate-y--180 {
+        transform: rotateY(-180deg);
+    }
+}
+
+.rearIsVisible {
+    @apply rotate-y--180;
+}
+
+@layer components {
+    @keyframes fadeDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-down {
+        animation: fadeDown 0.3s ease-in-out;
+    }
+}
