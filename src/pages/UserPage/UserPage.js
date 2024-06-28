@@ -7,7 +7,6 @@ import {
     changePasswordUserApi,
     getSellerByIdApi,
     addReviewApi,
-
 } from '../../services/UserApi/userApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -52,7 +51,6 @@ const AutoResizeTextarea = ({ value, onChange, placeholder }) => {
 };
 
 const UserPage = () => {
-    const rating = 0;
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -236,16 +234,12 @@ const UserPage = () => {
 
     const [ratingStart, setRatingStart] = useState(5);
 
-
-
     const [reviews, setReviews] = useState([]);
 
     // Handle rating change
     const handleRatingChange = (orderId, itemId, productId, sellerId, rating) => {
         setReviews((prevReviews) => {
-            const existingReviewIndex = prevReviews.findIndex(
-                (r) => r.orderId === orderId && r.itemId === itemId
-            );
+            const existingReviewIndex = prevReviews.findIndex((r) => r.orderId === orderId && r.itemId === itemId);
 
             if (existingReviewIndex !== -1) {
                 const updatedReviews = [...prevReviews];
@@ -257,7 +251,15 @@ const UserPage = () => {
             } else {
                 return [
                     ...prevReviews,
-                    { orderId, productId: productId, sellerId: sellerId, itemId: itemId, rating, images: [], contentReview: '' }
+                    {
+                        orderId,
+                        productId: productId,
+                        sellerId: sellerId,
+                        itemId: itemId,
+                        rating,
+                        images: [],
+                        contentReview: '',
+                    },
                 ];
             }
         });
@@ -266,9 +268,7 @@ const UserPage = () => {
     // Handle comment change
     const handleCommentChange = (orderId, itemId, productId, sellerId, field, value) => {
         setReviews((prevReviews) => {
-            const existingReviewIndex = prevReviews.findIndex(
-                (r) => r.orderId === orderId && r.itemId === itemId
-            );
+            const existingReviewIndex = prevReviews.findIndex((r) => r.orderId === orderId && r.itemId === itemId);
 
             if (existingReviewIndex !== -1) {
                 const updatedReviews = [...prevReviews];
@@ -280,7 +280,16 @@ const UserPage = () => {
             } else {
                 return [
                     ...prevReviews,
-                    { orderId, productId: productId, sellerId: sellerId, itemId: itemId, [field]: value, images: [], contentReview: '', rating: 5 }
+                    {
+                        orderId,
+                        productId: productId,
+                        sellerId: sellerId,
+                        itemId: itemId,
+                        [field]: value,
+                        images: [],
+                        contentReview: '',
+                        rating: 5,
+                    },
                 ];
             }
         });
@@ -309,7 +318,7 @@ const UserPage = () => {
         newFiles[orderId] = newFiles[orderId] || {};
         newFiles[orderId][itemId] = newFiles[orderId][itemId] || {};
 
-        Array.from(event.target.files).forEach(file => {
+        Array.from(event.target.files).forEach((file) => {
             const key = URL.createObjectURL(file);
             newFiles[orderId][itemId][key] = file;
         });
@@ -342,8 +351,6 @@ const UserPage = () => {
     //     }
     // };
 
-
-
     const handleAddComment = async () => {
         const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`; // URL endpoint tải lên của Cloudinary
         try {
@@ -351,7 +358,6 @@ const UserPage = () => {
             for (const orderId of Object.keys(files)) {
                 for (const itemId of Object.keys(files[orderId])) {
                     const fileObjects = files[orderId][itemId];
-
 
                     for (const key of Object.keys(fileObjects)) {
                         const file = fileObjects[key];
@@ -380,8 +386,9 @@ const UserPage = () => {
                         console.log('reviewToUpdate:', reviewToUpdate);
                         if (reviewToUpdate) {
                             // Nếu review đã tồn tại, cập nhật images của nó
-                            reviewToUpdate.images = reviewToUpdate.images ? [...reviewToUpdate.images, imageUrl] : [imageUrl];
-
+                            reviewToUpdate.images = reviewToUpdate.images
+                                ? [...reviewToUpdate.images, imageUrl]
+                                : [imageUrl];
                         } else {
                             // Nếu review chưa tồn tại, thông báo lỗi hoặc xử lý tùy theo logic của bạn
                             console.error(`Review not found for orderId ${orderId} and itemId ${itemId}`);
@@ -395,18 +402,18 @@ const UserPage = () => {
                 try {
                     const addReviewResponse = await addReviewApi(review, token);
                     if (addReviewResponse) {
-
-                        toast.success('Đánh giá sản phẩm thành công')
+                        toast.success('Đánh giá sản phẩm thành công');
                         setTimeout(() => {
                             setDropDownRating(false);
                         }, 2000);
-
-                    }
-                    else {
+                    } else {
                         toast.error('Đánh giá sản phẩm thất bại');
                     }
                 } catch (error) {
-                    console.error(`Error adding review for orderId ${review.orderId} and itemId ${review.itemId}:`, error);
+                    console.error(
+                        `Error adding review for orderId ${review.orderId} and itemId ${review.itemId}:`,
+                        error,
+                    );
                 }
             }
         } catch (error) {
@@ -414,7 +421,6 @@ const UserPage = () => {
             toast.error('lỗi khi thêm hình ảnh.');
         }
     };
-
 
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const handleReviewButtonClick = (orderId) => {
@@ -965,7 +971,7 @@ const UserPage = () => {
                                                                     </div>
                                                                     {order.status === 2 && (
                                                                         <div className="flex items-center justify-between">
-                                                                            {rating === 0 && (
+                                                                            {order.IsRated === false && (
                                                                                 <>
                                                                                     <span className="text-sm font-light">
                                                                                         Đánh giá trước{' '}
@@ -998,7 +1004,9 @@ const UserPage = () => {
                                                                                         <button
                                                                                             onClick={(e) => {
                                                                                                 e.preventDefault();
-                                                                                                handleReviewButtonClick(order.id);
+                                                                                                handleReviewButtonClick(
+                                                                                                    order.id,
+                                                                                                );
                                                                                             }}
                                                                                             className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2"
                                                                                         >
@@ -1010,7 +1018,7 @@ const UserPage = () => {
                                                                                     </div>
                                                                                 </>
                                                                             )}
-                                                                            {rating === 1 && (
+                                                                            {(order.IsRated === false) === 1 && (
                                                                                 <button className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2">
                                                                                     Mua lại
                                                                                 </button>
@@ -1038,143 +1046,242 @@ const UserPage = () => {
                         <div className="w-3/4 bg-white h-3/4 lg:py-4">
                             <header className="w-full shadow-sm lg:text-lg lg:px-4 lg:pb-6">Đánh giá sản phẩm</header>
                             <div className="w-full overflow-auto h-5/6">
-                                {filteredOrders.filter(order => order.id === selectedOrderId).map((order) => (
-                                    <ul className="w-full lg:px-4" key={order.id}>
-                                        {order.items.map((item) => {
-                                            const review = reviews.find(
-                                                (r) => r.orderId === order.id && r.itemId === item.id
-                                            ) || {};
+                                {filteredOrders
+                                    .filter((order) => order.id === selectedOrderId)
+                                    .map((order) => (
+                                        <ul className="w-full lg:px-4" key={order.id}>
+                                            {order.items.map((item) => {
+                                                const review =
+                                                    reviews.find(
+                                                        (r) => r.orderId === order.id && r.itemId === item.id,
+                                                    ) || {};
 
-                                            return (
-                                                <React.Fragment key={item.id}>
-                                                    <li className="p-4">
-                                                        <div className="flex items-center sm:items-start">
-                                                            <div className="flex-shrink-0 overflow-hidden bg-gray-200 size-16">
-                                                                <img
-                                                                    src={item.image}
-                                                                    alt={item.product.name}
-                                                                    className="object-cover object-center w-full h-full"
-                                                                />
-                                                            </div>
-                                                            <div className="flex-1 ml-6 text-sm">
-                                                                <div className="font-medium text-gray-900 sm:flex sm:justify-between">
-                                                                    <h5>{item.product.name}</h5>
+                                                return (
+                                                    <React.Fragment key={item.id}>
+                                                        <li className="p-4">
+                                                            <div className="flex items-center sm:items-start">
+                                                                <div className="flex-shrink-0 overflow-hidden bg-gray-200 size-16">
+                                                                    <img
+                                                                        src={item.image}
+                                                                        alt={item.product.name}
+                                                                        className="object-cover object-center w-full h-full"
+                                                                    />
                                                                 </div>
-                                                                {item.optionValues && item.optionValues.name && (
-                                                                    <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                        Phân loại hàng: {item.optionValues.name}
-                                                                    </p>
-                                                                )}
+                                                                <div className="flex-1 ml-6 text-sm">
+                                                                    <div className="font-medium text-gray-900 sm:flex sm:justify-between">
+                                                                        <h5>{item.product.name}</h5>
+                                                                    </div>
+                                                                    {item.optionValues && item.optionValues.name && (
+                                                                        <p className="hidden text-gray-400 sm:block sm:mt-2">
+                                                                            Phân loại hàng: {item.optionValues.name}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </li>
-                                                    <div className="flex items-center lg:px-4 lg:py-2 lg:gap-4 rating">
-                                                        <span>Chất lượng sản phẩm:</span>
-                                                        <div className="flex items-center lg:gap-1">
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <button
-                                                                    key={star}
-                                                                    type="button"
-                                                                    onClick={() => handleRatingChange(order.id, item.id, item.product.iD_NK, item.product.sellerID_NK, star ? star : 5)}
-                                                                    className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${review.rating >= star
-                                                                        ? 'text-yellow-400'
-                                                                        : 'text-gray-300 hover:text-yellow-400'
+                                                        </li>
+                                                        <div className="flex items-center lg:px-4 lg:py-2 lg:gap-4 rating">
+                                                            <span>Chất lượng sản phẩm:</span>
+                                                            <div className="flex items-center lg:gap-1">
+                                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                                    <button
+                                                                        key={star}
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            handleRatingChange(
+                                                                                order.id,
+                                                                                item.id,
+                                                                                item.product.iD_NK,
+                                                                                item.product.sellerID_NK,
+                                                                                star ? star : 5,
+                                                                            )
+                                                                        }
+                                                                        className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${
+                                                                            review.rating >= star
+                                                                                ? 'text-yellow-400'
+                                                                                : 'text-gray-300 hover:text-yellow-400'
                                                                         }`}
-                                                                >
-                                                                    <svg
-                                                                        className="flex-shrink-0 size-5"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        width="16"
-                                                                        height="16"
-                                                                        fill="currentColor"
-                                                                        viewBox="0 0 16 16"
                                                                     >
-                                                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
-                                                                    </svg>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <div className="bg-background lg:p-4">
-                                                        <div className="w-full bg-white lg:p-4 border-1">
-                                                            <div className="w-full">
-                                                                <label className="text-base text-gray-500">
-                                                                    Đúng mô tả:
-                                                                </label>
-                                                                <AutoResizeTextarea
-                                                                    placeholder="hãy để lại đánh giá"
-                                                                    value={review.content || ''}
-                                                                    onChange={(e) =>
-                                                                        handleCommentChange(order.id, item.id, item.product.iD_NK, item.product.sellerID_NK, 'content', e.target.value)
-                                                                    }
-                                                                />
+                                                                        <svg
+                                                                            className="flex-shrink-0 size-5"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16"
+                                                                            height="16"
+                                                                            fill="currentColor"
+                                                                            viewBox="0 0 16 16"
+                                                                        >
+                                                                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                ))}
                                                             </div>
-                                                            <div className="w-full">
-                                                                <label className="text-base text-gray-500">
-                                                                    Chất lượng sản phẩm:
-                                                                </label>
-                                                                <AutoResizeTextarea
-                                                                    value={review.quality || ''}
-                                                                    onChange={(e) =>
-                                                                        handleCommentChange(
-                                                                            order.id,
-                                                                            item.id,
-                                                                            item.product.iD_NK,
-                                                                            item.product.sellerID_NK,
+                                                        </div>
+                                                        <div className="bg-background lg:p-4">
+                                                            <div className="w-full bg-white lg:p-4 border-1">
+                                                                <div className="w-full">
+                                                                    <label className="text-base text-gray-500">
+                                                                        Đúng mô tả:
+                                                                    </label>
+                                                                    <AutoResizeTextarea
+                                                                        placeholder="hãy để lại đánh giá"
+                                                                        value={review.content || ''}
+                                                                        onChange={(e) =>
+                                                                            handleCommentChange(
+                                                                                order.id,
+                                                                                item.id,
+                                                                                item.product.iD_NK,
+                                                                                item.product.sellerID_NK,
+                                                                                'content',
+                                                                                e.target.value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div className="w-full">
+                                                                    <label className="text-base text-gray-500">
+                                                                        Chất lượng sản phẩm:
+                                                                    </label>
+                                                                    <AutoResizeTextarea
+                                                                        value={review.quality || ''}
+                                                                        onChange={(e) =>
+                                                                            handleCommentChange(
+                                                                                order.id,
+                                                                                item.id,
+                                                                                item.product.iD_NK,
+                                                                                item.product.sellerID_NK,
 
-                                                                            'quality',
-                                                                            e.target.value,
-                                                                        )
-                                                                    }
-                                                                />
+                                                                                'quality',
+                                                                                e.target.value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div className="w-full min-h-[150px] border-t-1 border-gray-200">
+                                                                    <AutoResizeTextarea
+                                                                        placeholder="Hãy chia sẻ nhũng điều bạn thích về sản phẩm này với những người mua khác nhé."
+                                                                        value={review.comment || ''}
+                                                                        onChange={(e) =>
+                                                                            handleCommentChange(
+                                                                                order.id,
+                                                                                item.id,
+                                                                                item.product.iD_NK,
+                                                                                item.product.sellerID_NK,
+                                                                                'comment',
+                                                                                e.target.value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
                                                             </div>
-                                                            <div className="w-full min-h-[150px] border-t-1 border-gray-200">
-                                                                <AutoResizeTextarea
-                                                                    placeholder="Hãy chia sẻ nhũng điều bạn thích về sản phẩm này với những người mua khác nhé."
-                                                                    value={review.comment || ''}
-                                                                    onChange={(e) =>
-                                                                        handleCommentChange(order.id, item.id, item.product.iD_NK, item.product.sellerID_NK, 'comment', e.target.value)
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <main className="w-full h-auto lg:py-2">
-                                                            <article
-                                                                className={`relative h-full flex flex-col ${isDraggedOver ? 'draggedover' : ''
+                                                            <main className="w-full h-auto lg:py-2">
+                                                                <article
+                                                                    className={`relative h-full flex flex-col ${
+                                                                        isDraggedOver ? 'draggedover' : ''
                                                                     }`}
-                                                                onDrop={(event) => handleDrop(event, order.id, item.id)}
-                                                                onDragOver={handleDragOver}
-                                                                onDragLeave={handleDragLeave}
-                                                                onDragEnter={handleDragOver}
-                                                            >
-                                                                <section className="flex flex-col">
-                                                                    <ul
-                                                                        id="gallery"
-                                                                        className="flex flex-1 -m-1 overflow-auto flex-nowrap"
-                                                                    >
-                                                                        {Object.keys(files[order.id]?.[item.id] || {}).map((key) => (
-                                                                            <li key={key} className="block size-20 lg:px-1">
-                                                                                <article className="relative w-full h-full bg-gray-100 cursor-pointer group focus:outline-none focus:shadow-outline">
-                                                                                    {files[order.id][item.id][key].type.startsWith('image') ? (
-                                                                                        <img
-                                                                                            src={key}
-                                                                                            alt={files[order.id][item.id][key].name}
-                                                                                            className="object-cover w-full h-full bg-fixed img-preview"
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <h1 className="flex-1">
-                                                                                            {files[order.id][item.id][key].name}
-                                                                                        </h1>
-                                                                                    )}
+                                                                    onDrop={(event) =>
+                                                                        handleDrop(event, order.id, item.id)
+                                                                    }
+                                                                    onDragOver={handleDragOver}
+                                                                    onDragLeave={handleDragLeave}
+                                                                    onDragEnter={handleDragOver}
+                                                                >
+                                                                    <section className="flex flex-col">
+                                                                        <ul
+                                                                            id="gallery"
+                                                                            className="flex flex-1 -m-1 overflow-auto flex-nowrap"
+                                                                        >
+                                                                            {Object.keys(
+                                                                                files[order.id]?.[item.id] || {},
+                                                                            ).map((key) => (
+                                                                                <li
+                                                                                    key={key}
+                                                                                    className="block size-20 lg:px-1"
+                                                                                >
+                                                                                    <article className="relative w-full h-full bg-gray-100 cursor-pointer group focus:outline-none focus:shadow-outline">
+                                                                                        {files[order.id][item.id][
+                                                                                            key
+                                                                                        ].type.startsWith('image') ? (
+                                                                                            <img
+                                                                                                src={key}
+                                                                                                alt={
+                                                                                                    files[order.id][
+                                                                                                        item.id
+                                                                                                    ][key].name
+                                                                                                }
+                                                                                                className="object-cover w-full h-full bg-fixed img-preview"
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <h1 className="flex-1">
+                                                                                                {
+                                                                                                    files[order.id][
+                                                                                                        item.id
+                                                                                                    ][key].name
+                                                                                                }
+                                                                                            </h1>
+                                                                                        )}
 
+                                                                                        <button
+                                                                                            className="absolute top-0 right-0 z-10 ml-auto text-white bg-gray-200 rounded-md delete focus:outline-none hover:bg-gray-300"
+                                                                                            onClick={() => {
+                                                                                                const newFiles = {
+                                                                                                    ...files,
+                                                                                                };
+                                                                                                URL.revokeObjectURL(
+                                                                                                    key,
+                                                                                                ); // Cleanup object URL
+                                                                                                delete newFiles[
+                                                                                                    order.id
+                                                                                                ][item.id][key];
+                                                                                                setFiles(newFiles);
+                                                                                            }}
+                                                                                        >
+                                                                                            <svg
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                fill="none"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                stroke-width="1.5"
+                                                                                                stroke="currentColor"
+                                                                                                class="size-3"
+                                                                                            >
+                                                                                                <path
+                                                                                                    stroke-linecap="round"
+                                                                                                    stroke-linejoin="round"
+                                                                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </article>
+                                                                                </li>
+                                                                            ))}
+                                                                            {Object.keys(
+                                                                                files[order.id]?.[item.id] || {},
+                                                                            ).length >= 5 ? null : Object.keys(
+                                                                                  files[order.id]?.[item.id] || {},
+                                                                              ).length === 0 ? (
+                                                                                <div className="px-1">
+                                                                                    <input
+                                                                                        id={`hidden-input-${order.id}-${item.id}`}
+                                                                                        type="file"
+                                                                                        multiple
+                                                                                        className="hidden"
+                                                                                        onChange={(e) =>
+                                                                                            handleFileInputChange(
+                                                                                                order.id,
+                                                                                                item.id,
+                                                                                                e,
+                                                                                            )
+                                                                                        }
+                                                                                        accept="image/*"
+                                                                                    />
                                                                                     <button
-                                                                                        className="absolute top-0 right-0 z-10 ml-auto bg-gray-200 text-white rounded-md delete focus:outline-none hover:bg-gray-300"
-                                                                                        onClick={() => {
-                                                                                            const newFiles = { ...files };
-                                                                                            URL.revokeObjectURL(key); // Cleanup object URL
-                                                                                            delete newFiles[order.id][item.id][key];
-                                                                                            setFiles(newFiles);
-                                                                                        }}
+                                                                                        id={`button-${order.id}-${item.id}`}
+                                                                                        className="flex items-center justify-center text-sm rounded-sm lg:gap-2 lg:px-3 text-primary lg:py-2 border-primary border-1 bg-primary/5 focus:shadow-outline focus:outline-none"
+                                                                                        onClick={() =>
+                                                                                            document
+                                                                                                .getElementById(
+                                                                                                    `hidden-input-${order.id}-${item.id}`,
+                                                                                                )
+                                                                                                .click()
+                                                                                        }
                                                                                     >
                                                                                         <svg
                                                                                             xmlns="http://www.w3.org/2000/svg"
@@ -1182,99 +1289,70 @@ const UserPage = () => {
                                                                                             viewBox="0 0 24 24"
                                                                                             stroke-width="1.5"
                                                                                             stroke="currentColor"
-                                                                                            class="size-3"
+                                                                                            class="size-5"
                                                                                         >
                                                                                             <path
                                                                                                 stroke-linecap="round"
                                                                                                 stroke-linejoin="round"
-                                                                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                                                                                d="M6.75 12a.75.75 0 0 1 .75-.75h4.5V6.75a.75.75 0 0 1 1.5 0v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5H7.5a.75.75 0 0 1-.75-.75z"
+                                                                                            />
+                                                                                        </svg>
+                                                                                        Thêm ảnh
+                                                                                    </button>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <li className="flex items-center justify-center border-2 border-dashed size-20 lg:ml-2">
+                                                                                    <input
+                                                                                        id={`hidden-input-${order.id}-${item.id}`}
+                                                                                        type="file"
+                                                                                        multiple
+                                                                                        className="hidden"
+                                                                                        onChange={(e) =>
+                                                                                            handleFileInputChange(
+                                                                                                order.id,
+                                                                                                item.id,
+                                                                                                e,
+                                                                                            )
+                                                                                        }
+                                                                                        accept="image/*"
+                                                                                    />
+                                                                                    <button
+                                                                                        id={`button-${order.id}-${item.id}`}
+                                                                                        className="flex-row items-center justify-center text-sm text-gray-300 rounded-sm lg:gap-2 lg:px-4 lg:py-2 focus:shadow-outline focus:ring-0 focus:outline-none"
+                                                                                        onClick={() =>
+                                                                                            document
+                                                                                                .getElementById(
+                                                                                                    `hidden-input-${order.id}-${item.id}`,
+                                                                                                )
+                                                                                                .click()
+                                                                                        }
+                                                                                    >
+                                                                                        <svg
+                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            fill="currentColor"
+                                                                                            className="size-5"
+                                                                                        >
+                                                                                            <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
+                                                                                            <path
+                                                                                                fillRule="evenodd"
+                                                                                                d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                                                                                                clipRule="evenodd"
                                                                                             />
                                                                                         </svg>
                                                                                     </button>
-                                                                                </article>
-                                                                            </li>
-                                                                        ))}
-                                                                        {Object.keys(files[order.id]?.[item.id] || {}).length >= 5 ? null : Object.keys(files[order.id]?.[item.id] || {}).length === 0 ? (
-                                                                            <div className="px-1">
-                                                                                <input
-                                                                                    id={`hidden-input-${order.id}-${item.id}`}
-                                                                                    type="file"
-                                                                                    multiple
-                                                                                    className="hidden"
-                                                                                    onChange={(e) => handleFileInputChange(order.id, item.id, e)}
-                                                                                    accept="image/*"
-                                                                                />
-                                                                                <button
-                                                                                    id={`button-${order.id}-${item.id}`}
-                                                                                    className="text-sm flex items-center justify-center lg:gap-2 lg:px-3 text-primary lg:py-2 border-primary border-1 bg-primary/5 rounded-sm focus:shadow-outline focus:outline-none"
-                                                                                    onClick={() =>
-                                                                                        document
-                                                                                            .getElementById(`hidden-input-${order.id}-${item.id}`)
-                                                                                            .click()
-                                                                                    }
-                                                                                >
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        fill="none"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        stroke-width="1.5"
-                                                                                        stroke="currentColor"
-                                                                                        class="size-5"
-                                                                                    >
-                                                                                        <path
-                                                                                            stroke-linecap="round"
-                                                                                            stroke-linejoin="round"
-                                                                                            d="M6.75 12a.75.75 0 0 1 .75-.75h4.5V6.75a.75.75 0 0 1 1.5 0v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5H7.5a.75.75 0 0 1-.75-.75z"
-                                                                                        />
-                                                                                    </svg>
-                                                                                    Thêm ảnh
-                                                                                </button>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <li className="flex items-center justify-center border-2 border-dashed size-20 lg:ml-2">
-                                                                                <input
-                                                                                    id={`hidden-input-${order.id}-${item.id}`}
-                                                                                    type="file"
-                                                                                    multiple
-                                                                                    className="hidden"
-                                                                                    onChange={(e) => handleFileInputChange(order.id, item.id, e)}
-                                                                                    accept="image/*"
-                                                                                />
-                                                                                <button
-                                                                                    id={`button-${order.id}-${item.id}`}
-                                                                                    className="flex-row items-center justify-center text-sm text-gray-300 rounded-sm lg:gap-2 lg:px-4 lg:py-2 focus:shadow-outline focus:ring-0 focus:outline-none"
-                                                                                    onClick={() =>
-                                                                                        document
-                                                                                            .getElementById(`hidden-input-${order.id}-${item.id}`)
-                                                                                            .click()
-                                                                                    }
-                                                                                >
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="currentColor"
-                                                                                        className="size-5"
-                                                                                    >
-                                                                                        <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
-                                                                                        <path
-                                                                                            fillRule="evenodd"
-                                                                                            d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
-                                                                                            clipRule="evenodd"
-                                                                                        />
-                                                                                    </svg>
-                                                                                </button>
-                                                                            </li>
-                                                                        )}
-                                                                    </ul>
-                                                                </section>
-                                                            </article>
-                                                        </main>
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        })}
-                                    </ul>
-                                ))}
+                                                                                </li>
+                                                                            )}
+                                                                        </ul>
+                                                                    </section>
+                                                                </article>
+                                                            </main>
+                                                        </div>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </ul>
+                                    ))}
                             </div>
                             <div className="flex items-center justify-end lg:gap-4 lg:px-4 lg:py-6">
                                 <button
@@ -1298,7 +1376,6 @@ const UserPage = () => {
                     </MaxWidthWrapper>
                 </div>
             )}
-
 
             {orderView && (
                 <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">

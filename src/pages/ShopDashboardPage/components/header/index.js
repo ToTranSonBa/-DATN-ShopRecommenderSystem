@@ -358,10 +358,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                         </a>
                                     </li>
                                     <li>
-                                        <a
-                                            href="messages.html"
-                                            class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-                                        >
+                                        <a class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
                                             <svg
                                                 class="fill-current"
                                                 width="22"
@@ -378,11 +375,13 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                             Liên hệ của tôi
                                         </a>
                                     </li>
-                                    <li>
-                                        <a
-                                            href="settings.html"
-                                            class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-                                        >
+                                    <li
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleOptionClick('profile');
+                                        }}
+                                    >
+                                        <a class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
                                             <svg
                                                 class="fill-current"
                                                 width="22"
@@ -422,7 +421,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                             fill=""
                                         />
                                     </svg>
-                                    Đăng xuát
+                                    Đăng xuất
                                 </button>
                             </div>
                         )}

@@ -19,7 +19,7 @@ const Home = () => {
             <Search />
             <Summary />
             <Shops />
-            {/* <Categories /> */}
+            <Categories />
             <RecommendTop />
             <Trade />
             <TimeLine />

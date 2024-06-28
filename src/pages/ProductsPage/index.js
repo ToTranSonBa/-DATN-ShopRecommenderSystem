@@ -3,12 +3,11 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import '../../index.css';
 import '../../styles/reset.css';
-import axios from 'axios';
 import ProductCard from '../../components/card/ProductCard';
 import ProductRating from '../../components/card/ProductRating';
 import { Pagination as PaginationAntd } from 'antd';
 import { SearchContext } from '../../components/searchContext';
-
+import axios from '../../services/axios-customize';
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -26,8 +25,9 @@ const ProductPage = () => {
 
     const fetchCategories = useCallback(async () => {
         try {
-            const response = await axios.get('https://localhost:7016/api/Categories?level=0');
+            const response = await axios.get('/Categories?level=0');
             setCategories(response.data.data);
+            console.log('fetchCategories: ', response.data.data);
         } catch (error) {
             console.error('Failed to fetch categories:', error);
         }
@@ -35,8 +35,9 @@ const ProductPage = () => {
 
     const fetchBrands = useCallback(async () => {
         try {
-            const response = await axios.get('https://localhost:7016/api/Brands');
+            const response = await axios.get('/Brands');
             setBrands(response.data);
+            console.log('fetchBrands: ', response.data);
         } catch (error) {
             console.error('Failed to fetch brands:', error);
         }
@@ -54,26 +55,23 @@ const ProductPage = () => {
                 brandsParam.append('BrandIds', element);
             });
 
-      const response = await axios.get(
-        `https://localhost:7016/api/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
-        {
-          params: {
-            ProductName: localStorage.getItem("searchQuery"),
-            MinPrice: minPrice,
-            MaxPrice: maxPrice,
-            MinReviewRating: minReview,
-            PageNumber: currentPage,
-            PageSize: productsPerPage,
-          },
-        }
-      );
+            const response = await axios.get(`/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`, {
+                params: {
+                    ProductName: localStorage.getItem('searchQuery'),
+                    MinPrice: minPrice,
+                    MaxPrice: maxPrice,
+                    MinReviewRating: minReview,
+                    // PageNumber: currentPage,
+                    // PageSize: productsPerPage,
+                },
+            });
 
-            console.log(response.data.product);
+            console.log('fetchProducts: ', response.data.product);
 
-      response.data.product.forEach((element) => {
-        const temp = element.image;
-        element.image = temp.substring(15, temp.indexOf("'", 15));
-      });
+            response.data.product.forEach((element) => {
+                const temp = element.image;
+                element.image = temp.substring(15, temp.indexOf("'", 15));
+            });
 
             setTotalProducts(response.data.totalCount);
             setProducts(response.data.product);
@@ -95,15 +93,15 @@ const ProductPage = () => {
         fetchData();
     }, []);
 
-  async function handlePagination(value) {
-    try {
-      setCurrentPage(value - 1);
-      console.log(value);
-      fetchProducts();
-    } catch (error) {
-      console.log(error);
+    async function handlePagination(value) {
+        try {
+            setCurrentPage(value - 1);
+            console.log(value);
+            fetchProducts();
+        } catch (error) {
+            console.log(error);
+        }
     }
-  }
 
     async function handleSizePagination(current, pageSize) {
         try {
@@ -156,19 +154,19 @@ const ProductPage = () => {
                             <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Phân loại</h6>
                             <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
                                 {categories.map((category) => (
-                                    <li key={category.iD_NK} className="flex items-center">
+                                    <li key={category?.iD_NK} className="flex items-center">
                                         <input
-                                            id={category.category.name}
+                                            id={category?.category.name}
                                             type="checkbox"
                                             value=""
                                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                            onClick={() => handleCategory(category.category)}
+                                            onClick={() => handleCategory(category?.category)}
                                         />
                                         <label
-                                            htmlFor={category.category.name}
+                                            htmlFor={category?.category.name}
                                             className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
                                         >
-                                            {category.category.name} ({category.total})
+                                            {category?.category.name} ({category?.total})
                                         </label>
                                     </li>
                                 ))}
@@ -178,19 +176,19 @@ const ProductPage = () => {
                             <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Thương hiệu</h6>
                             <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
                                 {brands.map((brand) => (
-                                    <li key={brand.brand.ID_NK} className="flex items-center">
+                                    <li key={brand?.brand.ID_NK} className="flex items-center">
                                         <input
-                                            id={brand.brand.name}
+                                            id={brand?.brand.name}
                                             type="checkbox"
                                             value=""
                                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                            onClick={() => handleBrand(brand.brand)}
+                                            onClick={() => handleBrand(brand?.brand)}
                                         />
                                         <label
-                                            htmlFor={brand.brand.name}
+                                            htmlFor={brand?.brand.name}
                                             className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
                                         >
-                                            {brand.brand.name} ({brand.totalProduct})
+                                            {brand?.brand.name} ({brand?.totalProduct})
                                         </label>
                                     </li>
                                 ))}
@@ -237,29 +235,29 @@ const ProductPage = () => {
                     </div>
                 </div>
 
-        {/* cột phải 4/5 chứa products */}
-        <div className="flex-1 md:flex-none md:w-4/5">
-          {searchQuery ? (
-            <span className="text-lg sm:text-xl font-semibold text-gray-900">
-              Kết quả tìm kiếm của "{searchQuery}" - {totalProducts} sản phẩm
-            </span>
-          ) : (
-            <span className="text-lg sm:text-xl font-semibold text-gray-900">
-              Kết quả tìm kiếm - {totalProducts} sản phẩm
-            </span>
-          )}
-          {/* danh sách sản phẩm */}
-          <div className="product-content mt-4">
-            <div className="bg-background flex items-center justify-center">
-              <div className="">
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-                  {products.map((product) => (
-                    <ProductCard key={product.idx} product={product} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+                {/* cột phải 4/5 chứa products */}
+                <div className="flex-1 md:flex-none md:w-4/5">
+                    {searchQuery ? (
+                        <span className="text-lg font-semibold text-gray-900 sm:text-xl">
+                            Kết quả tìm kiếm của "{searchQuery}" - {totalProducts} sản phẩm
+                        </span>
+                    ) : (
+                        <span className="text-lg font-semibold text-gray-900 sm:text-xl">
+                            Kết quả tìm kiếm - {totalProducts} sản phẩm
+                        </span>
+                    )}
+                    {/* danh sách sản phẩm */}
+                    <div className="mt-4 product-content">
+                        <div className="flex items-center justify-center bg-background">
+                            <div className="">
+                                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
+                                    {products.map((product) => (
+                                        <ProductCard key={product?.idx} product={product} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* phân trang */}
                     <div className="flex justify-center m-8">

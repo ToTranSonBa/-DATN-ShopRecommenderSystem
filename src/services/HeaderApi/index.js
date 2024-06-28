@@ -1,7 +1,7 @@
 import axios from '../axios-customize';
 const fetchCategories = async () => {
     try {
-        const response = await axios.get('https://localhost:7016/api/Categories?level=0');
+        const response = await axios.get('/Categories?level=0');
         return response;
     } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -11,7 +11,7 @@ const fetchCategories = async () => {
 
 const fetchCartUser = async (token) => {
     try {
-        const response = await axios.get('https://localhost:7016/api/CartItems/UserCartItems', {
+        const response = await axios.get('/CartItems/UserCartItems', {
             headers: {
                 Authorization: 'Bearer ' + token,
             },
@@ -27,7 +27,7 @@ const fetchCartUser = async (token) => {
 
 const fetchUserInformation = async (token) => {
     try {
-        const response = await axios.get('https://localhost:7016/api/Accounts/UserInformation', {
+        const response = await axios.get('/Accounts/UserInformation', {
             headers: {
                 Authorization: 'Bearer ' + token,
             },
@@ -39,4 +39,15 @@ const fetchUserInformation = async (token) => {
         throw error;
     }
 };
-export { fetchCategories, fetchCartUser, fetchUserInformation };
+const fetchProduct = async ({ searchKey }) => {
+    try {
+        const response = await axios.get(
+            `/Products/GetProductsByTrainning?ProductName=${searchKey}&PageNumber=0&PageSize=10`,
+        );
+        return response.product; // Assuming response.data contains the array of products
+    } catch (error) {
+        console.log('Failed to fetch product in home page:', error);
+        throw error;
+    }
+};
+export { fetchCategories, fetchCartUser, fetchUserInformation, fetchProduct };

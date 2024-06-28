@@ -33,7 +33,8 @@ const products = [
             'https://salt.tikicdn.com/ts/product/a6/74/ac/283cec826e58f3bb45f6fff4fea53f6b.png',
             'https://salt.tikicdn.com/ts/product/73/ba/2c/31335b536af33ac3fc06cc74bf93e6ec.png',
         ],
-        category: 'Quần áo',
+
+        brand: 'Ahola',
         Option: {
             Value: [
                 {
@@ -77,7 +78,7 @@ const products = [
         price: '126000',
         RatingAvg: '4.9',
         RatingTotal: '1234',
-        Category: 'Quân áo thời trang',
+
         CreateAt: '2024-12-20 10:12:12',
         images: [
             'https://salt.tikicdn.com/ts/product/03/cb/e9/2e12445e8fe2c5efc82b65e86ca14840.jpg',
@@ -91,7 +92,8 @@ const products = [
             'https://salt.tikicdn.com/ts/product/a6/74/ac/283cec826e58f3bb45f6fff4fea53f6b.png',
             'https://salt.tikicdn.com/ts/product/73/ba/2c/31335b536af33ac3fc06cc74bf93e6ec.png',
         ],
-        Category: 'Quần áo',
+        Category: 'Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo',
+        brand: 'Ahola',
         Option: {
             Value: [
                 {
@@ -214,29 +216,14 @@ const TableProduct = ({ inDoashboard = false }) => {
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                {/* <th scope="col" class="p-4">
-                                    <div class="flex items-center">
-                                        <input
-                                            id="checkbox-all-search"
-                                            type="checkbox"
-                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                        />
-                                        <label for="checkbox-all-search" class="sr-only">
-                                            checkbox
-                                        </label>
-                                    </div>
-                                </th> */}
                                 <th scope="col" class="px-6 py-3">
                                     ID
                                 </th>
-                                <th
-                                    scope="col"
-                                    class={`${inDoashboard === true ? 'max-w-80 overflow-hidden' : ''} px-6 py-3`}
-                                >
+                                <th scope="col" class="max-w-[10rem] overflow-hidden px-6 py-3">
                                     Tên
                                 </th>
                                 {!inDoashboard && (
-                                    <th scope="col" class="px-6 py-3">
+                                    <th scope="col" class="max-w-[20rem] overflow-hidden px-6 py-3">
                                         Mô tả
                                     </th>
                                 )}
@@ -262,64 +249,84 @@ const TableProduct = ({ inDoashboard = false }) => {
                                 )}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="overflow-y-auto">
                             {products.map((product) => (
                                 <tr
                                     key={product.iD_NK}
-                                    class=" bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                    class="bg-white border-b  dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
-                                    {/* <td class="w-4 p-4">
-                                        <div class="flex items-center">
-                                            <input
-                                                id="checkbox-table-search-3"
-                                                type="checkbox"
-                                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                            />
-                                            <label for="checkbox-table-search-3" class="sr-only">
-                                                checkbox
-                                            </label>
-                                        </div>
-                                    </td> */}
                                     <th
                                         scope="row"
                                         class={`${
-                                            inDoashboard === true ? 'max-w-32 overflow-hidden' : ''
-                                        }  px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
+                                            inDoashboard === true ? 'max-w-[10rem] overflow-hidden' : ''
+                                        } px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
                                     >
                                         {product.iD_NK}
                                     </th>
-                                    <td class={`${inDoashboard === true ? 'max-w-80 overflow-hidden' : ''} px-6 py-3`}>
-                                        {product.name}
+                                    <td class="w-48 overflow-hidden px-6 py-3">
+                                        {!inDoashboard && (
+                                            <textarea
+                                                disabled
+                                                className="w-full bg-transparent border-0 resize-none"
+                                                rows={5}
+                                            >
+                                                {product.name}
+                                            </textarea>
+                                        )}
+                                        {inDoashboard && <div className="h-20">{product.name}</div>}
                                     </td>
-                                    {!inDoashboard && <td class="px-6 py-4">{product.shortdes}</td>}
+                                    {!inDoashboard && (
+                                        <td class="w-96  overflow-hidden ">
+                                            <textarea
+                                                disabled
+                                                className="resize-none bg-transparent w-full h-28 cols={50} border-0"
+                                                rows={5}
+                                            >
+                                                {product.shortdes}
+                                            </textarea>
+                                        </td>
+                                    )}
                                     <td class="px-6 py-4">{formatNumber(product.price)}</td>
                                     <td class="px-6 py-4">{product.RatingAvg}</td>
                                     <td class="px-6 py-4">{product.RatingTotal}</td>
                                     {!inDoashboard && (
                                         <>
-                                            <td class="px-6 py-4">{product.Category}</td>
+                                            <td class="px-6 py-4">
+                                                {!inDoashboard && (
+                                                    <textarea
+                                                        disabled
+                                                        className="w-full bg-transparent border-0 resize-none"
+                                                        rows={5}
+                                                    >
+                                                        {product.Category}
+                                                    </textarea>
+                                                )}
+                                                {inDoashboard && <div className="h-20">{product.Category}</div>}
+                                            </td>
                                             <td class="px-6 py-4">
                                                 {formatDistanceToNow(new Date(product.CreateAt), {
                                                     addSuffix: true,
                                                     locale: vi,
                                                 })}
                                             </td>
-                                            <td class="px-6 py-4 items-center my-auto flex gap-2 justify-between">
-                                                <button
-                                                    onClick={() => openDetailProductForm(product)} // Gọi hàm mở form chỉnh sửa khi nhấn nút Chi tiết
-                                                    className="font-medium text-green-700 dark:text-blue-500 hover:underline"
-                                                >
-                                                    Chi tiết
-                                                </button>
-                                                <button
-                                                    onClick={() => openEditProductForm(product)} // Gọi hàm mở form chỉnh sửa khi nhấn nút Chi tiết
-                                                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                                >
-                                                    Sửa
-                                                </button>
-                                                <button class="font-medium text-red-700 dark:text-blue-500 hover:underline">
-                                                    Xoá
-                                                </button>
+                                            <td class="px-6 py-4 ">
+                                                <div class="flex-row items-center space-x-2">
+                                                    <div
+                                                        onClick={() => openDetailProductForm(product)}
+                                                        class="font-medium hover:cursor-pointer w-[80px] bg-green-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-green-700 dark:text-blue-500 hover:underline"
+                                                    >
+                                                        Chi tiết
+                                                    </div>
+                                                    <div
+                                                        onClick={() => openEditProductForm(product)}
+                                                        class="font-medium hover:cursor-pointer w-[80px] bg-blue-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-blue-600 dark:text-blue-500 hover:underline"
+                                                    >
+                                                        Sửa
+                                                    </div>
+                                                    <div class="font-medium hover:cursor-pointer w-[80px] bg-red-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-red-700 dark:text-blue-500 hover:underline">
+                                                        Xoá
+                                                    </div>
+                                                </div>
                                             </td>
                                         </>
                                     )}
@@ -327,6 +334,7 @@ const TableProduct = ({ inDoashboard = false }) => {
                             ))}
                         </tbody>
                     </table>
+
                     {!inDoashboard && (
                         <nav
                             class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"

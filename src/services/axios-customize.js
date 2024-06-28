@@ -4,7 +4,6 @@ const instance = axios.create({
     baseURL: 'https://localhost:7016/api',
 });
 
-
 instance.interceptors.response.use(
     function (response) {
         return response.data;

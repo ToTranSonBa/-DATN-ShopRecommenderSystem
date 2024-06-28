@@ -32,12 +32,10 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
     const handleSignUp = () => {
         if (token) {
             navigate('/signup/seller');
-        }
-        else {
+        } else {
             navigate('/login');
-
         }
-    }
+    };
     const AllCategories_Data = [
         {
             title: 'Danh mục nổi bật',
@@ -184,7 +182,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                             >
                                 <li
                                     id="menu-categories"
-                                    className={`flex lg:gap-2 px-3  leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                    className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     onMouseOver={() => handleMouseOver('categories')}
                                     onMouseOut={handleMouseOut}
                                 >
@@ -206,7 +204,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                 </li>
                                 <li
                                     id="menu-featured-selection"
-                                    className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                    className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     onMouseOver={() => handleMouseOver('featured-selection')}
                                     onMouseOut={handleMouseOut}
                                 >
@@ -214,7 +212,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                 </li>
                                 <li
                                     id="menu-trade-assurance"
-                                    className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                    className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     onMouseOver={() => handleMouseOver('trade-assurance')}
                                     onMouseOut={handleMouseOut}
                                 >
@@ -230,7 +228,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                             >
                                 <li
                                     id="menu-buyer-central"
-                                    className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                    className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     onMouseOver={() => handleMouseOver('buyer-central')}
                                     onMouseOut={handleMouseOut}
                                 >
@@ -238,7 +236,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                 </li>
                                 <li
                                     id="menu-help-center"
-                                    className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                    className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     onMouseOver={() => handleMouseOver('help-center')}
                                     onMouseOut={handleMouseOut}
                                 >
@@ -247,7 +245,7 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                 <li className="hover:underline">
                                     <a
                                         onClick={handleSignUp}
-                                        className={`block px-3 py-2 leading-8 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0`}
+                                        className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
                                     >
                                         Đăng kí trở thành nhà cung cấp
                                     </a>
@@ -260,8 +258,9 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for categories */}
                 <div
                     id="menu-categories-dropdown"
-                    className={`absolute ${hoveredItem === 'categories' ? 'block fade-down' : 'hidden'
-                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${
+                        hoveredItem === 'categories' ? 'block fade-down' : 'hidden'
+                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('categories')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -308,8 +307,9 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for featured selection */}
                 <div
                     id="menu-categories-dropdown"
-                    className={`absolute ${hoveredItem === 'featured-selection' ? 'block fade-down' : 'hidden'
-                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${
+                        hoveredItem === 'featured-selection' ? 'block fade-down' : 'hidden'
+                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('featured-selection')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -400,8 +400,9 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for trade assurance */}
                 <div
                     id="menu-trade-assurance-dropdown"
-                    className={`absolute ${hoveredItem === 'trade-assurance' ? 'block fade-down' : 'hidden'
-                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${
+                        hoveredItem === 'trade-assurance' ? 'block fade-down' : 'hidden'
+                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('trade-assurance')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -563,8 +564,9 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for buyer central */}
                 <div
                     id="menu-buyer-central-dropdown"
-                    className={`absolute ${hoveredItem === 'buyer-central' ? 'block fade-down' : 'hidden'
-                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[200px] lg:max-h-[600px]`}
+                    className={`absolute ${
+                        hoveredItem === 'buyer-central' ? 'block fade-down' : 'hidden'
+                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[200px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('buyer-central')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -593,8 +595,9 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for help center */}
                 <div
                     id="menu-help-center-dropdown"
-                    className={`absolute ${hoveredItem === 'help-center' ? 'block fade-down' : 'hidden'
-                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${
+                        hoveredItem === 'help-center' ? 'block fade-down' : 'hidden'
+                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('help-center')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}

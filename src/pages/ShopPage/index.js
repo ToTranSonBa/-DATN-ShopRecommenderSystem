@@ -1,5 +1,5 @@
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
-import axios from 'axios';
+import axios from '../../services/axios-customize';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../../components/card/ProductCard';
@@ -191,7 +191,7 @@ function ShopPage({}) {
 
     const fetchCategories = useCallback(async () => {
         try {
-            const response = await axios.get('https://localhost:7016/api/Categories?level=0');
+            const response = await axios.get('/Categories?level=0');
             setCategories(response.data.data);
         } catch (error) {
             console.error('Failed to fetch categories:', error);
@@ -199,7 +199,7 @@ function ShopPage({}) {
     }, []);
     const fetchBrands = useCallback(async () => {
         try {
-            const response = await axios.get('https://localhost:7016/api/Brands');
+            const response = await axios.get('/Brands');
             setBrands(response.data);
         } catch (error) {
             console.error('Failed to fetch brands:', error);

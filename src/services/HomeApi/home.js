@@ -10,7 +10,7 @@ const ProductsApi = async () => {
 };
 const fetchCategories = async () => {
     try {
-        const response = await axios.get('https://localhost:7016/api/Categories?level=0');
+        const response = await axios.get('/Categories?level=0');
         return response;
     } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -20,7 +20,7 @@ const fetchCategories = async () => {
 
 const fetchTop10Seller = async () => {
     try {
-        const response = await axios.get('https://localhost:7016/api/Sellers/Top10Seller');
+        const response = await axios.get('/Sellers/Top10Seller');
         return response;
     } catch (error) {
         console.log('Failed to fetch top 10 seller: ', error);
@@ -30,12 +30,23 @@ const fetchTop10Seller = async () => {
 
 const fetchTopPopProducts = async () => {
     try {
-        const response = await axios.get('https://localhost:7016/api/Products/GetTopPop');
+        const response = await axios.get('/Products/GetTopPop');
         return response;
     } catch (error) {
         console.log('Failed to fetch Top product in home page: ', error);
         throw error;
     }
 };
+const fetchProduct = async ({ searchKey }) => {
+    try {
+        const response = await axios.get(
+            `/Products/GetProductsByTrainning?ProductName=${searchKey}&PageNumber=0&PageSize=10`,
+        );
+        return response.product; // Assuming response.data contains the array of products
+    } catch (error) {
+        console.log('Failed to fetch product in home page:', error);
+        throw error;
+    }
+};
 
-export { ProductsApi, fetchCategories, fetchTop10Seller, fetchTopPopProducts };
+export { ProductsApi, fetchCategories, fetchTop10Seller, fetchTopPopProducts, fetchProduct };

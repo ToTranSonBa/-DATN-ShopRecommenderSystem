@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import MaxWidthWrapper from '../../../../components/MaxWidthWrapper';
+import { fetchOrder } from '../../../../services/seller/seller-order-table/index';
+
 // format number
 const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
@@ -169,9 +171,28 @@ const formatCreateAt = (createAt) => {
     return formatDistanceToNow(date, { addSuffix: true, locale: vi });
 };
 const TableOrder = () => {
+    // const token = localStorage.getItem(token);
     const [orderView, setOrderView] = useState(false);
     const [orderEditView, setOrderEditView] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null); // State để lưu sản phẩm được chọn để chỉnh sửa
+    const [orders, setOrders] = useState(initialOrders); // assuming initialOrders is defined elsewhere
+
+    // fetch data order
+    // const fetchOrder = useCallback(async () => {
+    //     try {
+    //         const response = await fetchOrder(token);
+    //         console.log('Order data in seller ddoasshboard: ', response);
+    //         setOrders(response);
+    //     } catch (error) {
+    //         console.error('Failed to fetch fetchOrderAPI: ', error);
+    //     }
+    // });
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         await fetchOrder();
+    //     };
+    //     fetchData();
+    // }, []);
 
     // Hàm mở form chi tiết sản phẩm
     const openDetailOrderForm = (order) => {
@@ -184,8 +205,6 @@ const TableOrder = () => {
         setSelectedOrder(order); // Lưu sản phẩm được chọn vào state
         setOrderEditView(true); // Mở form chỉnh sửa
     };
-
-    const [orders, setOrders] = useState(initialOrders); // assuming initialOrders is defined elsewhere
 
     // Hàm xử lý khi trạng thái đơn hàng thay đổi
     const handleStatusChange = (newStatus) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const FormProduct = ({ action, product, useroption, open }) => {
     const [files, setFiles] = useState({});
@@ -42,11 +42,27 @@ const FormProduct = ({ action, product, useroption, open }) => {
         setIsDraggedOver(false);
     };
 
-    // const handleFileInputChange = (e) => {
-    //     for (const file of e.target.files) {
-    //         addFile(file);
-    //     }
-    // };
+    const handleFileInputChange = (e) => {
+        const { files: newFiles } = e.target;
+        const newFilesObj = Array.from(newFiles).reduce((acc, file, index) => {
+            const fileURL = URL.createObjectURL(file);
+            const key = `new-image-${Object.keys(files).length + index}`; // Unique key
+            acc[key] = {
+                name: file.name,
+                type: file.type.startsWith('image') ? 'image' : 'other',
+                preview: fileURL,
+            };
+            return acc;
+        }, {});
+        setFiles({ ...files, ...newFilesObj });
+    };
+
+    const handleRemoveFile = (key) => {
+        const newFiles = { ...files };
+        URL.revokeObjectURL(newFiles[key].preview);
+        delete newFiles[key];
+        setFiles(newFiles);
+    };
 
     const handleSubmit = (e) => {
         alert(`Submitted Files:\n${JSON.stringify(files)}`);
@@ -61,21 +77,13 @@ const FormProduct = ({ action, product, useroption, open }) => {
         // Implement your cancel logic here
     };
 
-    // //form
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormValues({
-            ...formValues,
-            [name]: value,
-        });
-    };
-
     const handleOptionClick = (option) => {
         // Update useroption in SellerDashboard component
         useroption(option);
     };
 
     const handleClose = () => {
+        console.log('Close');
         open(false); // Call the 'open' function with 'false' to close the form
     };
 
@@ -85,21 +93,22 @@ const FormProduct = ({ action, product, useroption, open }) => {
         shortDescription: '',
         description: '',
         category: '',
+        brand: '',
         productQuantitySold: 0,
     });
 
     useEffect(() => {
         if (action === 1 && product) {
-            // If action is 1 (edit) and product data is provided, populate formValues
             setFormValues({
                 productName: product.name || '',
                 productPrice: product.price || '',
                 shortDescription: product.shortdes || '',
                 description: product.description || '',
                 category: product.Category || '',
+                brand: product.brand || '',
                 productQuantitySold: product.QuantitySold || 0,
             });
-            // Initialize existing images in the gallery
+
             const initialFiles = product.images.reduce((acc, url, index) => {
                 acc[`image-${index}`] = {
                     name: `Image ${index + 1}`,
@@ -110,16 +119,17 @@ const FormProduct = ({ action, product, useroption, open }) => {
             }, {});
             setFiles(initialFiles);
         } else if (action === 2 && product) {
-            // If action is 2 (details), set formValues as read-only
             setFormValues({
                 productName: product.name || '',
                 productPrice: product.price || '',
                 shortDescription: product.shortdes || '',
                 description: product.description || '',
                 category: product.Category || '',
+                brand: product.brand || '',
+
                 productQuantitySold: product.QuantitySold || 0,
             });
-            // Initialize existing images in the gallery
+
             const initialFiles = product.images.reduce((acc, url, index) => {
                 acc[`image-${index}`] = {
                     name: `Image ${index + 1}`,
@@ -132,25 +142,14 @@ const FormProduct = ({ action, product, useroption, open }) => {
         }
     }, [action, product]);
 
-    const handleFileInputChange = (e) => {
-        const { files: newFiles } = e.target;
-        const newFilesObj = Array.from(newFiles).reduce((acc, file, index) => {
-            const fileURL = URL.createObjectURL(file);
-            acc[`new-image-${index}`] = {
-                name: file.name,
-                type: file.type.startsWith('image') ? 'image' : 'other',
-                preview: fileURL,
-            };
-            return acc;
-        }, {});
-        setFiles({ ...files, ...newFilesObj });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues({
+            ...formValues,
+            [name]: value,
+        });
     };
-    const handleRemoveFile = (key) => {
-        const newFiles = { ...files };
-        URL.revokeObjectURL(newFiles[key].preview);
-        delete newFiles[key];
-        setFiles(newFiles);
-    };
+
     return (
         <div className="relative max-w-screen-2xl">
             <div onClick={handleClose} className="absolute top-0 right-0 cursor-pointer">
@@ -298,7 +297,7 @@ const FormProduct = ({ action, product, useroption, open }) => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">
-                            Short Description
+                            Mô tả ngắn
                         </label>
                         <input
                             type="text"
@@ -313,21 +312,19 @@ const FormProduct = ({ action, product, useroption, open }) => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                            Description
+                            Mô tả
                         </label>
-                        <textarea
-                            id="description"
-                            name="description"
+                        <AutoResizeTextarea
+                            placeholder="Mô tả sản phẩm"
                             value={formValues.description}
                             onChange={handleChange}
-                            className="block w-full p-2 mt-1 border border-gray-300 rounded min-h-44"
+                            mode={action}
                             required
-                            disabled={mode === 2} // Disable for details mode
                         />
                     </div>
                     <div className="mb-4">
                         <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                            Category
+                            Danh mục
                         </label>
                         <select
                             id="category"
@@ -338,7 +335,27 @@ const FormProduct = ({ action, product, useroption, open }) => {
                             required
                             disabled={mode === 2} // Disable for details mode
                         >
-                            <option value="">Select a category</option>
+                            <option value="">Chọn danh mục</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="home">Home</option>
+                            <option value="beauty">Beauty</option>
+                        </select>
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                            Brand
+                        </label>
+                        <select
+                            id="category"
+                            name="category"
+                            value={formValues.brand}
+                            onChange={handleChange}
+                            className="block w-full p-2 mt-1 border border-gray-300 rounded"
+                            required
+                            disabled={mode === 2} // Disable for details mode
+                        >
+                            <option value="">Chọn Brand</option>
                             <option value="electronics">Electronics</option>
                             <option value="fashion">Fashion</option>
                             <option value="home">Home</option>
@@ -385,4 +402,36 @@ const FormProduct = ({ action, product, useroption, open }) => {
         </div>
     );
 };
+
+const AutoResizeTextarea = ({ value, onChange, placeholder, mode }) => {
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [value]);
+
+    const handleChange = (e) => {
+        onChange(e); // Gọi hàm onChange từ props để cập nhật giá trị
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
+
+    return (
+        <textarea
+            ref={textareaRef}
+            className="w-full p-2 border border-gray-300 rounded-md resize-none min-h-44 focus:ring-0 focus:ring-offset-0 focus:outline-none lg:p-2"
+            placeholder={placeholder}
+            value={value}
+            onChange={handleChange}
+            disabled={mode === 2}
+            name="description" // Đảm bảo có tên trường cho handleChange
+        />
+    );
+};
+
 export default FormProduct;

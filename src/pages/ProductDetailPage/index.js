@@ -1,15 +1,15 @@
-import React, { useState, useCallback, useEffect, createContext } from "react";
+import React, { useState, useCallback, useEffect, createContext } from 'react';
 
 import renderStars from './RenderStars';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import axios from '../../services/axios-customize';
+import { useParams, useNavigate } from 'react-router-dom';
 import CommentRating from './CommentRating';
 import CommentDetail from './CommentDetail';
-import Default_Avatar from "../../assets/default-avatar.png";
-import { Modal } from "antd";
+import Default_Avatar from '../../assets/default-avatar.png';
+import { Modal } from 'antd';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addCartApi } from '../../services/CartApi/cartApi'
+import { addCartApi } from '../../services/CartApi/cartApi';
 
 const calculateTimeDifference = (date) => {
     const createdDate = new Date(date);
@@ -32,7 +32,7 @@ const ProductDetailPage = () => {
     // const { years, months } = calculateTimeDifference(Seller.createdAt);
 
     const id = parseInt(useParams().id);
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     const [productDetail, setProduct] = useState({});
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
@@ -41,7 +41,7 @@ const ProductDetailPage = () => {
     const [comments, setComments] = useState([]);
     const [commentRating, setCommentRating] = useState([]);
     const [hiddenDescription, setHiddenDescription] = useState(true);
-    const [productOptions, setProductOptions] = useState([])
+    const [productOptions, setProductOptions] = useState([]);
     const [option, setOption] = useState([]);
     const [productOptionValues, setProductOptionValues] = useState([]);
 
@@ -52,32 +52,28 @@ const ProductDetailPage = () => {
 
     const fetchProductDetail = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `https://localhost:7016/api/Products/${id}`
-            );
-            console.log("product detail: ", response.data);
+            const response = await axios.get(`/Products/${id}`);
+            console.log(response.data);
             setProduct(response.data);
             fetchPrice();
         } catch (error) {
-            console.error("Failed to fetch product detail:", error);
+            console.error('Failed to fetch product detail:', error);
         }
     }, [id]);
 
     const fetchProductOption = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `https://localhost:7016/api/Products/Option/${id}`
-            );
+            const response = await axios.get(`https://localhost:7016/api/Products/Option/${id}`);
             setOption(response.data?.[0].option);
-            setProductOptionValues(response.data?.[0].productOptionValues)
+            setProductOptionValues(response.data?.[0].productOptionValues);
         } catch (error) {
-            console.error("Failed to fetch product option:", error);
+            console.error('Failed to fetch product option:', error);
         }
     }, [id]);
 
     const fetchCommentRating = useCallback(async () => {
         try {
-            const response = await axios.get(`https://localhost:7016/api/DetailComments/RattingCount/Product${id}`);
+            const response = await axios.get(`/DetailComments/RattingCount/Product${id}`);
             setCommentRating(response.data);
         } catch (error) {
             console.error('Failed to fetch detail comment rating:', error);
@@ -94,43 +90,17 @@ const ProductDetailPage = () => {
 
     const fetchComments = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `https://localhost:7016/api/DetailComments/List${id}`
-            );
-            console.log(response.data);
-            setComments(response.data);
-        } catch (error) {
-            console.error("Failed to fetch comments:", error);
-        }
-    }, []);
-
-    const fetchAddToCart = useCallback(async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.post(
-                `https://localhost:7016/api/CartItems/AddToCart`,
-                {
-                    idProduct: id,
-                    idProductOptionValue: idProductOptionValue,
-                    ProductOptionImage: productOptionImage,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await axios.get(`/DetailComments/Product${id}`);
             setComments(response.data[0]);
         } catch (error) {
-            console.error("Failed to fetch add to cart:", error);
+            console.error('Failed to fetch add to cart:', error);
         }
     }, [idProductOptionValue, productOptionImage]);
 
     const fetchProductOptions = useCallback(async () => {
         try {
             const response = await axios.get(`https://localhost:7016/api/Products/Option/${id}`);
-            console.log('response, ', response)
+            console.log('response, ', response);
             setProductOptions(response.data);
         } catch (error) {
             console.error('Failed to fetch ProductOptions:', error);
@@ -180,12 +150,13 @@ const ProductDetailPage = () => {
     const handleBuyNow = (event) => {
         event.preventDefault();
 
-
         const selectedProduct = productDetail.productChildren[selectedOptionIndex];
         let matchingOptionValueId = null;
 
-        productOptions.forEach(option => {
-            const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+        productOptions.forEach((option) => {
+            const match = option.productOptionValues.find(
+                (optionValue) => optionValue.name === selectedProduct.option1,
+            );
             if (match) {
                 matchingOptionValueId = match.id;
             }
@@ -195,11 +166,13 @@ const ProductDetailPage = () => {
             product: productDetail.product,
             quantity: quantity,
             productImgs: selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
-            optionValues: selectedProduct ? {
-                id: matchingOptionValueId,
-                name: selectedProduct.option1,
-                option: null
-            } : undefined,
+            optionValues: selectedProduct
+                ? {
+                      id: matchingOptionValueId,
+                      name: selectedProduct.option1,
+                      option: null,
+                  }
+                : undefined,
         };
         navigate('/checkout', { state: { selectedItems: [productWithQuantity] } });
     };
@@ -209,28 +182,30 @@ const ProductDetailPage = () => {
         const selectedProduct = productDetail.productChildren[selectedOptionIndex];
         let matchingOptionValueId = null;
 
-        productOptions.forEach(option => {
-            const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+        productOptions.forEach((option) => {
+            const match = option.productOptionValues.find(
+                (optionValue) => optionValue.name === selectedProduct.option1,
+            );
             if (match) {
                 matchingOptionValueId = match.id;
             }
         });
         try {
-            const response = await addCartApi(productDetail.product.iD_NK,
+            const response = await addCartApi(
+                productDetail.product.iD_NK,
                 selectedProduct ? matchingOptionValueId : undefined,
-                selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image
-                , token
-            )
+                selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
+                token,
+            );
             if (response.status === '201') {
                 toast.success('Đã thêm vào giỏ hàng');
-            }
-            else {
+            } else {
                 toast.error('Thêm vào giỏ hàng thất bại!');
             }
         } catch (error) {
             console.log('Failed to add to cart: ', error);
         }
-    }
+    };
 
     return (
         <div class="lg:pt-36 m-auto bg-background flex flex-col justify-center items-center pt-20">
@@ -373,12 +348,12 @@ const ProductDetailPage = () => {
 
                         {/* Cập nhật option */}
                         <div className="max-w-full mt-8">
-                            <h3 className="text-ms font-medium text-gray-600">Lựa chọn: </h3>
+                            <h3 className="font-medium text-gray-600 text-ms">Lựa chọn: </h3>
                             <div className="grid grid-cols-5 gap-6 mt-4">
                                 {productDetail?.productChildren?.map((option, index) => (
                                     <button
                                         key={option.id}
-                                        className="relative flex items-center h-14 text-sm font-medium text-gray-900 bg-white rounded-md cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
+                                        className="relative flex items-center text-sm font-medium text-gray-900 bg-white rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-offset-4 focus:ring-opacity-50"
                                         onClick={() => (
                                             setSelectedOptionIndex(index),
                                             setPrice(option?.price),
@@ -386,12 +361,12 @@ const ProductDetailPage = () => {
                                             setProductOptionImage(option?.thumbnail_url)
                                         )}
                                     >
-                                        <p className="pl-12 z-10 text-xs">{option.option1}</p>
+                                        <p className="z-10 pl-12 text-xs">{option.option1}</p>
                                         <span className="absolute inset-0 overflow-hidden rounded-md">
                                             <img
                                                 src={option.thumbnail_url}
                                                 alt={option.name}
-                                                className="object-cover object-center w-12 h-12 mx-1 mt-1 z-0"
+                                                className="z-0 object-cover object-center w-12 h-12 mx-1 mt-1"
                                             />
                                         </span>
 
@@ -441,7 +416,7 @@ const ProductDetailPage = () => {
                         <img
                             src={productDetail.seller?.imageUrl || Default_Avatar}
                             alt={productDetail.seller?.name}
-                            className="lg:w-20 lg:h-20 w-12 h-12 rounded-full border-2 border-white"
+                            className="w-12 h-12 border-2 border-white rounded-full lg:w-20 lg:h-20"
                         />
 
                         <div class="lg:h-20 h-12 ml-3 grid items-center ">
@@ -510,19 +485,14 @@ const ProductDetailPage = () => {
                 <div>
                     <h3 class="text-lg font-semibold text-gray-700">Đánh giá ({comments.total})</h3>
 
-                    <CommentRating
-                        commentRating={commentRating}
-                        totalComment={comments.total}
-                    />
+                    <CommentRating commentRating={commentRating} totalComment={comments.total} />
                 </div>
 
                 {comments.detailComment?.length === 0 && (
                     <p className="flex items-center justify-center mt-6">Không có bình luận về sản phẩm</p>
                 )}
 
-                {comments.detailComment?.length !== 0 && (
-                    <CommentDetail comments={comments.comment} />
-                )}
+                {comments.detailComment?.length !== 0 && <CommentDetail comments={comments.comment} />}
             </div>
         </div>
     );
