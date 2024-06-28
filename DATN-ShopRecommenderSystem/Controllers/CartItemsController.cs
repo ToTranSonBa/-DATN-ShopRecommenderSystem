@@ -21,7 +21,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         [Authorize]
         [HttpPost("AddToCart")]
-        public async Task<IActionResult> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage)
+        public async Task<IActionResult> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, int Quantity)
         {
             // Lấy token từ header Authorization
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -38,7 +38,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return Unauthorized(); 
             }
 
-            var result = await _cartItemsService.AddToCart(idProduct, idProductOptionValue, ProductOptionImage, user);
+            var result = await _cartItemsService.AddToCart(idProduct, idProductOptionValue, ProductOptionImage, Quantity, user);
             if(result == null)
             {
                 return NoContent();
