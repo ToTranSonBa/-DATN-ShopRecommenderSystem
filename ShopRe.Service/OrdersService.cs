@@ -8,6 +8,7 @@ using static ShopRe.Service.OrderService;
 using AutoMapper;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
+using System.Reflection.Metadata.Ecma335;
 
 namespace ShopRe.Service
 {
@@ -213,49 +214,108 @@ namespace ShopRe.Service
 
         public async Task<PagedList<OrderDTO>> GetOrdersOfSeller(OrdersParameters ordersParameters,ApplicationUser seller)
         {
-            var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId==seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
+            var sellerId = await _dbContext.Sellers
+                                   .Where(s => s.ApplicationUserId == seller.Id)
+                                   .Select(s => s.ID_NK)
+                                   .FirstOrDefaultAsync();
             var orders = await _dbContext.Order
-                                         .Where(o => o.Seller.ID_NK == sellerId).OrderByDescending(o => o.CreatedAt)
-                                         .ToListAsync();
+                                 .Where(o => o.Seller.ID_NK == sellerId)
+                                 .OrderByDescending(o => o.CreatedAt)
+                                 .Select(o => new OrderDTO
+                                 {
+                                     ID = o.ID,
+                                     TotalPrice = o.TotalPrice,
+                                     CreatedAt = o.CreatedAt,
+                                     Address = o.Address,
+                                     PhoneNumber = o.PhoneNumber,
+                                     Status = o.Status,
+                                     User = o.ApplicationUser != null ? new UserOrderDTO
+                                     {
+                                         FirstName = o.ApplicationUser.FirstName,
+                                         LastName = o.ApplicationUser.LastName,
+                                         Email = o.ApplicationUser.Email,
+                                         PhoneNumber = o.ApplicationUser.PhoneNumber
+                                     } : null
+                                 })
+                                 .ToListAsync();
 
+            var orderIds = orders.Select(o => o.ID).ToList();
 
-            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
-
-            foreach (var order in listOrder)
-            {
-                var orderItems = await _dbContext.OrderItems
-                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+            var orderItems = await _dbContext.OrderItems
+                                             .Where(oi => orderIds.Contains(oi.Order.ID))
+                                             .Include(oi => oi.Product)
+                                             .Include(oi => oi.OptionValues)
+                                             .ThenInclude(ov => ov.Option)
                                              .ToListAsync();
 
-                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
-                order.Items = Items;
+            var orderItemsGrouped = orderItems.GroupBy(oi => oi.Order.ID);
+
+            foreach (var order in orders)
+            {
+                var items = orderItemsGrouped
+                            .FirstOrDefault(g => g.Key == order.ID)?
+                            .Select(oi => new OrderItemsDTO
+                            {
+                                // Map the required properties here
+                            })
+                            .ToList();
+                order.Items = items ?? new List<OrderItemsDTO>();
             }
 
-            return PagedList<OrderDTO>
-                .ToPagedList(listOrder,ordersParameters.PageNumber, ordersParameters.PageSize);
+            return PagedList<OrderDTO>.ToPagedList(orders, ordersParameters.PageNumber, ordersParameters.PageSize);
         }
 
         public async Task<PagedList<OrderDTO>> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller)
         {
-            var sellerId = (await _dbContext.Sellers.Where(s => s.ApplicationUserId == seller.Id).ToListAsync()).FirstOrDefault().ID_NK;
+            var sellerId = await _dbContext.Sellers
+                                   .Where(s => s.ApplicationUserId == seller.Id)
+                                   .Select(s => s.ID_NK)
+                                   .FirstOrDefaultAsync();
             var orders = await _dbContext.Order
-                                 .Where(o => o.Seller.ID_NK == sellerId && o.Status == status).ToListAsync();
+                                 .Where(o => o.Seller.ID_NK == sellerId)
+                                 .OrderByDescending(o => o.CreatedAt)
+                                 .Select(o => new OrderDTO
+                                 {
+                                     ID = o.ID,
+                                     TotalPrice = o.TotalPrice,
+                                     CreatedAt = o.CreatedAt,
+                                     Address = o.Address,
+                                     PhoneNumber = o.PhoneNumber,
+                                     Status = o.Status,
+                                     User = o.ApplicationUser != null ? new UserOrderDTO
+                                     {
+                                         FirstName = o.ApplicationUser.FirstName,
+                                         LastName = o.ApplicationUser.LastName,
+                                         Email = o.ApplicationUser.Email,
+                                         PhoneNumber = o.ApplicationUser.PhoneNumber
+                                     } : null
+                                 })
+                                 .ToListAsync();
 
+            var orderIds = orders.Select(o => o.ID).ToList();
 
-            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
-
-            foreach (var order in listOrder)
-            {
-                var orderItems = await _dbContext.OrderItems
-                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
+            var orderItems = await _dbContext.OrderItems
+                                             .Where(oi => orderIds.Contains(oi.Order.ID))
+                                             .Include(oi => oi.Product)
+                                             .Include(oi => oi.OptionValues)
+                                             .ThenInclude(ov => ov.Option)
                                              .ToListAsync();
 
-                var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
-                order.Items = Items;
+            var orderItemsGrouped = orderItems.GroupBy(oi => oi.Order.ID);
+
+            foreach (var order in orders)
+            {
+                var items = orderItemsGrouped
+                            .FirstOrDefault(g => g.Key == order.ID)?
+                            .Select(oi => new OrderItemsDTO
+                            {
+                                // Map the required properties here
+                            })
+                            .ToList();
+                order.Items = items ?? new List<OrderItemsDTO>();
             }
 
-            return PagedList<OrderDTO>
-                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize);
+            return PagedList<OrderDTO>.ToPagedList(orders, ordersParameters.PageNumber, ordersParameters.PageSize);
         }
     }
 }

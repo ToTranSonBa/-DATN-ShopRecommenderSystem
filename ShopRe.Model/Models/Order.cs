@@ -26,6 +26,7 @@ namespace ShopRe.Model.Models
         public bool? IsRated { get; set; }
         public int? SellerID_NK { get; set; }
         public Seller? Seller { get; set; }
+        public String? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
         public ShippingAddress? ShippingAddress { get; set; }
 
