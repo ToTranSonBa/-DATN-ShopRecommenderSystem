@@ -19,7 +19,7 @@ namespace ShopRe.Service
 {
     public interface ICartItemsService
     {
-        Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, ApplicationUser user);
+        Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, int Quantity, ApplicationUser user);
         Task<CartItem> DecreaseProductInCart(int idProduct, ApplicationUser user);
         Task<CartItem> IncreaseProductInCart(int idProduct, ApplicationUser user);
         Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user);
@@ -114,7 +114,7 @@ namespace ShopRe.Service
             var userEmail = userEmailClaim.Value;
             return await _userManager.FindByEmailAsync(userEmail);
         }
-        public async Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, ApplicationUser user)
+        public async Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, int Quantity, ApplicationUser user)
         {
             var product = await _productRepository.GetById(idProduct);
             if (product == null)
@@ -169,7 +169,7 @@ namespace ShopRe.Service
             {
                 var cartItem = new CartItem
                 {
-                    Quantity = 1,
+                    Quantity = Quantity,
                     Product = product,
                     Session = session,
                     OptionValues = productOption,
@@ -178,15 +178,15 @@ namespace ShopRe.Service
                     productImgs= ProductOptionImage
                 };
                 _dbContext.CartItem.Add(cartItem);
-                session.Total += product.Price;
+                session.Total += (product.Price * Quantity);
                 await _dbContext.SaveChangesAsync();
                 return cartItem;
             }
             else
             {
-                existingCartItem.Quantity += 1;
+                existingCartItem.Quantity += Quantity;
                 _dbContext.CartItem.Update(existingCartItem);
-                session.Total += product.Price;
+                session.Total += (product.Price * Quantity);
                 await _dbContext.SaveChangesAsync();
                 return existingCartItem;
             }
