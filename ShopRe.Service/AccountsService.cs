@@ -177,16 +177,9 @@ namespace ShopRe.Service
                 return RegisterUserStatus.USEREXIST;
             }
             
-            var listUserRoles = new List<string>();
-            foreach (var role in userForRegistration.Roles)
-            {
-                var roleExist = await _roleManager.FindByNameAsync(role);
-                if (roleExist != null)
-                {
-                    listUserRoles.Add(roleExist.Name);
-                }
-            }
-            if (listUserRoles.Count > 0)
+            
+            
+            if (userForRegistration.Roles.Count > 0)
             {
                 // Create user
                 var result = await _userManager.CreateAsync(userRegister, userForRegistration.Password);
@@ -196,7 +189,7 @@ namespace ShopRe.Service
                 }
 
                 // Add roles to user
-                await _userManager.AddToRolesAsync(userRegister, listUserRoles);
+                await _userManager.AddToRolesAsync(userRegister, userForRegistration.Roles);
 
                 await _context.SaveChangesAsync();
                 var shippingAddress = new ShippingAddress

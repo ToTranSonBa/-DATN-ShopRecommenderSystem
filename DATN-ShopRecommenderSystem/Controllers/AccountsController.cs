@@ -164,6 +164,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("Register/Customer")]
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerCreateDto customerCreateDto)
         {
+            List<String> roles = new List<String>();
+            roles.Add("Customer");
             if (customerCreateDto == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest,
@@ -178,7 +180,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     Password = customerCreateDto.Password,
                     FirstName = customerCreateDto.FirstName,
                     LastName = customerCreateDto.LastName,
-                    Roles = customerCreateDto.Roles,
+                    Roles = roles,
                     UserName = customerCreateDto.Email,
                     Address = customerCreateDto.Address
                 };
