@@ -37,7 +37,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         }
         // GET: api/categories
         [HttpGet("CategoriesLV0BySearch")]
-        public async Task<IActionResult> GetCategoriesLV0BySearching(string SearchKey)
+        public async Task<IActionResult> GetCategoriesLV0BySearching(string? SearchKey)
         {
             var categories = await _elasticSearchService.GetCategoryLevel0BySearch(SearchKey);
             return Ok(new
