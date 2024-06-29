@@ -26,8 +26,8 @@ const ProductPage = () => {
     const fetchCategories = useCallback(async () => {
         try {
             const response = await axios.get('/Categories?level=0');
-            setCategories(response.data.data);
-            console.log('fetchCategories: ', response.data.data);
+            setCategories(response.data);
+            console.log('fetchCategories: ', response.data);
         } catch (error) {
             console.error('Failed to fetch categories:', error);
         }
@@ -36,8 +36,8 @@ const ProductPage = () => {
     const fetchBrands = useCallback(async () => {
         try {
             const response = await axios.get('/Brands');
-            setBrands(response.data);
-            console.log('fetchBrands: ', response.data);
+            setBrands(response);
+            console.log('fetchBrands: ', response);
         } catch (error) {
             console.error('Failed to fetch brands:', error);
         }
@@ -66,15 +66,15 @@ const ProductPage = () => {
                 },
             });
 
-            console.log('fetchProducts: ', response.data.product);
+            console.log('fetchProducts: ', response.product);
 
-            response.data.product.forEach((element) => {
+            response.product.forEach((element) => {
                 const temp = element.image;
                 element.image = temp.substring(15, temp.indexOf("'", 15));
             });
 
-            setTotalProducts(response.data.totalCount);
-            setProducts(response.data.product);
+            setTotalProducts(response.totalCount);
+            setProducts(response.product);
         } catch (error) {
             console.error('Failed to fetch products:', error);
         }
@@ -153,7 +153,7 @@ const ProductPage = () => {
                         <div id="dropdown" className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
                             <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Phân loại</h6>
                             <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-                                {categories.map((category) => (
+                                {categories && categories.map((category) => (
                                     <li key={category?.iD_NK} className="flex items-center">
                                         <input
                                             id={category?.category.name}

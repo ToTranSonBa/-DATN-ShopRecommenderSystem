@@ -9,7 +9,25 @@ const getSellerApi = async (token) => {
         }
         );
     } catch (error) {
+        console.error('Failed to fetch GetUserSeller:', error);
+        throw error;
+    }
+};
+
+const getCategoriesApi = async () => {
+    try {
+        return axios.get(`/Categories?level=${0}`);
+    } catch (error) {
         console.error('Failed to fetch categories:', error);
+        throw error;
+    }
+};
+
+const getBrandsApi = async () => {
+    try {
+        return axios.get(`/Brands`);
+    } catch (error) {
+        console.error('Failed to fetch getBrandsApi:', error);
         throw error;
     }
 };
@@ -28,8 +46,8 @@ const updateSellerApi = async (name, imageUrl, address, phone, token) => {
         }
         );
     } catch (error) {
-        console.error('Failed to fetch categories:', error);
+        console.error('Failed to updateSellerApi:', error);
         throw error;
     }
 };
-export { getSellerApi, updateSellerApi };
+export { getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi };

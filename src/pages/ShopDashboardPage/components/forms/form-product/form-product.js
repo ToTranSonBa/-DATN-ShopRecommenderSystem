@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { getCategoriesApi, getBrandsApi } from '../../../../../services/SellerApi/sellerApi'
 const FormProduct = ({ action, product, useroption, open }) => {
     const [files, setFiles] = useState({});
     const [isDraggedOver, setIsDraggedOver] = useState(false);
     const [mode, setMode] = useState(action); // Khởi tạo giá trị ban đầu cho mode bằng action
-
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
     console.log('action in form product: ', action);
     console.log('product data in form product: ', product);
 
@@ -22,6 +23,34 @@ const FormProduct = ({ action, product, useroption, open }) => {
             [objectURL]: file,
         }));
     };
+
+    const fetchCategories = useCallback(async () => {
+        try {
+            const response = await getCategoriesApi();
+            setCategories(response.data);
+            console.log('fetchCategories: ', response.data);
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    }, []);
+
+    const fetchBrands = useCallback(async () => {
+        try {
+            const response = await getBrandsApi();
+            setBrands(response);
+            console.log('fetchBrands: ', response);
+        } catch (error) {
+            console.error('Failed to fetch Brands:', error);
+        }
+    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchCategories();
+            await fetchBrands();
+        };
+        fetchData();
+    }, []);
+
 
     const handleDrop = (e) => {
         e.preventDefault();
@@ -144,6 +173,9 @@ const FormProduct = ({ action, product, useroption, open }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log('name: ', name);
+        console.log('value: ', value);
+
         setFormValues({
             ...formValues,
             [name]: value,
@@ -336,10 +368,11 @@ const FormProduct = ({ action, product, useroption, open }) => {
                             disabled={mode === 2} // Disable for details mode
                         >
                             <option value="">Chọn danh mục</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="home">Home</option>
-                            <option value="beauty">Beauty</option>
+                            {categories.map((category) => (
+                                <option key={category.category.iD_NK} value={category.category.name}>
+                                    {category.category.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="mb-4">
@@ -347,8 +380,8 @@ const FormProduct = ({ action, product, useroption, open }) => {
                             Brand
                         </label>
                         <select
-                            id="category"
-                            name="category"
+                            id="brand"
+                            name="brand"
                             value={formValues.brand}
                             onChange={handleChange}
                             className="block w-full p-2 mt-1 border border-gray-300 rounded"
@@ -356,10 +389,11 @@ const FormProduct = ({ action, product, useroption, open }) => {
                             disabled={mode === 2} // Disable for details mode
                         >
                             <option value="">Chọn Brand</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="home">Home</option>
-                            <option value="beauty">Beauty</option>
+                            {brands.map((brand) => (
+                                <option key={brand.brand.iD_NK} value={brand.brand.name}>
+                                    {brand.brand.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className="mb-4">

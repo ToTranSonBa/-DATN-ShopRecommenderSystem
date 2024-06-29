@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, createContext } from 'react';
 
 import renderStars from './RenderStars';
 import axios from '../../services/axios-customize';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CommentRating from './CommentRating';
 import CommentDetail from './CommentDetail';
 import Default_Avatar from '../../assets/default-avatar.png';
@@ -52,9 +52,11 @@ const ProductDetailPage = () => {
 
     const fetchProductDetail = useCallback(async () => {
         try {
-            const response = await axios.get(`/Products/${id}`);
-            console.log(response.data);
-            setProduct(response.data);
+            const response = await axios.get(
+                `/Products/${id}`
+            );
+            console.log("product detail: ", response.data);
+            setProduct(response);
             fetchPrice();
         } catch (error) {
             console.error('Failed to fetch product detail:', error);
@@ -63,9 +65,12 @@ const ProductDetailPage = () => {
 
     const fetchProductOption = useCallback(async () => {
         try {
-            const response = await axios.get(`https://localhost:7016/api/Products/Option/${id}`);
-            setOption(response.data?.[0].option);
-            setProductOptionValues(response.data?.[0].productOptionValues);
+
+            const response = await axios.get(
+                `/Products/Option/${id}`
+            );
+            setOption(response?.[0].option);
+            setProductOptionValues(response?.[0].productOptionValues)
         } catch (error) {
             console.error('Failed to fetch product option:', error);
         }
@@ -74,7 +79,8 @@ const ProductDetailPage = () => {
     const fetchCommentRating = useCallback(async () => {
         try {
             const response = await axios.get(`/DetailComments/RattingCount/Product${id}`);
-            setCommentRating(response.data);
+
+            setCommentRating(response);
         } catch (error) {
             console.error('Failed to fetch detail comment rating:', error);
         }
@@ -90,7 +96,35 @@ const ProductDetailPage = () => {
 
     const fetchComments = useCallback(async () => {
         try {
-            const response = await axios.get(`/DetailComments/Product${id}`);
+
+            const response = await axios.get(
+                `/DetailComments/List${id}`
+            );
+            console.log(response.data);
+            setComments(response);
+        } catch (error) {
+            console.error("Failed to fetch comments:", error);
+        }
+    }, []);
+
+    const fetchAddToCart = useCallback(async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.post(
+                `/CartItems/AddToCart`,
+                {
+                    idProduct: id,
+                    idProductOptionValue: idProductOptionValue,
+                    ProductOptionImage: productOptionImage,
+                    quantity
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
             setComments(response.data[0]);
         } catch (error) {
             console.error('Failed to fetch add to cart:', error);
@@ -99,8 +133,9 @@ const ProductDetailPage = () => {
 
     const fetchProductOptions = useCallback(async () => {
         try {
-            const response = await axios.get(`https://localhost:7016/api/Products/Option/${id}`);
-            console.log('response, ', response);
+
+            const response = await axios.get(`/Products/Option/${id}`);
+            console.log('response, ', response)
             setProductOptions(response.data);
         } catch (error) {
             console.error('Failed to fetch ProductOptions:', error);
@@ -145,67 +180,74 @@ const ProductDetailPage = () => {
     };
 
     let totalPrice = price * quantity;
-    if (!totalPrice) totalPrice = productDetail.product?.price * quantity;
+    if (!totalPrice) totalPrice = productDetail?.product?.price * quantity;
 
     const handleBuyNow = (event) => {
         event.preventDefault();
+        if (!token) {
+            navigate('/login');
+        } else {
 
-        const selectedProduct = productDetail.productChildren[selectedOptionIndex];
-        let matchingOptionValueId = null;
 
-        productOptions.forEach((option) => {
-            const match = option.productOptionValues.find(
-                (optionValue) => optionValue.name === selectedProduct.option1,
-            );
-            if (match) {
-                matchingOptionValueId = match.id;
-            }
-        });
+            const selectedProduct = productDetail.productChildren[selectedOptionIndex];
+            let matchingOptionValueId = null;
 
-        const productWithQuantity = {
-            product: productDetail.product,
-            quantity: quantity,
-            productImgs: selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
-            optionValues: selectedProduct
-                ? {
-                      id: matchingOptionValueId,
-                      name: selectedProduct.option1,
-                      option: null,
-                  }
-                : undefined,
-        };
-        navigate('/checkout', { state: { selectedItems: [productWithQuantity] } });
+            productOptions.forEach(option => {
+                const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+                if (match) {
+                    matchingOptionValueId = match.id;
+                }
+            });
+
+            const productWithQuantity = {
+                product: productDetail.product,
+                quantity: quantity,
+                productImgs: selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
+                optionValues: selectedProduct ? {
+                    id: matchingOptionValueId,
+                    name: selectedProduct.option1,
+                    option: null
+                } : undefined,
+            };
+            navigate('/checkout', { state: { selectedItems: [productWithQuantity] } });
+        }
     };
 
     const handleAddCart = async (event) => {
         event.preventDefault();
-        const selectedProduct = productDetail.productChildren[selectedOptionIndex];
-        let matchingOptionValueId = null;
 
-        productOptions.forEach((option) => {
-            const match = option.productOptionValues.find(
-                (optionValue) => optionValue.name === selectedProduct.option1,
-            );
-            if (match) {
-                matchingOptionValueId = match.id;
-            }
-        });
-        try {
-            const response = await addCartApi(
-                productDetail.product.iD_NK,
-                selectedProduct ? matchingOptionValueId : undefined,
-                selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
-                token,
-            );
-            if (response.status === '201') {
-                toast.success('Đã thêm vào giỏ hàng');
-            } else {
-                toast.error('Thêm vào giỏ hàng thất bại!');
-            }
-        } catch (error) {
-            console.log('Failed to add to cart: ', error);
+        if (!token) {
+            navigate('/login');
         }
-    };
+        else {
+            const selectedProduct = productDetail.productChildren[selectedOptionIndex];
+            let matchingOptionValueId = null;
+
+            productOptions.forEach(option => {
+                const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+                if (match) {
+                    matchingOptionValueId = match.id;
+                }
+            });
+            try {
+                const response = await addCartApi(productDetail.product.iD_NK,
+                    selectedProduct ? matchingOptionValueId : undefined,
+                    selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
+                    quantity,
+                    token
+                )
+                if (response.status === '201') {
+                    toast.success('Đã thêm vào giỏ hàng');
+                }
+                else {
+                    toast.error('Thêm vào giỏ hàng thất bại!');
+                }
+            } catch (error) {
+                console.log('Failed to add to cart: ', error);
+            }
+        }
+
+    }
 
     return (
         <div class="lg:pt-36 m-auto bg-background flex flex-col justify-center items-center pt-20">
@@ -256,25 +298,25 @@ const ProductDetailPage = () => {
                     </div>
 
                     <div class="lg:col-span-5 ml-8">
-                        <h2 class="text-2xl font-semibold text-gray-700">{productDetail.product?.name}</h2>
+                        <h2 class="text-2xl font-semibold text-gray-700">{productDetail?.product?.name}</h2>
                         <div class="flex flex-wrap gap-4 mt-4">
                             <p class="text-gray-700 text-4xl font-semibold">
-                                {price ? formatNumber(price) : formatNumber(productDetail.product?.price)}₫
+                                {price ? formatNumber(price) : formatNumber(productDetail?.product?.price)}₫
                             </p>
                             <p class="text-gray-300 text-xl">
-                                <strike>{formatNumber(productDetail.product?.originalPrice)}₫</strike>
+                                <strike>{formatNumber(productDetail?.product?.originalPrice)}₫</strike>
                             </p>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center mt-4 space-x-1">
-                                {renderStars(productDetail.product?.ratingAverage)}
+                                {renderStars(productDetail?.product?.ratingAverage)}
                             </div>
                             <div className="flex items-center mt-4 space-x-4">
                                 <h4 className="text-base text-gray-700">
-                                    {formatNumber(productDetail.product?.ratingCount)} đánh giá
+                                    {formatNumber(productDetail?.product?.ratingCount)} đánh giá
                                 </h4>
                                 <h4 className="text-base text-gray-700">
-                                    {formatNumber(productDetail.product?.allTimeQuantitySold)} đã mua
+                                    {formatNumber(productDetail?.product?.allTimeQuantitySold)} đã mua
                                 </h4>
                             </div>
                         </div>
@@ -342,7 +384,7 @@ const ProductDetailPage = () => {
                                 htmlFor="quantity-input"
                                 className="block mr-2 text-xs font-medium text-gray-300 dark:text-white"
                             >
-                                {formatNumber(productDetail.product?.quantity)} sản phẩm có sẵn
+                                {formatNumber(productDetail?.product?.quantity)} sản phẩm có sẵn
                             </label>
                         </form>
 
@@ -385,7 +427,7 @@ const ProductDetailPage = () => {
                         <div className="flex flex-wrap items-center gap-4 mt-8">
                             <p className="text-2xl font-semibold text-gray-700">Tạm tính: </p>
                             <p className="text-4xl font-semibold text-gray-700">
-                                {totalPrice ? formatNumber(totalPrice) : formatNumber(productDetail.product?.price)}₫
+                                {totalPrice ? formatNumber(totalPrice) : formatNumber(productDetail?.product?.price)}₫
                             </p>
                         </div>
 
@@ -414,18 +456,18 @@ const ProductDetailPage = () => {
                 <div class="lg:col-span-3 ">
                     <div class="flex items-start w-full gap-4">
                         <img
-                            src={productDetail.seller?.imageUrl || Default_Avatar}
-                            alt={productDetail.seller?.name}
-                            className="w-12 h-12 border-2 border-white rounded-full lg:w-20 lg:h-20"
+                            src={productDetail?.seller?.imageUrl || Default_Avatar}
+                            alt={productDetail?.seller?.name}
+                            className="lg:w-20 lg:h-20 w-12 h-12 rounded-full border-2 border-white"
                         />
 
                         <div class="lg:h-20 h-12 ml-3 grid items-center ">
-                            <h4 class="text-lg font-semibold w-48 text-gray-700">{productDetail.seller?.name}</h4>
+                            <h4 class="text-lg font-semibold w-48 text-gray-700">{productDetail?.seller?.name}</h4>
                             <div className="flex items-center space-x-1">
-                                {renderStars(productDetail.product?.ratingAverage)}
+                                {renderStars(productDetail?.product?.ratingAverage)}
                                 <span className="px-1"></span>
                                 <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded hidden sm:block">
-                                    {productDetail.product?.ratingAverage}
+                                    {productDetail?.product?.ratingAverage}
                                 </span>
                             </div>
                         </div>
@@ -439,7 +481,7 @@ const ProductDetailPage = () => {
                     </div>
                     <div className="flex justify-between">
                         <p className="text-sm !ml-2 font-semibold text-gray-400">Tổng sản phẩm:</p>
-                        <p className="text-sm !ml-2 font-semibold text-blue-700">{productDetail.seller?.total}</p>
+                        <p className="text-sm !ml-2 font-semibold text-blue-700">{productDetail?.seller?.total}</p>
                     </div>
                 </div>
 
@@ -447,13 +489,13 @@ const ProductDetailPage = () => {
                     <div className="flex justify-between">
                         <p className="text-sm !ml-2 font-semibold text-gray-400">Số người theo dõi:</p>
                         <p className="text-sm !ml-2 font-semibold text-blue-700">
-                            {formatNumber(productDetail.seller?.totalFollower)}
+                            {formatNumber(productDetail?.seller?.totalFollower)}
                         </p>
                     </div>
                     <div className="flex justify-between">
                         <p className="text-sm !ml-2 font-semibold text-gray-400">Tổng lượt đánh giá:</p>
                         <p className="text-sm !ml-2 font-semibold text-blue-700">
-                            {formatNumber(productDetail.seller?.reviewCount)}
+                            {formatNumber(productDetail?.seller?.reviewCount)}
                         </p>
                     </div>
                 </div>
@@ -468,7 +510,7 @@ const ProductDetailPage = () => {
                             : ' font-light overflow-visible h-auto',
                     )}
                     dangerouslySetInnerHTML={{
-                        __html: productDetail.product?.description,
+                        __html: productDetail?.product?.description,
                     }}
                 />
                 <div className="flex items-center justify-center ">
@@ -483,18 +525,25 @@ const ProductDetailPage = () => {
 
             <div class="w-3/4 p-6 my-8 bg-white">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Đánh giá ({comments.total})</h3>
+                    <h3 class="text-lg font-semibold text-gray-700">Đánh giá ({comments?.total})</h3>
 
-                    <CommentRating commentRating={commentRating} totalComment={comments.total} />
-                </div>
 
-                {comments.detailComment?.length === 0 && (
+                    <CommentRating
+                        commentRating={commentRating}
+                        totalComment={comments?.total}
+                    />
+                </div >
+
+                {comments?.detailComment?.length === 0 && (
                     <p className="flex items-center justify-center mt-6">Không có bình luận về sản phẩm</p>
                 )}
 
-                {comments.detailComment?.length !== 0 && <CommentDetail comments={comments.comment} />}
-            </div>
-        </div>
+
+                {comments?.detailComment?.length !== 0 && (
+                    <CommentDetail comments={comments?.comment} />
+                )}
+            </div >
+        </div >
     );
 };
 

@@ -8,8 +8,8 @@ const cartsApi = async (token) => {
     });
 };
 
-const addCartApi = async (idProduct, idProductOptionValue, ProductOptionImage, token) => {
-    let url = `/CartItems/AddToCart?idProduct=${idProduct}&ProductOptionImage=${ProductOptionImage}`;
+const addCartApi = async (idProduct, idProductOptionValue, ProductOptionImage, quantity, token) => {
+    let url = `/CartItems/AddToCart?idProduct=${idProduct}&ProductOptionImage=${ProductOptionImage}&Quantity=${quantity}`;
     if (idProductOptionValue !== null && idProductOptionValue !== undefined) {
         url += `&idProductOptionValue=${idProductOptionValue}`;
     }
