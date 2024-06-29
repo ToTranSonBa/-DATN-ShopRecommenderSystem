@@ -199,11 +199,14 @@ namespace ShopRe.Service
 
                 var productChildNames = optionValues.Select(ov => ov.Name).ToList();
 
+                //var productChildren = await _dbContext.ProductChild
+                //    .Where(pc => (productChildNames.Contains(pc.option1) || productChildNames.Contains(pc.option2) ||
+                //          productChildNames.Contains(pc.option3) || productChildNames.Contains(pc.option4)) &&
+                //         pc.Product.ID_NK == ProductId)
+                //    .ToListAsync();
                 var productChildren = await _dbContext.ProductChild
-                    .Where(pc => (productChildNames.Contains(pc.option1) || productChildNames.Contains(pc.option2) ||
-                          productChildNames.Contains(pc.option3) || productChildNames.Contains(pc.option4)) &&
-                         pc.Product.ID_NK == ProductId)
-                    .ToListAsync();
+                   .Where(pc =>pc.Product.ID_NK == ProductId)
+                   .ToListAsync();
                 var productOptionValues = new OptionAndValues()
                 {
                     Option = option,
