@@ -13,9 +13,10 @@ const FormProductManager = ({ action = 0, product = {}, open }) => {
         category: '',
         brand: '',
         productQuantitySold: 0,
+        images: []
     });
     const [options, setOptions] = useState([{ name: '', values: [''] }]);
-    const [optionValues, setOptionValues] = useState([]);
+    const [optionValues, setOptionValues] = useState([[]]);
 
     return (
         <>

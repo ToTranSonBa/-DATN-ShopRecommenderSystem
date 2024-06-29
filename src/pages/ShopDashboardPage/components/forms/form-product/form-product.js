@@ -363,7 +363,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                         >
                             <option value="">Chọn danh mục</option>
                             {categories.map((category) => (
-                                <option key={category.category.iD_NK} value={category.category.name}>
+                                <option key={category.category.iD_NK} value={category.category.iD_NK}>
                                     {category.category.name}
                                 </option>
                             ))}
@@ -384,7 +384,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                         >
                             <option value="">Chọn Brand</option>
                             {brands.map((brand) => (
-                                <option key={brand.brand.iD_NK} value={brand.brand.name}>
+                                <option key={brand.brand.iD_NK} value={brand.brand.iD_NK}>
                                     {brand.brand.name}
                                 </option>
                             ))}

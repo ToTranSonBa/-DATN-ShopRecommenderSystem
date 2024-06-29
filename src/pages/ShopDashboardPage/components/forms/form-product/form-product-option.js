@@ -17,10 +17,15 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
             );
             setOptions(initialOptions);
             setOptionValues(initialOptionValues);
+        } else {
+            // Chế độ thêm
+            if (!options) {
+                setOptions([{ name: '', values: [''] }]);
+                setOptionValues([[]]);
+            }
+
         }
     }, []);
-
-
 
     const handleOptionNameChange = (e, index) => {
         const newOptions = [...options];
@@ -89,6 +94,13 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
     const handleOptionClick = (option) => {
         useroption(option);
     };
+
+    const handleAddProduct = () => {
+        console.log('formValues: ', formValues)
+        console.log('files: ', files)
+        console.log('options: ', options)
+        console.log('optionValues: ', optionValues)
+    }
 
     return (
         <div className="relative h-full max-h-screen overflow-y-scroll placeholder:w-full lg:px-6 lg:pt-4 lg:pb-12">
@@ -223,7 +235,10 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                     Quay lại
                 </button>
                 {action !== 2 && (
-                    <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3">
+                    <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
+                        onClick={handleAddProduct}
+                    >
+
                         Đăng kí
                     </button>
                 )}

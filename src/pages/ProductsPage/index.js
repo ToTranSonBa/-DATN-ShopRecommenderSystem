@@ -85,13 +85,13 @@ const ProductPage = () => {
     await fetchCategories();
     await fetchBrands();
   }, []);
-
+  const storedSearchQuery = localStorage.getItem('searchQuery');
   useEffect(() => {
-    const storedSearchQuery = localStorage.getItem('searchQuery');
+
     if (storedSearchQuery) setSearchQuery(storedSearchQuery);
 
     fetchData();
-  }, []);
+  }, [storedSearchQuery]);
 
   async function handlePagination(value) {
     try {
