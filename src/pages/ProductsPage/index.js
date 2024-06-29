@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import "../../index.css";
 import "../../styles/reset.css";
-import axios from "axios";
+import axios from '../../services/axios-customize';
 import ProductCard from "../../components/card/ProductCard";
 import ProductRating from "../../components/card/ProductRating";
 import { Pagination as PaginationAntd } from "antd";
@@ -26,34 +26,21 @@ const ProductPage = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "https://localhost:7016/api/Categories/CategoriesLV0BySearch",
-        {
-          params: {
-            SearchKey: localStorage.getItem("searchQuery"),
-          },
-        }
-      );
-      setCategories(response.data.categories);
+      const response = await axios.get('/Categories?level=0');
+      setCategories(response.data);
+      console.log('fetchCategories: ', response.data);
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
+      console.error('Failed to fetch categories:', error);
     }
   }, []);
 
   const fetchBrands = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "https://localhost:7016/api/Brands/BrandsBySearch",
-        {
-          params: {
-            KeyWord: localStorage.getItem("searchQuery"),
-          },
-        }
-      );
-      console.log("get brands: ", response.data.brands);
-      setBrands(response.data.brands);
+      const response = await axios.get('/Brands');
+      setBrands(response);
+      console.log('fetchBrands: ', response);
     } catch (error) {
-      console.error("Failed to fetch brands:", error);
+      console.error('Failed to fetch brands:', error);
     }
   }, []);
 
@@ -61,39 +48,36 @@ const ProductPage = () => {
     try {
       const categoriesParam = new URLSearchParams();
       selectedCategories.forEach((element) => {
-        categoriesParam.append("CategoryIds", element);
+        categoriesParam.append('CategoryIds', element);
       });
 
       const brandsParam = new URLSearchParams();
       selectedBrands.forEach((element) => {
-        brandsParam.append("BrandIds", element);
+        brandsParam.append('BrandIds', element);
       });
 
-      const response = await axios.get(
-        `https://localhost:7016/api/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
-        {
-          params: {
-            ProductName: localStorage.getItem("searchQuery"),
-            MinPrice: minPrice,
-            MaxPrice: maxPrice,
-            MinReviewRating: minReview,
-            PageNumber: currentPage,
-            PageSize: productsPerPage,
-          },
-        }
-      );
+      const response = await axios.get(`/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`, {
+        params: {
+          ProductName: localStorage.getItem('searchQuery'),
+          MinPrice: minPrice,
+          MaxPrice: maxPrice,
+          MinReviewRating: minReview,
+          // PageNumber: currentPage,
+          // PageSize: productsPerPage,
+        },
+      });
 
-      console.log(response.data.product);
+      console.log('fetchProducts: ', response.product);
 
-      response.data.product.forEach((element) => {
+      response.product.forEach((element) => {
         const temp = element.image;
         element.image = temp.substring(15, temp.indexOf("'", 15));
       });
 
-      setTotalProducts(response.data.totalCount);
-      setProducts(response.data.product);
+      setTotalProducts(response.totalCount);
+      setProducts(response.product);
     } catch (error) {
-      console.error("Failed to fetch products:", error);
+      console.error('Failed to fetch products:', error);
     }
   }, []);
 

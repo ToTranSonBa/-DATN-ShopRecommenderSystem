@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DefaultImage from '../../../../../assets/imageDefault.jpg';
-const FormProductOption = ({ action, product, useroption, open }) => {
-    const [options, setOptions] = useState([{ name: '', values: [''] }]);
-    const [optionValues, setOptionValues] = useState([]);
+const FormProductOption = ({ action, product, useroption, open, formValues, files, options, setOptions, optionValues, setOptionValues }) => {
+
 
     useEffect(() => {
         if (action === 2 || action === 1) {
@@ -18,12 +17,10 @@ const FormProductOption = ({ action, product, useroption, open }) => {
             );
             setOptions(initialOptions);
             setOptionValues(initialOptionValues);
-        } else {
-            // Chế độ thêm
-            setOptions([{ name: '', values: [''] }]);
-            setOptionValues([[]]);
         }
-    }, [action, product]);
+    }, []);
+
+
 
     const handleOptionNameChange = (e, index) => {
         const newOptions = [...options];

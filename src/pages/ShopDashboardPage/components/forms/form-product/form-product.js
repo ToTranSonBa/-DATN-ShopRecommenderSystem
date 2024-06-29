@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { getCategoriesApi, getBrandsApi } from '../../../../../services/SellerApi/sellerApi'
-const FormProduct = ({ action, product, useroption, open }) => {
-    const [files, setFiles] = useState({});
+const FormProduct = ({ action, product, useroption, open, formValues, setFormValues, files, setFiles, options, optionValues }) => {
+    console.log('options: ', options);
+    console.log('optionValues: ', optionValues);
+
     const [isDraggedOver, setIsDraggedOver] = useState(false);
     const [mode, setMode] = useState(action); // Khởi tạo giá trị ban đầu cho mode bằng action
     const [categories, setCategories] = useState([]);
@@ -116,15 +118,7 @@ const FormProduct = ({ action, product, useroption, open }) => {
         open(false); // Call the 'open' function with 'false' to close the form
     };
 
-    const [formValues, setFormValues] = useState({
-        productName: '',
-        productPrice: '',
-        shortDescription: '',
-        description: '',
-        category: '',
-        brand: '',
-        productQuantitySold: 0,
-    });
+
 
     useEffect(() => {
         if (action === 1 && product) {
@@ -169,7 +163,7 @@ const FormProduct = ({ action, product, useroption, open }) => {
             }, {});
             setFiles(initialFiles);
         }
-    }, [action, product]);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
