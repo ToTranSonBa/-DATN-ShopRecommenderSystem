@@ -9,9 +9,9 @@ const FormProductOption = ({ action, product, useroption, open }) => {
             // Chế độ xem hoặc sửa
             const initialOptions = product.Option.Value
                 ? product.Option.Value.map((option) => ({
-                      name: option.namevalue,
-                      values: option.optionvalue.map((value) => value.name),
-                  }))
+                    name: option.namevalue,
+                    values: option.optionvalue.map((value) => value.name),
+                }))
                 : [];
             const initialOptionValues = product.Option.Value.map((option) =>
                 option.optionvalue.map((value) => ({ image: value.imagechild })),

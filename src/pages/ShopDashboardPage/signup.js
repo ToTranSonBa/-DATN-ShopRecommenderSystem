@@ -88,7 +88,7 @@ const SellerSignUp = () => {
             const response = await signupSellerApi(shopName, shopPhoneNumber, shopAddress, token);
             if (response === 'Seller registered successfully') {
                 toast.success('Tạo tài khoản thành công');
-                localStorage.setItem('token', response.token);
+                localStorage.setItem('token', response.accessToken);
                 setTimeout(() => {
                     navigate('/shopdashboard');
                 }, 2000);
