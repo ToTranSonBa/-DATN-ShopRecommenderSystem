@@ -28,8 +28,8 @@ namespace ShopRe.Service
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
         Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
-        Task<PagedList<OrderDTO>> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller);
-        Task<PagedList<OrderDTO>> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller);
+        Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller);
+        Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller);
     }
     public class OrderService : IOrderService
     {
@@ -215,7 +215,7 @@ namespace ShopRe.Service
             return _orderRepository.Update(entity);
         }
 
-        public async Task<PagedList<OrderDTO>> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller)
+        public async Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller)
         {
             var sellerId = await _dbContext.Sellers
                                    .Where(s => s.ApplicationUserId == seller.Id)
@@ -224,6 +224,7 @@ namespace ShopRe.Service
             var orders = await _dbContext.Order
                                          .Where(o => o.Seller.ID_NK == sellerId).OrderByDescending(o => o.CreatedAt)
                                          .ToListAsync();
+            var count = orders.Count();
 
 
             //List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
@@ -276,10 +277,10 @@ namespace ShopRe.Service
 
             }
 
-            return PagedList<OrderDTO>
-                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize);
+            return (count, PagedList<OrderDTO>
+                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize));
         }
-        public async Task<PagedList<OrderDTO>> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller)
+        public async Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller)
         {
            var sellerId = await _dbContext.Sellers
                                    .Where(s => s.ApplicationUserId == seller.Id)
@@ -288,7 +289,7 @@ namespace ShopRe.Service
             var orders = await _dbContext.Order
                                  .Where(o => o.Seller.ID_NK == sellerId && o.Status == status).ToListAsync();
 
-
+            var count = orders.Count();
             List<OrderDTO> listOrder = new List<OrderDTO>();
             foreach (var or in orders)
             {
@@ -338,8 +339,8 @@ namespace ShopRe.Service
 
             }
 
-            return PagedList<OrderDTO>
-                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize);
+            return (count,PagedList<OrderDTO>
+                .ToPagedList(listOrder, ordersParameters.PageNumber, ordersParameters.PageSize));
         }
     }
 }

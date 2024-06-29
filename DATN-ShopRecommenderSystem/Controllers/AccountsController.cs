@@ -304,8 +304,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
-                var result = await _orderService.GetOrdersOfSeller(ordersParameters,user);
-                return Ok(result);
+                var (total,result) = await _orderService.GetOrdersOfSeller(ordersParameters,user);
+                var response = new
+                {
+                    TotalCount = total,
+                    OrderList = result
+                };
+                return Ok(response);
             }
             else
             {
@@ -322,8 +327,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
-                var result = await _orderService.GetOrdersByStatusOfSeller(status, ordersParameters, user);
-                return Ok(result);
+                var (total, result) = await _orderService.GetOrdersByStatusOfSeller(status, ordersParameters, user);
+                var response = new
+                {
+                    TotalCount = total,
+                    OrderList = result
+                };
+                return Ok(response);
             }
             else
             {
