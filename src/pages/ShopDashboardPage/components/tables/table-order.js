@@ -2,13 +2,15 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import MaxWidthWrapper from '../../../../components/MaxWidthWrapper';
-import { fetchOrder } from '../../../../services/seller/seller-order-table/index';
+import { fetchOrder, UpdateStatusOrder } from '../../../../services/SellerApi/seller-order-table/index';
 
 // format number
 const formatNumber = (number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(number);
 };
-
 const formatDateTime = (inputDateTime) => {
     const dateObj = new Date(inputDateTime); // Tạo đối tượng Date từ chuỗi đầu vào
 
@@ -24,6 +26,7 @@ const formatDateTime = (inputDateTime) => {
 
     return formattedDateTime;
 };
+
 const formatDateTimeAddOneHour = (inputDateTime) => {
     const dateObj = new Date(inputDateTime); // Tạo đối tượng Date từ chuỗi đầu vào
 
@@ -40,159 +43,51 @@ const formatDateTimeAddOneHour = (inputDateTime) => {
 
     return formattedDateTime;
 };
-const initialOrders = [
-    {
-        orderID: 'MH149182H94719',
-        products: [
-            {
-                iD_NK: '123',
-                name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-                price: '126000',
-                Category: 'Quân áo thời trang',
-                CreateAt: '2024-12-20 10:12:12',
-                Quatity: 3,
-                category: 'Quần áo',
 
-                Option: {
-                    Value: [
-                        {
-                            namevalue: 'Loại bìa',
-                            optionvalue: [
-                                {
-                                    name: 'Bìa Hồng',
-                                    imagechild:
-                                        'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-            {
-                iD_NK: '123',
-                name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-                price: '126000',
-                Category: 'Quân áo thời trang',
-                CreateAt: '2024-12-20 10:12:12',
-                Quatity: 3,
-                category: 'Quần áo',
+const formatCreateAt = (createdAt) => {
+    const dateObj = new Date(createdAt); // Tạo đối tượng Date từ chuỗi đầu vào
+    const now = new Date(); // Thời gian hiện tại
 
-                Option: {
-                    Value: [
-                        {
-                            namevalue: 'Loại bìa',
-                            optionvalue: [
-                                {
-                                    name: 'Bìa Hồng',
-                                    imagechild:
-                                        'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-        ],
-        totalPrice: '1231',
-        createAt: '2022-03-15 14:25:36',
-        customer: {
-            name: 'Nguyễn Văn A',
-            address: 'C3/40/3 Phạm Hùng',
-            phone: '08340129012',
-            gmail: 'example@gmail.com',
-        },
-        status: '1',
-    },
-    {
-        orderID: 'MH149182H94719',
-        products: [
-            {
-                iD_NK: '123',
-                name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-                price: '126000',
-                Category: 'Quân áo thời trang',
-                CreateAt: '2024-12-20 10:12:12',
-                Quatity: 3,
-                category: 'Quần áo',
+    const distanceInMillis = now - dateObj; // Khoảng cách thời gian tính bằng milliseconds
+    const distanceInMinutes = Math.floor(distanceInMillis / 60000); // Đổi sang phút
+    const distanceInHours = Math.floor(distanceInMillis / 3600000); // Đổi sang giờ
+    const distanceInDays = Math.floor(distanceInMillis / 86400000); // Đổi sang ngày
 
-                Option: {
-                    Value: [
-                        {
-                            namevalue: 'Loại bìa',
-                            optionvalue: [
-                                {
-                                    name: 'Bìa Hồng',
-                                    imagechild:
-                                        'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-            {
-                iD_NK: '123',
-                name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-                price: '126000',
-                Category: 'Quân áo thời trang',
-                CreateAt: '2024-12-20 10:12:12',
-                Quatity: 3,
-                category: 'Quần áo',
-
-                Option: {
-                    Value: [
-                        {
-                            namevalue: 'Loại bìa',
-                            optionvalue: [
-                                {
-                                    name: 'Bìa Hồng',
-                                    imagechild:
-                                        'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-        ],
-        totalPrice: '1231',
-        createAt: '2022-03-15 14:25:36',
-        customer: {
-            name: 'Nguyễn Văn A',
-            address: 'C3/40/3 Phạm Hùng',
-            phone: '08340129012',
-            gmail: 'example@gmail.com',
-        },
-        status: '0',
-    },
-];
-const formatCreateAt = (createAt) => {
-    const date = parseISO(createAt);
-    return formatDistanceToNow(date, { addSuffix: true, locale: vi });
+    if (distanceInMinutes < 60) {
+        return `${distanceInMinutes} phút trước`;
+    } else if (distanceInHours < 24) {
+        return `${distanceInHours} giờ trước`;
+    } else {
+        return `${distanceInDays} ngày trước`;
+    }
 };
+
 const TableOrder = () => {
-    // const token = localStorage.getItem(token);
+    const token = localStorage.getItem('token');
     const [orderView, setOrderView] = useState(false);
     const [orderEditView, setOrderEditView] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null); // State để lưu sản phẩm được chọn để chỉnh sửa
-    const [orders, setOrders] = useState(initialOrders); // assuming initialOrders is defined elsewhere
+    const [orders, setOrders] = useState([]); // assuming initialOrders is defined elsewhere
+    const [pageNumber, setPageNumber] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(110); // State to hold total pages count
 
     // fetch data order
-    // const fetchOrder = useCallback(async () => {
-    //     try {
-    //         const response = await fetchOrder(token);
-    //         console.log('Order data in seller ddoasshboard: ', response);
-    //         setOrders(response);
-    //     } catch (error) {
-    //         console.error('Failed to fetch fetchOrderAPI: ', error);
-    //     }
-    // });
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         await fetchOrder();
-    //     };
-    //     fetchData();
-    // }, []);
+    useEffect(() => {
+        fetchOrderData(pageNumber, pageSize);
+    }, [pageNumber, pageSize]);
+
+    const fetchOrderData = async (page, size) => {
+        try {
+            const response = await fetchOrder(token, page, size); // Assuming fetchOrder returns totalProducts
+            console.log('response list order: ', response);
+            setOrders(response.orderList);
+
+            setTotalPages(Math.ceil(response.totalCount / pageSize)); // Calculate total pages
+        } catch (error) {
+            console.error('Failed to fetch orders:', error);
+        }
+    };
 
     // Hàm mở form chi tiết sản phẩm
     const openDetailOrderForm = (order) => {
@@ -211,6 +106,43 @@ const TableOrder = () => {
         // Cập nhật trạng thái trong đơn hàng được chọn
         const updatedOrder = { ...selectedOrder, status: newStatus };
         setSelectedOrder(updatedOrder);
+    };
+
+    // Pagination handlers
+    const handlePreviousPage = () => {
+        if (pageNumber > 0) {
+            setPageNumber(pageNumber - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pageNumber < totalPages - 1) {
+            setPageNumber(pageNumber + 1);
+        }
+    };
+
+    const handlePageClick = (page) => {
+        setPageNumber(page);
+    };
+
+    const renderPageNumbers = () => {
+        const pageNumbers = [];
+        if (totalPages <= 7) {
+            for (let i = 0; i < totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            if (pageNumber < 3) {
+                pageNumbers.push(0, 1, 2);
+                pageNumbers.push('...', totalPages - 3, totalPages - 2, totalPages - 1);
+            } else if (pageNumber >= totalPages - 3) {
+                pageNumbers.push(0, 1, 2);
+                pageNumbers.push('...', totalPages - 3, totalPages - 2, totalPages - 1);
+            } else {
+                pageNumbers.push(0, '...', pageNumber - 1, pageNumber, pageNumber + 1, '...', totalPages - 1);
+            }
+        }
+        return pageNumbers;
     };
 
     return (
@@ -259,7 +191,7 @@ const TableOrder = () => {
                             </div>
                         </div>
                     </div>
-                    <div class="p-6 px-0 overflow-scroll">
+                    <div class="p-6 px-0 overflow-y-scroll h-[680px]">
                         <table class="w-full text-left table-auto min-w-max">
                             <thead>
                                 <tr>
@@ -301,44 +233,44 @@ const TableOrder = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {orders.map((order, index) => (
-                                    <tr key={index}>
+                                {orders.map((order) => (
+                                    <tr key={order?.id}>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <p className="block text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                                                {order.orderID}
+                                                {order?.id}
                                             </p>
                                         </td>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <img
-                                                    src={order.products[0].Option.Value[0].optionvalue[0].imagechild}
-                                                    alt={order.products[0].name}
+                                                    src={order?.items[0]?.image}
+                                                    alt={order?.items[0]?.product.name}
                                                     className="relative inline-block object-contain object-center p-1 border size-14 border-blue-gray-50 bg-blue-gray-50/50"
                                                 />
 
                                                 <div className="flex-row max-w-xs overflow-x-auto text-nowrap">
                                                     <p className="block text-sm antialiased font-bold leading-normal text-blue-gray-900">
-                                                        {order.products[0].name}
+                                                        {order.items[0]?.product.name}
                                                     </p>
                                                     <div className="text-sm text-gray-400">
                                                         <p>
-                                                            {order.products[0].Option.Value[0].namevalue +
+                                                            {order.items[0]?.optionValues.option.name +
                                                                 ': ' +
-                                                                order.products[0].Option.Value[0].optionvalue[0].name}
+                                                                order.items[0]?.optionValues.name}
                                                         </p>
-                                                        <p>x{order.products[0].Quatity}</p>
+                                                        <p>x{order.items[0]?.quantity}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <p className="block text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                                                {formatNumber(order.totalPrice)}
+                                                {formatNumber(order?.totalPrice)}
                                             </p>
                                         </td>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <p className="block text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                                                {formatCreateAt(order.createAt)}
+                                                {formatCreateAt(order?.createdAt)}
                                             </p>
                                         </td>
 
@@ -346,22 +278,22 @@ const TableOrder = () => {
                                             <div className="w-max">
                                                 <div
                                                     className={`relative grid items-center px-2 py-1 text-xs font-bold uppercase rounded-md select-none whitespace-nowrap ${
-                                                        order.status === '0'
+                                                        order?.status === 0
                                                             ? 'text-blue-900 bg-blue-500/20'
-                                                            : order.status === '1'
+                                                            : order?.status === 1
                                                             ? 'text-green-900 bg-green-500/20'
-                                                            : order.status === '2'
+                                                            : order?.status === 2
                                                             ? 'text-yellow-900 bg-yellow-500/20'
-                                                            : order.status === '3'
+                                                            : order?.status === 3
                                                             ? 'text-gray-900 bg-gray-500/20'
                                                             : 'text-red-900 bg-red-500/20'
                                                     }`}
                                                 >
                                                     <span>
-                                                        {order.status === '0' ? 'Vận chuyển' : ''}
-                                                        {order.status === '1' ? 'Chờ giao hàng' : ''}
-                                                        {order.status === '2' ? 'Hoàn thành' : ''}
-                                                        {order.status === '3' ? 'Đã huỷ' : ''}
+                                                        {order?.status === 0 ? 'Vận chuyển' : ''}
+                                                        {order?.status === 1 ? 'Chờ giao hàng' : ''}
+                                                        {order?.status === 2 ? 'Hoàn thành' : ''}
+                                                        {order?.status === 3 ? 'Đã huỷ' : ''}
                                                     </span>
                                                 </div>
                                             </div>
@@ -370,13 +302,13 @@ const TableOrder = () => {
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <div className="flex flex-col">
                                                 <p className="block text-sm antialiased font-normal leading-normal capitalize text-blue-gray-900">
-                                                    {order.customer.name}
+                                                    {order?.user?.fullName}
                                                 </p>
                                             </div>
                                         </td>
-                                        <td className="flex items-center justify-center p-3 pr-4 ">
+                                        <td className="flex-row items-center justify-center h-full p-3 pr-4">
                                             <span
-                                                className="text-sm cursor-pointer "
+                                                className="w-full text-sm cursor-pointer "
                                                 onClick={() => {
                                                     openEditOrderForm(order);
                                                 }}
@@ -385,7 +317,7 @@ const TableOrder = () => {
                                             </span>
                                             <button
                                                 onClick={() => openDetailOrderForm(order)}
-                                                className="group  hover:animate-bounce ml-auto relative text-secondary-dark bg-light-dark hover:text-primary bg-gray-200 rounded-full flex items-center h-[25px] w-[25px] text-base font-medium leading-normal text-center align-middle cursor-pointer transition-colors duration-200 ease-in-out shadow-none border-0 justify-center"
+                                                className="group hover:animate-bounce ml-auto relative text-secondary-dark bg-light-dark hover:text-primary bg-gray-200 rounded-full flex items-center h-[25px] w-[25px] text-base font-medium leading-normal text-center align-middle cursor-pointer transition-colors duration-200 ease-in-out shadow-none border-0 justify-center"
                                             >
                                                 <span className="flex items-center justify-center p-0 m-0 leading-none shrink-0">
                                                     <svg
@@ -412,72 +344,39 @@ const TableOrder = () => {
                     </div>
                     <div class="flex items-center justify-between p-4 border-t border-blue-gray-50">
                         <button
-                            class="select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle  text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                            type="button"
+                            onClick={handlePreviousPage}
+                            disabled={pageNumber === 0}
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
+                                pageNumber === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+                            }`}
                         >
                             Trước
                         </button>
-                        <div class="flex items-center gap-2">
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg border border-gray-900 text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    1
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    2
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    3
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    ...
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    8
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    9
-                                </span>
-                            </button>
-                            <button
-                                class="relative h-8 max-h-[32px] w-8 max-w-[32px] select-none rounded-lg text-center align-middle  text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                            >
-                                <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                                    10
-                                </span>
-                            </button>
+                        <div className="flex items-center space-x-2">
+                            {renderPageNumbers().map((page, index) =>
+                                page === '...' ? (
+                                    <span key={index} className="px-4 py-2 text-sm font-medium leading-5 text-gray-700">
+                                        ...
+                                    </span>
+                                ) : (
+                                    <button
+                                        key={index}
+                                        onClick={() => handlePageClick(page)}
+                                        className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
+                                            pageNumber === page ? 'bg-gray-100' : 'hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        {page + 1}
+                                    </button>
+                                ),
+                            )}
                         </div>
                         <button
-                            class="select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle  text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                            type="button"
+                            onClick={handleNextPage}
+                            disabled={pageNumber === totalPages - 1}
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
+                                pageNumber === totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+                            }`}
                         >
                             Sau
                         </button>
@@ -487,7 +386,12 @@ const TableOrder = () => {
 
             {orderView && <DetailOrder order={selectedOrder} open={setOrderView} />}
             {orderEditView && (
-                <EditOrder order={selectedOrder} open={setOrderEditView} onStatusChange={handleStatusChange} />
+                <EditOrder
+                    order={selectedOrder}
+                    open={setOrderEditView}
+                    onStatusChange={handleStatusChange}
+                    token={token}
+                />
             )}
         </>
     );
@@ -520,7 +424,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                             Trở lại
                         </button>
                         <div className="flex items-center justify-between text-sm lg:gap-2">
-                            <span className="flex items-center lg:gap-1 text-nowrap">Mã đơn hàng: {order.orderID}</span>
+                            <span className="flex items-center lg:gap-1 text-nowrap">Mã đơn hàng: {order.id}</span>
                             <div className="text-gray-300 lg:px-6 ">|</div>
                             <span className="text-primary">ĐƠN HÀNG ĐANG ĐƯỢC CHUẨN BỊ</span>
                         </div>
@@ -548,7 +452,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                             </svg>
                                         </div>
                                         <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                            {formatDateTime(order.createAt)}
+                                            {formatDateTime(order?.createdAt)}
                                         </p>
                                     </div>
                                     <div class="ms-4 mt-2 pb-5 md:ms-0">
@@ -574,7 +478,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                             </svg>
                                         </div>
                                         <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                            {formatDateTimeAddOneHour(order.createAt)}
+                                            {formatDateTimeAddOneHour(order?.createdAt)}
                                         </p>
                                     </div>
                                     <div class="ms-4 mt-2 pb-5 md:ms-0">
@@ -666,10 +570,10 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                             <div className="w-1/3">
                                 <header className="lg:text-xl lg:mb-4">Địa chỉ nhận hàng</header>
                                 <div className="flex-row text-xs font-light">
-                                    <p className="text-base font-medium lg:py-2">{order.customer.name}</p>
-                                    <p className="lg:py-1">{order.customer.phone}</p>
-                                    <p className="lg:py-1">{order.customer.address}</p>
-                                    <p>{order.customer.gmail}</p>
+                                    <p className="text-base font-medium lg:py-2">{order.user?.fullName}</p>
+                                    <p className="lg:py-1">{order.user?.phoneNumber}</p>
+                                    <p className="lg:py-1">{order?.address}</p>
+                                    <p>{order.user?.email}</p>
                                 </div>
                             </div>
                             <div className="w-2/3 border-l-1 lg:ml-6">
@@ -754,7 +658,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                 <>
                                     <div class="ps-2 my-2 first:mt-0">
                                         <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                            {formatDateTimeAddOneHour(order.createAt)}
+                                            {formatDateTimeAddOneHour(order?.createdAt)}
                                         </h3>
                                     </div>
 
@@ -793,7 +697,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                 <>
                                     <div class="ps-2 my-2 first:mt-0">
                                         <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                            {formatDateTime(order.createAt)}
+                                            {formatDateTime(order?.createdAt)}
                                         </h3>
                                     </div>
 
@@ -837,33 +741,33 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                     <div className="border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border">
                                         {/* Products */}
                                         <ul role="list" className="divide-y divide-gray-200">
-                                            {order.products.map((product) => (
+                                            {order.items?.map((product) => (
                                                 <li key={product.iD_NK} className="p-4 sm:p-6">
                                                     <div className="flex items-center sm:items-start">
                                                         <div className="flex-shrink-0 overflow-hidden bg-gray-200 size-20">
                                                             <img
-                                                                src={product.Option.Value[0].optionvalue[0].imagechild}
-                                                                alt={product.name}
+                                                                src={product?.image}
+                                                                alt={product?.product?.name}
                                                                 className="object-cover object-center w-full h-full"
                                                             />
                                                         </div>
                                                         <div className="flex-1 ml-6 text-sm">
                                                             <div className="font-medium text-gray-900 sm:flex sm:justify-between">
                                                                 <h5 className="max-w-3xl overflow-clip text-nowrap">
-                                                                    {product.name}
+                                                                    {product?.product?.name}
                                                                 </h5>
                                                                 <p className="mt-2 sm:mt-0">
-                                                                    {formatNumber(product.price)}₫
+                                                                    {formatNumber(product?.product?.price)}
                                                                 </p>
                                                             </div>
 
                                                             <div className="flex items-center lg:gap-2">
                                                                 <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                    {product.Option.Value[0].optionvalue[0].name}
+                                                                    {product?.optionValues.name}
                                                                 </p>
 
                                                                 <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">
-                                                                    X {product.Quatity}
+                                                                    X {product?.quantity}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -877,7 +781,7 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
                                                 Thành tiền
                                             </div>
                                             <div className="text-lg font-medium text-end text-primary lg:py-4 lg:px-4 basis-2/6">
-                                                {formatNumber(order.totalPrice)}
+                                                {formatNumber(order?.totalPrice)}
                                             </div>
                                         </div>
                                     </div>
@@ -890,19 +794,28 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
         </div>
     );
 };
-const EditOrder = ({ order = {}, open, onStatusChange }) => {
-    const [newStatus, setNewStatus] = useState(order.status); // State để lưu trạng thái mới
+const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
+    const [newStatus, setNewStatus] = useState(order?.status); // State để lưu trạng thái mới
 
     const handleChangeStatus = (e) => {
         const statusValue = e.target.value;
         setNewStatus(statusValue);
     };
 
-    const handleConfirmStatusChange = () => {
-        // Gọi hàm đã được truyền từ cha để thông báo về sự thay đổi trạng thái
-        onStatusChange(newStatus);
-        // Đóng form chỉnh sửa sau khi xác nhận
-        open(false);
+    const handleConfirmStatusChange = async () => {
+        try {
+            console.log('order id when status change: ', order.id);
+            console.log('token when status change: ', token);
+            console.log('newStatus when status change: ', newStatus);
+            await UpdateStatusOrder(token, order.id, newStatus);
+            // Gọi hàm đã được truyền từ cha để thông báo về sự thay đổi trạng thái
+            onStatusChange(newStatus);
+            // Đóng form chỉnh sửa sau khi xác nhận
+            open(false);
+        } catch (error) {
+            console.error('Failed to update order status: ', error);
+            alert('Cập nhật trạng thái đơn hàng thất bại. Vui lòng thử lại.');
+        }
     };
 
     return (
@@ -930,7 +843,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                             Trở lại
                         </button>
                         <div className="flex items-center justify-between text-sm lg:gap-2">
-                            <span className="flex items-center lg:gap-1 text-nowrap">Mã đơn hàng: {order.orderID}</span>
+                            <span className="flex items-center lg:gap-1 text-nowrap">Mã đơn hàng: {order?.id}</span>
                             <div className="text-gray-300 lg:px-6 ">|</div>
                             <span className="uppercase text-primary">Chỉnh sửa đơn hàng</span>
                         </div>
@@ -958,7 +871,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                             </svg>
                                         </div>
                                         <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                            {formatDateTime(order.createAt)}
+                                            {formatDateTime(order?.createdAt)}
                                         </p>
                                     </div>
                                     <div class="ms-4 mt-2 pb-5 md:ms-0">
@@ -984,7 +897,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                             </svg>
                                         </div>
                                         <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                            {formatDateTimeAddOneHour(order.createAt)}
+                                            {formatDateTimeAddOneHour(order?.createdAt)}
                                         </p>
                                     </div>
                                     <div class="ms-4 mt-2 pb-5 md:ms-0">
@@ -1084,10 +997,10 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                             <div className="w-1/5 ">
                                 <header className="lg:text-xl lg:mb-4">Địa chỉ nhận hàng</header>
                                 <div className="flex-row text-xs font-light">
-                                    <p className="text-base font-medium lg:py-2">{order.customer.name}</p>
-                                    <p className="lg:py-1">{order.customer.phone}</p>
-                                    <p className="lg:py-1">{order.customer.address}</p>
-                                    <p>{order.customer.gmail}</p>
+                                    <p className="text-base font-medium lg:py-2">{order.user?.fullName}</p>
+                                    <p className="lg:py-1">{order.user?.phoneNumber}</p>
+                                    <p className="lg:py-1">{order?.address}</p>
+                                    <p>{order.user?.email}</p>
                                 </div>
                             </div>
                             <div className="w-2/5 border-dashed border-x-1 lg:ml-6">
@@ -1176,7 +1089,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                 <>
                                     <div class="ps-2 my-2 first:mt-0">
                                         <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                            {formatDateTimeAddOneHour(order.createAt)}
+                                            {formatDateTimeAddOneHour(order?.createdAt)}
                                         </h3>
                                     </div>
 
@@ -1215,7 +1128,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                 <>
                                     <div class="ps-2 my-2 first:mt-0">
                                         <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                            {formatDateTime(order.createAt)}
+                                            {formatDateTime(order?.createdAt)}
                                         </h3>
                                     </div>
 
@@ -1256,7 +1169,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                 <span className="text-sm text-gray-500 uppercase">Chỉnh sửa trạng thái đơn hàng</span>
                                 <div className="w-full h-auto text-sm font-light lg:py-4 lg:px-4 text-end">
                                     <select
-                                        className={`relative grid items-center w-2/3 px-2 py-3 text-xs font-bold uppercase rounded-sm select-none whitespace-nowrap ${
+                                        className={`relative grid items-center w-2/3 px-2 py-3 text-base font-bold uppercase rounded-sm select-none whitespace-nowrap ${
                                             newStatus === '0'
                                                 ? 'text-blue-900 bg-blue-500/20'
                                                 : newStatus === '1'
@@ -1270,10 +1183,27 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                         value={newStatus}
                                         onChange={handleChangeStatus}
                                     >
-                                        <option value="0">Vận chuyển</option>
+                                        <option value="0">Chờ vận chuyển</option>
                                         <option value="1">Chờ giao hàng</option>
                                         <option value="2">Hoàn thành</option>
-                                        <option value="3">Đã huỷ</option>
+                                        {/* {order?.status === 0 && (
+                                            <>
+                                                <option value="0">Chờ vận chuyển</option>
+                                                <option value="1">Chờ giao hàng</option>
+                                                <option value="2">Hoàn thành</option>
+                                            </>
+                                        )}
+                                        {order?.status === 1 && (
+                                            <>
+                                                <option value="1">Chờ giao hàng</option>
+                                                <option value="2">Hoàn thành</option>
+                                            </>
+                                        )}
+                                        {order?.status === 2 && (
+                                            <>
+                                                <option value="2">Hoàn thành</option>
+                                            </>
+                                        )} */}
                                     </select>
                                 </div>
                             </div>
@@ -1284,33 +1214,33 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                     <div className="border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border">
                                         {/* Products */}
                                         <ul role="list" className="divide-y divide-gray-200">
-                                            {order.products.map((product) => (
+                                            {order.items?.map((product) => (
                                                 <li key={product.iD_NK} className="p-4 sm:p-6">
                                                     <div className="flex items-center sm:items-start">
                                                         <div className="flex-shrink-0 overflow-hidden bg-gray-200 size-20">
                                                             <img
-                                                                src={product.Option.Value[0].optionvalue[0].imagechild}
-                                                                alt={product.name}
+                                                                src={product?.image}
+                                                                alt={product?.product?.name}
                                                                 className="object-cover object-center w-full h-full"
                                                             />
                                                         </div>
                                                         <div className="flex-1 ml-6 text-sm">
                                                             <div className="font-medium text-gray-900 sm:flex sm:justify-between">
                                                                 <h5 className="max-w-3xl overflow-clip text-nowrap">
-                                                                    {product.name}
+                                                                    {product?.product?.name}
                                                                 </h5>
                                                                 <p className="mt-2 sm:mt-0">
-                                                                    {formatNumber(product.price)}₫
+                                                                    {formatNumber(product?.product?.price)}
                                                                 </p>
                                                             </div>
 
                                                             <div className="flex items-center lg:gap-2">
                                                                 <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                    {product.Option.Value[0].optionvalue[0].name}
+                                                                    {product?.optionValues.name}
                                                                 </p>
 
                                                                 <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">
-                                                                    X {product.Quatity}
+                                                                    X {product?.quantity}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1324,7 +1254,7 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                                                 Thành tiền
                                             </div>
                                             <div className="text-lg font-medium text-end text-primary lg:py-4 lg:px-4 basis-2/6">
-                                                {formatNumber(order.totalPrice)}
+                                                {formatNumber(order?.totalPrice)}
                                             </div>
                                         </div>
                                     </div>
@@ -1332,9 +1262,10 @@ const EditOrder = ({ order = {}, open, onStatusChange }) => {
                             </div>
                         </main>
                     </div>
+
                     <div
                         onClick={handleConfirmStatusChange}
-                        className="ml-auto text-white w-max lg:px-4 lg:py-2 text-md bg-primary lg:mt-4"
+                        className="ml-auto text-white cursor-pointer w-max lg:px-4 lg:py-2 text-md bg-primary lg:mt-4"
                     >
                         Xác nhận
                     </div>

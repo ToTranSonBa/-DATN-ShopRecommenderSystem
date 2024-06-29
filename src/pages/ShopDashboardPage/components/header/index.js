@@ -1,11 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale'; // Import locale for Vietnamese language
 //
 import Logo from '../../../../assets/BrandLogos/Logo.png';
 import Home from '../../../../assets/HomeImg/home.jpg';
+import DefaultAVT from '../../../../assets/default-avatar.png';
+
+//API
+import { getSellerApi } from '../../../../services/SellerApi/header/index';
 
 const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [shopName, setShopName] = useState('');
+    //
+    const fetchSeller = useCallback(async () => {
+        try {
+            const response = await getSellerApi(token);
+            setAvatarFile(response.imageUrl);
+            setShopName(response.name);
+        } catch (error) {
+            console.error('Failed to fetch sellerProfilePage:', error);
+        }
+    });
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchSeller();
+        };
+        fetchData();
+    }, [fetchSeller, token]);
+
     const messages = [
         {
             useImage: Home,
@@ -64,7 +90,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                             </span>
                         </span>
                     </button>
-                    <a class="block flex-shrink-0 lg:hidden" href="index.html">
+                    <a class="block flex-shrink-0 lg:hidden" href="/">
                         <img src={Logo} alt="Logo" />
                     </a>
                 </div>
@@ -257,7 +283,7 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                             <li key={index}>
                                                 <a
                                                     className="flex items-center gap-4 px-4 py-3 border-t border-stroke hover:bg-gray-2 dark:hover:bg-meta-4"
-                                                    href="messages.html"
+                                                    href="#"
                                                 >
                                                     <div>
                                                         <img
@@ -299,11 +325,15 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                         >
                             <span class="hidden text-right lg:block">
                                 <span class="block text-sm font-medium text-black dark:text-white">Hoàng Cầu</span>
-                                <span class="block text-xs font-medium">Shop bán quần áo</span>
+                                <span class="block text-xs font-medium">{shopName}</span>
                             </span>
 
                             <span class="h-12 w-12 rounded-full">
-                                <img class="size-10 rounded-full object-cover" src={Home} alt="User" />
+                                <img
+                                    class="size-10 rounded-full object-cover"
+                                    src={avatarFile ? avatarFile : DefaultAVT}
+                                    alt="User"
+                                />
                             </span>
 
                             <svg
@@ -403,7 +433,14 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                                         </a>
                                     </li>
                                 </ul>
-                                <button class="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base bg-red-100">
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        localStorage.clear();
+                                        navigate('/');
+                                    }}
+                                    class="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base bg-red-100"
+                                >
                                     <svg
                                         class="fill-current"
                                         width="22"

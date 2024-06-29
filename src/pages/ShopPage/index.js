@@ -11,6 +11,8 @@ import {
     getProductsQuantitySoldMax,
     getProductsLastest,
     getAllProducts,
+    fetchCategories,
+    fetchBrands,
 } from '../../services/ShopPageApi';
 //
 
@@ -50,7 +52,6 @@ function ShopPage({}) {
     const [loading, setLoading] = useState(true);
 
     const sellerId = parseInt(useParams().id);
-    console.log(sellerId);
 
     const { years, months } = calculateTimeDifference(seller.createdAt);
     const getJoinTimeText = (years, months) => {
@@ -138,6 +139,31 @@ function ShopPage({}) {
         fetchData();
     }, [sellerId, currentPage, productsPerPage]);
 
+    // const fetchCategories = useCallback(async () => {
+    //     try {
+    //         const response = await fetchCategories();
+    //         console.log('categories data: ', response);
+    //         setCategories(response.data.data);
+    //     } catch (error) {
+    //         console.error('Failed to fetch categories:', error);
+    //     }
+    // });
+    // const fetchBrands = useCallback(async () => {
+    //     try {
+    //         const response = await fetchBrands();
+    //         console.log('categories data: ', response);
+    //         setBrands(response.data);
+    //     } catch (error) {
+    //         console.error('Failed to fetch brands:', error);
+    //     }
+    // });
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         await fetchCategories();
+    //         await fetchBrands();
+    //     };
+    //     fetchData();
+    // }, []);
     // Pagination
 
     async function handlePagination(value) {
@@ -188,30 +214,6 @@ function ShopPage({}) {
         fetchAllProducts();
     };
     //
-
-    const fetchCategories = useCallback(async () => {
-        try {
-            const response = await axios.get('/Categories?level=0');
-            setCategories(response.data.data);
-        } catch (error) {
-            console.error('Failed to fetch categories:', error);
-        }
-    }, []);
-    const fetchBrands = useCallback(async () => {
-        try {
-            const response = await axios.get('/Brands');
-            setBrands(response.data);
-        } catch (error) {
-            console.error('Failed to fetch brands:', error);
-        }
-    }, []);
-    useEffect(() => {
-        const fetchData = async () => {
-            await fetchCategories();
-            await fetchBrands();
-        };
-        fetchData();
-    }, [fetchCategories, currentPage, productsPerPage, selectedBrands, selectedCategories]);
 
     const formatNumber = (num) => {
         return new Intl.NumberFormat('de-DE').format(num);
@@ -548,7 +550,7 @@ function ShopPage({}) {
                         {/* layout 2 cột */}
                         <div className="flex w-full m-auto md:flex-row">
                             {/* cột trái 1/5 chứa filter */}
-                            <div className="flex-1 hidden pr-4 md:block md:flex-none md:w-1/5">
+                            {/* <div className="flex-1 hidden pr-4 md:block md:flex-none md:w-1/5">
                                 <span className="text-lg font-semibold text-gray-900 sm:text-xl">Bộ lọc tìm kiếm</span>
                                 <div className="flex-col items-center mt-4">
                                     <div id="dropdown" className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
@@ -651,10 +653,9 @@ function ShopPage({}) {
                                         <ProductRating ratingAverage={1}></ProductRating>
                                     </div>
                                 </div>
-                            </div>
-
+                            </div> */}
                             {/* cột phải 4/5 chứa products */}
-                            <div ref={allProductsRef} className="flex-1 p-4 bg-gray-100 md:flex-none md:w-4/5">
+                            <div ref={allProductsRef} className="flex-1 p-4 bg-gray-100 md:flex-none md:w-full">
                                 <div className="flex items-center justify-between lg:py-4 lg:rounded-md lg:gap-2">
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
                                         {allProducts.map((product) => (

@@ -1,14 +1,32 @@
 import MaxWidthWrapper from '../MaxWidthWrapper';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow, onHover, onLeave }) => {
     const [hoveredItem, setHoveredItem] = useState(null);
     const [hoveredIndex, setHoveredIndex] = useState(0);
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
-
+    const location = useLocation();
+    const [role, setRole] = useState(location.state?.role || []);
     //
+    // useEffect để lấy và cập nhật role từ localStorage khi component được render
+    useEffect(() => {
+        // Lấy vai trò từ localStorage nếu có
+        const storedRoles = JSON.parse(localStorage.getItem('roles'));
+
+        // Nếu vai trò lưu trong localStorage khác null hoặc undefined thì cập nhật state
+        if (storedRoles) {
+            setRole(storedRoles);
+        }
+    }, []); // Chỉ chạy một lần sau khi component được render lần đầu tiên
+
+    // useEffect để cập nhật lại role nếu location.state?.role thay đổi
+    useEffect(() => {
+        if (location.state?.role) {
+            setRole(location.state.role);
+        }
+    }, [location.state?.role]);
     const handleMouseOver = (id) => {
         setHoveredItem(id);
     };
@@ -243,12 +261,25 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     Trung tâm trợ giúp
                                 </li>
                                 <li className="hover:underline">
-                                    <a
-                                        onClick={handleSignUp}
-                                        className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
-                                    >
-                                        Đăng kí trở thành nhà cung cấp
-                                    </a>
+                                    {role.length === 1 && (
+                                        <a
+                                            onClick={handleSignUp}
+                                            className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
+                                        >
+                                            Đăng kí trở thành nhà bán lẻ
+                                        </a>
+                                    )}
+                                    {role.length === 2 && (
+                                        <a
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate('/shopdashboard');
+                                            }}
+                                            className={`flex lg:gap-2 px-3 leading-8 py-2 ${className_textcolor} cursor-pointer border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 flex-grow`}
+                                        >
+                                            Quản lí cửa hàng của bạn
+                                        </a>
+                                    )}
                                 </li>
                             </ul>
                         </div>

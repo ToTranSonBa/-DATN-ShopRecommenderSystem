@@ -54,7 +54,7 @@ const CartShoppingPage = () => {
             }
         };
         fetchData();
-    }, [fetchCart]);
+    }, []);
 
     const handleIncrement = async (index, idProduct) => {
         try {

@@ -4,9 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { signupSellerApi } from '../../services/SignupApi/SignUpApi';
-import {
-    userApi,
-} from '../../services/UserApi/userApi';
+import { userApi } from '../../services/UserApi/userApi';
 const SellerSignUp = () => {
     const navigate = useNavigate();
 
@@ -30,7 +28,7 @@ const SellerSignUp = () => {
             await fetchUser();
         };
         fetchData();
-    }, []);
+    }, [token]);
 
     const handleShopNumberChange = (e) => {
         if (e.target.value.length <= 50) {
@@ -255,8 +253,9 @@ const SellerSignUp = () => {
                                     </span>
                                 )}
                                 <h3
-                                    className={`${isShopInfoFilled() ? 'text-green-700' : ''
-                                        } font-medium leading-tight`}
+                                    className={`${
+                                        isShopInfoFilled() ? 'text-green-700' : ''
+                                    } font-medium leading-tight`}
                                 >
                                     Thông tin cửa hàng
                                 </h3>

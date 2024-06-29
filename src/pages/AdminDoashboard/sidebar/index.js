@@ -1,14 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Logo from '../../../assets/BrandLogos/Logo.png';
 import DefaultAvt from '../../../assets/default-avatar.png';
 import AdminUser from '../admin-user';
 const SidebarAdmin = ({ useroption, setDropdownDashboardOpen }) => {
+    const navigate = useNavigate();
     const handleOptionClick = (option) => {
         // Update useroption in SellerDashboard component
         useroption(option);
         // Close dropdown if necessary
         setDropdownDashboardOpen(false);
     };
+
     return (
         <>
             <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -125,10 +128,12 @@ const SidebarAdmin = ({ useroption, setDropdownDashboardOpen }) => {
             >
                 <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
                     <ul class="space-y-2 font-medium">
-                        <li onClick={(e) => {
-                                                e.preventDefault();
-                                                handleOptionClick('admindoashboard');
-                                            }}>
+                        <li
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleOptionClick('admindoashboard');
+                            }}
+                        >
                             <a
                                 href="#"
                                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -146,10 +151,12 @@ const SidebarAdmin = ({ useroption, setDropdownDashboardOpen }) => {
                                 <span class="ms-3">Tổng quan</span>
                             </a>
                         </li>
-                        <li onClick={(e) => {
-                                                e.preventDefault();
-                                                handleOptionClick('algorithm');
-                                            }}>
+                        <li
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleOptionClick('algorithm');
+                            }}
+                        >
                             <a
                                 href="#"
                                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -164,6 +171,41 @@ const SidebarAdmin = ({ useroption, setDropdownDashboardOpen }) => {
                                     <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
                                 </svg>
                                 <span class="flex-1 ms-3 whitespace-nowrap">Thuật toán</span>
+                            </a>
+                        </li>
+                        <li
+                            onClick={(e) => {
+                                e.preventDefault();
+                                localStorage.clear();
+                                navigate('/');
+                            }}
+                        >
+                            <p className="border-gray-300 lg:leading-10 border-t-1"> </p>
+                        </li>
+                        <li
+                            onClick={(e) => {
+                                e.preventDefault();
+                                localStorage.clear();
+                                navigate('/login');
+                            }}
+                        >
+                            <a class="cursor-pointer flex items-center bg-red-600/25 text-red-600 p-2 rounded-sm dark:text-white hover:bg-red-600/45 dark:hover:bg-gray-700 group">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="size-6"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
+                                    />
+                                </svg>
+
+                                <span class="flex-1 ms-3 whitespace-nowrap">Đăng xuất</span>
                             </a>
                         </li>
                     </ul>

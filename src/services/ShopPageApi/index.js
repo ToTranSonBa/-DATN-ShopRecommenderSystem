@@ -51,4 +51,26 @@ const getAllProducts = async (pageNumber, pageSize, idSeller) => {
     }
 };
 
-export { getSellerbyID, getProductsQuantitySoldMax, getProductsLastest, getAllProducts };
+const fetchCategories = async () => {
+    try {
+        const response = await axios.get('/Categories?level=0');
+        console.log('Full response get All Categories lv 0 : ', response); // Thêm dòng này để kiểm tra toàn bộ response
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch products best quantity: ', error);
+        throw error;
+    }
+};
+
+const fetchBrands = async () => {
+    try {
+        const response = await axios.get('/Brands');
+        console.log('Full response get All Brands : ', response); // Thêm dòng này để kiểm tra toàn bộ response
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch products best quantity: ', error);
+        throw error;
+    }
+};
+
+export { getSellerbyID, getProductsQuantitySoldMax, getProductsLastest, getAllProducts, fetchCategories, fetchBrands };

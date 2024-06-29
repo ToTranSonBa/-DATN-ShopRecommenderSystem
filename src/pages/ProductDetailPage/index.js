@@ -53,7 +53,7 @@ const ProductDetailPage = () => {
     const fetchProductDetail = useCallback(async () => {
         try {
             const response = await axios.get(`/Products/${id}`);
-            console.log("product detail: ", response.data);
+            console.log('product detail: ', response.data);
             setProduct(response);
             fetchPrice();
         } catch (error) {
@@ -63,12 +63,9 @@ const ProductDetailPage = () => {
 
     const fetchProductOption = useCallback(async () => {
         try {
-
-            const response = await axios.get(
-                `/Products/Option/${id}`
-            );
+            const response = await axios.get(`/Products/Option/${id}`);
             setOption(response?.[0].option);
-            setProductOptionValues(response?.[0].productOptionValues)
+            setProductOptionValues(response?.[0].productOptionValues);
         } catch (error) {
             console.error('Failed to fetch product option:', error);
         }
@@ -94,34 +91,31 @@ const ProductDetailPage = () => {
 
     const fetchComments = useCallback(async () => {
         try {
-
-            const response = await axios.get(
-                `/DetailComments/List${id}`
-            );
+            const response = await axios.get(`/DetailComments/List${id}`);
             console.log(response.data);
             setComments(response);
         } catch (error) {
-            console.error("Failed to fetch comments:", error);
+            console.error('Failed to fetch comments:', error);
         }
     }, []);
 
     const fetchAddToCart = useCallback(async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem('token');
             const response = await axios.post(
                 `/CartItems/AddToCart`,
                 {
                     idProduct: id,
                     idProductOptionValue: idProductOptionValue,
                     ProductOptionImage: productOptionImage,
-                    quantity
+                    quantity,
                 },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
+                        'Content-Type': 'application/json',
                     },
-                }
+                },
             );
             setComments(response.data[0]);
         } catch (error) {
@@ -131,9 +125,8 @@ const ProductDetailPage = () => {
 
     const fetchProductOptions = useCallback(async () => {
         try {
-
             const response = await axios.get(`/Products/Option/${id}`);
-            console.log('response, ', response)
+            console.log('response, ', response);
             setProductOptions(response.data);
         } catch (error) {
             console.error('Failed to fetch ProductOptions:', error);
@@ -185,13 +178,13 @@ const ProductDetailPage = () => {
         if (!token) {
             navigate('/login');
         } else {
-
-
             const selectedProduct = productDetail.productChildren[selectedOptionIndex];
             let matchingOptionValueId = null;
 
-            productOptions.forEach(option => {
-                const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+            productOptions.forEach((option) => {
+                const match = option.productOptionValues.find(
+                    (optionValue) => optionValue.name === selectedProduct.option1,
+                );
                 if (match) {
                     matchingOptionValueId = match.id;
                 }
@@ -201,11 +194,13 @@ const ProductDetailPage = () => {
                 product: productDetail.product,
                 quantity: quantity,
                 productImgs: selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
-                optionValues: selectedProduct ? {
-                    id: matchingOptionValueId,
-                    name: selectedProduct.option1,
-                    option: null
-                } : undefined,
+                optionValues: selectedProduct
+                    ? {
+                          id: matchingOptionValueId,
+                          name: selectedProduct.option1,
+                          option: null,
+                      }
+                    : undefined,
             };
             navigate('/checkout', { state: { selectedItems: [productWithQuantity] } });
         }
@@ -216,36 +211,36 @@ const ProductDetailPage = () => {
 
         if (!token) {
             navigate('/login');
-        }
-        else {
+        } else {
             const selectedProduct = productDetail.productChildren[selectedOptionIndex];
             let matchingOptionValueId = null;
 
-            productOptions.forEach(option => {
-                const match = option.productOptionValues.find(optionValue => optionValue.name === selectedProduct.option1);
+            productOptions.forEach((option) => {
+                const match = option.productOptionValues.find(
+                    (optionValue) => optionValue.name === selectedProduct.option1,
+                );
                 if (match) {
                     matchingOptionValueId = match.id;
                 }
             });
             try {
-                const response = await addCartApi(productDetail.product.iD_NK,
+                const response = await addCartApi(
+                    productDetail.product.iD_NK,
                     selectedProduct ? matchingOptionValueId : undefined,
                     selectedProduct ? selectedProduct.thumbnail_url : productDetail.images[0].image,
                     quantity,
-                    token
-                )
+                    token,
+                );
                 if (response.status === '201') {
                     toast.success('Đã thêm vào giỏ hàng');
-                }
-                else {
+                } else {
                     toast.error('Thêm vào giỏ hàng thất bại!');
                 }
             } catch (error) {
                 console.log('Failed to add to cart: ', error);
             }
         }
-
-    }
+    };
 
     return (
         <div class="lg:pt-36 m-auto bg-background flex flex-col justify-center items-center pt-20">
@@ -451,12 +446,18 @@ const ProductDetailPage = () => {
             </div>
 
             <div class="w-3/4 p-6 mt-8 grid items-start grid-cols-1 lg:grid-cols-7 gap-8 bg-white">
-                <div class="lg:col-span-3 ">
+                <div
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/shoppage/${productDetail?.seller.iD_NK}`);
+                    }}
+                    class="lg:col-span-3 cursor-pointer"
+                >
                     <div class="flex items-start w-full gap-4">
                         <img
                             src={productDetail?.seller?.imageUrl || Default_Avatar}
                             alt={productDetail?.seller?.name}
-                            className="lg:w-20 lg:h-20 w-12 h-12 rounded-full border-2 border-white"
+                            className="w-12 h-12 border-2 border-white rounded-full lg:w-20 lg:h-20"
                         />
 
                         <div class="lg:h-20 h-12 ml-3 grid items-center ">
@@ -525,23 +526,16 @@ const ProductDetailPage = () => {
                 <div>
                     <h3 class="text-lg font-semibold text-gray-700">Đánh giá ({comments?.total})</h3>
 
-
-                    <CommentRating
-                        commentRating={commentRating}
-                        totalComment={comments?.total}
-                    />
-                </div >
+                    <CommentRating commentRating={commentRating} totalComment={comments?.total} />
+                </div>
 
                 {comments?.detailComment?.length === 0 && (
                     <p className="flex items-center justify-center mt-6">Không có bình luận về sản phẩm</p>
                 )}
 
-
-                {comments?.detailComment?.length !== 0 && (
-                    <CommentDetail comments={comments?.comment} />
-                )}
-            </div >
-        </div >
+                {comments?.detailComment?.length !== 0 && <CommentDetail comments={comments?.comment} />}
+            </div>
+        </div>
     );
 };
 

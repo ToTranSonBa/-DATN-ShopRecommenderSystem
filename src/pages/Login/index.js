@@ -11,12 +11,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const goToSignUP = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const GoToSignUP = () => {
-        goToSignUP('/signup');
+        navigate('/signup');
     };
     useEffect(() => {
         let token = localStorage.getItem('token');
@@ -38,17 +37,37 @@ const LoginPage = () => {
                 toast.error('Vui lòng nhập mật khẩu của bạn');
                 return;
             }
-            const response = await loginApi(email, password);
 
-            if (response && response.accessToken) {
-                const token = response.accessToken;
-                localStorage.setItem('token', token);
-                navigate('/');
+            const response = await loginApi(email, password);
+            if (response && response.role) {
+                const roles = response.role;
+
+                if (response.accessToken) {
+                    const token = response.accessToken;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('roles', JSON.stringify(roles));
+
+                    if (roles.includes('Administrator')) {
+                        navigate('/admin', {
+                            state: {
+                                role: roles,
+                            },
+                        });
+                    } else {
+                        navigate('/', {
+                            state: {
+                                role: roles,
+                            },
+                        });
+                    }
+                }
             } else if (response && response.status === 401) {
                 localStorage.removeItem('token');
+                localStorage.removeItem('roles'); // Xóa vai trò khỏi localStorage
                 toast.error('Không được phép. Vui lòng kiểm tra thông tin đăng nhập của bạn.');
             } else {
                 localStorage.removeItem('token');
+                localStorage.removeItem('roles'); // Xóa vai trò khỏi localStorage
                 toast.error('Đăng nhập thất bại. Vui lòng thử lại.');
             }
         } catch (error) {

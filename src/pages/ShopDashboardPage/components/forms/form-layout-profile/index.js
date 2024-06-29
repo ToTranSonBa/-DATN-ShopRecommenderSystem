@@ -3,11 +3,7 @@ import DefaultAVT from '../../../../../assets/default-avatar.png';
 import { cloudinaryConfig } from '../../../../../cloudinaryConfig';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
-import {
-    getSellerApi,
-    updateSellerApi,
-
-} from '../../../../../services/SellerApi/sellerApi';
+import { getSellerApi, updateSellerApi } from '../../../../../services/SellerApi/sellerApi';
 
 const FormLayoutProfile = () => {
     const [avatarFile, setAvatarFile] = useState(null);
@@ -106,7 +102,6 @@ const FormLayoutProfile = () => {
         }
     };
 
-
     return (
         <body>
             <div class="flex h-screen overflow-hidden">
@@ -131,7 +126,7 @@ const FormLayoutProfile = () => {
                             <div class="grid grid-cols-1 gap-9 sm:grid-cols-2">
                                 <div class="col-span-2 flex flex-col gap-9">
                                     <div class=" mx-auto w-1/2 rounded-sm border border-stroke ">
-                                        <form action="#" >
+                                        <form action="#">
                                             <div class="flex flex-col gap-9">
                                                 <div class="rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">
                                                     <form action="#">
@@ -139,7 +134,9 @@ const FormLayoutProfile = () => {
                                                             <img
                                                                 className="object-cover p-1 rounded-full size-32 ring-2 ring-indigo-300 dark:ring-indigo-500"
                                                                 src={
-                                                                    sellerData.imageUrl ? sellerData.imageUrl : DefaultAVT
+                                                                    sellerData.imageUrl
+                                                                        ? sellerData.imageUrl
+                                                                        : DefaultAVT
                                                                 }
                                                             />
                                                             <div className="flex flex-col space-y-5 sm:ml-8">
@@ -167,7 +164,7 @@ const FormLayoutProfile = () => {
                                                                     </label>
                                                                     <input
                                                                         type="text"
-                                                                        id='name'
+                                                                        id="name"
                                                                         placeholder="Tên cửa hàng"
                                                                         class="w-full  border-gray-300 rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                                                         value={sellerData.name}
@@ -181,7 +178,7 @@ const FormLayoutProfile = () => {
                                                                     </label>
                                                                     <input
                                                                         type="text"
-                                                                        id='phone'
+                                                                        id="phone"
                                                                         placeholder="Số điện thoại liên hệ của cửa hàng"
                                                                         class="w-full  border-gray-300 rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                                                         value={sellerData.phone}
@@ -196,7 +193,7 @@ const FormLayoutProfile = () => {
                                                                 </label>
                                                                 <input
                                                                     type="text"
-                                                                    id='address'
+                                                                    id="address"
                                                                     placeholder="Số nhà, Đường, Quận - Huyện, Thành Phố, Tỉnh"
                                                                     class="w-full bg-gray-50  border-gray-300 rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                                                     value={sellerData.address}
@@ -206,7 +203,8 @@ const FormLayoutProfile = () => {
 
                                                             <button
                                                                 onClick={handleSave}
-                                                                class="flex w-full justify-center text-white rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                                                                class="flex w-full justify-center text-white rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                                                            >
                                                                 Lưu thay đổi thông tin cửa hàng
                                                             </button>
                                                         </div>
@@ -214,13 +212,11 @@ const FormLayoutProfile = () => {
                                                 </div>
                                             </div>
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </main>
-
                 </div>
             </div>
         </body>
