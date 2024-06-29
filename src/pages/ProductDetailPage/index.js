@@ -52,9 +52,7 @@ const ProductDetailPage = () => {
 
     const fetchProductDetail = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `/Products/${id}`
-            );
+            const response = await axios.get(`/Products/${id}`);
             console.log("product detail: ", response.data);
             setProduct(response);
             fetchPrice();

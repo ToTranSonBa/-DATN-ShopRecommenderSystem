@@ -1,14 +1,13 @@
 /* eslint-disable react/style-prop-object */
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import "../../index.css";
-import "../../styles/reset.css";
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import '../../index.css';
+import '../../styles/reset.css';
+import ProductCard from '../../components/card/ProductCard';
+import ProductRating from '../../components/card/ProductRating';
+import { Pagination as PaginationAntd } from 'antd';
+import { SearchContext } from '../../components/searchContext';
 import axios from '../../services/axios-customize';
-import ProductCard from "../../components/card/ProductCard";
-import ProductRating from "../../components/card/ProductRating";
-import { Pagination as PaginationAntd } from "antd";
-import { SearchContext } from "../../components/searchContext";
-
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -88,7 +87,7 @@ const ProductPage = () => {
   }, []);
 
   useEffect(() => {
-    const storedSearchQuery = localStorage.getItem("searchQuery");
+    const storedSearchQuery = localStorage.getItem('searchQuery');
     if (storedSearchQuery) setSearchQuery(storedSearchQuery);
 
     fetchData();
@@ -149,77 +148,54 @@ const ProductPage = () => {
       <div className="flex w-11/12 m-auto md:flex-row sm:w-3/4">
         {/* cột trái 1/5 chứa filter */}
         <div className="flex-1 hidden pr-4 md:block md:flex-none md:w-1/5">
-          <span className="text-lg font-semibold text-gray-900 sm:text-xl">
-            Bộ lọc tìm kiếm
-          </span>
+          <span className="text-lg font-semibold text-gray-900 sm:text-xl">Bộ lọc tìm kiếm</span>
           <div className="flex-col items-center mt-4">
-            <div
-              id="dropdown"
-              className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700"
-            >
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
-                Phân loại
-              </h6>
-              <ul
-                className="space-y-2 text-sm"
-                aria-labelledby="dropdownDefault"
-              >
-                {categories.map((category) => (
-                  <li key={category.category.iD_NK} className="flex items-center">
+            <div id="dropdown" className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Phân loại</h6>
+              <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
+                {categories && categories.map((category) => (
+                  <li key={category?.iD_NK} className="flex items-center">
                     <input
-                      id={category.category.name}
+                      id={category?.category.name}
                       type="checkbox"
                       value=""
                       className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                      onClick={() => handleCategory(category.category)}
+                      onClick={() => handleCategory(category?.category)}
                     />
                     <label
-                      htmlFor={category.category.name}
+                      htmlFor={category?.category.name}
                       className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
                     >
-                      {category.category.name} ({category.total})
+                      {category?.category.name} ({category?.total})
                     </label>
                   </li>
                 ))}
               </ul>
             </div>
-            <div
-              id="dropdown"
-              className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700"
-            >
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
-                Thương hiệu
-              </h6>
-              <ul
-                className="space-y-2 text-sm"
-                aria-labelledby="dropdownDefault"
-              >
-                {brands.map((brand) => (
-                  <li key={brand.brand.ID_NK} className="flex items-center">
+            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Thương hiệu</h6>
+              <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
+                {brands && brands.map((brand) => (
+                  <li key={brand?.brand.ID_NK} className="flex items-center">
                     <input
-                      id={brand.brand.name}
+                      id={brand?.brand.name}
                       type="checkbox"
                       value=""
                       className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                      onClick={() => handleBrand(brand.brand)}
+                      onClick={() => handleBrand(brand?.brand)}
                     />
                     <label
-                      htmlFor={brand.brand.name}
+                      htmlFor={brand?.brand.name}
                       className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
                     >
-                      {brand.brand.name} ({brand.total})
+                      {brand?.brand.name} ({brand?.totalProduct})
                     </label>
                   </li>
                 ))}
               </ul>
             </div>
-            <div
-              id="dropdown"
-              className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700"
-            >
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
-                Giá thành
-              </h6>
+            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Giá thành</h6>
               <div>
                 <div class="flex flex-col mt-2 rounded-md shadow-sm">
                   <div className="flex mb-4">
@@ -248,13 +224,8 @@ const ProductPage = () => {
                 </div>
               </div>
             </div>
-            <div
-              id="dropdown"
-              className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700"
-            >
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
-                Đánh giá
-              </h6>
+            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Đánh giá</h6>
               <ProductRating ratingAverage={5}></ProductRating>
               <ProductRating ratingAverage={4}></ProductRating>
               <ProductRating ratingAverage={3}></ProductRating>
@@ -267,21 +238,21 @@ const ProductPage = () => {
         {/* cột phải 4/5 chứa products */}
         <div className="flex-1 md:flex-none md:w-4/5">
           {searchQuery ? (
-            <span className="text-lg sm:text-xl font-semibold text-gray-900">
+            <span className="text-lg font-semibold text-gray-900 sm:text-xl">
               Kết quả tìm kiếm của "{searchQuery}" - {totalProducts} sản phẩm
             </span>
           ) : (
-            <span className="text-lg sm:text-xl font-semibold text-gray-900">
+            <span className="text-lg font-semibold text-gray-900 sm:text-xl">
               Kết quả tìm kiếm - {totalProducts} sản phẩm
             </span>
           )}
           {/* danh sách sản phẩm */}
-          <div className="product-content mt-4">
-            <div className="bg-background flex items-center justify-center">
+          <div className="mt-4 product-content">
+            <div className="flex items-center justify-center bg-background">
               <div className="">
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
                   {products.map((product) => (
-                    <ProductCard key={product.idx} product={product} />
+                    <ProductCard key={product?.idx} product={product} />
                   ))}
                 </div>
               </div>
