@@ -166,7 +166,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var res = await _productsService.AddProduct(product, user);
                 await _elasticSearchService.AddProductToIndex(res);
 
-                return CreatedAtAction(nameof(GetProduct), new { id = res.ID_NK }, product);
+                return CreatedAtAction(nameof(GetProduct), new { id = res.ID_NK }, res);
             }
             catch (Exception ex)
             {

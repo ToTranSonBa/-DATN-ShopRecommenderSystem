@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
 using ShopRe.Service;
@@ -37,7 +38,14 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             return Ok(productOption);
         }
+        // POST: api/productoptions
+        [HttpPost("OptionOfProduct")]
+        public async Task<IActionResult> PostProductOptions([FromBody]CreateOptionParameters productOption)
+        {
+            var res = await _productOptionService.AddProductOption(productOption);
 
+            return CreatedAtAction(nameof(GetProductOption), new { id = res.ID }, res);
+        }
         // POST: api/productoptions
         [HttpPost]
         public async Task<ActionResult<ProductOption>> PostProduct(ProductOption productOption)
