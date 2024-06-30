@@ -85,7 +85,7 @@ const ProductPage = () => {
     } catch (error) {
       console.error('Failed to fetch products:', error);
     }
-  }, []);
+  }, [currentPage, productsPerPage, selectedBrands, selectedCategories]);
 
   const fetchData = useCallback(async () => {
     await fetchProducts();
