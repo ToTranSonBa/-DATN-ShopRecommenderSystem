@@ -2,7 +2,7 @@ import renderLine from "./renderLine";
 
 const CommentRating = ({ commentRating, totalComment }) => {
   return (
-    <div class=" space-y-3 mt-4 w-full sm:w-2/4 ">
+    <div class="space-y-3 mt-4 w-full sm:w-3/4 ">
       <div class="flex items-center">
         <p class="text-sm text-gray-700 font-semibold">5.0</p>
         <svg

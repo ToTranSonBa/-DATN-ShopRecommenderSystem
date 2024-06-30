@@ -1,13 +1,13 @@
 /* eslint-disable react/style-prop-object */
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import '../../index.css';
-import '../../styles/reset.css';
-import ProductCard from '../../components/card/ProductCard';
-import ProductRating from '../../components/card/ProductRating';
-import { Pagination as PaginationAntd } from 'antd';
-import { SearchContext } from '../../components/searchContext';
-import axios from '../../services/axios-customize';
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import "../../index.css";
+import "../../styles/reset.css";
+import ProductCard from "../../components/card/ProductCard";
+import ProductRating from "../../components/card/ProductRating";
+import { Pagination as PaginationAntd } from "antd";
+import { SearchContext } from "../../components/searchContext";
+import axios from "../../services/axios-customize";
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -25,28 +25,28 @@ const ProductPage = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get('/Categories/CategoriesLV0BySearch', {
+      const response = await axios.get("/Categories/CategoriesLV0BySearch", {
         params: {
-          SearchKey: localStorage.getItem('searchQuery'),
-        }
+          SearchKey: localStorage.getItem("searchQuery"),
+        },
       });
-      console.log('fetchCategories: ', response);
+      console.log("fetchCategories: ", response);
       setCategories(response.categories);
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error("Failed to fetch categories:", error);
     }
   }, []);
 
   const fetchBrands = useCallback(async () => {
     try {
-      const response = await axios.get('/Brands/BrandsBySearch', {
+      const response = await axios.get("/Brands/BrandsBySearch", {
         params: {
-          KeyWord: localStorage.getItem('searchQuery'),
-        }
+          KeyWord: localStorage.getItem("searchQuery"),
+        },
       });
       setBrands(response.brands);
     } catch (error) {
-      console.error('Failed to fetch brands:', error);
+      console.error("Failed to fetch brands:", error);
     }
   }, []);
 
@@ -54,26 +54,27 @@ const ProductPage = () => {
     try {
       const categoriesParam = new URLSearchParams();
       selectedCategories.forEach((element) => {
-        categoriesParam.append('CategoryIds', element);
+        categoriesParam.append("CategoryIds", element);
       });
 
       const brandsParam = new URLSearchParams();
       selectedBrands.forEach((element) => {
-        brandsParam.append('BrandIds', element);
+        brandsParam.append("BrandIds", element);
       });
 
-      const response = await axios.get(`/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`, {
-        params: {
-          ProductName: localStorage.getItem('searchQuery'),
-          MinPrice: minPrice,
-          MaxPrice: maxPrice,
-          MinReviewRating: minReview,
-          PageNumber: currentPage,
-          PageSize: productsPerPage,
-        },
-      });
-
-      console.log('fetchProducts: ', response.product);
+      const response = await axios.get(
+        `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
+        {
+          params: {
+            ProductName: localStorage.getItem("searchQuery"),
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+            MinReviewRating: minReview,
+            PageNumber: currentPage,
+            PageSize: productsPerPage,
+          },
+        }
+      );
 
       response.product.forEach((element) => {
         const temp = element.image;
@@ -83,18 +84,17 @@ const ProductPage = () => {
       setTotalProducts(response.totalCount);
       setProducts(response.product);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      console.error("Failed to fetch products:", error);
     }
-  }, [currentPage, productsPerPage, selectedBrands, selectedCategories]);
+  }, [currentPage, maxPrice, minPrice, productsPerPage]);
 
   const fetchData = useCallback(async () => {
     await fetchProducts();
     await fetchCategories();
     await fetchBrands();
   }, []);
-  const storedSearchQuery = localStorage.getItem('searchQuery');
+  const storedSearchQuery = localStorage.getItem("searchQuery");
   useEffect(() => {
-
     if (storedSearchQuery) setSearchQuery(storedSearchQuery);
 
     fetchData();
@@ -149,61 +149,98 @@ const ProductPage = () => {
     fetchProducts();
   };
 
+  const handleMinPriceChange = (event) => {
+    setMinPrice(event.target.value);
+  };
+
+  const handleMaxPriceChange = (event) => {
+    setMaxPrice(event.target.value);
+  };
+
+  const formatNumber = (number) => {
+    return new Intl.NumberFormat().format(number);
+  };
+
   return (
     <div className="pt-40 shop-page bg-background">
       {/* layout 2 cột */}
       <div className="flex w-11/12 m-auto md:flex-row sm:max-w-screen-2xl">
         {/* cột trái 1/5 chứa filter */}
         <div className="flex-1 hidden pr-4 md:block md:flex-none md:w-1/5">
-          <span className="text-lg font-semibold text-gray-900 sm:text-xl">Bộ lọc tìm kiếm</span>
+          <span className="text-lg font-semibold text-gray-900 sm:text-xl">
+            Bộ lọc tìm kiếm
+          </span>
           <div className="flex-col items-center mt-4">
-            <div id="dropdown" className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Phân loại</h6>
-              <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-                {categories && categories.map((category) => (
-                  <li key={category?.iD_NK} className="flex items-center">
-                    <input
-                      id={category?.category.name}
-                      type="checkbox"
-                      value=""
-                      className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                      onClick={() => handleCategory(category?.category)}
-                    />
-                    <label
-                      htmlFor={category?.category.name}
-                      className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
-                    >
-                      {category?.category.name} ({category?.total})
-                    </label>
-                  </li>
-                ))}
+            <div
+              id="dropdown"
+              className="z-10 p-3 bg-white rounded-lg shadow dark:bg-gray-700"
+            >
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
+                Phân loại
+              </h6>
+              <ul
+                className="space-y-2 text-sm"
+                aria-labelledby="dropdownDefault"
+              >
+                {categories &&
+                  categories.map((category) => (
+                    <li key={category?.iD_NK} className="flex items-center">
+                      <input
+                        id={category?.category.name}
+                        type="checkbox"
+                        value=""
+                        className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                        onClick={() => handleCategory(category?.category)}
+                      />
+                      <label
+                        htmlFor={category?.category.name}
+                        className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
+                      >
+                        {category?.category.name} ({category?.total})
+                      </label>
+                    </li>
+                  ))}
               </ul>
             </div>
-            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Thương hiệu</h6>
-              <ul className="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-                {brands && brands.map((brand) => (
-                  <li key={brand?.brand.ID_NK} className="flex items-center">
-                    <input
-                      id={brand?.brand.name}
-                      type="checkbox"
-                      value=""
-                      className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                      onClick={() => handleBrand(brand?.brand)}
-                    />
-                    <label
-                      htmlFor={brand?.brand.name}
-                      className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
-                    >
-                      {brand?.brand.name} ({brand?.total})
-                    </label>
-                  </li>
-                ))}
+            <div
+              id="dropdown"
+              className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700"
+            >
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
+                Thương hiệu
+              </h6>
+              <ul
+                className="space-y-2 text-sm"
+                aria-labelledby="dropdownDefault"
+              >
+                {brands &&
+                  brands.map((brand) => (
+                    <li key={brand?.brand.ID_NK} className="flex items-center">
+                      <input
+                        id={brand?.brand.name}
+                        type="checkbox"
+                        value=""
+                        className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-blue-700-600 focus:ring-blue-700-500 dark:focus:ring-blue-700-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                        onClick={() => handleBrand(brand?.brand)}
+                      />
+                      <label
+                        htmlFor={brand?.brand.name}
+                        className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
+                      >
+                        {brand?.brand.name} ({brand?.total})
+                      </label>
+                    </li>
+                  ))}
               </ul>
             </div>
-            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Giá thành</h6>
-              <div>
+            <div
+              id="dropdown"
+              className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700"
+            >
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
+                Giá thành
+              </h6>
+              <form>
                 <div class="flex flex-col mt-2 rounded-md shadow-sm">
                   <div className="flex mb-4">
                     <input
@@ -212,6 +249,8 @@ const ProductPage = () => {
                       id="price"
                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       placeholder="0.00"
+                      value={formatNumber(minPrice)}
+                      onChange={handleMinPriceChange}
                     />
                     <span className="m-2 text-sm"> đến </span>
                     <input
@@ -220,19 +259,27 @@ const ProductPage = () => {
                       id="price"
                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       placeholder="0.00"
+                      value={formatNumber(maxPrice)}
+                      onChange={handleMaxPriceChange}
                     />
                   </div>
-                  <a
+                  <button
+                    type="submit"
                     href="#a"
                     className="p-2 text-sm font-medium text-center text-blue-700 bg-white border border-blue-700 rounded-lg hover:text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
                   >
                     Áp dụng
-                  </a>
+                  </button>
                 </div>
-              </div>
+              </form>
             </div>
-            <div id="dropdown" className="z-10 p-3 mt-4 bg-white rounded-lg shadow dark:bg-gray-700">
-              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">Đánh giá</h6>
+            <div
+              id="dropdown"
+              className="z-10 p-3 my-4 bg-white rounded-lg shadow dark:bg-gray-700"
+            >
+              <h6 className="mb-3 text-base font-bold text-gray-900 dark:text-white">
+                Đánh giá
+              </h6>
               <ProductRating ratingAverage={5}></ProductRating>
               <ProductRating ratingAverage={4}></ProductRating>
               <ProductRating ratingAverage={3}></ProductRating>

@@ -10,6 +10,8 @@ import { Modal } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addCartApi } from "../../services/CartApi/cartApi";
+import MaxWidthWrapper from "../../components/MaxWidthWrapper";
+import ProductCard from "../../components/card/ProductCard";
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -36,25 +38,30 @@ const ProductDetailPage = () => {
   const [productDetail, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
+
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
+
   const [comments, setComments] = useState([]);
   const [commentRating, setCommentRating] = useState([]);
-  const [hiddenDescription, setHiddenDescription] = useState(true);
   const [productOptions, setProductOptions] = useState([]);
+  const [recommendProduct, setRecommendProduct] = useState([]);
+  const [otherShopProduct, setOtherShopProduct] = useState([]);
   const [option, setOption] = useState([]);
   const [productOptionValues, setProductOptionValues] = useState([]);
+  const [sellerID, setSellerId] = useState();
 
+  const [hiddenDescription, setHiddenDescription] = useState(true);
   const [idProductOptionValue, setIdProductOptionValue] = useState(0);
   const [productOptionImage, setProductOptionImage] = useState(0);
-
-  // const navigate = useNavigate();
 
   const fetchProductDetail = useCallback(async () => {
     try {
       const response = await axios.get(`/Products/${id}`);
-      console.log("product detail: ", response.data);
       setProduct(response);
+      fetchOtherShopProduct(response.seller.iD_NK);
+      console.log(response);
+      fetchRecommendProducts(response.product.iD_NK, response.product.category_LV0_NK);
       fetchPrice();
     } catch (error) {
       console.error("Failed to fetch product detail:", error);
@@ -76,7 +83,6 @@ const ProductDetailPage = () => {
       const response = await axios.get(
         `/DetailComments/RattingCount/Product${id}`
       );
-
       setCommentRating(response);
     } catch (error) {
       console.error("Failed to fetch detail comment rating:", error);
@@ -132,10 +138,35 @@ const ProductDetailPage = () => {
   const fetchProductOptions = useCallback(async () => {
     try {
       const response = await axios.get(`/Products/Option/${id}`);
-      console.log("response, ", response);
       setProductOptions(response.data);
     } catch (error) {
       console.error("Failed to fetch ProductOptions:", error);
+    }
+  }, []);
+
+  const fetchOtherShopProduct = useCallback(async (id) => {
+    try {
+      const response = await axios.get(`/Sellers/Products/${id}`);
+      console.log("fetch OtherShopProduct: ", response);
+      setOtherShopProduct(response.products);
+    } catch (error) {
+      console.error("Failed to fetch OtherShopProduct:", error);
+    }
+  }, []);
+
+  const fetchRecommendProducts = useCallback(async (productId, cateId) => {
+    try {
+      const response = await axios.post(`/Products/RecommendProduct`, {
+        productId: productId,
+        cateId: cateId,
+      });
+      response.forEach((element) => {
+        const temp = element.image;
+        element.image = temp.substring(15, temp.indexOf("'", 15));
+      });
+      setRecommendProduct(response);
+    } catch (error) {
+      console.error("Failed to fetch RecommendProducts:", error);
     }
   }, []);
 
@@ -420,7 +451,9 @@ const ProductDetailPage = () => {
                         setProductOptionImage(option?.thumbnail_url)
                       )}
                     >
-                      <p className="z-10 pl-16 text-xs text-left">{option.option1}</p>
+                      <p className="z-10 pl-16 text-xs text-left">
+                        {option.option1}
+                      </p>
                       <span className="absolute inset-0 overflow-hidden rounded-md">
                         <img
                           src={option.thumbnail_url}
@@ -542,7 +575,9 @@ const ProductDetailPage = () => {
       </div>
 
       <div class="w-4/5 p-6 mt-8 bg-white">
-        <h3 class="text-xl font-semibold text-black mb-4">Mô tả sản phẩm</h3>
+        <h3 class="text-xl font-semibold text-black mb-4 uppercase">
+          Mô tả sản phẩm
+        </h3>
         <div
           className={classNames(
             hiddenDescription === true
@@ -565,7 +600,7 @@ const ProductDetailPage = () => {
 
       <div class="w-4/5 p-6 my-8 bg-white">
         <div>
-          <h3 class="text-lg font-semibold text-gray-700">
+          <h3 class="text-lg font-semibold text-gray-700 uppercase">
             Đánh giá ({comments?.total})
           </h3>
 
@@ -584,6 +619,90 @@ const ProductDetailPage = () => {
         {comments?.detailComment?.length !== 0 && (
           <CommentDetail comments={comments?.comment} />
         )}
+      </div>
+
+      <div id="recommendProduct" className="mt-4 mb-8">
+        <MaxWidthWrapper>
+          <div className="flex justify-between">
+            <span className="text-xl font-semibold text-black uppercase">
+              Sản phẩm khác của shop
+            </span>
+            <a
+              href="#a"
+              className="flex items-center text-red-700 hover:underline"
+              // onClick={() => handleViewAll("new")}
+            >
+              Xem tất cả{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </a>
+          </div>
+          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+              {otherShopProduct && otherShopProduct.slice(0, 5).map((product) => (
+                <ProductCard
+                  key={product.product?.iD_NK}
+                  image={product?.images[0].image}
+                  product={product.product}
+                />
+              ))}
+            </div>
+          </div>
+        </MaxWidthWrapper>
+      </div>
+
+      <div id="otherProductShop" className="mt-4 mb-8">
+        <MaxWidthWrapper>
+          <div className="flex justify-between">
+            <span className="text-xl font-semibold text-black uppercase">
+              Sản phẩm liên quan
+            </span>
+            <a
+              href="#a"
+              className="flex items-center text-red-700 hover:underline"
+              // onClick={() => handleViewAll("new")}
+            >
+              Xem tất cả{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </a>
+          </div>
+          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+              {recommendProduct.map((product) => (
+                <ProductCard
+                  key={product?.iD_NK}
+                  image={product?.image}
+                  product={product}
+                />
+              ))}
+            </div>
+          </div>
+        </MaxWidthWrapper>
       </div>
     </div>
   );

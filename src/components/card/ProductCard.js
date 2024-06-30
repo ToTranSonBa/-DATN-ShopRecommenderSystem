@@ -10,7 +10,7 @@ const ProductCard = ({ product, image = null }) => {
       className="max-w-sm bg-white rounded-lg shadow-sm hover:shadow-lg hover:border hover:border-blue-700"
     >
       <a href={`/productdetail/${product.iD_NK}`}>
-        {product.allTimeQuantitySold > 1000 && product?.brandID_NK && (
+        {product.allTimeQuantitySold > 1000 && product?.brandID_NK ? (
           <div>
             <span className="absolute px-2 py-1 m-4 text-xs font-semibold text-blue-700 bg-blue-100 rounded">
               ✓ Chính hãng
@@ -19,15 +19,15 @@ const ProductCard = ({ product, image = null }) => {
               Bán chạy
             </span>
           </div>
-        )}
+        ) : <></>}
 
-        {product?.brandID_NK && (
+        {product?.brandID_NK ? (
           <div>
             <span className="absolute px-2 py-1 m-4 text-xs font-semibold text-blue-700 bg-blue-100 rounded">
               ✓ Chính hãng
             </span>
           </div>
-        )}
+        ) : <></>}
 
         <img
           data-twe-lazy-load-init

@@ -289,7 +289,8 @@ const Navigation = ({
                                                         </div>
                                                         <p className="mt-1 text-sm text-gray-500">
                                                           {
-                                                            product?.optionValues
+                                                            product
+                                                              ?.optionValues
                                                               ?.name
                                                           }
                                                         </p>
@@ -366,13 +367,13 @@ const Navigation = ({
                       onMouseEnter={handleMouseOnHoverMenuUser}
                       onMouseLeave={handleMouseOutHoverMenuUser}
                     >
-                      <button className="relative flex text-sm border-2 border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                      <button className="relative flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="object-cover rounded-full size-9 "
                           src={
-                            userInfor.avatar != "No image yet"
+                            userInfor.avatar !== "No Avatar yet !"
                               ? userInfor.avatar
                               : DefaultAVT
                           }
