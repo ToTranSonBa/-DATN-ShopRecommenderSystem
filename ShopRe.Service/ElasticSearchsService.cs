@@ -529,11 +529,10 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(productParameters.ProductName))
             {
-                var multiMatchQuery = new MultiMatchQuery
+                var matchQuery = new MatchQuery
                 {
+                    Field = "Name",
                     Query = productParameters.ProductName,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
                     Fuzziness = Fuzziness.Auto,
                     Operator = Operator.And
                 };
@@ -544,17 +543,29 @@ namespace ShopRe.Service
                     Query = productParameters.ProductName,
                     Boost = 2.0
                 };
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = productParameters.ProductName,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And,
+                    MinimumShouldMatch = "70%" // Thử điều chỉnh giá trị này
+                };
 
                 filters.Add(new BoolQuery
                 {
                     Should = new List<QueryContainer>
                     {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
+                        matchQuery,
+                        matchPhrasePrefixQuery,
+                        multiMatchQuery
                     },
                     MinimumShouldMatch = 1
                 });
             }
+
+
 
             if (productParameters.CategoryIds.Any())
             {

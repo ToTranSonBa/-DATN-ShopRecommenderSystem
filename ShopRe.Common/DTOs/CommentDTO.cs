@@ -14,7 +14,7 @@ namespace ShopRe.Common.DTOs
         public int AccountID { get; set; } //customer id
         public int SellerID { get; set; }
         public int ProductID { get; set; }
-        public string? Image { get; set; } // Đối tượng hình ảnh
+        public List<string> Image { get; set; } = new List<string>();
         public int? Rating { get; set; } // Điểm đánh giá
         public string? Content { get; set; } // Nội dung
         public string? TimelineContent { get; set; }

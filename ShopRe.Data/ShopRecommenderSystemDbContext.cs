@@ -59,6 +59,13 @@ namespace ShopRe.Data
                 .HasForeignKey(e => e.ProductID)
                 ;
             });
+            _ = modelBuilder.Entity<CommentImages>(s =>
+            {
+                s.HasOne<DetailComment>(e => e.DetailComment)
+                .WithMany(p => p.Images)
+                .HasForeignKey(e => e.DetailCommentID)
+                ;
+            });
             //modelBuilder.Entity<ApplicationUser>()
             //    .HasOne(e => e.Account)
             //        .WithOne(e => e.User)

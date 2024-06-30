@@ -159,7 +159,7 @@ namespace ShopRe.Service
             Seller seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
 
             var totalCount = await _elasticClient.CountAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Query(q => q
                     .Term(t => t
                         .Field("SellerID_NK")
@@ -633,7 +633,7 @@ namespace ShopRe.Service
         {
 
             var response = await _elasticClient.SearchAsync<object>(c => c
-                .Index("shoprecommend")
+                .Index("products")
                 .Size(quantity)
                 .Query(q => q
                     .Bool(b => b
