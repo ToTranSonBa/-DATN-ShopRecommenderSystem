@@ -549,7 +549,7 @@ namespace ShopRe.Service
 
         public async Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode)
         {
-            var requestUri = $"http://127.0.0.1:8000/get/RecommendProduct?userid={userCode}&productId={reParams.productId}&cateid={reParams.CateId}";
+            var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProduct?userid={userCode}&productId={reParams.productId}&cateid={reParams.CateId}";
 
             var products = new List<Product>();
             JObject result;
