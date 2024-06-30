@@ -36,6 +36,7 @@ namespace ShopRe.Data
         public DbSet<ShopRecommendDaily> shopRecommendDailies { get; set; }
         public DbSet<ProductRecommendDaily> productRecommendDailies { get; set; }
         public DbSet<CommentImages> CommentImages { get; set; }
+        public DbSet<AccountSeller> AccountSeller { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -87,6 +88,10 @@ namespace ShopRe.Data
             //    .WithMany(b => b.Posts)
             //    .HasForeignKey(p => p.BlogUrl)
             //    .HasPrincipalKey(b => b.Url);
+            modelBuilder.Entity<Account>()
+            .HasMany(e => e.Sellers)
+            .WithMany(e => e.Accounts)
+            .UsingEntity<AccountSeller>();
 
 
             //modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);

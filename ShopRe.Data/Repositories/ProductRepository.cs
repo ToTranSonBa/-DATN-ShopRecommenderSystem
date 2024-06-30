@@ -47,7 +47,7 @@ namespace ShopRe.Data.Repositories
         public async Task<List<Product>> GetTopNew(int number)
         {
             return await context.Products
-                    .Where(p => p.CreatedAt.HasValue && p.CreatedAt.Value.Date == DateTime.Today)
+                    .Where(p => p.CreatedAt.HasValue && p.CreatedAt.Value.Date == (DateTime.Today))
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(number)
                     .ToListAsync();

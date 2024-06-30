@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240630074715_follow_table")]
+    partial class follow_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace ShopRe.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2495ed65-a968-479d-9003-72600bb03523",
-                            ConcurrencyStamp = "1b6a5d55-d3ab-4b2d-9c57-41b36bb6ebf6",
+                            Id = "5c3c255f-0275-4e93-95a7-76759deeefea",
+                            ConcurrencyStamp = "f7f977d3-76fe-4df6-a039-9d14dc0b1f96",
                             Name = "Seller",
                             NormalizedName = "SELLER"
                         },
                         new
                         {
-                            Id = "23669457-71ea-47e8-8de2-7498314e3b35",
-                            ConcurrencyStamp = "0a7a812b-ad6d-4bb9-830d-2b17046cf357",
+                            Id = "4877d209-1ce4-46f9-8018-12c24f7fbfdb",
+                            ConcurrencyStamp = "b366f42a-de90-48a3-955a-68394705591c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "668377d0-f13b-4608-bcb9-3ca4aedc4467",
-                            ConcurrencyStamp = "247444b1-9eb1-41c4-ac6a-dbb3180dcb34",
+                            Id = "d673595a-65fd-41e0-9a86-a1c89d311c14",
+                            ConcurrencyStamp = "b0304ee0-b089-4c24-831d-24bba443a9a1",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "de0b1f86-e576-4144-863d-147a072cad54",
-                            ConcurrencyStamp = "08252521-629f-4fdb-9b2c-acecafaeb299",
+                            Id = "e864732e-c067-4371-bc2d-c2cdfc13f10a",
+                            ConcurrencyStamp = "6460e112-073e-4aea-9484-6bbe3aa83284",
                             Name = "Shipper",
                             NormalizedName = "SHIPPER"
                         });
@@ -233,30 +235,6 @@ namespace ShopRe.Data.Migrations
                         .HasFilter("[UserID] IS NOT NULL");
 
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.AccountSeller", b =>
-                {
-                    b.Property<int?>("AccountID_NK")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SellerID_NK")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AccountID_NK", "SellerID_NK");
-
-                    b.HasIndex("SellerID_NK");
-
-                    b.ToTable("AccountSeller");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.ApplicationUser", b =>
@@ -565,6 +543,38 @@ namespace ShopRe.Data.Migrations
                     b.HasIndex("OrderID");
 
                     b.ToTable("DetailComments");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.Follow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("SellerID_NK")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SellerID_NK");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Follows");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Images", b =>
@@ -1189,21 +1199,6 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.AccountSeller", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Account", null)
-                        .WithMany()
-                        .HasForeignKey("AccountID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShopRe.Model.Models.Seller", null)
-                        .WithMany()
-                        .HasForeignKey("SellerID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.CartItem", b =>
                 {
                     b.HasOne("ShopRe.Model.Models.ProductOptionValues", "OptionValues")
@@ -1251,6 +1246,21 @@ namespace ShopRe.Data.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("ShopRe.Model.Models.Follow", b =>
+                {
+                    b.HasOne("ShopRe.Model.Models.Seller", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerID_NK");
+
+                    b.HasOne("ShopRe.Model.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Seller");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.Images", b =>

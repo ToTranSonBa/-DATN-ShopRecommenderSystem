@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
@@ -18,16 +20,20 @@ namespace DATN_ShopRecommenderSystem.Controllers
         readonly ISellerService _sellerService;
         private readonly ShopRecommenderSystemDbContext _context;
         private readonly IElasticSearchService _elasticsearchService;
-        public SellersController(ShopRecommenderSystemDbContext context,ISellerService sellerService, IElasticSearchService elasticSearchService)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public SellersController(ShopRecommenderSystemDbContext context,ISellerService sellerService
+            , IElasticSearchService elasticSearchService, UserManager<ApplicationUser> userManager)
         {
             _sellerService = sellerService;
             _context = context;
             _elasticsearchService = elasticSearchService;
+            _userManager = userManager;
         }
         // GET: api/sellers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Seller>>> GetSellers()
-        {
+        {            
             var res = await _sellerService.GetAll();
             return Ok(res);
         }
@@ -48,12 +54,24 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SellerDTO>> GetSeller(int id)
         {
+            bool follow = false;
+            if (!HttpContext.User.Claims.IsNullOrEmpty())
+            {
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+                var accId = await _context.Accounts
+                    .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
+                if((await _context.AccountSeller.FindAsync(accId, id)) != null)
+                {
+                    follow = true;
+                }
+            }
             var seller = await _sellerService.GetById(id);
             if (seller == null)
             {
                 return NotFound();
             }
-            return Ok(seller);
+            return Ok(new { isFollow = follow, shop =seller});
         }
 
         // GET: api/sellers/5

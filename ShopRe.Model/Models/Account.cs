@@ -25,5 +25,6 @@ namespace ShopRe.Model.Models
         public ICollection<DetailComment> DetailComments { get; set; }
         public int? UserID { get; set; }
         public virtual ApplicationUser? User { get; set; }
+        public List<Seller>? Sellers { get; set; } 
     }
 }

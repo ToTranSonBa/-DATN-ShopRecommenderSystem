@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
+using ShopRe.Data;
 using ShopRe.Model;
 using ShopRe.Model.Authentication;
 using ShopRe.Model.Models;
@@ -27,10 +29,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IShoppingSessionService _shopSessionService;
         private readonly ISellerService _sellerService;
         private readonly IOrderService _orderService;
+        private readonly ShopRecommenderSystemDbContext _context;
         public AccountsController(ISellerService sellerService,IAccountService accountService
             , UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService
-            , IConfiguration configuration, IOrderService orderService)
+            , IConfiguration configuration, IOrderService orderService, ShopRecommenderSystemDbContext context)
         {
+            _context = context;
             _accountService = accountService;
             _userManager = userManager;
             _shopSessionService = shopSessionService;
@@ -339,6 +343,52 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return Unauthorized();
             }
+        }
+        [HttpPost("Customer/FollowShop")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Follow(int shopid)
+        {
+            if (HttpContext.User != null)
+            {
+                var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+                var user = await _userManager.FindByEmailAsync(userEmail);
+                var accId = await _context.Accounts
+                    .Where(a=>a.UserID==user.TrainCode).Select(s=>s.ID_NK).FirstOrDefaultAsync();
+                var follow = new AccountSeller
+                {
+                    SellerID_NK = shopid,
+                    AccountID_NK = accId,
+                    CreatedAt = DateTime.Now,
+                    DeletedAt = null
+                };
+
+                try{
+                    var res = await _context.Set<AccountSeller>().AddAsync(follow);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status200OK);
+                }catch(Exception ex)
+                {
+                    return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+        [HttpPut("Customer/UnfollowShop")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> UnFollow(int shopid)
+        {
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var accId = await _context.Accounts
+                .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
+            var follow = await _context.AccountSeller.FindAsync(accId,shopid);
+            follow.DeletedAt = DateTime.Now;
+            var res =  _context.Set<AccountSeller>().Update(follow);
+            await _context.SaveChangesAsync();
+            return Ok(res.Entity);
         }
     }
 

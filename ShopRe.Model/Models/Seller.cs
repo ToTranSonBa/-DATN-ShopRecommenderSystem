@@ -28,6 +28,7 @@ namespace ShopRe.Model.Models
         public string? Phone { get; set; }
         public string? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
+        public List<Account>? Accounts { get; set; }
         //public ICollection<Product>? Products { get; set; }
     }
 }
