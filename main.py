@@ -4,7 +4,7 @@ import ContentBased as cb
 import uvicorn
 import pickle
 import NeighborhoodBased as nb
-import UpdateModelEs as nb
+import UpdateModelEs as up
 import Environments as env
 
 app = FastAPI()
@@ -21,7 +21,7 @@ app.add_middleware(
 
 async def Knn_train(websocket: WebSocket):
     nb.train()
-    await websocket.send_text(f"Kết thúc ghi train")
+    await websocket.send_text(f"Kết thúc train")
 
 async def prepare_data_async(websocket: WebSocket):
     nb.prepare_data()
@@ -104,6 +104,10 @@ def RecommendProduct(userid: int):
         "total": len(results),
         "products": results
     }
+
+@app.websocket("/ws/update-es")
+async def UpdateEs(websocket: WebSocket):
+    await websocket.accept()
 
 if __name__ == '__main__':
     load_cb()

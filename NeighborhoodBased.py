@@ -214,6 +214,10 @@ def write_model_to_db():
     sellers = pickle.load(open(f'artifacts/Knn_List_Seller.pkl','rb'))
     final_predictions = pickle.load(open(f'artifacts/final_predictions.pkl','rb'))
 
+    df_reset = final_predictions.reset_index()
+    df_long = pd.melt(df_reset, id_vars='user', var_name='seller', value_name='rating')
+    quantiles = df_long.groupby('user')['rating'].quantile(0.75).reset_index()
+    
     with pyodbc.connect(conn_str) as conn:
         
         cursor = conn.cursor()
@@ -227,7 +231,7 @@ def write_model_to_db():
             for rate in sorted_matrix[1]:
                 cursor.execute(f"INSERT INTO [dbo].[ACCOUNT_SELLER_PRIORITY] ([ACCOUNTID] ,[SELLERID] ,[PRIO] ,[IDX]) VALUES (?,?,?,?)", (int(users[row]), int(seller_rating_matrix[0][idx]), float(rate), idx))
                 idx = idx + 1  
-                if(idx > 1000):
+                if(float(rate) < quantiles[quantiles['user'] == int(users[row])]['rating'].values[0]):
                     break
             conn.commit()
     
