@@ -162,7 +162,7 @@ namespace ShopRe.Service
                     AccountID = c.AccountID,
                     SellerID = c.SellerID,
                     ProductID = c.ProductID,
-                    Image = c.Image,
+                    Image = c.Images.Select(i => i.ImageUrl).ToList(),
                     Rating = c.Rating,
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,

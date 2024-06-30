@@ -27,5 +27,6 @@ namespace ShopRe.Model.Models
         public int? OrderID { get; set; }
         public Order? Order { get; set; }
         public Account? Account { get; set; }
+        public List<CommentImages>? Images { get; set; }
     }
 }
