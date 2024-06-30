@@ -257,7 +257,7 @@ const ProductPage = () => {
           <div className="mt-4 product-content">
             <div className="flex items-center justify-center bg-background">
               <div className="">
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {products.map((product) => (
                     <ProductCard key={product?.idx} product={product} />
                   ))}

@@ -6,7 +6,7 @@ const CommentDetail = ({ comments }) => {
     <div>
       <div className="flex flex-col items-start mt-8">
         {comments?.map((item) => (
-          <div className="flex flex-row pt-4">
+          <div className="flex flex-row pt-4 mb-4">
             <img
               src={item.account?.avatar || Default_Avatar}
               alt="a"
@@ -20,10 +20,19 @@ const CommentDetail = ({ comments }) => {
                 {renderStars(item?.rating)}
               </div>
               {item?.content !== "nan" ? (
-                <p className="text-sm mt-2 mb-4 text-gray-700">{item?.content}</p>
+                <p className="text-sm mt-2 mb-4 text-gray-700">
+                  {item?.content}
+                </p>
               ) : (
-                <p className="text-sm mt-2 mb-4 text-gray-700 italic">Không có đánh giá</p>
+                <p className="text-sm mt-2 mb-4 text-gray-700 italic">
+                  Không có đánh giá
+                </p>
               )}
+              <div className="grid grid-cols-10 gap-4">
+                {item.image && item.image.map((imageUrl) => (
+                  <img alt={item.account.iD_NK} src={imageUrl} className="h-40 w-40"></img>
+                ))}
+              </div>
             </div>
           </div>
         ))}
