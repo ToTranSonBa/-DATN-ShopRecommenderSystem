@@ -108,6 +108,9 @@ def RecommendProduct(userid: int):
 @app.websocket("/ws/update-es")
 async def UpdateEs(websocket: WebSocket):
     await websocket.accept()
+    await websocket.send_text(0)
+    await up.PushData(websocket)
+    await websocket.close()
 
 if __name__ == '__main__':
     load_cb()
