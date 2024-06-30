@@ -104,7 +104,7 @@ async def recommend(productid, new_df, similarity, lenght=10):
     try:
         if(len(new_df) == 0):
             return []
-        
+        print(productid)
         new_df = new_df.reset_index(drop=True)
 
         index = new_df[new_df['ID_NK'] == productid].index.tolist()
@@ -116,12 +116,20 @@ async def recommend(productid, new_df, similarity, lenght=10):
     except:
         return []
 
-def write_recommend(user, cateid, proid):
+def write_recommend(user, cateid, result):
     conn_str = env.CONN_STR
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
+        for row in result:
+            cursor.execute(f"SELECT COUNT(*) FROM UserRecommend WHERE UserId = {user} and ProductId = {row}")
+            fetch = cursor.fetchone()
+            if(fetch[0] == 0):
+                cursor.execute(f"INSERT INTO UserRecommend (AdDate, UserId, ProductId, CateId) VALUES (SYSDATETIME(), {user}, {row}, {cateid})")
+            else:
+                cursor.execute(f"update UserRecommend set AdDate = SYSDATETIME() where UserId = {user} and ProductId = {row}")
         cursor.execute(f"exec DropLastRecommend @N__USER_ID = {user}")
-        cursor.execute(f"INSERT INTO UserRecommend VALUES (SYSDATETIME(), {user}, {proid}, {cateid})")
+
+
         conn.commit()
 
 def get_recommend_for_user(user):

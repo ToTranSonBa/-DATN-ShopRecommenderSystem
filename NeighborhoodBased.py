@@ -143,7 +143,7 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
     
     # Compute user averages
     user_means = np.mean(predicted_ratings, axis=1, keepdims=True)
-    
+    user_means = pd.DataFrame(user_means, index=user_rating_matrix.index)
     # Apply K-means clustering
     user_kmeans = KMeans(n_clusters=n_clusters, random_state=0)
     user_clusters = user_kmeans.fit_predict(predicted_ratings)
@@ -158,36 +158,38 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
     for cluster_id in range(n_clusters):
         # Select users belonging to the current cluster
         cluster_users = np.where(user_clusters == cluster_id)[0]
-        
+        print(f"cluster length: {len(cluster_users)}")
         # Select corresponding predicted ratings and implicit matrix
         cluster_predicted_ratings = predicted_ratings.iloc[cluster_users]
+        cluster_user_matrix = user_rating_matrix.iloc[cluster_users]
         cluster_implicit_matrix = user_implicit_matrix.iloc[cluster_users]
-        
         # Compute cosine similarity within the cluster
         cluster_similarity1 = cosine_similarity(cluster_predicted_ratings)
         cluster_similarity2 = cosine_similarity(cluster_implicit_matrix)
         cluster_similarity = (cluster_similarity1 + cluster_similarity2) / 2.0
-        
-        # Create a Nearest Neighbors model based on combined cosine similarity
-        knn = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=n_neighbors+1, n_jobs=-1)
-        knn.fit(cluster_similarity)
-        
-        # Find nearest neighbors for each user within the cluster
-        _, neighbor_indices = knn.kneighbors(cluster_similarity, n_neighbors=n_neighbors + 1)  # +1 to exclude self
-        
-        # Calculate weights based on similarity and apply bias correction
-        weights = np.zeros_like(cluster_similarity)
-        for i in range(cluster_similarity.shape[0]):
-            neighbor_indexes = neighbor_indices[i, 1:]  # exclude self
-            neighbor_similarities = cluster_similarity[i, neighbor_indexes]
-            neighbor_ratings = predicted_ratings.iloc[cluster_users[neighbor_indexes]].values
-            neighbor_means = user_means[cluster_users[neighbor_indexes]].flatten()
-            weights[i, neighbor_indexes] = neighbor_similarities / np.sum(neighbor_similarities)
-            
-            # Predict ratings with bias correction and add back user mean
-            corrected_predictions = user_means[cluster_users[i]].flatten()[0] + np.sum(weights[i, neighbor_indexes, np.newaxis] * (neighbor_ratings - neighbor_means[:, np.newaxis]), axis=0)
-            final_predictions.iloc[cluster_users[i]] = corrected_predictions
-    
+
+        # giải phóng những biên không cần
+        cluster_similarity1 = None
+        cluster_similarity2 = None
+        cluster_implicit_matrix = None
+        cluster_predicted_ratings = None
+
+        df_cluster_similarity = pd.DataFrame(cluster_similarity, columns=cluster_user_matrix.index.tolist(), index=cluster_user_matrix.index.tolist())        
+        for user_id in cluster_user_matrix.index.tolist():
+            similar_users = df_cluster_similarity.loc[user_id].sort_values(ascending=False)
+
+            for column in cluster_user_matrix.columns.tolist():
+                if cluster_user_matrix.loc[user_id, column] == 0: # Chỉ xét các item mà user chưa đánh giá
+                    total_score = 0
+                    similarity_sum = 0
+                    for other_user in similar_users.index.tolist():
+                        if other_user == user_id:
+                            continue
+                        total_score +=  (predicted_ratings.loc[other_user, column] - user_means.loc[other_user][0])* similar_users[other_user]
+                        similarity_sum += similar_users[other_user]
+                    final_predictions.loc[user_id, column] = user_means.loc[user_id, 0] + total_score / similarity_sum
+                else:
+                    final_predictions.loc[user_id, column] = predicted_ratings.loc[user_id, column]
     return final_predictions
 
 

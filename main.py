@@ -75,9 +75,9 @@ async def RecommendProduct(userid: int, productId: int, cateid: int):
     if len(movie) > 0 and len(similarity > 0):
         result = await cb.recommend(productId, movie, similarity)
         result = [int(x) for x in result]
-
+    print(result)
     if userid != 0:
-        cb.write_recommend(userid, productId, cateid)
+        cb.write_recommend(userid, cateid, result)
     
     return {
         "total": len(result),
@@ -96,7 +96,9 @@ def RecommendProduct(userid: int):
             similarity = similarites[cateid]
 
         if len(movie) > 0 and len(similarity > 0):
+            print(len(movie))
             result = cb.recommend(productId, movie, similarity, 5)
+            print(len(result))
             results.extend(result)
     results = [int(x) for x in results]
     results = list(set(results))

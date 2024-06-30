@@ -1,20 +1,25 @@
 from elasticsearch import Elasticsearch
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
 import Environments as env
 import pickle
 import pandas as pd
 import numpy as np
-from fastapi import WebSocket
+from fastapi import FastAPI, WebSocket
+
+ES_CLOUD_ID = "ShopRecommend-ES:YXNpYS1lYXN0MS5nY3AuZWxhc3RpYy1jbG91ZC5jb206NDQzJDM1ZjViY2EzYzIzNjQyZGFhMDU2MTI2ZWFlNTQxNzFjJDA3NDg2ZmI3OGNiZDRjNmFhZjlkNDljZDgyM2Q1NWE2"
+ES_USER = "elastic"
+ES_PWD = "w8zmOxO9q6jhDcArfmSQoVgy"
 
 # Elasticsearch configuration with authentication credentials
 es = Elasticsearch(
-    cloud_id=env.ES_CLOUD_ID,
-    basic_auth=(env.ES_USER, env.ES_PWD)
+    cloud_id= ES_CLOUD_ID,
+    basic_auth=(ES_USER, ES_PWD)
 )
 
 conn_str = env.CONN_STR
 
-
-async def PushData(websocket: WebSocket):
+def PushData():
     # Establish connection
     def process_row(doc_id, user, seller, rating, idx):
         row_dict = {
@@ -85,33 +90,26 @@ async def PushData(websocket: WebSocket):
     df_reset = final_predictions.reset_index()
     df_long = pd.melt(df_reset, id_vars='user', var_name='seller', value_name='rating')
     quantiles = df_long.groupby('user')['rating'].quantile(0.75).reset_index()
-    print(quantiles.shape)
+    print(quantiles)
     id = 0
-    new_value = 0
-    old_value = 0
-    total = len(final_predictions)
-    for row in range(0, len(final_predictions)):
+    for row in range(len(final_predictions)):
         idx = 0
-        seller_rating_matrix = np.vstack([sellers, final_predictions.iloc[row]])
-        sorted_indices = np.argsort(seller_rating_matrix[1])
-        sorted_matrix = seller_rating_matrix[:, sorted_indices]
-        for rate in sorted_matrix[1]:
-            print(rate)
+        user_ratings = final_predictions.iloc[row].values
+        sorted_indices = np.argsort(user_ratings)
+        sorted_sellers = sellers[sorted_indices]
+        sorted_ratings = user_ratings[sorted_indices]
+        for seller, rate in zip(sorted_sellers, sorted_ratings):
             doc_id = id
-            process_row(doc_id, int(users[row]), int(seller_rating_matrix[0][idx]), float(rate), idx)
+            process_row(doc_id, int(users[row]), int(seller), float(rate), idx)
             idx = idx + 1 
             id = id + 1
             print(id)
-            
-            if float(rate) < quantiles[quantiles['user'] == int(users[row])]['rating'].values[0]:
-                break
-        if (int(new_value / total * 100) != old_value):
-            old_value = new_value
-            new_value = new_value + 1
-            await websocket.send_text(new_value)
-if __name__ == '__main__':
+            try:
+                if float(rate) < quantiles[quantiles['user'] == int(users[row])]['rating'].values[0]:
+                    break
+            except:
+                print(quantiles[quantiles['user'] == int(users[row])])
+
+
+if __name__=="__main__":
     print(1)
-
-
-
-
