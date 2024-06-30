@@ -25,9 +25,13 @@ const ProductPage = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get('/Categories?level=0');
-      setCategories(response.data);
-      console.log('fetchCategories: ', response.data);
+      const response = await axios.get('/Categories/CategoriesLV0BySearch', {
+        params: {
+          SearchKey: localStorage.getItem('searchQuery'),
+        }
+      });
+      console.log('fetchCategories: ', response);
+      setCategories(response.categories);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     }
@@ -35,9 +39,12 @@ const ProductPage = () => {
 
   const fetchBrands = useCallback(async () => {
     try {
-      const response = await axios.get('/Brands');
-      setBrands(response);
-      console.log('fetchBrands: ', response);
+      const response = await axios.get('/Brands/BrandsBySearch', {
+        params: {
+          KeyWord: localStorage.getItem('searchQuery'),
+        }
+      });
+      setBrands(response.brands);
     } catch (error) {
       console.error('Failed to fetch brands:', error);
     }
@@ -61,8 +68,8 @@ const ProductPage = () => {
           MinPrice: minPrice,
           MaxPrice: maxPrice,
           MinReviewRating: minReview,
-          // PageNumber: currentPage,
-          // PageSize: productsPerPage,
+          PageNumber: currentPage,
+          PageSize: productsPerPage,
         },
       });
 
@@ -188,7 +195,7 @@ const ProductPage = () => {
                       htmlFor={brand?.brand.name}
                       className="py-1 ml-2 text-sm text-gray-900 dark:text-gray-100"
                     >
-                      {brand?.brand.name} ({brand?.totalProduct})
+                      {brand?.brand.name} ({brand?.total})
                     </label>
                   </li>
                 ))}
