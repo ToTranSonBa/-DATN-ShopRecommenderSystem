@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, createContext } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import renderStars from './RenderStars';
 import axios from '../../services/axios-customize';
@@ -91,7 +91,12 @@ const ProductDetailPage = () => {
 
     const fetchComments = useCallback(async () => {
         try {
-            const response = await axios.get(`/DetailComments/List${id}`);
+            const response = await axios.get(`/DetailComments/List${id}`, {
+                params: {
+                    // PageNumber: 
+                    PageSize: 5,
+                }
+            });
             console.log(response.data);
             setComments(response);
         } catch (error) {

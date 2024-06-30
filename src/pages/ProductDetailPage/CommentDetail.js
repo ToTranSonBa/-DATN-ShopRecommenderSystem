@@ -14,7 +14,7 @@ const CommentDetail = ({ comments }) => {
             />
             <div className="ml-3">
               <h4 className="text font-semibold text-gray-700">
-                {item.account?.fullName}
+                {item.account?.fullName || "Default Name"}
               </h4>
               <div className="flex items-center space-x-1 mt-2">
                 {renderStars(item?.rating)}

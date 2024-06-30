@@ -1,8 +1,6 @@
 import renderLine from "./renderLine";
 
 const CommentRating = ({ commentRating, totalComment }) => {
-  console.log("abc123: ", commentRating);
-  console.log("456789: ", totalComment);
   return (
     <div class=" space-y-3 mt-4 w-full sm:w-2/4 ">
       <div class="flex items-center">

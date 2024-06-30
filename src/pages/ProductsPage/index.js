@@ -152,7 +152,7 @@ const ProductPage = () => {
   return (
     <div className="pt-40 shop-page bg-background">
       {/* layout 2 cột */}
-      <div className="flex w-11/12 m-auto md:flex-row sm:w-3/4">
+      <div className="flex w-11/12 m-auto md:flex-row sm:max-w-screen-2xl">
         {/* cột trái 1/5 chứa filter */}
         <div className="flex-1 hidden pr-4 md:block md:flex-none md:w-1/5">
           <span className="text-lg font-semibold text-gray-900 sm:text-xl">Bộ lọc tìm kiếm</span>

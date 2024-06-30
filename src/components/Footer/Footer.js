@@ -10,7 +10,7 @@ const Footer = () => {
         navigate('/');
     };
     return (
-        <div className="bg-gray-100 lg:py-8">
+        <div className="bg-gray-200 lg:py-8">
             <MaxWidthWrapper>
                 <div class="grid gap-10 row-gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="sm:col-span-2">

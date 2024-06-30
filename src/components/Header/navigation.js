@@ -142,7 +142,7 @@ const Navigation = ({
     <div className="inset-x-0 top-8 md:absolute md:z-10">
       <div className={`max-w-full  ${className_bg}`}>
         <MaxWidthWrapper>
-          <div className="max-w-full px-2 mx-auto sm:px-6 lg:px-8">
+          <div className="max-w-full mx-auto">
             <div className="relative flex items-center justify-between h-16 lg:gap-8 ">
               <div className="flex items-center justify-center flex-1 lg:gap-12 sm:items-stretch sm:justify-start">
                 <a href="/" className="flex items-center flex-shrink-0">
