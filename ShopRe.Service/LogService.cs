@@ -14,7 +14,7 @@ namespace ShopRe.Service
     public interface ILogService
     {
         Task<bool> addSearch(UserLogDto userLogDto);
-        Task<bool> addView( int sellerId, ApplicationUser user);
+        Task<bool> addView(int productid, int sellerId, ApplicationUser user);
     }
     public class LogService : ILogService
     {
@@ -43,7 +43,7 @@ namespace ShopRe.Service
             }
             return false;
         }
-        public async Task<bool> addView( int sellerId, ApplicationUser user)
+        public async Task<bool> addView(int productid, int sellerId, ApplicationUser user)
         {
 
             var view = new UserLog
@@ -51,7 +51,8 @@ namespace ShopRe.Service
                 Detail = "View Product",
                 SellerId = sellerId,
                 User = user,
-                LogRate = LogRate._YES
+                LogRate = LogRate._YES,
+                ProductID_NK = productid
             };
             
             var res = await _UserLogRepository.AddL(view);

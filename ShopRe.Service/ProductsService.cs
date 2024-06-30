@@ -37,6 +37,7 @@ namespace ShopRe.Service
         public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
         public Task<List<ProductWithImages>> GetTopNew(int number);
         public Task<List<ProductWithImages>> GetPopular(int number);
+        public Task<List<ProductWithImages>> GetTopView(int number);
     }
     public class ProductService : IProductService
     {
@@ -347,7 +348,7 @@ namespace ShopRe.Service
 
                 product.IsDeleted = true;
 
-                _dbContext.Update(product);
+                await _productRepository.Update(product);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -662,6 +663,11 @@ namespace ShopRe.Service
             }
             var products = FunctionCommon.ConvertToProduct(response.Documents.ToList());
             return products;
+        }
+        public async Task<List<ProductWithImages>> GetTopView(int number)
+        {
+            var result = await _productRepository.GetTopView(number);
+            return await ConvertToProductWithImages(result);
         }
     }
 }

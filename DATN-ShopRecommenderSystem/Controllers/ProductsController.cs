@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Model.Models;
@@ -124,7 +125,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var token = authHeader.Substring("Bearer ".Length).Trim();
 
                 var user = await _accountService.GetUserFromTokenAsync(token);
-                var res = await _logService.addView(product.Seller.ID_NK, user);
+                var res = await _logService.addView(product.Product.ID_NK,product.Seller.ID_NK, user);
             }            
             return Ok(product);
         }
@@ -274,21 +275,21 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        [HttpPost("logUserView")]
-        public async Task<ActionResult> logProductView(int min, int sellerId)
-        {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                return Unauthorized();
-            }
+        //[HttpPost("logUserView")]
+        //public async Task<ActionResult> logProductView(int min, int sellerId)
+        //{
+        //    var authHeader = Request.Headers["Authorization"].ToString();
+        //    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        //    {
+        //        return Unauthorized();
+        //    }
 
-            var token = authHeader.Substring("Bearer ".Length).Trim();
+        //    var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            var res = await _logService.addView( sellerId, user);
-            return Ok(res);
-        }
+        //    var user = await _accountService.GetUserFromTokenAsync(token);
+        //    var res = await _logService.addView( sellerId, user);
+        //    return Ok(res);
+        //}
 
         [HttpPost("RecommendProduct")]
         public async Task<ActionResult> logProductView(RecommendParamaters paramaters)
@@ -319,6 +320,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult> GetPopular()
         {
             var result = await _productsService.GetPopular(10);
+            return Ok(result);
+        }
+        [HttpGet("GetTopView")]
+        public async Task<ActionResult> GetTopView()
+        {
+            var result = await _productsService.GetTopView(10);
             return Ok(result);
         }
     }

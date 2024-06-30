@@ -8,6 +8,7 @@
         public LogRate LogRate { get; set; }
         public int? SellerId { get; set; }
         public Seller? Seller { get; set; }
+        public int? ProductID_NK { get; set; }
         public Product? Product { get; set; }
         public int? TrainCode { get; set; }
         public ApplicationUser? User { get; set; }

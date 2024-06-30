@@ -15,7 +15,7 @@ namespace ShopRe.Data.Repositories
         Task<List<Product>> GetProductPopular(int number);
         Task<List<Product>> GetProductByCateId(int cateId);
         Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity);
-
+        Task<List<Product>> GetTopView(int number);
 
     }
     public class ProductRepository : RepositoryBase<Product>, IProductRepository
@@ -86,6 +86,25 @@ namespace ShopRe.Data.Repositories
                 .ThenBy(e => e.RatingAverage)
                 .Take(quantity)
                 .ToListAsync();
+        }
+        public async Task<List<Product>> GetTopView(int number)
+        {
+
+            var firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            // Lấy ngày cuối cùng của tháng hiện tại
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            var topIds = await context.UserLog
+                   .Where(u=>u.DateTime >= firstDayOfMonth && u.DateTime <= lastDayOfMonth)
+                   .GroupBy(u => u.ProductID_NK)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .Take(number)
+                    .ToListAsync();
+            var topViews = await context.Products
+                .Where(p => topIds.Contains(p.ID_NK))
+                .ToListAsync();
+            return topViews;    
+
         }
     }
 }
