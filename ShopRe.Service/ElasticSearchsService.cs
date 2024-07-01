@@ -1227,9 +1227,16 @@ namespace ShopRe.Service
                 {
                     var productDetail = new ProductDetailDTO();
                     var images = await _dbContext.Images.Where(i => i.Product.ID_NK == item.ID_NK).ToListAsync();
+                    var brand = await _dbContext.Brands.FirstOrDefaultAsync(i => i.ID_NK == item.BrandID_NK);
+                    var category = await _dbContext.Category.FindAsync(item.Category_LV0_NK);
+                    List<ProductChild> children = await _dbContext.ProductChild.Where(p => p.Product.ID_NK == item.ID_NK).ToListAsync();
 
                     productDetail.Product = _mapper.Map<ProductDTO>(item);
                     productDetail.Images = _mapper.Map<List<ImageDTO>>(images);
+                    productDetail.Seller = seller;
+                    productDetail.Category = _mapper.Map<CategoryDTO>(category);
+                    productDetail.Brand = _mapper.Map<BrandDTO>(brand);
+                    productDetail.ProductChildren = _mapper.Map<List<ProductChildDTO>>(children);
 
                     listProductDetail.Add(productDetail);
                 }

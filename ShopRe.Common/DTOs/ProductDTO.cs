@@ -35,5 +35,6 @@ namespace ShopRe.Common.DTOs
 
         public int SellerID_NK { get; set; }
         public string? ShortUrl { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }
