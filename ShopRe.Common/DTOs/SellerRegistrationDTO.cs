@@ -15,6 +15,7 @@ namespace ShopRe.Common.DTOs
         public string Phone { get; set; }
         public string Address { get; set; }
         public string ImageUrl { get; set; }
+        public int totalFollower {  get; set; }
     }
     public enum RegisterSellerStatus
     {

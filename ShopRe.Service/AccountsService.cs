@@ -244,7 +244,8 @@ namespace ShopRe.Service
                 Phone = sellerRegistrationDTO.Phone,
                 Address = sellerRegistrationDTO.Address,
                 ImageUrl = sellerRegistrationDTO.ImageUrl,
-                ApplicationUser = sellerRegistrationDTO.user
+                ApplicationUser = sellerRegistrationDTO.user,
+                TotalFollower = sellerRegistrationDTO.totalFollower 
             };
             var addingSeller = await _context.Sellers.AddAsync(seller);
             await _context.SaveChangesAsync();

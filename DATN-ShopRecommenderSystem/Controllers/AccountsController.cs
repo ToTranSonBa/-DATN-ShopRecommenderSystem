@@ -30,7 +30,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly ISellerService _sellerService;
         private readonly IOrderService _orderService;
         private readonly ShopRecommenderSystemDbContext _context;
-        public AccountsController(ISellerService sellerService,IAccountService accountService
+        public AccountsController(ISellerService sellerService, IAccountService accountService
             , UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService
             , IConfiguration configuration, IOrderService orderService, ShopRecommenderSystemDbContext context)
         {
@@ -215,7 +215,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
         [HttpPost("RegisterSeller")]
-        [Authorize(Roles ="Customer")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> RegisterSeller(SellerRegistInfo seller)
         {
             var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
@@ -230,9 +230,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 Phone = seller.Phone,
                 Address = seller.Address,
                 ImageUrl = seller.ImageUrl,
-                user = userCurrent
+                user = userCurrent,
+                totalFollower = 0
             };
-            var result = await _accountService.RegisterSeller(dto,userEmail);
+            var result = await _accountService.RegisterSeller(dto, userEmail);
             return StatusCode(StatusCodes.Status200OK, new LoginRespone
             {
                 AccessToken = result.Token.AccessToken,
@@ -250,10 +251,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
             switch ((int)result.status)
             {
                 case (int)LoginStatus.USERNOTEXIST:
-                    return StatusCode(StatusCodes.Status401Unauthorized,"User Not Exist" );
+                    return StatusCode(StatusCodes.Status401Unauthorized, "User Not Exist");
                 case (int)LoginStatus.INCORRECTPASSWORD:
-                    return StatusCode(StatusCodes.Status401Unauthorized,"Incorreted Password" );
-                
+                    return StatusCode(StatusCodes.Status401Unauthorized, "Incorreted Password");
+
                 default:
                     return StatusCode(StatusCodes.Status200OK,
                         new LoginRespone
@@ -287,7 +288,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<IActionResult> UpdateUserSeller(ChangeUserSeller seller)
         {
             if (HttpContext.User != null)
-            { 
+            {
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
@@ -300,15 +301,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
         [HttpGet("Seller/GetListOrder")]
-        [Authorize(Roles ="Seller")]
-        public async Task<IActionResult> GetListOrder([FromQuery]OrdersParameters ordersParameters)
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> GetListOrder([FromQuery] OrdersParameters ordersParameters)
         {
             if (HttpContext.User != null)
             {
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
 
-                var (total,result) = await _orderService.GetOrdersOfSeller(ordersParameters,user);
+                var (total, result) = await _orderService.GetOrdersOfSeller(ordersParameters, user);
                 var response = new
                 {
                     TotalCount = total,
@@ -353,7 +354,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
                 var accId = await _context.Accounts
-                    .Where(a=>a.UserID==user.TrainCode).Select(s=>s.ID_NK).FirstOrDefaultAsync();
+                    .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
                 var follow = new AccountSeller
                 {
                     SellerID_NK = shopid,
@@ -362,11 +363,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     DeletedAt = null
                 };
 
-                try{
+                try {
                     var res = await _context.Set<AccountSeller>().AddAsync(follow);
                     await _context.SaveChangesAsync();
                     return StatusCode(StatusCodes.Status200OK);
-                }catch(Exception ex)
+                } catch (Exception ex)
                 {
                     return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
                 }
@@ -384,12 +385,86 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var user = await _userManager.FindByEmailAsync(userEmail);
             var accId = await _context.Accounts
                 .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
-            var follow = await _context.AccountSeller.FindAsync(accId,shopid);
+            var follow = await _context.AccountSeller.FindAsync(accId, shopid);
             follow.DeletedAt = DateTime.Now;
-            var res =  _context.Set<AccountSeller>().Update(follow);
+            var res = _context.Set<AccountSeller>().Update(follow);
             await _context.SaveChangesAsync();
             return Ok(res.Entity);
         }
+        /*--------------------------Dashboard----------------------*/
+        [HttpGet("Seller/InfoStatus")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> GetInfoStatus()
+        {
+            var firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            // Lấy ngày cuối cùng của tháng hiện tại
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var seller = await _context.Sellers
+                .Where(s => s.ApplicationUserId == user.Id)
+                .FirstOrDefaultAsync(); 
+            var sellerID = seller.ID_NK;
+            var totalpro = await _context.Products.CountAsync(p => p.SellerID_NK == sellerID);
+            var listOrder = await _context.Order.Where(s => s.SellerID_NK == sellerID && (s.CreatedAt >= firstDayOfMonth && s.CreatedAt <= lastDayOfMonth)).ToListAsync();
+            var totalOrder = listOrder.Count();
+            decimal? interest = 0;
+            foreach (var order in listOrder)
+            {
+                interest = order.TotalPrice + interest;
+            }
+            var totalFollow = seller.TotalFollower;
+            return Ok(new { totalpro, totalOrder, interest, totalFollow });
+
+        }
+        //[HttpGet("Seller/OrderDashboard")]
+        //[Authorize(Roles = "Seller")]
+        //public async Task<IActionResult> OrderDashboard()
+        //{
+        //    var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+        //    var user = await _userManager.FindByEmailAsync(userEmail);
+        //    var seller = await _context.Sellers
+        //        .Where(s => s.ApplicationUserId == user.Id)
+        //        .FirstOrDefaultAsync();
+        //    int currentYear = DateTime.Now.Year;
+
+        //    // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
+        //    var ordersData = _context.Order
+        //        .Where(o => o.CreatedAt. == currentYear)
+        //        .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
+        //        .Select(g => new
+        //        {
+        //            Year = g.Key.Year,
+        //            Month = g.Key.Month,
+        //            OrderCount = g.Count(),
+        //            Orders = g.ToList()
+        //        })
+        //        .ToList();
+
+        //    // Tạo danh sách đủ 12 tháng với OrderCount = 0
+        //    var monthlyOrders = Enumerable.Range(1, 12)
+        //        .Select(month => new
+        //        {
+        //            Year = currentYear,
+        //            Month = month,
+        //            OrderCount = 0,
+        //            Orders = new List<Order>()
+        //        })
+        //        .ToList();
+
+        //    // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+        //    foreach (var orderData in ordersData)
+        //    {
+        //        var monthOrder = monthlyOrders.FirstOrDefault(mo => mo.Month == orderData.Month);
+        //        if (monthOrder != null)
+        //        {
+        //            monthOrder.OrderCount = orderData.OrderCount;
+        //            monthOrder.Orders = orderData.Orders;
+        //        }
+        //    }
+
+        //    return Ok(monthlyOrders);
+        //}
     }
 
 } 

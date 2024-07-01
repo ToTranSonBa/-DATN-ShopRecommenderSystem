@@ -16,6 +16,9 @@ namespace ShopRe.Model.Models
         public string? option4 { get; set; }
         public string? thumbnail_url { get; set; }
         public int Price { get; set; }
+        public int? ProductID_NK { get; set; }
         public Product? Product { get; set; }
+        public int? OptionValuesID1 { get; set; }
+        public int? OptionValuesID2 { get;set; }
     }
 }
