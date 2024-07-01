@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { getCategoriesApi, getBrandsApi } from '../../../../../services/SellerApi/sellerApi'
 const FormProduct = ({ action, product, useroption, open, formValues, setFormValues, files, setFiles, options, optionValues }) => {
-    console.log('options: ', options);
-    console.log('optionValues: ', optionValues);
+
 
     const [isDraggedOver, setIsDraggedOver] = useState(false);
     const [mode, setMode] = useState(action); // Khởi tạo giá trị ban đầu cho mode bằng action
@@ -82,6 +81,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                 name: file.name,
                 type: file.type.startsWith('image') ? 'image' : 'other',
                 preview: fileURL,
+                file: file
             };
             return acc;
         }, {});
@@ -123,48 +123,49 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
     useEffect(() => {
         if (action === 1 && product) {
             setFormValues({
-                productName: product.name || '',
-                productPrice: product.price || '',
-                shortDescription: product.shortdes || '',
-                description: product.description || '',
-                category: product.Category || '',
-                brand: product.brand || '',
-                productQuantitySold: product.QuantitySold || 0,
+                productName: product.product.name || '',
+                productPrice: product.product.price || '',
+                shortDescription: product.product.shortDescription || '',
+                description: product.product.description || '',
+                category: product.product.category_LV0_NK || '',
+                brand: product.product.brandID_NK || '',
+                productQuantitySold: product.product.quantity || 0,
             });
 
-            const initialFiles = product.images.reduce((acc, url, index) => {
+            const initialFiles = product.images.reduce((acc, image, index) => {
                 acc[`image-${index}`] = {
                     name: `Image ${index + 1}`,
                     type: 'image',
-                    preview: url,
+                    preview: image.image,
+                    file: null
                 };
                 return acc;
             }, {});
             setFiles(initialFiles);
         } else if (action === 2 && product) {
             setFormValues({
-                productName: product.name || '',
-                productPrice: product.price || '',
-                shortDescription: product.shortdes || '',
-                description: product.description || '',
-                category: product.Category || '',
-                brand: product.brand || '',
-
-                productQuantitySold: product.QuantitySold || 0,
+                productName: product.product.name || '',
+                productPrice: product.product.price || '',
+                shortDescription: product.product.shortDescription || '',
+                description: product.product.description || '',
+                category: product.product.category_LV0_NK || '',
+                brand: product.product.brandID_NK || '',
+                productQuantitySold: product.product.quantity || 0,
             });
 
-            const initialFiles = product.images.reduce((acc, url, index) => {
+            const initialFiles = product.images.reduce((acc, image, index) => {
                 acc[`image-${index}`] = {
                     name: `Image ${index + 1}`,
                     type: 'image',
-                    preview: url,
+                    preview: image.image,
+                    file: null
+
                 };
                 return acc;
             }, {});
             setFiles(initialFiles);
         }
     }, []);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         console.log('name: ', name);

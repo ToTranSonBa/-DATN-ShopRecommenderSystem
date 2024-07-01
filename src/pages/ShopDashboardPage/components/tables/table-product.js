@@ -1,142 +1,61 @@
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale'; // Import locale for Vietnamese language
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import FormProductManager from '../forms/form-product';
 import MaxWidthWrapper from '../../../../components/MaxWidthWrapper';
 import { image } from '@cloudinary/url-gen/qualifiers/source';
 import { Value } from 'sass';
+import { getSellerApi, getProductsBySellerApi, deleteProductApi } from '../../../../services/SellerApi/sellerApi';
+
 
 const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 };
 
-const products = [
-    {
-        iD_NK: '123',
-        name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-        shortdes:
-            '- Đồ lót nam là một phần không thể thiếu trong tủ đồ của các quý ông, không chỉ vì tính chất bảo vệ nhạy cảm mà còn vì vai trò quan trọng trong việc tôn lên sự tự tin và thẩm mỹ của bản thân. Đặc biệt, quần lót đùi nam không chỉ giúp che chắn mà còn mang lại cảm giác thoải mái và tạo điểm nhấn thẩm mỹ cho các trang phục bên ngoài.Hiện nay, thị trường đồ lót nam đa dạng với nhiều kiểu dáng, chất liệu và màu sắc khác nhau, đáp ứng mọi nhu cầu và sở thích của người tiêu dùng. Từ quần lót đơn giản đến những thiết kế cao cấp, từ chất liệu cotton mềm mại đến các loại vải cao cấp khác, khách hàng có thể dễ dàng lựa chọn sản phẩm phù hợp nhất với họ.',
-        price: '126000',
-        RatingAvg: '4.9',
-        RatingTotal: '1234',
-        Category: 'Quân áo thời trang',
-        CreateAt: '2024-12-20 10:12:12',
-        images: [
-            'https://salt.tikicdn.com/ts/product/03/cb/e9/2e12445e8fe2c5efc82b65e86ca14840.jpg',
-            'https://salt.tikicdn.com/ts/product/b6/de/b3/8712cc3f74bcf0da63d46f7f4c7f8c72.jpg',
-            'https://salt.tikicdn.com/ts/product/ee/c6/9f/bd62cb04140041602496c6ad619b40cf.jpg',
-            'https://salt.tikicdn.com/ts/product/1c/46/ed/6e098d0427546c8e2abbf4841200592f.png',
-            'https://salt.tikicdn.com/ts/product/d5/93/21/cc98dae75c50185afc01f9e8921f0d12.png',
-            'https://salt.tikicdn.com/ts/product/41/eb/f3/747b413ac6f4e0569fef92a3d0fdd231.png',
-            'https://salt.tikicdn.com/ts/product/e5/f1/5a/926ad276a29819243b41eb825087ad9e.png',
-            'https://salt.tikicdn.com/ts/product/89/36/6a/8c6e28f8619b4c0e132d0b8ed889007d.png',
-            'https://salt.tikicdn.com/ts/product/a6/74/ac/283cec826e58f3bb45f6fff4fea53f6b.png',
-            'https://salt.tikicdn.com/ts/product/73/ba/2c/31335b536af33ac3fc06cc74bf93e6ec.png',
-        ],
-
-        brand: 'Ahola',
-        Option: {
-            Value: [
-                {
-                    namevalue: 'Loại bìa',
-                    optionvalue: [
-                        {
-                            name: 'Bìa Hồng',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                        {
-                            name: 'Bìa Đen',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                    ],
-                },
-                {
-                    namevalue: 'Loại a',
-                    optionvalue: [
-                        {
-                            name: 'Bìa Hồng',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                        {
-                            name: 'Bìa Đen',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                    ],
-                },
-            ],
-        },
-    },
-    {
-        iD_NK: '123',
-        name: 'Combo 5 quần lót nam BIZON boxer DA2 thun lạnh cao cấp, quần sịp nam mềm mại co giãn 4 chiều, thấm hút kháng khuẩn tốt',
-        shortdes:
-            '- Đồ lót nam là một phần không thể thiếu trong tủ đồ của các quý ông, không chỉ vì tính chất bảo vệ nhạy cảm mà còn vì vai trò quan trọng trong việc tôn lên sự tự tin và thẩm mỹ của bản thân. Đặc biệt, quần lót đùi nam không chỉ giúp che chắn mà còn mang lại cảm giác thoải mái và tạo điểm nhấn thẩm mỹ cho các trang phục bên ngoài.Hiện nay, thị trường đồ lót nam đa dạng với nhiều kiểu dáng, chất liệu và màu sắc khác nhau, đáp ứng mọi nhu cầu và sở thích của người tiêu dùng. Từ quần lót đơn giản đến những thiết kế cao cấp, từ chất liệu cotton mềm mại đến các loại vải cao cấp khác, khách hàng có thể dễ dàng lựa chọn sản phẩm phù hợp nhất với họ.',
-        price: '126000',
-        RatingAvg: '4.9',
-        RatingTotal: '1234',
-
-        CreateAt: '2024-12-20 10:12:12',
-        images: [
-            'https://salt.tikicdn.com/ts/product/03/cb/e9/2e12445e8fe2c5efc82b65e86ca14840.jpg',
-            'https://salt.tikicdn.com/ts/product/b6/de/b3/8712cc3f74bcf0da63d46f7f4c7f8c72.jpg',
-            'https://salt.tikicdn.com/ts/product/ee/c6/9f/bd62cb04140041602496c6ad619b40cf.jpg',
-            'https://salt.tikicdn.com/ts/product/1c/46/ed/6e098d0427546c8e2abbf4841200592f.png',
-            'https://salt.tikicdn.com/ts/product/d5/93/21/cc98dae75c50185afc01f9e8921f0d12.png',
-            'https://salt.tikicdn.com/ts/product/41/eb/f3/747b413ac6f4e0569fef92a3d0fdd231.png',
-            'https://salt.tikicdn.com/ts/product/e5/f1/5a/926ad276a29819243b41eb825087ad9e.png',
-            'https://salt.tikicdn.com/ts/product/89/36/6a/8c6e28f8619b4c0e132d0b8ed889007d.png',
-            'https://salt.tikicdn.com/ts/product/a6/74/ac/283cec826e58f3bb45f6fff4fea53f6b.png',
-            'https://salt.tikicdn.com/ts/product/73/ba/2c/31335b536af33ac3fc06cc74bf93e6ec.png',
-        ],
-        Category: 'Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo Quần áo',
-        brand: 'Ahola',
-        Option: {
-            Value: [
-                {
-                    namevalue: 'Loại bìa',
-                    optionvalue: [
-                        {
-                            name: 'Bìa Hồng',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                        {
-                            name: 'Bìa Đen',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                    ],
-                },
-                {
-                    namevalue: 'Loại a',
-                    optionvalue: [
-                        {
-                            name: 'Bìa Hồng',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                        {
-                            name: 'Bìa Đen',
-                            imagechild:
-                                'https://salt.tikicdn.com/cache/280x280/ts/product/6f/c4/48/574854f032ae36fc0d0a57b61f588965.jpg',
-                        },
-                    ],
-                },
-            ],
-        },
-    },
-];
-
 const TableProduct = ({ inDoashboard = false }) => {
+
+    const token = localStorage.getItem('token');
     const [isOpenDropdownAddProduct, setIsOpenDropdownAddProduct] = useState(false);
     const [isOpenDropdownEditProduct, setIsOpenDropdownEditProduct] = useState(false);
     const [isOpenDropdownDetailProduct, setIsOpenDropdownDetailProduct] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null); // State để lưu sản phẩm được chọn để chỉnh sửa
+    const [sellerData, setSellerData] = useState({});
+    const [pageNumber, setPageNumber] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+    const [products, setProducts] = useState([]);
 
+
+
+    const fetchSeller = useCallback(async (page, size) => {
+        try {
+            const seller = await getSellerApi(token);
+            if (seller) {
+                const productsbySeller = await getProductsBySellerApi(page, size, seller.iD_NK);
+                console.log('productsbySeller: ', productsbySeller)
+                setProducts(productsbySeller.products);
+            }
+
+
+        } catch (error) {
+            console.error('Failed to fetch fetchSeller:', error);
+        }
+    });
+
+    const handleDeleteProduct = async (productId) => {
+        try {
+            const deleteProductData = await deleteProductApi(productId, token);
+        } catch (error) {
+            console.log('Failed to call deleteProductApi:', error)
+        }
+    }
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchSeller(pageNumber, pageSize);
+        };
+        fetchData();
+    }, [pageNumber, pageSize]);
     // Hàm mở form chỉnh sửa sản phẩm
     const openEditProductForm = (product) => {
         setSelectedProduct(product); // Lưu sản phẩm được chọn vào state
@@ -147,6 +66,26 @@ const TableProduct = ({ inDoashboard = false }) => {
         setSelectedProduct(product); // Lưu sản phẩm được chọn vào state
         setIsOpenDropdownDetailProduct(true); // Mở form chỉnh sửa
     };
+
+
+    // Pagination handlers
+    const handlePreviousPage = () => {
+        if (pageNumber > 0) {
+            setPageNumber(pageNumber - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        setPageNumber(pageNumber + 1);
+
+    };
+
+    const handlePageClick = (page) => {
+        setPageNumber(page);
+    };
+
+
+
 
     return (
         <>
@@ -241,27 +180,26 @@ const TableProduct = ({ inDoashboard = false }) => {
                                         <th scope="col" class="px-6 py-3">
                                             Danh mục
                                         </th>
-                                        <th scope="col" class="px-6 py-3">
+                                        {/* <th scope="col" class="px-6 py-3">
                                             Ngày tạo
-                                        </th>
+                                        </th> */}
                                         <th scope="col" class="px-6 py-3"></th>
                                     </>
                                 )}
                             </tr>
                         </thead>
                         <tbody className="overflow-y-auto">
-                            {products.map((product) => (
+                            {products && products.map((product) => (
                                 <tr
-                                    key={product.iD_NK}
+                                    key={product.product.iD_NK}
                                     class="bg-white border-b  dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
                                     <th
                                         scope="row"
-                                        class={`${
-                                            inDoashboard === true ? 'max-w-[10rem] overflow-hidden' : ''
-                                        } px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
+                                        class={`${inDoashboard === true ? 'max-w-[10rem] overflow-hidden' : ''
+                                            } px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
                                     >
-                                        {product.iD_NK}
+                                        {product.product.iD_NK}
                                     </th>
                                     <td class="w-48 overflow-hidden px-6 py-3">
                                         {!inDoashboard && (
@@ -270,7 +208,7 @@ const TableProduct = ({ inDoashboard = false }) => {
                                                 className="w-full bg-transparent border-0 resize-none"
                                                 rows={5}
                                             >
-                                                {product.name}
+                                                {product.product.name}
                                             </textarea>
                                         )}
                                         {inDoashboard && <div className="h-20">{product.name}</div>}
@@ -282,13 +220,13 @@ const TableProduct = ({ inDoashboard = false }) => {
                                                 className="resize-none bg-transparent w-full h-28 cols={50} border-0"
                                                 rows={5}
                                             >
-                                                {product.shortdes}
+                                                {product.product.shortDescription}
                                             </textarea>
                                         </td>
                                     )}
-                                    <td class="px-6 py-4">{formatNumber(product.price)}</td>
-                                    <td class="px-6 py-4">{product.RatingAvg}</td>
-                                    <td class="px-6 py-4">{product.RatingTotal}</td>
+                                    <td class="px-6 py-4">{formatNumber(product.product.price)}</td>
+                                    <td class="px-6 py-4">{product.product.RatingAvg}</td>
+                                    <td class="px-6 py-4">{product.product.RatingTotal}</td>
                                     {!inDoashboard && (
                                         <>
                                             <td class="px-6 py-4">
@@ -298,17 +236,17 @@ const TableProduct = ({ inDoashboard = false }) => {
                                                         className="w-full bg-transparent border-0 resize-none"
                                                         rows={5}
                                                     >
-                                                        {product.Category}
+                                                        {product.category.name}
                                                     </textarea>
                                                 )}
-                                                {inDoashboard && <div className="h-20">{product.Category}</div>}
+                                                {inDoashboard && <div className="h-20">{product.product.Category}</div>}
                                             </td>
-                                            <td class="px-6 py-4">
-                                                {formatDistanceToNow(new Date(product.CreateAt), {
+                                            {/* <td class="px-6 py-4">
+                                                {formatDistanceToNow(new Date(product.product.CreateAt), {
                                                     addSuffix: true,
                                                     locale: vi,
                                                 })}
-                                            </td>
+                                            </td> */}
                                             <td class="px-6 py-4 ">
                                                 <div class="flex-row items-center space-x-2">
                                                     <div
@@ -323,7 +261,9 @@ const TableProduct = ({ inDoashboard = false }) => {
                                                     >
                                                         Sửa
                                                     </div>
-                                                    <div class="font-medium hover:cursor-pointer w-[80px] bg-red-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-red-700 dark:text-blue-500 hover:underline">
+                                                    <div
+                                                        onClick={() => handleDeleteProduct(product.product.iD_NK)}
+                                                        class="font-medium hover:cursor-pointer w-[80px] bg-red-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-red-700 dark:text-blue-500 hover:underline">
                                                         Xoá
                                                     </div>
                                                 </div>
@@ -347,59 +287,19 @@ const TableProduct = ({ inDoashboard = false }) => {
                             <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                                 <li>
                                     <a
-                                        href="#"
+                                        onClick={handlePreviousPage}
                                         class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                                     >
-                                        Previous
+                                        trước
                                     </a>
                                 </li>
+
                                 <li>
                                     <a
-                                        href="#"
-                                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                    >
-                                        1
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="#"
-                                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                    >
-                                        2
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="#"
-                                        aria-current="page"
-                                        class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                                    >
-                                        3
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="#"
-                                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                    >
-                                        4
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="#"
-                                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                                    >
-                                        5
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="#"
+                                        onClick={handleNextPage}
                                         class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                                     >
-                                        Next
+                                        sau
                                     </a>
                                 </li>
                             </ul>

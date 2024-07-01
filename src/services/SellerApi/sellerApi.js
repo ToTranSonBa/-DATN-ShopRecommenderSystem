@@ -50,4 +50,79 @@ const updateSellerApi = async (name, imageUrl, address, phone, token) => {
         throw error;
     }
 };
-export { getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi };
+
+const addProductApi = async (productData, token) => {
+    console.log('productDataAPI: ', productData);
+    try {
+        return axios.post('/Products/AddProduct', {
+            productName: productData.productName,
+            productDescription: productData.description,
+            price: productData.productPrice,
+            shortDescription: productData.shortDescription,
+            categories: productData.category,
+            brandID: productData.brand,
+            quantity: productData.productQuantitySold,
+            images: productData.images
+
+        }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        }
+        );
+    } catch (error) {
+        console.error('Failed to addProductApi:', error);
+        throw error;
+    }
+};
+
+const addProductOptionsApi = async (productOptionsData) => {
+    console.log('productOptionsDataAPI: ', productOptionsData);
+
+    try {
+        return axios.post('/ProductOptions/OptionOfProduct', {
+            idProduct: productOptionsData.idProduct,
+            name: productOptionsData.name,
+            optionNumber: productOptionsData.optionNumber,
+            values: productOptionsData.values,
+
+
+        }
+        );
+    } catch (error) {
+        console.error('Failed to addProductOptionsApi:', error);
+        throw error;
+    }
+};
+
+
+
+const deleteProductApi = async (productId, token) => {
+    try {
+        return axios.delete(`/Products/${productId}`, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        });
+    } catch (error) {
+        console.error('Failed to deleteProductApi:', error);
+        throw error;
+    }
+};
+const getProductsBySellerApi = async (pageNumber, PageSize, idSeller) => {
+    console.log('pageNumber: ', pageNumber);
+    console.log('PageSize: ', PageSize);
+    console.log('idSeller: ', idSeller);
+
+    try {
+        return axios.get(`/Sellers/Products/${idSeller}?PageNumber=${pageNumber}&PageSize=${PageSize}`
+        );
+    } catch (error) {
+        console.error('Failed to addProductsBySellerApi:', error);
+        throw error;
+    }
+};
+
+
+
+export { getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi, addProductApi, addProductOptionsApi, getProductsBySellerApi, deleteProductApi };

@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import DefaultImage from '../../../../../assets/imageDefault.jpg';
+import { cloudinaryConfig } from '../../../../../cloudinaryConfig';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { addProductApi, addProductOptionsApi } from '../../../../../services/SellerApi/sellerApi'
 const FormProductOption = ({ action, product, useroption, open, formValues, files, options, setOptions, optionValues, setOptionValues }) => {
 
-
+    const token = localStorage.getItem('token');
     useEffect(() => {
         if (action === 2 || action === 1) {
             // Chế độ xem hoặc sửa
-            const initialOptions = product.Option.Value
-                ? product.Option.Value.map((option) => ({
-                    name: option.namevalue,
-                    values: option.optionvalue.map((value) => value.name),
+            const initialOptions = product.options
+                ? product.options.map((option) => ({
+                    name: option.option.name,
+                    values: option.productOptionValues.map((value) => value.name),
                 }))
                 : [];
-            const initialOptionValues = product.Option.Value.map((option) =>
-                option.optionvalue.map((value) => ({ image: value.imagechild })),
-            );
+
+            const initialOptionValues = product.options
+                ? product.options.map((option) =>
+                    option.productOptionValues.map((value) => ({ image: value.imagechild }))
+                )
+                : [];
+
             setOptions(initialOptions);
             setOptionValues(initialOptionValues);
         } else {
             // Chế độ thêm
-            if (!options) {
+            if (!product) {
                 setOptions([{ name: '', values: [''] }]);
                 setOptionValues([[]]);
             }
-
         }
-    }, []);
+    }, [action, product]);
 
     const handleOptionNameChange = (e, index) => {
         const newOptions = [...options];
@@ -71,21 +78,20 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
 
     const handleFileInputChange = (e, optionIndex, valueIndex) => {
         const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onloadend = () => {
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
             const newOptionValues = [...optionValues];
-            // Ensure newOptionValues[optionIndex][valueIndex] exists
             if (!newOptionValues[optionIndex][valueIndex]) {
                 newOptionValues[optionIndex][valueIndex] = {}; // Initialize as an object if not already
             }
-            // Set image property
-            newOptionValues[optionIndex][valueIndex].image = reader.result;
+            newOptionValues[optionIndex][valueIndex].image = {
+                file: file,
+                preview: fileURL,
+            };
             setOptionValues(newOptionValues);
-        };
-        if (file) {
-            reader.readAsDataURL(file);
         }
     };
+
 
     const handleClose = () => {
         open(false); // Đóng form bằng cách gọi hàm 'open' với giá trị 'false'
@@ -95,11 +101,108 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
         useroption(option);
     };
 
-    const handleAddProduct = () => {
-        console.log('formValues: ', formValues)
-        console.log('files: ', files)
-        console.log('options: ', options)
-        console.log('optionValues: ', optionValues)
+    const uploadImages = async (files) => {
+        const uploadPromises = Object.values(files).map((file) => {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file.file); // Sử dụng file thực tế thay vì preview URL
+                formData.append('upload_preset', cloudinaryConfig.upload_preset);
+
+                fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then((response) => response.json())
+                    .then((data) => resolve(data.secure_url))
+                    .catch((error) => reject(error));
+            });
+        });
+
+        return Promise.all(uploadPromises);
+    };
+
+    const uploadImageToCloudinary = async (image) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', image.file); // Sử dụng file thực tế thay vì preview URL
+            formData.append('upload_preset', cloudinaryConfig.upload_preset);
+
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload image to Cloudinary');
+            }
+
+            const data = await response.json();
+            return data.secure_url;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            throw error;
+        }
+    };
+
+
+    const handleAddProduct = async () => {
+        const mergedOptions = [];
+        try {
+            const uploadedImages = await uploadImages(files); // Upload images to Cloudinary
+            const updatedFormValues = {
+                ...formValues,
+                images: uploadedImages
+            };
+            const productData = await addProductApi(updatedFormValues, token);
+
+            if (productData) {
+                if (options) {
+
+                    for (let i = 0; i < options.length; i++) {
+                        const option = options[i];
+                        const values = optionValues[i];
+
+                        const newOption = {
+                            idProduct: productData.iD_NK,
+                            name: option.name,
+                            optionNumber: i + 1,
+                            values: []
+                        };
+
+                        for (let j = 0; j < values.length; j++) {
+                            const valueObj = values[j];
+
+                            // Upload hình ảnh lên Cloudinary
+                            const imageUrl = await uploadImageToCloudinary(valueObj.image);
+
+                            // Thêm vào đối tượng newOption
+                            newOption.values.push({
+                                value: option.values[j], // Lấy giá trị từ options.values
+                                image: imageUrl // Lấy URL của hình ảnh đã upload lên Cloudinary
+                            });
+                        }
+
+                        const productOptionsData = await addProductOptionsApi(newOption);
+                        if (productOptionsData) {
+                            mergedOptions.push(newOption);
+
+                        }
+                    }
+
+
+                }
+            }
+
+            toast.success('Thêm sản phẩm thành công');
+            setTimeout(() => {
+                handleClose();
+            }, 2000);
+
+
+            // // Proceed with form submission logic
+        } catch (error) {
+            console.error('Error uploading images:', error);
+        }
     }
 
     return (
@@ -187,7 +290,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                             className="object-cover h-[88px] w-[88px]"
                                             src={
                                                 (optionValues[optionIndex] &&
-                                                    optionValues[optionIndex][valueIndex]?.image) ||
+                                                    optionValues[optionIndex][valueIndex]?.image.preview) ||
                                                 DefaultImage
                                             }
                                             alt="Current profile photo"
@@ -235,12 +338,16 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                     Quay lại
                 </button>
                 {action !== 2 && (
-                    <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
-                        onClick={handleAddProduct}
-                    >
+                    <>
+                        <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
+                            onClick={handleAddProduct}
+                        >
 
-                        Đăng kí
-                    </button>
+                            Đăng kí
+                        </button>
+                        <ToastContainer />
+                    </>
+
                 )}
             </div>
         </div>
