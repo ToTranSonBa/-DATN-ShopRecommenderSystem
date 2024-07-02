@@ -15,6 +15,9 @@ namespace ShopRe.Model.Models
         public int? ProductID_NK { get; set; }
         public Product? Product { get; set; }
         public Order? Order { get; set; }
+        public int? OptionValuesId { get; set; }
         public ProductOptionValues? OptionValues { get; set; }
+        public ProductOptionValues? optionValues2 { get; set; }
+        public int? OptionValuesId2 { get; set; }
     }
 }

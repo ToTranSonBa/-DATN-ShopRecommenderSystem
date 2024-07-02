@@ -93,6 +93,17 @@ namespace ShopRe.Data
             .WithMany(e => e.Accounts)
             .UsingEntity<AccountSeller>();
 
+            modelBuilder.Entity<CartItem>()
+                .HasOne(e => e.optionValues2)
+                .WithMany()
+                .HasForeignKey(e => e.OptionValuesId2)
+                .IsRequired(false);
+            modelBuilder.Entity<OrderItems>()
+                .HasOne(e => e.optionValues2)
+                .WithMany()
+                .HasForeignKey(e => e.OptionValuesId2)
+                .IsRequired(false);
+
 
             //modelBuilder.Entity<ApplicationUser>().Property(u => u.TrainCode).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             modelBuilder.ApplyConfiguration(new RoleConfig());
