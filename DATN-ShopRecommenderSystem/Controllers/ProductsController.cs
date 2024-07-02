@@ -68,7 +68,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        [HttpGet("GetPriceAndImageProductChild{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id, int? idOptionValue1, int? idOptionValue2)
+        {
 
+            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2); 
+            return Ok(new
+            {
+                Price= price,
+                Image= image
+            });
+        }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
         public async Task<ActionResult> GetProductByTrainning([FromQuery] ProductParameters productParameters)
