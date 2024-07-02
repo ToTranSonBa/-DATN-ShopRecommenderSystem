@@ -417,54 +417,51 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(new { totalpro, totalOrder, interest, totalFollow });
 
         }
-        //[HttpGet("Seller/OrderDashboard")]
-        //[Authorize(Roles = "Seller")]
-        //public async Task<IActionResult> OrderDashboard()
-        //{
-        //    var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
-        //    var user = await _userManager.FindByEmailAsync(userEmail);
-        //    var seller = await _context.Sellers
-        //        .Where(s => s.ApplicationUserId == user.Id)
-        //        .FirstOrDefaultAsync();
-        //    int currentYear = DateTime.Now.Year;
+        [HttpGet("Seller/OrderDashboard")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> OrderDashboard()
+        {
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var seller = await _context.Sellers
+                .Where(s => s.ApplicationUserId == user.Id)
+                .FirstOrDefaultAsync();
+            int currentYear = DateTime.Now.Year;
+            // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
+            var ordersData = await _context.Order
+                .Where(o => o.CreatedAt.Value.Year == currentYear && o.SellerID_NK==seller.ID_NK)
+                .GroupBy(o => new { o.CreatedAt.Value.Year, o.CreatedAt.Value.Month })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    OrderCount = g.Count()
+                })
+                .ToListAsync();
 
-        //    // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
-        //    var ordersData = _context.Order
-        //        .Where(o => o.CreatedAt. == currentYear)
-        //        .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
-        //        .Select(g => new
-        //        {
-        //            Year = g.Key.Year,
-        //            Month = g.Key.Month,
-        //            OrderCount = g.Count(),
-        //            Orders = g.ToList()
-        //        })
-        //        .ToList();
+            // Tạo danh sách đủ 12 tháng với OrderCount = 0
+            var monthlyOrders = Enumerable.Range(1, 12)
+                .Select(month => new MonthlyOrder
+                {
+                    Year = currentYear,
+                    Month = month,
+                    OrderCount=0
+                })
+                .ToList();
 
-        //    // Tạo danh sách đủ 12 tháng với OrderCount = 0
-        //    var monthlyOrders = Enumerable.Range(1, 12)
-        //        .Select(month => new
-        //        {
-        //            Year = currentYear,
-        //            Month = month,
-        //            OrderCount = 0,
-        //            Orders = new List<Order>()
-        //        })
-        //        .ToList();
+            // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+            foreach (var orderData in ordersData)
+            {
+                var monthOrder = monthlyOrders.FirstOrDefault(mo => mo.Month == orderData.Month);
+                if (monthOrder != null)
+                {
+                    monthOrder.OrderCount = orderData.OrderCount;
+                    //monthOrder.Orders = orderData.Orders;
+                }
+            }
 
-        //    // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
-        //    foreach (var orderData in ordersData)
-        //    {
-        //        var monthOrder = monthlyOrders.FirstOrDefault(mo => mo.Month == orderData.Month);
-        //        if (monthOrder != null)
-        //        {
-        //            monthOrder.OrderCount = orderData.OrderCount;
-        //            monthOrder.Orders = orderData.Orders;
-        //        }
-        //    }
-
-        //    return Ok(monthlyOrders);
-        //}
+            return Ok(monthlyOrders);
+        }
     }
 
 } 
