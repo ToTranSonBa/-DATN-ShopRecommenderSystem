@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Model.Models;
-using ShopRe.Model.Models.user_s_log;
 using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
@@ -72,11 +70,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult<Product>> GetProduct(int id, int? idOptionValue1, int? idOptionValue2)
         {
 
-            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2); 
+            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
             return Ok(new
             {
-                Price= price,
-                Image= image
+                Price = price,
+                Image = image
             });
         }
         // GET: api/products
@@ -135,8 +133,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var token = authHeader.Substring("Bearer ".Length).Trim();
 
                 var user = await _accountService.GetUserFromTokenAsync(token);
-                var res = await _logService.addView(product.Product.ID_NK,product.Seller.ID_NK, user);
-            }            
+                var res = await _logService.addView(product.Product.ID_NK, product.Seller.ID_NK, user);
+            }
             return Ok(product);
         }
 
@@ -302,7 +300,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         //}
 
         [HttpPost("RecommendProduct")]
-        public async Task<ActionResult> logProductView(RecommendParamaters paramaters)
+        public async Task<ActionResult> RecommendProduct(RecommendParamaters paramaters)
         {
             int userCode = 0;
             if (_signInManager.IsSignedIn(User))
@@ -319,7 +317,26 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             return Ok(results);
         }
-       
+
+        [HttpPost("RecommendProductForUser")]
+        public async Task<ActionResult> RecommendProductForUser(int currentPage = 0)
+        {
+            int userCode = 0;
+            if (_signInManager.IsSignedIn(User))
+            {
+                var userId = _userManager.GetUserId(User);
+                userCode = (await _userManager.FindByIdAsync(userId)).TrainCode;
+            }
+
+
+            var results = await _productsService.GetRecommendProductForUserAsync(userCode, currentPage);
+            if (results.products.Count() == 0)
+            {
+                return NoContent();
+            }
+            return StatusCode(StatusCodes.Status200OK, new { results.paging, results.products });
+        }
+
         [HttpGet("GetTopNew")]
         public async Task<ActionResult> GetToDay()
         {

@@ -7,11 +7,10 @@ using ShopRe.Common.DTOs;
 using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
-using ShopRe.Common.DTOs;
 using System.Linq.Expressions;
-using ShopRe.Data.Infrastructure;
 
 namespace ShopRe.Service
 {
@@ -39,6 +38,7 @@ namespace ShopRe.Service
         public Task<List<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
+        Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
     }
     public class ProductService : IProductService
     {
@@ -248,7 +248,7 @@ namespace ShopRe.Service
                 //         pc.Product.ID_NK == ProductId)
                 //    .ToListAsync();
                 var productChildren = await _dbContext.ProductChild
-                   .Where(pc =>pc.Product.ID_NK == ProductId)
+                   .Where(pc => pc.Product.ID_NK == ProductId)
                    .ToListAsync();
                 var productOptionValues = new OptionAndValues()
                 {
@@ -639,18 +639,79 @@ namespace ShopRe.Service
 
             return products;
         }
+        public async Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0)
+        {
+            var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProductForUser?userid={userCode}";
+            bool error = false;
+            var products = new List<Product>();
+            JObject result = new JObject();
+            try
+            {
+                var response = await _httpClient.GetAsync(requestUri);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                result = JObject.Parse(content);
+            }
+            catch
+            {
+                products = await _productRepository.GetTopView(10);
+                result["total"] = 10;
+                error = true;
+            }
+
+            int total = (int)result["total"];
+
+            if (total == 0)
+            {
+                products = await _productRepository.GetTopView(10);
+                total = 10;
+                error = true;
+            }
+
+            var productIds = new List<int>();
+            try
+            {
+                foreach (int productId in result["products"])
+                {
+                    productIds.Add(productId);
+                    var product = await _productRepository.GetById(productId);
+                    products.Add(product);
+                }
+            }
+            catch
+            {
+                products = await _productRepository.GetTopView(10);
+                total = 10;
+                error = true;
+            }
+
+            var productDif = new List<Product>();
+            if (total < 10)
+            {
+                productDif = await _productRepository.GetTopView(10);
+            }
+
+            if (!error)
+            {
+                products.AddRange(productDif);
+            }
+            var page = new Common.DTOs.Page(products.Count, 10, CurrentPage);
+
+            products = products.Skip(page.pageSize * CurrentPage).Take(page.pageSize).ToList();
+            return (page, products);
+        }
         public async Task<List<ProductWithImages>> GetTopNew(int number)
         {
-            
-                var result = await _productRepository.GetTopNew(number);
-                var product = await ConvertToProductWithImages(result);
-                return product;
+
+            var result = await _productRepository.GetTopNew(number);
+            var product = await ConvertToProductWithImages(result);
+            return product;
         }
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
             var result = await _productRepository.GetProductPopular(number);
             var product = await ConvertToProductWithImages(result);
-            return  product;
+            return product;
         }
         private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
         {
@@ -665,7 +726,7 @@ namespace ShopRe.Service
                     RatingAverage = document.RatingAverage,
                     RatingCount = document.RatingCount,
                 };
-                product.Images= await _dbContext.Images.Where(i=>i.ProductID_NK == product.ID_NK).Select(i=>i.Image).ToListAsync() ;
+                product.Images = await _dbContext.Images.Where(i => i.ProductID_NK == product.ID_NK).Select(i => i.Image).ToListAsync();
                 products.Add(product);
             }
             return products.ToList();
