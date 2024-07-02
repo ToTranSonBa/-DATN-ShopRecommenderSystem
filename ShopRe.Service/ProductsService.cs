@@ -38,6 +38,7 @@ namespace ShopRe.Service
         public Task<List<ProductWithImages>> GetTopNew(int number);
         public Task<List<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
+        Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
     }
     public class ProductService : IProductService
     {
@@ -128,6 +129,47 @@ namespace ShopRe.Service
         public Task<Product> GetById(int id)
         {
             return _productRepository.GetById(id);
+        }
+
+        public async Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2)
+        {
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+            if (product == null)
+            {
+                throw new InvalidOperationException("Product not found.");
+            }
+
+            if (idOptionValue1.HasValue)
+            {
+                ProductChild productChild = null;
+
+                if (idOptionValue2.HasValue)
+                {
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p =>
+                        p.ProductID_NK == id && p.OptionValuesID1 == idOptionValue1 && p.OptionValuesID2 == idOptionValue2);
+                }
+                else
+                {
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p =>
+                        p.ProductID_NK == id && p.OptionValuesID1 == idOptionValue1);
+                }
+
+                if (productChild == null)
+                {
+                    throw new InvalidOperationException("Product child not found.");
+                }
+
+                return (productChild.Price, productChild.thumbnail_url);
+            }
+            else
+            {
+                var image = await _dbContext.Images.FirstOrDefaultAsync(i => i.ProductID_NK == id);
+                if (image == null)
+                {
+                    throw new InvalidOperationException("Image not found.");
+                }
+                return (product.Price, image.Image);
+            }
         }
 
         private class OptionAndValues

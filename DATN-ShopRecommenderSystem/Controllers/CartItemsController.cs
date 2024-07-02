@@ -48,6 +48,35 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             return Ok(response);
         }
+        [Authorize]
+        [HttpPost("AddToCart2")]
+        public async Task<IActionResult> AddToCart2(int idProduct, int? idProductOptionValue1, int? idProductOptionValue2, string ProductOptionImage, int Quantity)
+        {
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _cartItemsService.AddToCart2(idProduct, idProductOptionValue1, idProductOptionValue2, ProductOptionImage, Quantity, user);
+            if (result == null)
+            {
+                return NoContent();
+            }
+
+            var response = new Response<CartItem>("Add to cart successfully", "201", null, token);
+
+            return Ok(response);
+        }
 
         [Authorize]
         [HttpGet("UserCartItems")]

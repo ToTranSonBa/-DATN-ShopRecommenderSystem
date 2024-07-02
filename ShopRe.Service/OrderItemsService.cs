@@ -13,6 +13,7 @@ namespace ShopRe.Service
     public interface IOrderItemsService
     {
         Task<OrderItems> AddOrderItems(OrderItemsParameters orderItemsParameters, ApplicationUser user);
+        Task<OrderItems> AddOrderItems2(OrderItemsParameters orderItemsParameters, ApplicationUser user);
         Task<OrderItems> AddOrderItemsForNewUser(OrderItemsParameters orderItemsParameters);
     }
     public class OrderItemsService : IOrderItemsService
@@ -119,6 +120,124 @@ namespace ShopRe.Service
             return false;
         }
 
+        public async Task<OrderItems> AddOrderItems2(OrderItemsParameters orderItemsParameters, ApplicationUser user)
+        {
+            // Validate the product
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == orderItemsParameters.idProduct);
+            if (product == null)
+            {
+                throw new InvalidOperationException("Product not found.");
+            }
+
+            var order = await _dbContext.Order
+                                        .Include(o => o.ShippingAddress)
+                                        .FirstOrDefaultAsync(o => o.ID == orderItemsParameters.idOrder);
+            if (order == null)
+            {
+                throw new InvalidOperationException("Order not found.");
+            }
+
+            // Validate the option values if provided
+            ProductOptionValues optionValues1 = null;
+            ProductOptionValues optionValues2 = null;
+            ProductChild productChild = null;
+
+            if (orderItemsParameters.idOptionValues.HasValue)
+            {
+                optionValues1 = await _dbContext.ProductOptionValues
+                                                .Include(p => p.Option)
+                                                .FirstOrDefaultAsync(p => p.Id == orderItemsParameters.idOptionValues.Value);
+                if (optionValues1 == null)
+                {
+                    throw new InvalidOperationException("Option not found.");
+                }
+
+                if (orderItemsParameters.idOptionValues2.HasValue)
+                {
+                    optionValues2 = await _dbContext.ProductOptionValues
+                                                    .Include(p => p.Option)
+                                                    .FirstOrDefaultAsync(p => p.Id == orderItemsParameters.idOptionValues2.Value);
+                    if (optionValues2 == null)
+                    {
+                        throw new InvalidOperationException("Option not found.");
+                    }
+
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.OptionValuesID1 == orderItemsParameters.idOptionValues.Value
+                        && p.OptionValuesID2 == orderItemsParameters.idOptionValues2.Value);
+                }
+                else
+                {
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.OptionValuesID1 == orderItemsParameters.idOptionValues.Value);
+                }
+
+                if (productChild == null)
+                {
+                    throw new InvalidOperationException("ProductChild not found.");
+                }
+
+                var orderItem = new OrderItems
+                {
+                    Quantity = orderItemsParameters.Quantity,
+                    Price = Convert.ToInt32(orderItemsParameters.Quantity * productChild.Price),
+                    Image = orderItemsParameters.Image,
+                    Product = product,
+                    Order = order,
+                    OptionValues = optionValues1,
+                    optionValues2 = optionValues2,
+                };
+
+                await _dbContext.OrderItems.AddAsync(orderItem);
+                await _dbContext.SaveChangesAsync();
+
+                var check = await UpdateTotalPriceOrder(order, user);
+                if (!check)
+                {
+                    throw new InvalidOperationException("Update Total Price failed.");
+                }
+
+                if (order.Seller == null)
+                {
+                    var checkSeller = await UpdateSellerOrder(order, user);
+                    if (!checkSeller)
+                    {
+                        throw new InvalidOperationException("Update Seller failed.");
+                    }
+                }
+
+                return orderItem;
+            }
+            else
+            {
+                var orderItem = new OrderItems
+                {
+                    Quantity = orderItemsParameters.Quantity,
+                    Price = Convert.ToInt32(orderItemsParameters.Quantity * product.Price),
+                    Image = orderItemsParameters.Image,
+                    Product = product,
+                    Order = order,
+                };
+
+                await _dbContext.OrderItems.AddAsync(orderItem);
+                await _dbContext.SaveChangesAsync();
+
+                var check = await UpdateTotalPriceOrder(order, user);
+                if (!check)
+                {
+                    throw new InvalidOperationException("Update Total Price failed.");
+                }
+
+                if (order.Seller == null)
+                {
+                    var checkSeller = await UpdateSellerOrder(order, user);
+                    if (!checkSeller)
+                    {
+                        throw new InvalidOperationException("Update Seller failed.");
+                    }
+                }
+
+                return orderItem;
+            }
+        }
         public async Task<OrderItems> AddOrderItems(OrderItemsParameters orderItemsParameters, ApplicationUser user)
         {
             // Validate the product

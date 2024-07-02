@@ -12,6 +12,7 @@ namespace ShopRe.Common.RequestFeatures
         public int idProduct { get; set; }
         public string Image { get; set; }
         public int? idOptionValues { get; set; }
+        public int? idOptionValues2 { get; set; }
         public int Quantity { get; set; }
     }
 }

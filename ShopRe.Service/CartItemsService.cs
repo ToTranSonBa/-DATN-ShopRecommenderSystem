@@ -20,6 +20,8 @@ namespace ShopRe.Service
     public interface ICartItemsService
     {
         Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, int Quantity, ApplicationUser user);
+        Task<CartItem> AddToCart2(int idProduct, int? idProductOptionValue1, int? idProductOptionValue2, 
+            string ProductOptionImage, int Quantity, ApplicationUser user);
         Task<CartItem> DecreaseProductInCart(int idProduct, ApplicationUser user);
         Task<CartItem> IncreaseProductInCart(int idProduct, ApplicationUser user);
         Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user);
@@ -191,7 +193,115 @@ namespace ShopRe.Service
                 return existingCartItem;
             }
         }
+        //
+        public async Task<CartItem> AddToCart2(int idProduct, int? idProductOptionValue1, int? idProductOptionValue2, string ProductOptionImage, int Quantity, ApplicationUser user)
+        {
+            var product = await _productRepository.GetById(idProduct);
+            if (product == null)
+            {
+                return null;
+            }
 
+            var seller = await _dbContext.Sellers.FindAsync(product.SellerID_NK);
+            if (seller == null)
+            {
+                return null;
+            }
+
+            var session = await _dbContext.ShoppingSessions.FirstOrDefaultAsync(p => p.User == user);
+            if (session == null)
+            {
+                session = new ShoppingSession
+                {
+                    Total = 0,
+                    User = user
+                };
+                _dbContext.ShoppingSessions.Add(session);
+            }
+
+            var newLog = new UserLog
+            {
+                Detail = "add to cart",
+                SellerId = product.SellerID_NK,
+                LogRate = LogRate._YES,
+                User = user
+            };
+            await _UserLogRepository.AddL(newLog);
+
+            ProductOptionValues productOption1 = null;
+            ProductOptionValues productOption2 = null;
+            ProductChild productChild = null;
+            CartItem existingCartItem = null;
+
+            if (idProductOptionValue1.HasValue)
+            {
+                productOption1 = await _dbContext.ProductOptionValues
+                    .Where(p => p.Id == idProductOptionValue1.Value)
+                    .Include(p => p.Option)
+                    .ThenInclude(o => o.Product)
+                    .FirstOrDefaultAsync();
+                if (productOption1 == null || productOption1.Option.Product.ID_NK != product.ID_NK)
+                {
+                    throw new InvalidOperationException("Option 1 not found.");
+                }
+
+                if (idProductOptionValue2.HasValue)
+                {
+                    productOption2 = await _dbContext.ProductOptionValues
+                        .Where(p => p.Id == idProductOptionValue2.Value)
+                        .Include(p => p.Option)
+                        .ThenInclude(o => o.Product)
+                        .FirstOrDefaultAsync();
+                    if (productOption2 == null || productOption2.Option.Product.ID_NK != product.ID_NK)
+                    {
+                        throw new InvalidOperationException("Option 2 not found.");
+                    }
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.OptionValuesID1 == idProductOptionValue1 && p.OptionValuesID2 == idProductOptionValue2);
+                    existingCartItem = await _dbContext.CartItem.FirstOrDefaultAsync(p => p.Product == product && p.Session == session && p.OptionValues == productOption1 && p.optionValues2 == productOption2);
+                }
+                else
+                {
+                    productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.OptionValuesID1 == idProductOptionValue1);
+                    existingCartItem = await _dbContext.CartItem.FirstOrDefaultAsync(p => p.Product == product && p.Session == session && p.OptionValues == productOption1);
+                }
+
+                if (productChild == null)
+                {
+                    throw new InvalidOperationException("ProductChild not found.");
+                }
+            }
+            else
+            {
+                existingCartItem = await _dbContext.CartItem.FirstOrDefaultAsync(p => p.Product == product && p.Session == session);
+            }
+
+            if (existingCartItem == null)
+            {
+                var cartItem = new CartItem
+                {
+                    Quantity = Quantity,
+                    Product = product,
+                    Session = session,
+                    OptionValues = productOption1,
+                    optionValues2 = productOption2,
+                    SellerId = product.SellerID_NK,
+                    SellerName = seller.Name,
+                    productImgs = productChild?.thumbnail_url,
+                };
+                _dbContext.CartItem.Add(cartItem);
+                session.Total += (productChild?.Price ?? product.Price) * Quantity;
+                await _dbContext.SaveChangesAsync();
+                return cartItem;
+            }
+            else
+            {
+                existingCartItem.Quantity += Quantity;
+                _dbContext.CartItem.Update(existingCartItem);
+                session.Total += (productChild?.Price ?? product.Price) * Quantity;
+                await _dbContext.SaveChangesAsync();
+                return existingCartItem;
+            }
+        }
         public async Task<CartItem> UpdateQuantityItem(int idProduct, int quantity, ApplicationUser user)
         {
             if(quantity == 0)
