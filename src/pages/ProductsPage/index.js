@@ -15,7 +15,7 @@ const ProductPage = () => {
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
 
   const [productsPerPage, setProductsPerPage] = useState(20);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000000);

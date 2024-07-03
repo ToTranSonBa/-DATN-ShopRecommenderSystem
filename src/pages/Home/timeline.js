@@ -4,7 +4,7 @@ const TimeLine = () => {
     return (
         <div className="bg-white lg:py-12">
             <MaxWidthWrapper className={'py-12'}>
-                <p className="w-1/2 font-semibold text-black lg:ml-12 md:text-2xl lg:text-4xl lg:pb-24">
+                <p className="w-3/4 font-semibold text-black lg:ml-12 md:text-2xl lg:text-4xl lg:pb-24">
                     Đơn giản hóa hoạt động đặt hàng từ tìm kiếm đến thực hiện đơn hàng, tất cả mọi nơi
                 </p>
                 <ol className="relative border-gray-200 lg:ml-16 border-s dark:border-gray-700 lg:w-2/3">

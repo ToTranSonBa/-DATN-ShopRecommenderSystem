@@ -37,9 +37,24 @@ const ProductDetailPage = () => {
   const token = localStorage.getItem("token");
   const [productDetail, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
 
   const [price, setPrice] = useState(0);
+
+  const [option, setOption] = useState([]);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
+  const [idProductOptionValue, setIdProductOptionValue] = useState(0);
+  const [productOptionImage, setProductOptionImage] = useState(0);
+
+  const [option1, setOption1] = useState(0);
+  const [selectedOption1Index, setSelectedOption1Index] = useState(0);
+  const [idProductOption1Value, setIdProductOption1Value] = useState(0);
+  const [productOption1Image, setProductOption1Image] = useState(0);
+
+  const [option2, setOption2] = useState(0);
+  const [selectedOption2Index, setSelectedOption2Index] = useState(0);
+  const [idProductOption2Value, setIdProductOption2Value] = useState(0);
+  const [productOption2Image, setProductOption2Image] = useState(0);
+
   const [quantity, setQuantity] = useState(1);
 
   const [comments, setComments] = useState([]);
@@ -47,21 +62,21 @@ const ProductDetailPage = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [recommendProduct, setRecommendProduct] = useState([]);
   const [otherShopProduct, setOtherShopProduct] = useState([]);
-  const [option, setOption] = useState([]);
+
   const [productOptionValues, setProductOptionValues] = useState([]);
   const [sellerID, setSellerId] = useState();
 
   const [hiddenDescription, setHiddenDescription] = useState(true);
-  const [idProductOptionValue, setIdProductOptionValue] = useState(0);
-  const [productOptionImage, setProductOptionImage] = useState(0);
 
   const fetchProductDetail = useCallback(async () => {
     try {
       const response = await axios.get(`/Products/${id}`);
       setProduct(response);
-      fetchOtherShopProduct(response.seller.iD_NK);
-      console.log(response);
-      fetchRecommendProducts(response.product.iD_NK, response.product.category_LV0_NK);
+      fetchOtherShopProduct(response.seller?.iD_NK);
+      fetchRecommendProducts(
+        response.product?.iD_NK,
+        response.product?.category_LV0_NK
+      );
       fetchPrice();
     } catch (error) {
       console.error("Failed to fetch product detail:", error);
@@ -73,6 +88,9 @@ const ProductDetailPage = () => {
       const response = await axios.get(`/Products/Option/${id}`);
       setOption(response?.[0].option);
       setProductOptionValues(response?.[0].productOptionValues);
+
+      setOption1(response?.[0]);
+      if (response.length === 2) setOption2(response?.[1]);
     } catch (error) {
       console.error("Failed to fetch product option:", error);
     }
@@ -135,19 +153,9 @@ const ProductDetailPage = () => {
     }
   }, [idProductOptionValue, productOptionImage]);
 
-  const fetchProductOptions = useCallback(async () => {
-    try {
-      const response = await axios.get(`/Products/Option/${id}`);
-      setProductOptions(response.data);
-    } catch (error) {
-      console.error("Failed to fetch ProductOptions:", error);
-    }
-  }, []);
-
   const fetchOtherShopProduct = useCallback(async (id) => {
     try {
       const response = await axios.get(`/Sellers/Products/${id}`);
-      console.log("fetch OtherShopProduct: ", response);
       setOtherShopProduct(response.products);
     } catch (error) {
       console.error("Failed to fetch OtherShopProduct:", error);
@@ -288,9 +296,9 @@ const ProductDetailPage = () => {
   };
 
   return (
-    <div class="lg:pt-36 m-auto bg-background flex flex-col justify-center items-center pt-20">
-      <div class="w-4/5 p-12 bg-white mt-8">
-        <div class="w-full mx-8 grid items-start grid-cols-1 lg:grid-cols-9 gap-12">
+    <div class="lg:pt-36 m-auto bg-background flex flex-col justify-center items-center pt-12">
+      <div class="w-4/5 p-8 bg-white mt-4">
+        <div class="w-full mx-4 grid items-start grid-cols-1 lg:grid-cols-9 gap-12">
           <div class="lg:col-span-3">
             <div className="flex flex-col-reverse">
               {/* Image selector */}
@@ -434,16 +442,15 @@ const ProductDetailPage = () => {
               </label>
             </form>
 
-            {/* Cập nhật option */}
-            <div className="max-w-full mt-8">
-              <h3 className="font-medium text-gray-600 text-ms">Lựa chọn: </h3>
-              <div className="grid grid-cols-5 gap-6 mt-4">
+            {/* <div className="max-w-full mt-8">
+              <h3 className="font-medium text-gray-600 text-ms">Lựa chọn 1: </h3>
+              <div className="grid grid-cols-6 gap-4 mt-2">
                 {productDetail?.productChildren
-                  ?.slice(0, 10)
+                  ?.slice(0, 6)
                   .map((option, index) => (
                     <button
                       key={option.id}
-                      className="relative flex items-center text-sm font-medium text-gray-900 bg-white rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
+                      className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
                       onClick={() => (
                         setSelectedOptionIndex(index),
                         setPrice(option?.price),
@@ -451,7 +458,7 @@ const ProductDetailPage = () => {
                         setProductOptionImage(option?.thumbnail_url)
                       )}
                     >
-                      <p className="z-10 pl-16 text-xs text-left">
+                      <p className="z-10 pl-16 text-xs text-left pr-2">
                         {option.option1}
                       </p>
                       <span className="absolute inset-0 overflow-hidden rounded-md">
@@ -474,7 +481,105 @@ const ProductDetailPage = () => {
                     </button>
                   ))}
               </div>
-            </div>
+            </div> */}
+
+            {/* Cập nhật option 1 */}
+            {option1 ? (
+              <div className="max-w-full mt-8">
+                <h3 className="font-medium text-gray-600 text-ms">
+                  Chọn <span className="lowercase">{option1.option?.name}</span>
+                  :
+                </h3>
+                <div className="grid grid-cols-6 gap-4 mt-2">
+                  {option1?.productOptionValues
+                    ?.slice(0, 6)
+                    .map((option, index) => (
+                      <button
+                        key={option?.id}
+                        className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
+                        onClick={() => (
+                          setSelectedOption1Index(index),
+                          // setPrice(option?.price),
+                          setIdProductOption1Value(option?.id),
+                          setProductOption1Image(option?.imageUrl)
+                        )}
+                      >
+                        <p className="z-10 pl-16 text-xs text-left pr-2">
+                          {option?.name}
+                        </p>
+                        <span className="absolute inset-0 overflow-hidden rounded-md">
+                          <img
+                            src={option?.imageUrl}
+                            alt={option?.name}
+                            className="z-0 object-cover object-center w-12 h-12 mx-1 mt-1"
+                          />
+                        </span>
+
+                        <span
+                          className={classNames(
+                            selectedOption1Index === index
+                              ? "ring-indigo-500"
+                              : "ring-transparent",
+                            "absolute inset-0 rounded-md ring-2 ring-offset-2 pointer-events-none"
+                          )}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
+
+            {/* Cập nhật option 2 */}
+            {option2 ? (
+              <div className="max-w-full mt-8">
+                <h3 className="font-medium text-gray-600 text-ms">
+                  Chọn <span className="lowercase">{option2.option?.name}</span>
+                  :
+                </h3>
+                <div className="grid grid-cols-6 gap-4 mt-2">
+                  {option2?.productOptionValues
+                    ?.slice(0, 12)
+                    .map((option, index) => (
+                      <button
+                        key={option.id}
+                        className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
+                        onClick={() => (
+                          setSelectedOption2Index(index),
+                          // setPrice(option?.price),
+                          setIdProductOption2Value(option?.id),
+                          setProductOption2Image(option?.imageUrl)
+                        )}
+                      >
+                        <p className="z-10 pl-16 text-xs text-left pr-2">
+                          {option?.name}
+                        </p>
+                        <span className="absolute inset-0 overflow-hidden rounded-md">
+                          <img
+                            src={option?.imageUrl}
+                            alt={option?.name}
+                            className="z-0 object-cover object-center w-12 h-12 mx-1 mt-1"
+                          />
+                        </span>
+
+                        <span
+                          className={classNames(
+                            selectedOption2Index === index
+                              ? "ring-indigo-500"
+                              : "ring-transparent",
+                            "absolute inset-0 rounded-md ring-2 ring-offset-2 pointer-events-none"
+                          )}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-16"></div>
+            )}
 
             <div className="flex flex-wrap items-center gap-4 mt-8">
               <p className="text-2xl font-semibold text-gray-700">Tạm tính: </p>
@@ -489,7 +594,7 @@ const ProductDetailPage = () => {
             <div class="w-full grid grid-cols-2 gap-6 justify-between mt-8">
               <button
                 type="button"
-                className="h-16 px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white text-xl font-semibold rounded shadow-lg shadow-blue-500/50"
+                className="h-16 p-4 py-3 bg-blue-700 hover:bg-blue-800 text-white text-xl font-semibold rounded shadow-lg shadow-blue-500/50"
                 onClick={handleBuyNow}
               >
                 Mua ngay
@@ -501,7 +606,7 @@ const ProductDetailPage = () => {
               >
                 Thêm vào giỏ hàng
               </button>
-              <ToastContainer />
+              {/* <ToastContainer /> */}
             </div>
           </div>
         </div>
@@ -621,47 +726,54 @@ const ProductDetailPage = () => {
         )}
       </div>
 
-      <div id="recommendProduct" className="mt-4 mb-8">
-        <MaxWidthWrapper>
-          <div className="flex justify-between">
-            <span className="text-xl font-semibold text-black uppercase">
-              Sản phẩm khác của shop
-            </span>
-            <a
-              href="#a"
-              className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
-            >
-              Xem tất cả{" "}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
+      {otherShopProduct ? (
+        <div id="recommendProduct" className="mt-4 mb-8">
+          <MaxWidthWrapper>
+            <div className="flex justify-between">
+              <span className="text-xl font-semibold text-black uppercase">
+                Sản phẩm khác của shop
+              </span>
+              <a
+                href="#a"
+                className="flex items-center text-red-700 hover:underline"
+                // onClick={() => handleViewAll("new")}
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </a>
-          </div>
-          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-              {otherShopProduct && otherShopProduct.slice(0, 5).map((product) => (
-                <ProductCard
-                  key={product.product?.iD_NK}
-                  image={product?.images[0].image}
-                  product={product.product}
-                />
-              ))}
+                Xem tất cả{" "}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                  />
+                </svg>
+              </a>
             </div>
-          </div>
-        </MaxWidthWrapper>
-      </div>
+            <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {otherShopProduct &&
+                  otherShopProduct
+                    .slice(0, 5)
+                    .map((product) => (
+                      <ProductCard
+                        key={product.product?.iD_NK}
+                        image={product?.images[0].image}
+                        product={product.product}
+                      />
+                    ))}
+              </div>
+            </div>
+          </MaxWidthWrapper>
+        </div>
+      ) : (
+        <></>
+      )}
 
       <div id="otherProductShop" className="mt-4 mb-8">
         <MaxWidthWrapper>

@@ -51,7 +51,7 @@ module.exports = {
                 'y-180': '180deg',
             },
             colors: {
-                primary: '#8833FF',
+                primary: '#1D4ED8',
                 secondary: '#FF6633',
                 background: '#f7f8fa',
                 brown: {

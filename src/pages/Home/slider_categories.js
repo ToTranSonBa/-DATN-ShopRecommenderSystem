@@ -18,7 +18,6 @@ function SliderCategories() {
             try {
                 const response = await fetchCategories();
                 const categoriesData = response.data;
-
                 createSlides(categoriesData);
             } catch (error) {
                 setError('Failed to fetch categories');
@@ -68,31 +67,16 @@ function SliderCategories() {
     }
 
     return (
-        <div className="relative min-h-[400px] w-full m-auto lg:px-4 lg:py-16 group ">
+        <div className="relative min-h-[400px] w-full m-auto lg:py-16 group">
             <div className="flex items-center justify-around">
-                {error && <div className="error">{error}</div>}
                 {columns?.map((column, columnIndex) => (
                     <div className="w-[150px] h-[150px]" key={columnIndex}>
                         {column.map((item, index) => (
                             <div
                                 key={index}
-                                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
+                                className="flex flex-col items-center justify-center w-full h-full rounded-xl border-2 border-separate border-transparent cursor-pointer hover:border-secondary lg:mb-4"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    className="mx-auto size-9"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-                                    />
-                                </svg>
-
+                                <img src={item.category?.image} alt='category' className='mx-auto size-16'></img>
                                 <div className="mt-2 text-sm text-center lg:px-1">{item.category.name}</div>
                             </div>
                         ))}
