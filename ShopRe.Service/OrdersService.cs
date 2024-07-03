@@ -24,6 +24,7 @@ namespace ShopRe.Service
         void Remove(int id);
         IEnumerable<Order> Find(Expression<Func<Order, bool>> expression);
         Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user);
+        Task<List<OrderDTO>> GetOrdersOfUser2(ApplicationUser user);
         Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters);
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
@@ -64,6 +65,31 @@ namespace ShopRe.Service
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;
+            }
+
+            return listOrder;
+        }
+        public async Task<List<OrderDTO>> GetOrdersOfUser2(ApplicationUser user)
+        {
+            // Truy vấn danh sách đơn hàng của người dùng
+            var orders = await _dbContext.Order
+                                         .Where(o => o.ApplicationUser.Id == user.Id)
+                                         .ToListAsync();
+
+            List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
+
+            foreach (var order in listOrder)
+            {
+                var orderItems = await _dbContext.OrderItems
+                                                 .Where(o => o.Order.ID == order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
+
+                var items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
+                order.Items = items;
             }
 
             return listOrder;
@@ -133,8 +159,12 @@ namespace ShopRe.Service
             foreach (var order in listOrder)
             {
                 var orderItems = await _dbContext.OrderItems
-                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-                                             .ToListAsync();
+                                                 .Where(o => o.Order.ID == order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;
@@ -195,8 +225,12 @@ namespace ShopRe.Service
 
 
             var orderItems = await _dbContext.OrderItems
-                                         .Where(o => o.Order.ID == Order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-                                         .ToListAsync();
+                                                 .Where(o => o.Order.ID == Order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
 
             var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
             Order.Items = Items;
@@ -269,8 +303,12 @@ namespace ShopRe.Service
             foreach (var order in listOrder)
             {
                 var orderItems = await _dbContext.OrderItems
-                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-                                             .ToListAsync();
+                                                 .Where(o => o.Order.ID == order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;
@@ -331,8 +369,12 @@ namespace ShopRe.Service
             foreach (var order in listOrder)
             {
                 var orderItems = await _dbContext.OrderItems
-                                             .Where(o => o.Order.ID == order.ID).Include(o => o.Product).Include(o => o.OptionValues).ThenInclude(o => o.Option)
-                                             .ToListAsync();
+                                                  .Where(o => o.Order.ID == order.ID)
+                                                  .Include(o => o.Product)
+                                                  .Include(o => o.OptionValues)
+                                                  .Include(o => o.optionValues2)
+                                                  .ThenInclude(o => o.Option)
+                                                  .ToListAsync();
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;
