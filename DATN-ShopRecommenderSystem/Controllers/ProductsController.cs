@@ -14,7 +14,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        readonly IProductService _productsService;
+        private readonly IProductService _productsService;
         private readonly ILogger<ProductsController> _logger;
         private readonly IElasticSearchService _elasticSearchService;
         private readonly IAccountService _accountService;
@@ -182,7 +182,41 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, "Không thể thêm sản phẩm.");
             }
         }
+        [Authorize]
+        [HttpPost("AddProductChild")]
+        public async Task<IActionResult> PostProductChild([FromBody] CreateProductChildPrameters productchild)
+        {
+            try
+            {
+                //Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.AddProductChild(productchild, user);
+
+                return CreatedAtAction(nameof(GetProduct), new { id = res.Id }, res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể thêm sản phẩm.");
+            }
+        }
         //DELETE: api/products/5
         [Authorize]
         [HttpDelete("{id}")]

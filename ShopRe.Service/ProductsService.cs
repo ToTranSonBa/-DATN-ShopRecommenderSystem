@@ -11,6 +11,7 @@ using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
+using System.Net.WebSockets;
 
 namespace ShopRe.Service
 {
@@ -24,6 +25,7 @@ namespace ShopRe.Service
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
         Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser seller);
+        Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser seller);
         Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user);
         Task Remove(int id, ApplicationUser user);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
@@ -368,6 +370,69 @@ namespace ShopRe.Service
             catch (Exception ex)
             {
                 throw new Exception("Failed to add product.", ex);
+            }
+        }
+
+        public async Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser user)
+        {
+            try
+            {
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct);
+                if(product == null)
+                {
+                    throw new ArgumentException("Invalid Product ID.");
+                }
+
+                if (entity.OptionValuesID1.HasValue)
+                {
+                    var optionValue1 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o=>o.Id == entity.OptionValuesID1);
+                    if (optionValue1 == null)
+                    {
+                        throw new ArgumentException("Invalid OptionValue1 ID.");
+                    }
+                    if (entity.OptionValuesID2.HasValue)
+                    {
+                        var optionValue2 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o => o.Id == entity.OptionValuesID2);
+                        if (optionValue2 == null)
+                        {
+                            throw new ArgumentException("Invalid OptionValue2 ID.");
+                        }
+                        var productChild = new ProductChild
+                        {
+                            Name = product.Name + " ("+optionValue1.Name+" - "+ optionValue2.Name+ ")",
+                            thumbnail_url = entity.thumbnail_url,
+                            Price = entity.Price,
+                            option1 = optionValue1.Name,
+                            option2= optionValue2.Name,
+                            OptionValuesID1 = optionValue1.Id,
+                            OptionValuesID2 = optionValue2.Id,
+                        };
+                        var productChildEntity = await _dbContext.ProductChild.AddAsync(productChild);
+                        await _dbContext.SaveChangesAsync();
+
+                        return productChildEntity.Entity;
+                    }
+                    else
+                    {
+                        var productChild = new ProductChild
+                        {
+                            Name = product.Name + " (" + optionValue1.Name+ ")",
+                            thumbnail_url = entity.thumbnail_url,
+                            Price = entity.Price,
+                            option1 = optionValue1.Name,
+                            OptionValuesID1 = optionValue1.Id
+                        };
+                        var productChildEntity = await _dbContext.ProductChild.AddAsync(productChild);
+                        await _dbContext.SaveChangesAsync();
+
+                        return productChildEntity.Entity;
+                    }
+                }
+                return new ProductChild();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add product child.", ex);
             }
         }
 
