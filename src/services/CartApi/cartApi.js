@@ -8,10 +8,14 @@ const cartsApi = async (token) => {
     });
 };
 
-const addCartApi = async (idProduct, idProductOptionValue, ProductOptionImage, quantity, token) => {
-    let url = `/CartItems/AddToCart?idProduct=${idProduct}&ProductOptionImage=${ProductOptionImage}&Quantity=${quantity}`;
-    if (idProductOptionValue !== null && idProductOptionValue !== undefined) {
-        url += `&idProductOptionValue=${idProductOptionValue}`;
+const addCartApi = async (idProduct, idProductOptionValue1, idProductOptionValue2, ProductOptionImage, quantity, token) => {
+    let url = `/CartItems/AddToCart2?idProduct=${idProduct}&ProductOptionImage=${ProductOptionImage}&Quantity=${quantity}`;
+    if (idProductOptionValue1 !== null && idProductOptionValue1 !== undefined) {
+        url += `&idProductOptionValue1=${idProductOptionValue1}`;
+    }
+
+    if (idProductOptionValue2 !== null && idProductOptionValue2 !== undefined) {
+        url += `&idProductOptionValue2=${idProductOptionValue2}`;
     }
     return axios.post(url, {}, {
         headers: {

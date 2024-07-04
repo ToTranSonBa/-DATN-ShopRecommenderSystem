@@ -31,7 +31,7 @@ const updateUserApi = async (firstName, lastName, email, phoneNumber, address, a
 };
 
 const getOrdersOfUserApi = async (token) => {
-    return axios.get(`/Orders/UserOrders`, {
+    return axios.get(`/Orders/UserOrders2`, {
         headers: {
             Authorization: 'Bearer ' + token,
         },

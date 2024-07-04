@@ -30,8 +30,7 @@ const FormProductManager = ({ action = 0, product = {}, open }) => {
                     setFormValues={setFormValues}
                     files={files}
                     setFiles={setFiles}
-                    options={options}
-                    optionValues={optionValues}
+
                 />
             )}
             {useroption === 'formproductoption' && (

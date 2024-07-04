@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { getCategoriesApi, getBrandsApi } from '../../../../../services/SellerApi/sellerApi'
-const FormProduct = ({ action, product, useroption, open, formValues, setFormValues, files, setFiles, options, optionValues }) => {
+const FormProduct = ({ action, product, useroption, open, formValues, setFormValues, files, setFiles }) => {
 
 
     const [isDraggedOver, setIsDraggedOver] = useState(false);

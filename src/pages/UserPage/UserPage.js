@@ -914,13 +914,12 @@ const UserPage = () => {
                                                                                             ₫
                                                                                         </p>
                                                                                     </div>
-                                                                                    {item.optionValues &&
-                                                                                        item.optionValues.name && (
-                                                                                            <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                                                Phân loại hàng:{' '}
-                                                                                                {item.optionValues.name}
-                                                                                            </p>
-                                                                                        )}
+                                                                                    <p className="hidden text-gray-400 sm:block sm:mt-2">
+                                                                                        Phân loại hàng:{' '}
+                                                                                        {item?.optionValues?.name && item?.optionValues2?.name
+                                                                                            ? `${item.optionValues.name}, ${item.optionValues2.name}`
+                                                                                            : (item?.optionValues?.name || item?.optionValues2?.name)}
+                                                                                    </p>
                                                                                     <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">
                                                                                         X {item.quantity}
                                                                                     </p>
@@ -1095,11 +1094,10 @@ const UserPage = () => {
                                                                                 star ? star : 5,
                                                                             )
                                                                         }
-                                                                        className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${
-                                                                            review.rating >= star
-                                                                                ? 'text-yellow-400'
-                                                                                : 'text-gray-300 hover:text-yellow-400'
-                                                                        }`}
+                                                                        className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${review.rating >= star
+                                                                            ? 'text-yellow-400'
+                                                                            : 'text-gray-300 hover:text-yellow-400'
+                                                                            }`}
                                                                     >
                                                                         <svg
                                                                             className="flex-shrink-0 size-5"
@@ -1174,9 +1172,8 @@ const UserPage = () => {
                                                             </div>
                                                             <main className="w-full h-auto lg:py-2">
                                                                 <article
-                                                                    className={`relative h-full flex flex-col ${
-                                                                        isDraggedOver ? 'draggedover' : ''
-                                                                    }`}
+                                                                    className={`relative h-full flex flex-col ${isDraggedOver ? 'draggedover' : ''
+                                                                        }`}
                                                                     onDrop={(event) =>
                                                                         handleDrop(event, order.id, item.id)
                                                                     }
@@ -1255,8 +1252,8 @@ const UserPage = () => {
                                                                             {Object.keys(
                                                                                 files[order.id]?.[item.id] || {},
                                                                             ).length >= 5 ? null : Object.keys(
-                                                                                  files[order.id]?.[item.id] || {},
-                                                                              ).length === 0 ? (
+                                                                                files[order.id]?.[item.id] || {},
+                                                                            ).length === 0 ? (
                                                                                 <div className="px-1">
                                                                                     <input
                                                                                         id={`hidden-input-${order.id}-${item.id}`}

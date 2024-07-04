@@ -42,18 +42,21 @@ const ProductDetailPage = () => {
 
   const [option, setOption] = useState([]);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
-  const [idProductOptionValue, setIdProductOptionValue] = useState(0);
+  const [idProductOptionValue, setIdProductOptionValue] = useState(null);
   const [productOptionImage, setProductOptionImage] = useState(0);
 
-  const [option1, setOption1] = useState(0);
+  const [option1, setOption1] = useState({});
   const [selectedOption1Index, setSelectedOption1Index] = useState(0);
-  const [idProductOption1Value, setIdProductOption1Value] = useState(0);
+  const [idProductOption1Value, setIdProductOption1Value] = useState(null);
   const [productOption1Image, setProductOption1Image] = useState(0);
+  const [productOption1Name, setProductOption1Name] = useState('');
 
-  const [option2, setOption2] = useState(0);
+  const [option2, setOption2] = useState({});
   const [selectedOption2Index, setSelectedOption2Index] = useState(0);
-  const [idProductOption2Value, setIdProductOption2Value] = useState(0);
+  const [idProductOption2Value, setIdProductOption2Value] = useState(null);
   const [productOption2Image, setProductOption2Image] = useState(0);
+  const [productOption2Name, setProductOption2Name] = useState('');
+
 
   const [quantity, setQuantity] = useState(1);
 
@@ -223,32 +226,54 @@ const ProductDetailPage = () => {
     if (!token) {
       navigate("/login");
     } else {
-      const selectedProduct =
-        productDetail.productChildren[selectedOptionIndex];
-      let matchingOptionValueId = null;
+      console.log("idProductOption1Value: ", idProductOption1Value);
+      console.log("idProductOption2Value: ", idProductOption2Value);
+      const selectedProductChildren = productDetail.productChildren.find(
+        product => product.optionValuesID1 === idProductOption1Value &&
+          (idProductOption2Value === null || product.optionValuesID2 === idProductOption2Value));
+      console.log("selectedProductChildren: ", selectedProductChildren);
 
-      productOptions.forEach((option) => {
-        const match = option.productOptionValues.find(
-          (optionValue) => optionValue.name === selectedProduct.option1
-        );
-        if (match) {
-          matchingOptionValueId = match.id;
+      if (productDetail?.productChildren?.length !== 0) {
+        {
+          if (option1 && option1.option && !idProductOption1Value) {
+            toast.error(`Hãy chọn ${option1.option.name}`);
+            return;
+
+          }
+          if (option2 && option2.option && !idProductOption2Value) {
+            toast.error(`Hãy chọn ${option2.option.name}`);
+            return;
+          }
+
+          if (!selectedProductChildren && productDetail?.productChildren.length !== 0) {
+            toast.error('Mặt hàng này đã hết. Hãy chọn mặt hàng khác');
+            return;
+          }
         }
-      });
+      }
 
       const productWithQuantity = {
         product: productDetail.product,
         quantity: quantity,
-        productImgs: selectedProduct
-          ? selectedProduct.thumbnail_url
+        optionValuesId: idProductOption1Value ? idProductOption1Value : null,
+        optionValues: idProductOption1Value ? {
+          id: idProductOption1Value,
+          name: productOption1Name,
+          option: null,
+          imageUrl: productOption1Image
+        } : null,
+        productImgs: selectedProductChildren
+          ? selectedProductChildren.thumbnail_url
           : productDetail.images[0].image,
-        optionValues: selectedProduct
-          ? {
-              id: matchingOptionValueId,
-              name: selectedProduct.option1,
-              option: null,
-            }
-          : undefined,
+        sellerId: productDetail.seller.iD_NK,
+        sellerName: productDetail.seller.name,
+        optionValuesId2: idProductOption2Value ? idProductOption2Value : null,
+        optionValues2: idProductOption2Value ? {
+          id: idProductOption2Value,
+          name: productOption2Name,
+          option: null,
+          imageUrl: productOption2Image
+        } : null,
       };
       navigate("/checkout", {
         state: { selectedItems: [productWithQuantity] },
@@ -262,24 +287,41 @@ const ProductDetailPage = () => {
     if (!token) {
       navigate("/login");
     } else {
-      const selectedProduct =
-        productDetail.productChildren[selectedOptionIndex];
-      let matchingOptionValueId = null;
 
-      productOptions.forEach((option) => {
-        const match = option.productOptionValues.find(
-          (optionValue) => optionValue.name === selectedProduct.option1
-        );
-        if (match) {
-          matchingOptionValueId = match.id;
+      console.log("idProductOption1Value: ", idProductOption1Value);
+      console.log("idProductOption2Value: ", idProductOption2Value);
+      const selectedProductChildren = productDetail?.productChildren.find(
+        product => product?.optionValuesID1 === idProductOption1Value &&
+          (idProductOption2Value === null || product?.optionValuesID2 === idProductOption2Value));
+      console.log("selectedProductChildren: ", selectedProductChildren);
+
+      if (productDetail?.productChildren?.length !== 0) {
+        {
+          if (option1 && option1.option && !idProductOption1Value) {
+            toast.error(`Hãy chọn ${option1.option.name}`);
+            return;
+
+          }
+          if (option2 && option2.option && !idProductOption2Value) {
+            toast.error(`Hãy chọn ${option2.option.name}`);
+            return;
+          }
+
+          if (!selectedProductChildren && productDetail?.productChildren.length !== 0) {
+            toast.error('Mặt hàng này đã hết. Hãy chọn mặt hàng khác');
+            return;
+          }
         }
-      });
+      }
+
+
       try {
         const response = await addCartApi(
           productDetail.product.iD_NK,
-          selectedProduct ? matchingOptionValueId : undefined,
-          selectedProduct
-            ? selectedProduct.thumbnail_url
+          selectedProductChildren && selectedProductChildren.optionValuesID1 ? selectedProductChildren.optionValuesID1 : undefined,
+          selectedProductChildren && selectedProductChildren.optionValuesID2 ? selectedProductChildren.optionValuesID2 : undefined,
+          selectedProductChildren
+            ? selectedProductChildren.thumbnail_url
             : productDetail.images[0].image,
           quantity,
           token
@@ -293,6 +335,7 @@ const ProductDetailPage = () => {
         console.log("Failed to add to cart: ", error);
       }
     }
+
   };
 
   return (
@@ -501,7 +544,8 @@ const ProductDetailPage = () => {
                           setSelectedOption1Index(index),
                           // setPrice(option?.price),
                           setIdProductOption1Value(option?.id),
-                          setProductOption1Image(option?.imageUrl)
+                          setProductOption1Image(option?.imageUrl),
+                          setProductOption1Name(option?.name)
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
@@ -550,7 +594,9 @@ const ProductDetailPage = () => {
                           setSelectedOption2Index(index),
                           // setPrice(option?.price),
                           setIdProductOption2Value(option?.id),
-                          setProductOption2Image(option?.imageUrl)
+                          setProductOption2Image(option?.imageUrl),
+                          setProductOption2Name(option?.name)
+
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
@@ -599,6 +645,7 @@ const ProductDetailPage = () => {
               >
                 Mua ngay
               </button>
+              {/* <ToastContainer /> */}
               <button
                 type="button"
                 class="px-4 py-2.5 border bg-transparent text-blue-700 hover:border-blue-700 text-xl font-semibold rounded shadow-md"
@@ -736,7 +783,7 @@ const ProductDetailPage = () => {
               <a
                 href="#a"
                 className="flex items-center text-red-700 hover:underline"
-                // onClick={() => handleViewAll("new")}
+              // onClick={() => handleViewAll("new")}
               >
                 Xem tất cả{" "}
                 <svg
@@ -763,7 +810,7 @@ const ProductDetailPage = () => {
                     .map((product) => (
                       <ProductCard
                         key={product.product?.iD_NK}
-                        image={product?.images[0].image}
+                        image={product?.images[0]?.image}
                         product={product.product}
                       />
                     ))}
@@ -784,7 +831,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+            // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg

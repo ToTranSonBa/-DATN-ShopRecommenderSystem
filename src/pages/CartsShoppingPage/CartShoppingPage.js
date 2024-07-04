@@ -192,11 +192,12 @@ const CartShoppingPage = () => {
                                                             </h3>
                                                         </div>
                                                         <div className="flex mt-1 text-sm">
-                                                            {data.optionValues && data.optionValues.name && (
-                                                                <p className="text-gray-500">
-                                                                    {data.optionValues.name}
-                                                                </p>
-                                                            )}
+
+                                                            <p className="text-gray-500">
+                                                                {data?.optionValues?.name && data?.optionValues2?.name
+                                                                    ? `${data.optionValues.name}, ${data.optionValues2.name}`
+                                                                    : (data?.optionValues?.name || data?.optionValues2?.name)}
+                                                            </p>
                                                         </div>
                                                         <p className="mt-1 text-sm font-medium text-gray-900">
                                                             {formatNumber(data.product.price)}
@@ -359,33 +360,30 @@ const CartShoppingPage = () => {
                                     <div className="lg:px-4 lg:py-4">
                                         <div
                                             onClick={() => handleOptionClickMeThod(35000, 'Vận chuyển Nhanh')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Nhanh'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Nhanh'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Nhanh</div>
                                             <div className="font-light text-red-600">{formatNumber(35000)}</div>
                                         </div>
                                         <div
                                             onClick={() => handleOptionClickMeThod(100000, 'Vận chuyển Hoả Tốc')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Hoả Tốc'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Hoả Tốc'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Hoả tốc</div>
                                             <div className="font-light text-red-600">{formatNumber(100000)}</div>
                                         </div>
                                         <div
                                             onClick={() => handleOptionClickMeThod(15000, 'Vận chuyển Tiết Kiệm')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${
-                                                selectedOption === 'Vận chuyển Tiết Kiệm'
-                                                    ? 'border-l-4 border-primary shadow-md my-2'
-                                                    : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                            }`}
+                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Tiết Kiệm'
+                                                ? 'border-l-4 border-primary shadow-md my-2'
+                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
+                                                }`}
                                         >
                                             <div>Vận chuyển Tiết Kiệm</div>
                                             <div className="font-light text-red-600">{formatNumber(15000)}</div>

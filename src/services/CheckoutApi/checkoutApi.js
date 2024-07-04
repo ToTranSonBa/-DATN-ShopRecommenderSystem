@@ -15,11 +15,14 @@ const createOrderApi = async (addressId, token) => {
     }
 };
 
-const addOrderItemsApi = async (idOrder, idProduct, image, idOptionValues, Quantity, token) => {
+const addOrderItemsApi = async (idOrder, idProduct, image, idOptionValues1, idOptionValues2, Quantity, token) => {
     // Construct the URL with conditionally added idOptionValues
-    let url = `/OrderItems/AddOrderItemsForUser?idOrder=${idOrder}&idProduct=${idProduct}&Image=${image}&Quantity=${Quantity}`;
-    if (idOptionValues !== null && idOptionValues !== undefined) {
-        url += `&idOptionValues=${idOptionValues}`;
+    let url = `/OrderItems/AddOrderItemsForUser2?idOrder=${idOrder}&idProduct=${idProduct}&Image=${image}&Quantity=${Quantity}`;
+    if (idOptionValues1 !== null && idOptionValues1 !== undefined) {
+        url += `&idOptionValues=${idOptionValues1}`;
+    }
+    if (idOptionValues2 !== null && idOptionValues2 !== undefined) {
+        url += `&idOptionValues2=${idOptionValues2}`;
     }
 
     // Make the API request
