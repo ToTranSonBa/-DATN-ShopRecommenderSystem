@@ -286,7 +286,7 @@ namespace ShopRe.Service
                     optionValues2 = productOption2,
                     SellerId = product.SellerID_NK,
                     SellerName = seller.Name,
-                    productImgs = productChild?.thumbnail_url,
+                    productImgs = productChild?.thumbnail_url ?? ProductOptionImage
                 };
                 _dbContext.CartItem.Add(cartItem);
                 session.Total += (productChild?.Price ?? product.Price) * Quantity;
