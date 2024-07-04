@@ -96,7 +96,7 @@ namespace ShopRe.Service
 
             var cartItems = await _dbContext.CartItem
                                             .Where(c => c.Session.ID == session.ID)
-                                            .Include(c => c.Product).Include(c=>c.OptionValues)
+                                            .Include(c => c.Product).Include(c=>c.OptionValues).Include(c=>c.optionValues2)
                                             .ToListAsync();
 
             return cartItems;
