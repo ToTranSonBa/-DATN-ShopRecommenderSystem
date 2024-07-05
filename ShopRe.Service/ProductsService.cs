@@ -35,7 +35,6 @@ namespace ShopRe.Service
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
         public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
-        public Task<List<ProductWithImages>> GetTopNew(int number);
         public Task<List<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
@@ -390,8 +389,7 @@ namespace ShopRe.Service
 
                 product.IsDeleted = true;
 
-                await _productRepository.Update(product);
-                await _dbContext.SaveChangesAsync();
+                await _unitOfWork.Products.Update(product);
             }
             catch (Exception ex)
             {
@@ -639,13 +637,7 @@ namespace ShopRe.Service
 
             return products;
         }
-        public async Task<List<ProductWithImages>> GetTopNew(int number)
-        {
-            
-                var result = await _productRepository.GetTopNew(number);
-                var product = await ConvertToProductWithImages(result);
-                return product;
-        }
+        
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
             var result = await _productRepository.GetProductPopular(number);

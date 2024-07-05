@@ -26,6 +26,7 @@ namespace ShopRe.Service
         Task UpdateDocumentByIDNK(int ProductID, Product product);
         Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord);
         Task<List<dynamic>> GetBrandsBySearch(string keyWord);
+        Task<List<Product>> Get20NewPro();
 
     }
     public class ElasticSearchsService : IElasticSearchService
@@ -1345,6 +1346,26 @@ namespace ShopRe.Service
                 .ToList();
 
             return sortedList;
+        }
+        public async Task<List<Product>>  Get20NewPro()
+        {
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("products")
+                .From(0)
+                .Size(20)
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("CreatedAt")
+                        .Order(SortOrder.Descending)
+                    )
+                ));
+
+            if (!response.IsValid)
+            {
+                return new List<Product>();
+            }
+
+            return  ConvertToProduct(response.Documents.ToList());
         }
     }
 }

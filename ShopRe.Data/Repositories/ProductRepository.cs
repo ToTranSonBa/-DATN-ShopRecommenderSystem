@@ -66,9 +66,22 @@ namespace ShopRe.Data.Repositories
                     .Select(g => g.Key)
                     .Take(number)
                     .ToListAsync();
+            var numberPro = topProductIDs.Count();
             var topProducts = await context.Products
                     .Where(p => topProductIDs.Contains(p.ID_NK))
                     .ToListAsync();
+            if (numberPro < 10)
+            {
+                var additionalProducts = await context.Products
+                    .Where(p => !topProductIDs.Contains(p.ID_NK))
+                    .OrderByDescending(p=>p.AllTimeQuantitySold)
+                    .Take(number - topProducts.Count) // Lấy số lượng còn thiếu
+                    .ToListAsync();
+
+                topProducts.AddRange(additionalProducts);
+            }
+
+            
             return topProducts;
         }
         public async Task<List<Product>> GetProductByCateId(int cateId)
@@ -100,9 +113,19 @@ namespace ShopRe.Data.Repositories
                     .Select(g => g.Key)
                     .Take(number)
                     .ToListAsync();
+            var numberPro = topIds.Count();
             var topViews = await context.Products
                 .Where(p => topIds.Contains(p.ID_NK))
                 .ToListAsync();
+            if (numberPro < 10)
+            {
+                var additionalProducts = await context.Products
+                    .Where(p => !topIds.Contains(p.ID_NK))
+                    .OrderByDescending(p => p.RatingCount)
+                    .Take(number - numberPro +1) // Lấy số lượng còn thiếu
+                    .ToListAsync();
+                topViews.AddRange(additionalProducts);
+            }
             return topViews;    
 
         }

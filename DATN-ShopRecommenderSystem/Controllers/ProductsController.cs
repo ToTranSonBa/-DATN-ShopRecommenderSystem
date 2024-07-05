@@ -323,7 +323,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("GetTopNew")]
         public async Task<ActionResult> GetToDay()
         {
-            var result = await _productsService.GetTopNew(5);
+            var result = await _elasticSearchService.Get20NewPro();
             return Ok(result);
         }
         [HttpGet("GetTopPop")]

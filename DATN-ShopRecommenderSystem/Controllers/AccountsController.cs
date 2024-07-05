@@ -8,6 +8,7 @@ using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Model;
 using ShopRe.Model.Authentication;
 using ShopRe.Model.Models;
@@ -30,9 +31,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly ISellerService _sellerService;
         private readonly IOrderService _orderService;
         private readonly ShopRecommenderSystemDbContext _context;
+        public IUnitOfWork _unitOfWork;
         public AccountsController(ISellerService sellerService, IAccountService accountService
             , UserManager<ApplicationUser> userManager, IShoppingSessionService shopSessionService
-            , IConfiguration configuration, IOrderService orderService, ShopRecommenderSystemDbContext context)
+            , IConfiguration configuration, IOrderService orderService
+            , ShopRecommenderSystemDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
             _accountService = accountService;
@@ -41,6 +44,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             _configuration = configuration;
             _sellerService = sellerService;
             _orderService = orderService;
+            _unitOfWork = unitOfWork;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult> SignUp(SignUpModel signUp)
@@ -355,21 +359,44 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _userManager.FindByEmailAsync(userEmail);
                 var accId = await _context.Accounts
                     .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
-                var follow = new AccountSeller
+                var seller = await _unitOfWork.Sellers.GetById(shopid);
+                var followExist = await _context.AccountSeller.FindAsync(accId, shopid);
+                if(followExist == null)
                 {
-                    SellerID_NK = shopid,
-                    AccountID_NK = accId,
-                    CreatedAt = DateTime.Now,
-                    DeletedAt = null
-                };
+                    var follow = new AccountSeller
+                    {
+                        SellerID_NK = shopid,
+                        AccountID_NK = accId,
+                        CreatedAt = DateTime.Now,
+                        DeletedAt = null
+                    };
 
-                try {
-                    var res = await _context.Set<AccountSeller>().AddAsync(follow);
-                    await _context.SaveChangesAsync();
-                    return StatusCode(StatusCodes.Status200OK);
-                } catch (Exception ex)
+                    try
+                    {
+                        var res = await _context.Set<AccountSeller>().AddAsync(follow);
+                        seller.TotalFollower = seller.TotalFollower + 1;
+                        await _unitOfWork.Sellers.Update(seller);
+                        return StatusCode(StatusCodes.Status200OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
+                    }
+                }
+                else
                 {
-                    return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
+                    followExist.UpdatedAt = DateTime.Now;
+                    
+                    if(followExist.DeletedAt != null)
+                    { 
+                        seller.TotalFollower = seller.TotalFollower + 1;
+                        await _unitOfWork.Sellers.Update(seller);
+                        followExist.DeletedAt = null;
+                    }
+                    var res = _context.Set<AccountSeller>().Update(followExist);
+                    await _context.SaveChangesAsync();
+                    
+                    return Ok(res.Entity);
                 }
             }
             else
@@ -386,9 +413,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var accId = await _context.Accounts
                 .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
             var follow = await _context.AccountSeller.FindAsync(accId, shopid);
+            var seller = await _context.Sellers.FindAsync(shopid);
             follow.DeletedAt = DateTime.Now;
             var res = _context.Set<AccountSeller>().Update(follow);
             await _context.SaveChangesAsync();
+            if(res == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            seller.TotalFollower = -1;
+            await _unitOfWork.Sellers.Update(seller);
             return Ok(res.Entity);
         }
         /*--------------------------Dashboard----------------------*/

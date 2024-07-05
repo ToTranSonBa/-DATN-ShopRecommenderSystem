@@ -10,6 +10,7 @@ namespace ShopRe.Data.Infrastructure
     public interface IUnitOfWork : IDisposable
     {
         IProductRepository Products { get; }
+        ISellerRepository Sellers { get; }
         int Save();
 
     }
