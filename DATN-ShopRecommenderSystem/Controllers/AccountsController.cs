@@ -496,6 +496,54 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             return Ok(monthlyOrders);
         }
+        [HttpGet("Seller/OrderColumnGraph")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> OrderColumnGraph()
+        {
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var seller = await _context.Sellers
+                .Where(s => s.ApplicationUserId == user.Id)
+                .FirstOrDefaultAsync();
+            var currentWeek = DateTime.Now.DayOfWeek;
+            //var lasWeek = DateTime.Now.DayOfWeek(-1);
+            var today = DateTime.Now;
+
+            // Xác định ngày đầu và ngày cuối của tuần hiện tại
+            var startOfCurrentWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
+            var endOfCurrentWeek = startOfCurrentWeek.AddDays(6);
+
+            // Xác định ngày đầu và ngày cuối của tuần trước
+            var startOfLastWeek = startOfCurrentWeek.AddDays(-7);
+            var endOfLastWeek = startOfLastWeek.AddDays(6);
+
+            // Ví dụ: Truy vấn dữ liệu cho tuần hiện tại và tuần trước (tùy thuộc vào yêu cầu)
+            var currentWeekOrders = await _context.Order
+                .Where(o => o.CreatedAt >= startOfCurrentWeek && o.CreatedAt <= endOfCurrentWeek && o.SellerID_NK == seller.ID_NK)
+                .ToListAsync();
+
+            var lastWeekOrders = await _context.Order
+                .Where(o => o.CreatedAt >= startOfLastWeek && o.CreatedAt <= endOfLastWeek && o.SellerID_NK == seller.ID_NK)
+                .ToListAsync();
+
+            // Tạo dữ liệu cho biểu đồ (ví dụ: số lượng đơn hàng theo ngày trong tuần)
+            var currentWeekData = Enumerable.Range(0, 7).Select(dayOffset =>
+            {
+                var date = startOfCurrentWeek.AddDays(dayOffset);
+                var count = currentWeekOrders.Count(o => o.CreatedAt.Value.Date == date.Date);
+                return new { Date = date, Count = count };
+            }).ToList();
+
+            var lastWeekData = Enumerable.Range(0, 7).Select(dayOffset =>
+            {
+                var date = startOfLastWeek.AddDays(dayOffset);
+                var count = lastWeekOrders.Count(o => o.CreatedAt.Value.Date == date.Date);
+                return new { Date = date, Count = count };
+            }).ToList();
+
+            // Trả về dữ liệu cho view (hoặc API response)
+            return Ok((new { CurrentWeekData = currentWeekData, LastWeekData = lastWeekData }));
+        }
     }
 
 } 
