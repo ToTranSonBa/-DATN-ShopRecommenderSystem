@@ -7,11 +7,11 @@ using ShopRe.Common.DTOs;
 using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
-using ShopRe.Common.DTOs;
 using System.Linq.Expressions;
-using ShopRe.Data.Infrastructure;
+using System.Net.WebSockets;
 
 namespace ShopRe.Service
 {
@@ -25,6 +25,7 @@ namespace ShopRe.Service
         Task<Product> Add(Product entity);
         Task<int> AddRange(IEnumerable<Product> entities);
         Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser seller);
+        Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser seller);
         Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user);
         Task Remove(int id, ApplicationUser user);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
@@ -38,6 +39,7 @@ namespace ShopRe.Service
         public Task<List<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
+        Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
     }
     public class ProductService : IProductService
     {
@@ -247,7 +249,7 @@ namespace ShopRe.Service
                 //         pc.Product.ID_NK == ProductId)
                 //    .ToListAsync();
                 var productChildren = await _dbContext.ProductChild
-                   .Where(pc =>pc.Product.ID_NK == ProductId)
+                   .Where(pc => pc.Product.ID_NK == ProductId)
                    .ToListAsync();
                 var productOptionValues = new OptionAndValues()
                 {
@@ -367,6 +369,69 @@ namespace ShopRe.Service
             catch (Exception ex)
             {
                 throw new Exception("Failed to add product.", ex);
+            }
+        }
+
+        public async Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser user)
+        {
+            try
+            {
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct);
+                if(product == null)
+                {
+                    throw new ArgumentException("Invalid Product ID.");
+                }
+
+                if (entity.OptionValuesID1.HasValue)
+                {
+                    var optionValue1 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o=>o.Id == entity.OptionValuesID1);
+                    if (optionValue1 == null)
+                    {
+                        throw new ArgumentException("Invalid OptionValue1 ID.");
+                    }
+                    if (entity.OptionValuesID2.HasValue)
+                    {
+                        var optionValue2 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o => o.Id == entity.OptionValuesID2);
+                        if (optionValue2 == null)
+                        {
+                            throw new ArgumentException("Invalid OptionValue2 ID.");
+                        }
+                        var productChild = new ProductChild
+                        {
+                            Name = product.Name + " ("+optionValue1.Name+" - "+ optionValue2.Name+ ")",
+                            thumbnail_url = entity.thumbnail_url,
+                            Price = entity.Price,
+                            option1 = optionValue1.Name,
+                            option2= optionValue2.Name,
+                            OptionValuesID1 = optionValue1.Id,
+                            OptionValuesID2 = optionValue2.Id,
+                        };
+                        var productChildEntity = await _dbContext.ProductChild.AddAsync(productChild);
+                        await _dbContext.SaveChangesAsync();
+
+                        return productChildEntity.Entity;
+                    }
+                    else
+                    {
+                        var productChild = new ProductChild
+                        {
+                            Name = product.Name + " (" + optionValue1.Name+ ")",
+                            thumbnail_url = entity.thumbnail_url,
+                            Price = entity.Price,
+                            option1 = optionValue1.Name,
+                            OptionValuesID1 = optionValue1.Id
+                        };
+                        var productChildEntity = await _dbContext.ProductChild.AddAsync(productChild);
+                        await _dbContext.SaveChangesAsync();
+
+                        return productChildEntity.Entity;
+                    }
+                }
+                return new ProductChild();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add product child.", ex);
             }
         }
 
@@ -637,12 +702,79 @@ namespace ShopRe.Service
 
             return products;
         }
-        
+        public async Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0)
+        {
+            var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProductForUser?userid={userCode}";
+            bool error = false;
+            var products = new List<Product>();
+            JObject result = new JObject();
+            try
+            {
+                var response = await _httpClient.GetAsync(requestUri);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                result = JObject.Parse(content);
+            }
+            catch
+            {
+                products = await _productRepository.GetTopView(10);
+                result["total"] = 10;
+                error = true;
+            }
+
+            int total = (int)result["total"];
+
+            if (total == 0)
+            {
+                products = await _productRepository.GetTopView(10);
+                total = 10;
+                error = true;
+            }
+
+            var productIds = new List<int>();
+            try
+            {
+                foreach (int productId in result["products"])
+                {
+                    productIds.Add(productId);
+                    var product = await _productRepository.GetById(productId);
+                    products.Add(product);
+                }
+            }
+            catch
+            {
+                products = await _productRepository.GetTopView(10);
+                total = 10;
+                error = true;
+            }
+
+            var productDif = new List<Product>();
+            if (total < 10)
+            {
+                productDif = await _productRepository.GetTopView(10);
+            }
+
+            if (!error)
+            {
+                products.AddRange(productDif);
+            }
+            var page = new Common.DTOs.Page(products.Count, 10, CurrentPage);
+
+            products = products.Skip(page.pageSize * CurrentPage).Take(page.pageSize).ToList();
+            return (page, products);
+        }
+        public async Task<List<ProductWithImages>> GetTopNew(int number)
+        {
+
+            var result = await _productRepository.GetTopNew(number);
+            var product = await ConvertToProductWithImages(result);
+            return product;
+        }
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
             var result = await _productRepository.GetProductPopular(number);
             var product = await ConvertToProductWithImages(result);
-            return  product;
+            return product;
         }
         private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
         {
@@ -657,7 +789,7 @@ namespace ShopRe.Service
                     RatingAverage = document.RatingAverage,
                     RatingCount = document.RatingCount,
                 };
-                product.Images= await _dbContext.Images.Where(i=>i.ProductID_NK == product.ID_NK).Select(i=>i.Image).ToListAsync() ;
+                product.Images = await _dbContext.Images.Where(i => i.ProductID_NK == product.ID_NK).Select(i => i.Image).ToListAsync();
                 products.Add(product);
             }
             return products.ToList();

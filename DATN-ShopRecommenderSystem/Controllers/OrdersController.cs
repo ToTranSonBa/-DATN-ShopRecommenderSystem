@@ -18,17 +18,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        readonly IOrderService _orderService;
+        private readonly IOrderService _orderService;
         private readonly IAccountService _accountService;
-        private readonly ICartItemsService _cartItemsService;
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        public OrdersController(IOrderService orderService, IAccountService accountService, 
-            ICartItemsService cartItemsService, ShopRecommenderSystemDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public OrdersController(IOrderService orderService, IAccountService accountService
+            , ShopRecommenderSystemDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
             _accountService = accountService;
-            _cartItemsService = cartItemsService;
             _dbContext = dbContext;
             _userManager = userManager;
         }
@@ -60,6 +58,33 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(res);
         }
 
+        [Authorize]
+        [HttpGet("UserOrders2")]
+        public async Task<IActionResult> GetOrdersOfUser2()
+        {
+            // Lấy token từ header Authorization
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized();
+            }
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user == null)
+            {
+                return Unauthorized(new Response<CartItem>()
+                {
+                    message = "Unauthorized!",
+                    status = "401",
+                    token = token,
+                    Data = null,
+                });
+            }
+
+            var res = await _orderService.GetOrdersOfUser2(user);
+            return Ok(res);
+        }
         // GET: api/orders
         [Authorize]
         [HttpGet("OrdersByStatus")]

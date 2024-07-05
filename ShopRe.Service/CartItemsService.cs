@@ -96,7 +96,7 @@ namespace ShopRe.Service
 
             var cartItems = await _dbContext.CartItem
                                             .Where(c => c.Session.ID == session.ID)
-                                            .Include(c => c.Product).Include(c=>c.OptionValues)
+                                            .Include(c => c.Product).Include(c=>c.OptionValues).Include(c=>c.optionValues2)
                                             .ToListAsync();
 
             return cartItems;
@@ -286,7 +286,7 @@ namespace ShopRe.Service
                     optionValues2 = productOption2,
                     SellerId = product.SellerID_NK,
                     SellerName = seller.Name,
-                    productImgs = productChild?.thumbnail_url,
+                    productImgs = productChild?.thumbnail_url ?? ProductOptionImage
                 };
                 _dbContext.CartItem.Add(cartItem);
                 session.Total += (productChild?.Price ?? product.Price) * Quantity;

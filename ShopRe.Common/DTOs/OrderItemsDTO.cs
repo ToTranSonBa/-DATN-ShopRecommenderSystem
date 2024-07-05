@@ -14,6 +14,7 @@ namespace ShopRe.Common.DTOs
         public decimal? Price { get; set; }
         public string? Image {  get; set; }
         public ProductDTO Product { get; set; } 
-        public ProductOptionValuesDTO OptionValues { get; set; }
+        public ProductOptionValuesDTO? OptionValues { get; set; }
+        public ProductOptionValuesDTO? OptionValues2 { get; set; }
     }
 }

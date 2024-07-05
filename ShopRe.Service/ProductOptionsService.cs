@@ -56,7 +56,7 @@ namespace ShopRe.Service
                 ID = entity.OptionNumber,
                 ProductID = entity.IdProduct,
                 Name = entity.Name,
-                //Code = "option " + (entity.OptionNumber).ToString(),
+                Code = "option " + (entity.OptionNumber).ToString(),
                 IsDeleted = false,
                 //Quantity = entity.Quantity
             };
@@ -71,23 +71,9 @@ namespace ShopRe.Service
                     {
                         Option = option.Entity,
                         Name = item.Value,
+                        ImageUrl = item.Image
                     };
                     await _dbContext.ProductOptionValues.AddAsync(optionValuesEntity);
-                }
-                foreach (var item in entity.Values)
-                {
-                    var productChildEntity = new ProductChild
-                    {
-                        Name = $"{product.Name} - {item.Value}",
-                        thumbnail_url = item.Image,
-                        //option1 = 
-                        //option2 =
-                        //option3 =
-                        //optopn4 =
-                        //Price = item.Price,
-                        Product= product,
-                    };
-                    await _dbContext.ProductChild.AddAsync(productChildEntity);
                 }
                 await _dbContext.SaveChangesAsync();
             }

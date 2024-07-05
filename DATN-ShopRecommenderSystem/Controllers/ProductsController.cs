@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Model.Models;
-using ShopRe.Model.Models.user_s_log;
 using ShopRe.Service;
 
 namespace DATN_ShopRecommenderSystem.Controllers
@@ -16,7 +14,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        readonly IProductService _productsService;
+        private readonly IProductService _productsService;
         private readonly ILogger<ProductsController> _logger;
         private readonly IElasticSearchService _elasticSearchService;
         private readonly IAccountService _accountService;
@@ -72,11 +70,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult<Product>> GetProduct(int id, int? idOptionValue1, int? idOptionValue2)
         {
 
-            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2); 
+            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
             return Ok(new
             {
-                Price= price,
-                Image= image
+                Price = price,
+                Image = image
             });
         }
         // GET: api/products
@@ -135,8 +133,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var token = authHeader.Substring("Bearer ".Length).Trim();
 
                 var user = await _accountService.GetUserFromTokenAsync(token);
-                var res = await _logService.addView(product.Product.ID_NK,product.Seller.ID_NK, user);
-            }            
+                var res = await _logService.addView(product.Product.ID_NK, product.Seller.ID_NK, user);
+            }
             return Ok(product);
         }
 
@@ -184,7 +182,41 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, "Không thể thêm sản phẩm.");
             }
         }
+        [Authorize]
+        [HttpPost("AddProductChild")]
+        public async Task<IActionResult> PostProductChild([FromBody] CreateProductChildPrameters productchild)
+        {
+            try
+            {
+                //Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
 
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.AddProductChild(productchild, user);
+
+                return CreatedAtAction(nameof(GetProduct), new { id = res.Id }, res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể thêm sản phẩm.");
+            }
+        }
         //DELETE: api/products/5
         [Authorize]
         [HttpDelete("{id}")]
@@ -302,7 +334,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         //}
 
         [HttpPost("RecommendProduct")]
-        public async Task<ActionResult> logProductView(RecommendParamaters paramaters)
+        public async Task<ActionResult> RecommendProduct(RecommendParamaters paramaters)
         {
             int userCode = 0;
             if (_signInManager.IsSignedIn(User))
@@ -319,7 +351,26 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             return Ok(results);
         }
-       
+
+        [HttpPost("RecommendProductForUser")]
+        public async Task<ActionResult> RecommendProductForUser(int currentPage = 0)
+        {
+            int userCode = 0;
+            if (_signInManager.IsSignedIn(User))
+            {
+                var userId = _userManager.GetUserId(User);
+                userCode = (await _userManager.FindByIdAsync(userId)).TrainCode;
+            }
+
+
+            var results = await _productsService.GetRecommendProductForUserAsync(userCode, currentPage);
+            if (results.products.Count() == 0)
+            {
+                return NoContent();
+            }
+            return StatusCode(StatusCodes.Status200OK, new { results.paging, results.products });
+        }
+
         [HttpGet("GetTopNew")]
         public async Task<ActionResult> GetToDay()
         {
