@@ -71,6 +71,7 @@ namespace ShopRe.Service
                     {
                         Option = option.Entity,
                         Name = item.Value,
+                        ImageUrl = item.Image
                     };
                     await _dbContext.ProductOptionValues.AddAsync(optionValuesEntity);
                 }
