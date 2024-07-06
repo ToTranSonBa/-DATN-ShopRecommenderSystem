@@ -33,7 +33,8 @@ namespace ShopRe.Service
                 Detail = userLogDto.Detail,
                 SellerId  = userLogDto.SellerId,
                 LogRate = userLogDto.LogRate,
-                User = userLogDto.User
+                User = userLogDto.User,
+                TrainCode = userLogDto.User.TrainCode,
                 
             };
             var res = await _UserLogRepository.AddL(search);
@@ -51,6 +52,7 @@ namespace ShopRe.Service
                 Detail = "View Product",
                 SellerId = sellerId,
                 User = user,
+                TrainCode= user.TrainCode,
                 LogRate = LogRate._YES,
                 ProductID_NK = productid
             };

@@ -162,7 +162,8 @@ namespace ShopRe.Service
                 Detail = "add to cart",
                 SellerId = product.SellerID_NK,
                 LogRate = LogRate._YES,
-                User = user
+                User = user,
+                TrainCode = user.TrainCode
             };
             await _UserLogRepository.AddL(newLog);
 
@@ -224,7 +225,8 @@ namespace ShopRe.Service
                 Detail = "add to cart",
                 SellerId = product.SellerID_NK,
                 LogRate = LogRate._YES,
-                User = user
+                User = user,
+                TrainCode = user.TrainCode
             };
             await _UserLogRepository.AddL(newLog);
 
