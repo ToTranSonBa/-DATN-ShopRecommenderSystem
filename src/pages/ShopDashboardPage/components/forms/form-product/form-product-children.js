@@ -5,15 +5,15 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { addProductApi, addProductOptionsApi, addProductOptionChildrenApi } from '../../../../../services/SellerApi/sellerApi'
 
-const cartesianProduct = (product, arr1, arr2) => {
+const cartesianProduct = async (formValues, arr1, arr2) => {
     let result = [];
     console.log('arr1: ', arr1);
     console.log('arr2: ', arr2);
-    if (arr1 === undefined) {
+    if (arr1 === undefined || arr1 === null) {
         console.log('ar1 null')
         return result;
     }
-    if (arr2 === undefined) {
+    if (arr2 === undefined || arr2 === null) {
         console.log('ar2 null')
 
         for (let i = 0; i < arr1.length; i++) {
@@ -21,7 +21,7 @@ const cartesianProduct = (product, arr1, arr2) => {
             result.push({
                 option1: arr1[i],
                 option2: null,
-                name: `${product.productName} - ${arr1[i].name}`,
+                name: `${formValues.productName} - ${arr1[i].name}`,
                 price: "",
                 image: null,
                 option1ValuesId: null,
@@ -36,7 +36,7 @@ const cartesianProduct = (product, arr1, arr2) => {
             result.push({
                 option1: arr1[i],
                 option2: arr2[j],
-                name: `${product.productName} - ${arr1[i].name} - ${arr2[j].name}`,
+                name: `${formValues.productName} - ${arr1[i].name} - ${arr2[j].name}`,
                 price: "",
                 image: null,
                 option1ValuesId: null,
