@@ -1,19 +1,17 @@
 import axios from "axios";
 
-const fastApiHost = `http://127.0.0.1:8000`
+const fastApiHost = `https://fastapi-2i32.onrender.com/`;
 
-const  trainStatus= async () => {
-    return axios.post(`${fastApiHost}/api/get/status/nbcf`)
-}
+const trainStatus = async () => {
+  return axios.post(`${fastApiHost}/api/get/status/nbcf`);
+};
 
 const trainNBCF = async () => {
-    return axios.post(`${fastApiHost}/api/trainingNBCF`)
-}
+  return axios.post(`${fastApiHost}/api/trainingNBCF`);
+};
 
 const trainCancel = async () => {
-    return axios.get(`${fastApiHost}/get/nbcf/cancel`)
-}
-
-export {
-    trainNBCF, trainStatus, trainCancel
+  return axios.get(`${fastApiHost}/get/nbcf/cancel`);
 };
+
+export { trainNBCF, trainStatus, trainCancel };
