@@ -18,7 +18,7 @@ namespace ShopRe.Service
         Task<ProductOption> Update(ProductOption entity);
         void Remove(int id);
         IEnumerable<ProductOption> Find(Expression<Func<ProductOption, bool>> expression);
-        Task<ProductOption> AddProductOption(CreateOptionParameters entity);
+        Task<(ProductOption option, List<ProductOptionValues> optionValues)> AddProductOption(CreateOptionParameters entity);
     }
     public class ProductOptionService : IProductOptionService
     {
@@ -42,9 +42,9 @@ namespace ShopRe.Service
             public List<ProductOptionValues> ProductOptionValues { get; set; } = new List<ProductOptionValues>();
             public List<ProductChild> ProductChildren { get; set; } = new List<ProductChild>();
         }
-        public async Task<ProductOption> AddProductOption(CreateOptionParameters entity)
+        public async Task<(ProductOption option, List<ProductOptionValues> optionValues)> AddProductOption(CreateOptionParameters entity)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct && p.IsDeleted == false);
 
             if(product == null)
             {
@@ -63,6 +63,8 @@ namespace ShopRe.Service
             var option = await _dbContext.ProductOptions.AddAsync(optionEntity);
             await _dbContext.SaveChangesAsync();
 
+            var listOptionValues = new List<ProductOptionValues>();
+
             if (entity.Values != null && entity.Values.Count > 0)
             {
                 foreach (var item in entity.Values)
@@ -73,12 +75,13 @@ namespace ShopRe.Service
                         Name = item.Value,
                         ImageUrl = item.Image
                     };
-                    await _dbContext.ProductOptionValues.AddAsync(optionValuesEntity);
+                    var optionValues = await _dbContext.ProductOptionValues.AddAsync(optionValuesEntity);
+                    listOptionValues.Add(optionValues.Entity);
                 }
                 await _dbContext.SaveChangesAsync();
             }
-
-            return option.Entity;
+            
+            return (option.Entity, listOptionValues);
         }
         public async Task<ProductOption> AddProductOptionValue(CreateOptionParameters entity)
         {

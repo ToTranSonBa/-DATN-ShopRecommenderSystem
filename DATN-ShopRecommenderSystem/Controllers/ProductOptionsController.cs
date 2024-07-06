@@ -42,9 +42,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpPost("OptionOfProduct")]
         public async Task<IActionResult> PostProductOptions([FromBody]CreateOptionParameters productOption)
         {
-            var res = await _productOptionService.AddProductOption(productOption);
+            var (option, optionvalue) = await _productOptionService.AddProductOption(productOption);
 
-            return CreatedAtAction(nameof(GetProductOption), new { id = res.ID }, res);
+            return Ok(new
+            {
+                Option = option,
+                Optionvalue = optionvalue
+            });
         }
         // POST: api/productoptions
         [HttpPost]
