@@ -85,7 +85,7 @@ namespace ShopRe.Service
         }
         public async Task<ProductOption> AddProductOptionValue(CreateOptionParameters entity)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct && p.IsDeleted == false);
 
             if (product == null)
             {

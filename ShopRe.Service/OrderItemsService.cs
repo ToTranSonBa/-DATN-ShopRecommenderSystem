@@ -123,7 +123,7 @@ namespace ShopRe.Service
         public async Task<OrderItems> AddOrderItems2(OrderItemsParameters orderItemsParameters, ApplicationUser user)
         {
             // Validate the product
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == orderItemsParameters.idProduct);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == orderItemsParameters.idProduct && p.IsDeleted == false);
             if (product == null)
             {
                 throw new InvalidOperationException("Product not found.");
@@ -241,7 +241,7 @@ namespace ShopRe.Service
         public async Task<OrderItems> AddOrderItems(OrderItemsParameters orderItemsParameters, ApplicationUser user)
         {
             // Validate the product
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p=>p.ID_NK == orderItemsParameters.idProduct);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p=>p.ID_NK == orderItemsParameters.idProduct && p.IsDeleted==false);
             if (product == null)
             {
                 throw new InvalidOperationException("Product not found.");
@@ -304,7 +304,7 @@ namespace ShopRe.Service
         {
             // Validate the product
             var product = await _dbContext.Products.FindAsync(orderItemsParameters.idProduct);
-            if (product == null)
+            if (product == null || product.IsDeleted == true)
             {
                 throw new InvalidOperationException("Product not found.");
             }
