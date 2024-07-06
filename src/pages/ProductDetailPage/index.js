@@ -115,11 +115,18 @@ const ProductDetailPage = () => {
 
   const fetchPrice = useCallback(async () => {
     try {
-      setPrice(productDetail?.product?.price);
+      const response = await axios.get(`/Products/GetPriceAndImageProductChild${id}`, {
+        params: {
+          idOptionValue1: idProductOption1Value,
+          idOptionValue2: idProductOption2Value,
+        },
+      });
+      console.log(response.price);
+      setPrice(response.price);
     } catch (error) {
       console.error("Failed to fetch price:", error);
     }
-  }, [fetchProductDetail]);
+  }, [idProductOption1Value, idProductOption2Value]);
 
   const fetchComments = useCallback(async () => {
     try {
@@ -519,10 +526,10 @@ const ProductDetailPage = () => {
                         className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
                         onClick={() => (
                           setSelectedOption1Index(index),
-                          // setPrice(option?.price),
                           setIdProductOption1Value(option?.id),
                           setProductOption1Image(option?.imageUrl),
-                          setProductOption1Name(option?.name)
+                          setProductOption1Name(option?.name),
+                          fetchPrice()
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
@@ -569,10 +576,10 @@ const ProductDetailPage = () => {
                         className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
                         onClick={() => (
                           setSelectedOption2Index(index),
-                          // setPrice(option?.price),
                           setIdProductOption2Value(option?.id),
                           setProductOption2Image(option?.imageUrl),
-                          setProductOption2Name(option?.name)
+                          setProductOption2Name(option?.name),
+                          fetchPrice()
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
