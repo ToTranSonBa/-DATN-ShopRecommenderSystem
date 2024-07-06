@@ -119,7 +119,7 @@ namespace ShopRe.Service
         public async Task<CartItem> AddToCart(int idProduct, int? idProductOptionValue, string ProductOptionImage, int Quantity, ApplicationUser user)
         {
             var product = await _productRepository.GetById(idProduct);
-            if (product == null)
+            if (product == null || product.IsDeleted == true)
             {
                 return null;
             }
@@ -197,7 +197,7 @@ namespace ShopRe.Service
         public async Task<CartItem> AddToCart2(int idProduct, int? idProductOptionValue1, int? idProductOptionValue2, string ProductOptionImage, int Quantity, ApplicationUser user)
         {
             var product = await _productRepository.GetById(idProduct);
-            if (product == null)
+            if (product == null || product.IsDeleted==true)
             {
                 return null;
             }
@@ -309,7 +309,7 @@ namespace ShopRe.Service
                 return null;
             }
             var product = await _productRepository.GetById(idProduct);
-            if (product == null)
+            if (product == null || product.IsDeleted == true)
             {
                 return null;
             }

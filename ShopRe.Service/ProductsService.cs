@@ -135,7 +135,7 @@ namespace ShopRe.Service
 
         public async Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id && p.IsDeleted == false);
             if (product == null)
             {
                 throw new InvalidOperationException("Product not found.");
@@ -191,7 +191,7 @@ namespace ShopRe.Service
 
             //Product product = await _productRepository.GetById(idProduct);
             Product product = await _unitOfWork.Products.GetById(idProduct);
-            if (product == null)
+            if (product == null || product.IsDeleted==true)
             {
                 return null;
             }
@@ -377,8 +377,8 @@ namespace ShopRe.Service
         {
             try
             {
-                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct);
-                if(product == null)
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct && p.IsDeleted == false);
+                if (product == null)
                 {
                     throw new ArgumentException("Invalid Product ID.");
                 }
@@ -440,17 +440,17 @@ namespace ShopRe.Service
         {
             try
             {
-                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id && p.IsDeleted == false);
 
                 if (product == null)
                 {
-                    throw new ArgumentException("Product not found.");
+                    throw new ArgumentException("Sản phẩm không tồn tại. ");
                 }
 
                 var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
                 if (seller == null)
                 {
-                    throw new ArgumentException("Seller not found.");
+                    throw new ArgumentException("Seller không tồn tại.");
                 }
 
                 product.IsDeleted = true;
@@ -459,7 +459,7 @@ namespace ShopRe.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to add product.", ex);
+                throw new Exception("Lỗi khi xóa sản phẩm.", ex);
             }
 
         }
@@ -477,7 +477,7 @@ namespace ShopRe.Service
                 }
 
 
-                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id);
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == id && p.IsDeleted == false);
 
                 if (product == null)
                 {

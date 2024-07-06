@@ -39,7 +39,7 @@ namespace ShopRe.Service
         public async Task<bool> Add(CreateDetailCommentPrarameters entity, ApplicationUser user)
         {
             // Ensure the product exists
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.ProductId && p.SellerID_NK == entity.SellerId);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.ProductId && p.IsDeleted == false && p.SellerID_NK == entity.SellerId);
             if (product == null)
             {
                 throw new ArgumentException("Sản phẩm không tồn tại!");
@@ -131,7 +131,7 @@ namespace ShopRe.Service
         }
         public async Task<(IEnumerable<CommentDTO> comments, int total, MetaData metaData)> GetAllOnePro(int productId, CommentParameters commentParameters, bool trackChanges)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == productId);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == productId && p.IsDeleted == false);
 
             if (product == null)
             {
