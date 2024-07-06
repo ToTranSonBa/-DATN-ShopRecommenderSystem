@@ -18,28 +18,9 @@ const CartShoppingPage = () => {
     const fetchCart = useCallback(async () => {
         try {
             const response = await cartsApi(token);
-            const updatedCartData = response.data.map((item) => {
-                // Tìm chuỗi trong dấu ngoặc kép
-                const match = item.product.image.match(/'base_url': '([^']+)'/);
 
-                if (match && match[1]) {
-                    const baseUrl = match[1];
-
-                    return {
-                        ...item,
-                        product: {
-                            ...item.product,
-                            image: baseUrl,
-                        },
-                        checked: false,
-                    };
-                } else {
-                    return item;
-                }
-            });
-            setQuantities(response.data.map((item) => item.quantity));
-            setCartData(updatedCartData);
-            console.log('cart data in checkout form: ', updatedCartData);
+            setQuantities(response?.data?.map((item) => item.quantity));
+            setCartData(response.data);
         } catch (error) {
             console.error('Failed to fetch cart:', error);
         }

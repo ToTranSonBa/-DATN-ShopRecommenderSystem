@@ -970,7 +970,7 @@ const UserPage = () => {
                                                                     </div>
                                                                     {order.status === 2 && (
                                                                         <div className="flex items-center justify-between">
-                                                                            {order.IsRated === false && (
+                                                                            {(order.isRated === false || order.isRated === null) && (
                                                                                 <>
                                                                                     <span className="text-sm font-light">
                                                                                         Đánh giá trước{' '}
@@ -1017,7 +1017,7 @@ const UserPage = () => {
                                                                                     </div>
                                                                                 </>
                                                                             )}
-                                                                            {(order.IsRated === false) === 1 && (
+                                                                            {(order.isRated === false || order.isRated === null) === 1 && (
                                                                                 <button className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2">
                                                                                     Mua lại
                                                                                 </button>
