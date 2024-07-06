@@ -44,10 +44,14 @@ const TableProduct = ({ inDoashboard = false }) => {
     const handleDeleteProduct = async (productId) => {
         try {
             const deleteProductData = await deleteProductApi(productId, token);
+            if (deleteProductData) {
+                // Xóa sản phẩm khỏi mảng products sau khi xóa thành công
+                setProducts((prevProducts) => prevProducts.filter(product => product.iD_NK !== productId));
+            }
         } catch (error) {
-            console.log('Failed to call deleteProductApi:', error)
+            console.log('Failed to call deleteProductApi:', error);
         }
-    }
+    };
 
 
     useEffect(() => {
@@ -336,7 +340,7 @@ const TableProduct = ({ inDoashboard = false }) => {
                             <FormProductManager
                                 action={2}
                                 product={selectedProduct}
-                                open={setIsOpenDropdownEditProduct}
+                                open={setIsOpenDropdownDetailProduct}
                             />
                         </div>
                     </MaxWidthWrapper>
