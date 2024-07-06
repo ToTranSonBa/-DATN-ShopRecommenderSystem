@@ -404,6 +404,7 @@ namespace ShopRe.Service
                             Price = entity.Price,
                             option1 = optionValue1.Name,
                             option2= optionValue2.Name,
+                            ProductID_NK = entity.IdProduct,
                             OptionValuesID1 = optionValue1.Id,
                             OptionValuesID2 = optionValue2.Id,
                         };
@@ -420,7 +421,8 @@ namespace ShopRe.Service
                             thumbnail_url = entity.thumbnail_url,
                             Price = entity.Price,
                             option1 = optionValue1.Name,
-                            OptionValuesID1 = optionValue1.Id
+                            OptionValuesID1 = optionValue1.Id,
+                            ProductID_NK = entity.IdProduct
                         };
                         var productChildEntity = await _dbContext.ProductChild.AddAsync(productChild);
                         await _dbContext.SaveChangesAsync();
