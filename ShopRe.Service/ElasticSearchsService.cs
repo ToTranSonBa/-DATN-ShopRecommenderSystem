@@ -28,6 +28,8 @@ namespace ShopRe.Service
         Task<List<dynamic>> GetBrandsBySearch(string keyWord);
         Task<List<Product>> Get20NewPro();
         Task<List<Seller>> GetSellerForUser(int usercode);
+        Task<List<dynamic>> GetCategoryLevel0OfSeller(int id);
+        Task<List<dynamic>> GetBrandsBySeller(int id);
 
     }
     public class ElasticSearchsService : IElasticSearchService
@@ -748,6 +750,72 @@ namespace ShopRe.Service
         }
 
         //Brands
+        public async Task<List<dynamic>> GetBrandsBySeller(int id)
+        {
+            var response = await _elasticClient.SearchAsync<object>(s => s
+               .Index("products")
+               .Query(q => q
+                   .Bool(b => b
+                       .Filter(filters => filters
+                           .Term(t => t.Field("SellerID_NK").Value(id))
+                       )
+                   )
+               )
+               .Aggregations(a => a
+                   .ValueCount("total_products", vc => vc
+                           .Field("ID_NK")
+                   )
+               )
+           );
+
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+
+            var allresponse = await _elasticClient.SearchAsync<object>(s => s
+               .Index("products")
+               .Query(q => q
+                   .Bool(b => b
+                       .Filter(filters => filters
+                           .Term(t => t.Field("SellerID_NK").Value(id))
+                       )
+                   )
+               )
+               .Aggregations(a => a
+                   .ValueCount("total_products", vc => vc
+                           .Field("ID_NK")
+                   )
+               ).Size(totalProducts)
+           );
+
+            if (!response.IsValid || !allresponse.IsValid)
+            {
+                return null;
+            }
+
+            var products_infor = ConvertToProduct(allresponse.Documents.ToList());
+
+            var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
+
+            var list_brands_response = new List<dynamic>();
+
+            var results = await _dbContext.Brands.ToListAsync();
+
+            foreach (var brand in results)
+            {
+                var count = products_infor.Where(p => p.BrandID_NK == brand.ID_NK).ToList();
+                var brandObject = new
+                {
+                    Total = count.Count(),
+                    Brand = brand,
+                };
+                list_brands_response.Add(brandObject);
+            }
+
+            var sortedList = list_brands_response
+                .OrderByDescending(c => c.Total).Take(15)
+                .ToList();
+
+            return sortedList;
+        }
         private async Task<int> GetTotalProductCountForBrand(int brandId)
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
@@ -1254,6 +1322,71 @@ namespace ShopRe.Service
             return seller;
         }
         //Category
+        public async Task<List<dynamic>> GetCategoryLevel0OfSeller(int id)
+        {
+            var response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("products")
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters => filters
+                            .Term(t => t.Field("SellerID_NK").Value(id))
+                        )
+                    )
+                )
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
+            );
+
+            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+
+            var allresponse = await _elasticClient.SearchAsync<object>(s => s
+               .Index("products")
+               .Query(q => q
+                   .Bool(b => b
+                       .Filter(filters => filters
+                           .Term(t => t.Field("SellerID_NK").Value(id))
+                       )
+                   )
+               )
+               .Aggregations(a => a
+                   .ValueCount("total_products", vc => vc
+                           .Field("ID_NK")
+                   )
+               ).Size(totalProducts)
+           );
+
+            if (!response.IsValid || !allresponse.IsValid)
+            {
+                return null;
+            }
+
+            var products_infor = ConvertToProduct(allresponse.Documents.ToList());
+
+            var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
+
+            var list_categories_response = new List<dynamic>();
+
+            var results = await _dbContext.Category.Where(p => p.Level == 0).ToListAsync();
+
+            foreach (var category in results)
+            {
+                var count = products_infor.Where(p => p.Category_LV0_NK == category.ID_NK).ToList();
+                var categoryObject = new
+                {
+                    Total = count.Count(),
+                    Category = category,
+                };
+                list_categories_response.Add(categoryObject);
+            }
+            var sortedList = list_categories_response
+               .OrderByDescending(c => c.Total)
+               .ToList();
+
+            return sortedList;
+        }
         public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
         {
             var filters = new List<QueryContainer>();

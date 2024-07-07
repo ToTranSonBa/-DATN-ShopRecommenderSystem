@@ -35,6 +35,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             return Ok(res);
         }
+        [HttpGet("BrandsOfSeller")]
+        public async Task<IActionResult> GetBrandsOfSeller(int idSeller)
+        {
+            var brands = await _elasticsearchService.GetBrandsBySeller(idSeller);
+
+            return Ok(new
+            {
+                message = "Success!",
+                status = "200",
+                Brands = brands
+            });
+        }
         // GET: api/brands
         [HttpGet("BrandsBySearch")]
         public async Task<IActionResult> GetBrandsBySearching(string? KeyWord)
