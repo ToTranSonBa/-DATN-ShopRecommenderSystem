@@ -154,7 +154,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     disabled={action === 2}
                                 />
                             </div>
-                            {action !== 2 && (
+                            {action === 0 && (
                                 <button onClick={() => handleRemoveOption(optionIndex)} className="text-red-500">
                                     Xóa lựa chọn
                                 </button>
@@ -206,7 +206,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     </div>
                                 </div>
 
-                                {action !== 2 && (
+                                {action === 0 && (
                                     <button
                                         onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
                                         className="ml-4 text-red-500"
