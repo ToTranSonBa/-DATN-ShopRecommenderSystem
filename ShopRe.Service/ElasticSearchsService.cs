@@ -1393,16 +1393,50 @@ namespace ShopRe.Service
 
             if (!priorityItems.IsValid)
             {
-                return new List<Seller>();
+                var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+
+                var topSellerIds = _dbContext.UserLog
+                    .Where(log => log.DateTime >= thirtyDaysAgo && log.SellerId.HasValue)
+                    .GroupBy(log => log.SellerId)
+                    .Select(group => new
+                    {
+                        SellerId = group.Key,
+                        LogCount = group.Count()
+                    })
+                    .OrderByDescending(x => x.LogCount)
+                    .Take(14)
+                    .Select(x => x.SellerId.Value) // We are assuming SellerId is not null
+                    .ToList();
+                var topSellers = _dbContext.Sellers
+                    .Where(seller => topSellerIds.Contains(seller.ID_NK))
+                    .ToList();
+                return topSellers;
             }
 
 
             var sellerPriority = ConvertToSellerPriority(priorityItems.Documents.ToList());
             var ids = sellerPriority.OrderBy(e => e.Idx).Select(e => e.SellerID).ToList();
             var sellers = await _dbContext.Sellers.Where(exp => ids.Contains(exp.ID_NK)).ToListAsync();
-            if (sellers.Count < 20)
+            if (sellers.Count < 14)
             {
+                var thirtyDaysAgo = DateTime.Now.AddDays(-30);
 
+                var topSellerIds = _dbContext.UserLog
+                    .Where(log => log.DateTime >= thirtyDaysAgo && log.SellerId.HasValue)
+                    .GroupBy(log => log.SellerId)
+                    .Select(group => new
+                    {
+                        SellerId = group.Key,
+                        LogCount = group.Count()
+                    })
+                    .OrderByDescending(x => x.LogCount)
+                    .Take(14 - sellers.Count)
+                    .Select(x => x.SellerId.Value) // We are assuming SellerId is not null
+                    .ToList();
+                var topSellers = _dbContext.Sellers
+                    .Where(seller => topSellerIds.Contains(seller.ID_NK))
+                    .ToList();
+                sellers.AddRange(topSellers);
             }
             return sellers;
         }

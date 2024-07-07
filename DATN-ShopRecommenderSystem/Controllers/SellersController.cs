@@ -162,14 +162,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var authHeader = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                return Unauthorized();
+                userCode = 0;
             }
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user != null)
+            else
             {
-                userCode = user.TrainCode;
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user != null)
+                {
+                    userCode = user.TrainCode;
+                }
             }
 
             var result = await _elasticsearchService.GetSellerForUser(userCode);
