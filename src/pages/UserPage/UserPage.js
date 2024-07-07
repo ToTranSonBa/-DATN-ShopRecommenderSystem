@@ -1017,7 +1017,7 @@ const UserPage = () => {
                                                                                     </div>
                                                                                 </>
                                                                             )}
-                                                                            {(order.IsRated === false) === 1 && (
+                                                                            {order.IsRated === false && (
                                                                                 <button className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2">
                                                                                     Mua lại
                                                                                 </button>

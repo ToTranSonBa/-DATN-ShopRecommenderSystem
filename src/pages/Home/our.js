@@ -14,7 +14,7 @@ const Our = () => {
                         </div>
                         <div className="flex justify-center w-full lg:pt-6">
                             <div className="w-2/3 h-auto font-light text-center ">
-                                ShopLY cung cấp giải pháp giao dịch B2B toàn diện cho các doanh nghiệp vừa và nhỏ trên
+                                ShopLY cung cấp giải pháp giao dịch B2C toàn diện cho các doanh nghiệp vừa và nhỏ trên
                                 toàn cầu, hỗ trợ họ chuyển đổi sang giao dịch kỹ thuật số, nắm bắt cơ hội và thúc đẩy
                                 tăng trưởng trên phạm vi quốc tế.
                             </div>
@@ -38,7 +38,7 @@ const Our = () => {
                                 data-twe-lazy-load-init
                                 data-twe-lazy-src
                                 src={HomeBG_map}
-                                className="w-full h-full  rounded-xl"
+                                className="w-full h-full rounded-xl"
                             />
                             <div className="absolute flex h-full z-2 lg:top-8 lg:px-8">
                                 <div className="content-end lg:h-4/5 basis-3/4">

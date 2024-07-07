@@ -4,8 +4,6 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../../components/card/ProductCard';
 import { Pagination as PaginationAntd } from 'antd';
-import DefaultAVT from '../../assets/default-avatar.png';
-import ProductRating from '../../components/card/ProductRating';
 import {
     getSellerbyID,
     getProductsQuantitySoldMax,
@@ -237,7 +235,11 @@ function ShopPage({}) {
                                 <div className="flex justify-center items-center bg-gray-500 rounded-full w-[90px] h-[90px]">
                                     <img
                                         className="rounded-full object-cover w-[80px] h-[80px]"
-                                        src={seller?.imageUrl ? seller?.imageUrl : DefaultAVT}
+                                        src={
+                                            seller?.imageUrl
+                                                ? seller?.imageUrl
+                                                : 'https://vcdn.tikicdn.com/ts/seller/4b/54/1a/f385a79a716cb3505f152e7af8c769aa.png'
+                                        }
                                         alt="this is avt"
                                     />
                                 </div>

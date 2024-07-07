@@ -48,5 +48,65 @@ const fetchProduct = async ({ searchKey }) => {
         throw error;
     }
 };
+const fetchTopNewProducts = async () => {
+    try {
+        const response = await axios.get('Products/GetTopNew');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch top new products:  ', error);
+        throw error;
+    }
+};
+const fetchTopViewProducts = async () => {
+    try {
+        const response = await axios.get('Products/GetTopView');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch top view products:  ', error);
+        throw error;
+    }
+};
 
-export { ProductsApi, fetchCategories, fetchTop10Seller, fetchTopPopProducts, fetchProduct };
+const fetchRecommendSeller = async () => {
+    try {
+        const response = await axios.post('/Sellers/foruser/recommend/sellers');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch recomended sellers:  ', error);
+        throw error;
+    }
+};
+const fetchRecommentProduct = async (currentPage, token = null) => {
+    try {
+        let response;
+        if (token === null) {
+            response = await axios.post(`/Products/RecommendProductForUser?currentPage=${currentPage}`);
+        } else {
+            response = await axios.post(
+                `/Products/RecommendProductForUser?currentPage=${currentPage}`,
+                {},
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                    },
+                },
+            );
+        }
+        return response; // Đảm bảo trả về dữ liệu cần thiết
+    } catch (error) {
+        console.error('Failed to fetch recommended Product: ', error);
+        throw error;
+    }
+};
+
+export {
+    ProductsApi,
+    fetchCategories,
+    fetchTop10Seller,
+    fetchTopPopProducts,
+    fetchProduct,
+    fetchTopNewProducts,
+    fetchTopViewProducts,
+    fetchRecommendSeller,
+    fetchRecommentProduct,
+};

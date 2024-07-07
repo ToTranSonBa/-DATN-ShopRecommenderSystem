@@ -363,7 +363,9 @@ const TableOrder = () => {
                                         key={index}
                                         onClick={() => handlePageClick(page)}
                                         className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                            pageNumber === page ? 'bg-gray-100' : 'hover:bg-gray-100'
+                                            pageNumber === page
+                                                ? 'text-primary border-1 border-primary bg-gray-100'
+                                                : 'text-gray-700 border border-gray-300 hover:bg-gray-100'
                                         }`}
                                     >
                                         {page + 1}
@@ -1183,10 +1185,10 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
                                         value={newStatus}
                                         onChange={handleChangeStatus}
                                     >
-                                        <option value="0">Chờ vận chuyển</option>
+                                        {/* <option value="0">Chờ vận chuyển</option>
                                         <option value="1">Chờ giao hàng</option>
-                                        <option value="2">Hoàn thành</option>
-                                        {/* {order?.status === 0 && (
+                                        <option value="2">Hoàn thành</option> */}
+                                        {order?.status === 0 && (
                                             <>
                                                 <option value="0">Chờ vận chuyển</option>
                                                 <option value="1">Chờ giao hàng</option>
@@ -1203,7 +1205,7 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
                                             <>
                                                 <option value="2">Hoàn thành</option>
                                             </>
-                                        )} */}
+                                        )}
                                     </select>
                                 </div>
                             </div>

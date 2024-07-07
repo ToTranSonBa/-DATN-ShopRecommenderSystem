@@ -1,11 +1,11 @@
 import HomeBG from '../../assets/HomeImg/home.jpg';
 import MaxWidthWrapper from '../../components/MaxWidthWrapper/index';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { SearchContext } from '../../components/searchContext';
 import { useNavigate } from 'react-router-dom';
-import { fetchProduct } from '../../services/HomeApi/home';
 import useDebounce from '../../components/useDebounce/useDebounce';
-
+//API
+import { fetchTopViewProducts, fetchProduct } from '../../services/HomeApi/home';
 const searchPlaceholders = [
     {
         title: 'iphone',
@@ -40,35 +40,6 @@ const Search = () => {
         setInputValue(e.target.value);
     };
 
-    const handleSubmit = (e, searchKey) => {
-        console.log('search key: ', searchKey);
-        e.preventDefault();
-        setSearchQuery(searchKey);
-        localStorage.setItem('searchQuery', searchKey);
-        navigate('/productpage');
-        // lưu vào localstorage
-        // Lấy dữ liệu từ Local Storage
-        let recentSearch = JSON.parse(localStorage.getItem('recentSearch')) || [];
-
-        // Kiểm tra recentSearch có phải là mảng không, nếu không thì khởi tạo là mảng rỗng
-        if (!Array.isArray(recentSearch)) {
-            recentSearch = [];
-        }
-
-        // Thêm searchKey mới vào mảng recentSearch (nếu chưa có)
-        if (!recentSearch.includes(searchKey)) {
-            recentSearch.push(searchKey);
-        }
-
-        // // Giới hạn số lượng phần tử tối đa trong mảng (ví dụ: giới hạn là 5)
-        // const maxRecentSearches = 5;
-        // if (recentSearch.length > maxRecentSearches) {
-        //     recentSearch.splice(0, recentSearch.length - maxRecentSearches);
-        // }
-
-        // Cập nhật lại Local Storage với mảng recentSearch đã cập nhật
-        localStorage.setItem('recentSearch', JSON.stringify(recentSearch));
-    };
     // State for recent searches
     const [recentSearch, setRecentSearch] = useState([]);
 
@@ -102,11 +73,51 @@ const Search = () => {
             setSuggestions([]); // Clear suggestions when input is empty
         }
     }, [debouncedInputValue]);
+
+    const handleSubmit = (e, searchKey) => {
+        console.log('search key: ', searchKey);
+        e.preventDefault();
+        setSearchQuery(searchKey);
+        localStorage.setItem('searchQuery', searchKey);
+        navigate('/productpage');
+
+        // Lưu vào local storage
+        let recentSearch = JSON.parse(localStorage.getItem('recentSearch')) || [];
+
+        if (!Array.isArray(recentSearch)) {
+            recentSearch = [];
+        }
+
+        if (!recentSearch.includes(searchKey)) {
+            recentSearch.push(searchKey);
+        }
+
+        localStorage.setItem('recentSearch', JSON.stringify(recentSearch));
+    };
+
     const handleClearRecentSearch = () => {
-        // Clear recent searches from local storage and state
+        console.log('clear please');
         localStorage.removeItem('recentSearch');
         setRecentSearch([]);
     };
+
+    // CAll API
+    const [topViewProducts, setTopViewProducts] = useState([]);
+    const getTopViewProduct = useCallback(async () => {
+        try {
+            const response = await fetchTopViewProducts();
+            setTopViewProducts(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+    useEffect(() => {
+        const fetchData = async () => {
+            await getTopViewProduct();
+        };
+        fetchData();
+    }, []);
+
     return (
         <div className="relative w-full">
             <img
@@ -189,7 +200,7 @@ const Search = () => {
                                             .slice(0, seeMore ? recentSearch.length : 4)
                                             .map((search, index) => (
                                                 <div
-                                                    onSubmit={(e) => handleSubmit(e, search)}
+                                                    onClick={(e) => handleSubmit(e, search)}
                                                     className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                                     key={index}
                                                 >
@@ -262,6 +273,7 @@ const Search = () => {
                                         <span className="font-semibold lg:ml-10 lg:text-lg">Đề xuất cho bạn</span>
                                         {recentSearch.map((search, index) => (
                                             <div
+                                                onClick={(e) => handleSubmit(e, search)}
                                                 className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                                 key={index}
                                             >
@@ -281,7 +293,7 @@ const Search = () => {
                                                         />
                                                     </svg>
                                                 </div>
-                                                <span className="font-light ">{search}</span>
+                                                <span className="font-light">{search}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -289,14 +301,14 @@ const Search = () => {
                             ) : (
                                 <>
                                     {suggestions.length > 0 ? (
-                                        <div class=" w-full text-sm text-gray-900 ">
+                                        <div className="w-full text-sm text-gray-900">
                                             {suggestions.map((suggestion) => (
                                                 <div
-                                                    onSubmit={(e) => handleSubmit(e, suggestion.name)}
+                                                    onClick={(e) => handleSubmit(e, suggestion.name)}
                                                     className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                                     key={suggestion.iD_NK}
                                                 >
-                                                    <div className="w-[10px]  lg:ml-10 ">
+                                                    <div className="w-[10px] lg:ml-10">
                                                         <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-300/80">
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -330,17 +342,16 @@ const Search = () => {
                         </div>
                     </form>
                     <div className="flex items-center justify-between">
-                        <span className="text-white basis-1/4">Tìm kiếm thường xuyên: </span>
-                        <div className="flex basis-3/4">
-                            <button className="py-2 font-normal text-white truncate bg-transparent border border-white text-nowrap max-w-1/3 lg:px-2 lg:text-xs rounded-3xl hover:bg-primary/50 hover:text-white hover:border-transparent">
-                                Iphone 12 promax
-                            </button>
-                            <button className="py-2 font-normal text-white truncate bg-transparent border border-white text-nowrap max-w-1/3 lg:px-2 lg:text-xs md:mx-3 lg:mx-5 rounded-3xl hover:bg-primary/50 hover:text-white hover:border-transparent">
-                                Iphone
-                            </button>
-                            <button className="py-2 font-normal text-white truncate bg-transparent border border-white text-nowrap max-w-1/3 lg:px-2 lg:text-xs rounded-3xl hover:bg-primary/50 hover:text-white hover:border-transparent">
-                                Máy tính bảng
-                            </button>
+                        <span className="w-1/4 text-white">Tìm kiếm thường xuyên: </span>
+                        <div className="flex w-3/4 lg:gap-2">
+                            {topViewProducts.slice(0, 3).map((product) => (
+                                <a
+                                    href={`/productdetail/${product.iD_NK}`}
+                                    className="py-2 overflow-hidden font-normal text-white truncate bg-transparent border border-white text-nowrap max-w-1/3 lg:px-2 lg:text-xs rounded-3xl hover:bg-primary/50 hover:text-white hover:border-transparent"
+                                >
+                                    {product.name}
+                                </a>
+                            ))}
                         </div>
                     </div>
                 </div>

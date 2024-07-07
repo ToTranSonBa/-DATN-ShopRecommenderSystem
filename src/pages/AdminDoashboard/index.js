@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import SidebarAdmin from './sidebar';
 import AdminDoashboard from './doashboard';
-import Algorithm from './algorithm';
+import AlgorithmNeighBase from './algorithm/neighbor-hood-base';
+import AlgorithmContentBase from './algorithm/content-base';
 
 const AdminDoashBoardManager = () => {
     const [useroption, setUserOption] = useState('admindoashboard');
@@ -15,7 +16,8 @@ const AdminDoashBoardManager = () => {
                 </side>
                 <div className="w-full h-auto">
                     {useroption === 'admindoashboard' && <AdminDoashboard />}
-                    {useroption === 'algorithm' && <Algorithm />}
+                    {useroption === 'algorithm-neighbor' && <AlgorithmNeighBase />}
+                    {useroption === 'algorithm-content' && <AlgorithmContentBase />}
                 </div>
             </div>
         </div>

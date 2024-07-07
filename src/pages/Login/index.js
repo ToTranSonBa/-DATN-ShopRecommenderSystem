@@ -156,6 +156,9 @@ const LoginPage = () => {
                                             Tạo tài khoản
                                         </a>
                                     </p>
+                                    <a href="/" className="mx-auto text-sm leading-relaxed text-grey-900">
+                                        Trang chủ
+                                    </a>
                                 </form>
                             </div>
                         </div>

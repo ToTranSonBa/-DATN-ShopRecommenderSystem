@@ -299,7 +299,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                    Bảng
+                                    Quản lí
                                     <svg
                                         class="absolute right-6 top-1/2 -translate-y-1/2 fill-current"
                                         width="20"
@@ -328,7 +328,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                 }}
                                             >
                                                 <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
-                                                    Bảng sản phẩm
+                                                    Sản phẩm
                                                 </a>
                                             </li>
                                             <li
@@ -339,7 +339,7 @@ const DoashboardSideBar = ({ useroption, setDropdownDashboardOpen }) => {
                                                 }}
                                             >
                                                 <a class="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-primary">
-                                                    Bảng đơn hàng
+                                                    Đơn hàng
                                                 </a>
                                             </li>
                                         </ul>

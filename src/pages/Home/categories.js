@@ -12,30 +12,30 @@ const Categories = () => {
                     <div className="grid grid-cols-2 grid-rows-2 gap-y-6 basis-5/12">
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">Hơn 200 triệu</span>
+                                <span className="text-3xl font-semibold text-primary">Hàng ngàn</span>
                                 <br />
                                 <span className="text-xl font-light ">sản phẩm</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">Hơn 200 nghìn</span>
+                                <span className="text-3xl font-semibold text-primary">Hàng nghìn</span>
                                 <br />
                                 <span className="text-xl font-light ">nhà cung cấp</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">5,900</span>
+                                <span className="text-3xl font-semibold text-primary">Danh mục</span>
                                 <br />
-                                <span className="text-xl font-light ">danh mục sản phẩm</span>
+                                <span className="text-xl font-light ">phong phú</span>
                             </div>
                         </div>
                         <div className="border-l-4 border-solid border-gray-600/55">
                             <div className="px-6">
-                                <span className="text-3xl font-semibold text-primary">200+</span>
+                                <span className="text-3xl font-semibold text-primary">Mọi miền</span>
                                 <br />
-                                <span className="text-xl font-light ">quốc gia và khu vực</span>
+                                <span className="text-xl font-light ">Tổ quốc</span>
                             </div>
                         </div>
                     </div>

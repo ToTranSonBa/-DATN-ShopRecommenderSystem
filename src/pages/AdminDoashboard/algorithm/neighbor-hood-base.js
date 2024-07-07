@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import OneLineChart from './../charts/one-line-chart';
+import OneLineChart from '../charts/one-line-chart';
 
-const Algorithm = () => {
+const AlgorithmNeighBase = () => {
     const [logs, setLogs] = useState([]);
 
     useEffect(() => {
@@ -33,10 +33,10 @@ const Algorithm = () => {
                 </div>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div class="flex relative col-span-2 items-center justify-center rounded h-72 overflow-y-auto bg-gray-100  dark:bg-gray-800">
-                        <div className="absolute top-0 right-0 lg:p-4 font-semibold text-lg h-12 z-50">
+                        <div className="absolute top-0 right-0 z-50 h-12 text-lg font-semibold lg:p-4">
                             Tiến trình thực thi
                         </div>
-                        <div className=" w-full p-4 overflow-auto text-sm text-gray-600 ">
+                        <div className="w-full p-4 overflow-auto text-sm text-gray-600 ">
                             {logs.map((log, idx) => (
                                 <p key={idx} className="mb-1">
                                     {log}
@@ -56,4 +56,4 @@ const Algorithm = () => {
         </div>
     );
 };
-export default Algorithm;
+export default AlgorithmNeighBase;

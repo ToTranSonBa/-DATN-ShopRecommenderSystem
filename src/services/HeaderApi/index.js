@@ -50,4 +50,62 @@ const fetchProduct = async ({ searchKey }) => {
         throw error;
     }
 };
-export { fetchCategories, fetchCartUser, fetchUserInformation, fetchProduct };
+const fetchTop10Seller = async () => {
+    try {
+        const response = await axios.get('/Sellers/Top10Seller');
+        return response;
+    } catch (error) {
+        console.log('Failed to fetch top 10 seller: ', error);
+        throw error;
+    }
+};
+
+const fetchTopPopProducts = async () => {
+    try {
+        const response = await axios.get('/Products/GetTopPop');
+        return response;
+    } catch (error) {
+        console.log('Failed to fetch Top product in home page: ', error);
+        throw error;
+    }
+};
+
+const fetchTopNewProducts = async () => {
+    try {
+        const response = await axios.get('Products/GetTopNew');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch top new products:  ', error);
+        throw error;
+    }
+};
+const fetchTopViewProducts = async () => {
+    try {
+        const response = await axios.get('Products/GetTopView');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch top view products:  ', error);
+        throw error;
+    }
+};
+const fetchRecommendSeller = async () => {
+    try {
+        const response = await axios.post('/Sellers/foruser/recommend/sellers');
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch recomended sellers:  ', error);
+        throw error;
+    }
+};
+
+export {
+    fetchCategories,
+    fetchCartUser,
+    fetchUserInformation,
+    fetchProduct,
+    fetchTopPopProducts,
+    fetchTopNewProducts,
+    fetchTopViewProducts,
+    fetchTop10Seller,
+    fetchRecommendSeller,
+};

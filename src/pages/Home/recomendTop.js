@@ -1,66 +1,73 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BsChevronCompactLeft, BsChevronCompactRight } from 'react-icons/bs';
 import { RxDotFilled } from 'react-icons/rx';
-import HomeBG from '../../assets/HomeImg/home.jpg';
+import DefaultImg from '../../assets/imageDefault.jpg';
 import MaxWidthWrapper from './../../components/MaxWidthWrapper/index';
 import { Title } from 'chart.js';
+import Loading from '../../components/Loading/index';
 // API
-import { fetchTopPopProducts } from '../../services/HomeApi/home';
-
-const NewArrivalsToDay = [
-    {
-        image: ['https://via.placeholder.com/150?text=Image+1'],
-        href: '#',
-    },
-    {
-        image: ['https://via.placeholder.com/150?text=Image+1'],
-        href: '#',
-    },
-    {
-        image: ['https://via.placeholder.com/150?text=Image+1'],
-        href: '#',
-    },
-    {
-        image: ['https://via.placeholder.com/150?text=Image+1'],
-        href: '#',
-    },
-];
-
-const NewArrivalsWeek = [
-    {
-        image: ['https://via.placeholder.com/150?text=Image+1'],
-        href: '#',
-    },
-];
-
-const SavingSpotlight180day = [
-    {
-        id: '123',
-        image: 'https://via.placeholder.com/150?text=Image+1',
-        href: '#',
-    },
-];
+import {
+    fetchTopPopProducts,
+    fetchTopNewProducts,
+    fetchTop10Seller,
+    fetchTopViewProducts,
+} from '../../services/HomeApi/home';
 
 const RecommendTop = () => {
+    const navigate = useNavigate();
     const [topPopProducts, setTopPopProducts] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-
+    const [newArrivalsToDay, setNewArrivalsToDay] = useState([]);
+    const [topSeller, setTopSeller] = useState([]);
+    const [topViewProducts, setTopViewProducts] = useState([]);
     const getTopPopProducts = useCallback(async () => {
         try {
             const response = await fetchTopPopProducts();
-            console.log('res fetch top pop products: ', response);
             setTopPopProducts(response);
         } catch (error) {
             console.error('Failed to fetch top popular products:', error);
         }
     }, []);
 
+    const fetchDataTopNewProduct = useCallback(async () => {
+        try {
+            const response = await fetchTopNewProducts();
+            console.log('TopNew: ', response);
+            setNewArrivalsToDay(response);
+        } catch (error) {
+            console.log('Faile to fetch top new product: ', error);
+        }
+    });
+
+    const getTopSeller = useCallback(async () => {
+        try {
+            const response = await fetchTop10Seller();
+            setTopSeller(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+
+    const getTopViewProduct = useCallback(async () => {
+        try {
+            const response = await fetchTopViewProducts();
+
+            setTopViewProducts(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+
     useEffect(() => {
         const fetchData = async () => {
             await getTopPopProducts();
+            await fetchDataTopNewProduct();
+            await getTopSeller();
+            await getTopViewProduct();
         };
         fetchData();
-    }, [getTopPopProducts]);
+    }, []);
 
     const prevSlide = () => {
         setCurrentIndex((prevIndex) => (prevIndex === 0 ? topPopProducts.length - 1 : prevIndex - 1));
@@ -146,10 +153,11 @@ const RecommendTop = () => {
                                             <div
                                                 key={slideIndex}
                                                 onClick={() => setCurrentIndex(slideIndex)}
-                                                className={`cursor-pointer rounded-full ${currentIndex === slideIndex
+                                                className={`cursor-pointer rounded-full ${
+                                                    currentIndex === slideIndex
                                                         ? 'bg-gray-500 h-2 w-2 lg:px-3'
                                                         : 'bg-gray-500 h-2 w-2'
-                                                    }`}
+                                                }`}
                                             ></div>
                                         ))}
                                     </div>
@@ -160,41 +168,64 @@ const RecommendTop = () => {
                     {/* new arrivals */}
                     <div className="col-span-3 col-start-4 row-span-5 row-start-1 h-[800px]">
                         <div className="flex justify-between col-span-3 row-span-1 row-start-3 lg:pb-4">
-                            <span className="font-semibold lg:text-2xl">Xếp hạng hàng đầu</span>
+                            <span className="font-semibold lg:text-2xl">Mới nhất</span>
                             <a className="font-light underline cursor-pointer">Xem thêm</a>
                         </div>
                         <div className="flex-row ">
                             <div className="bg-white rounded-lg">
                                 <span className="block lg:px-4 lg:py-4 lg:text-xl lg:leading-7">
-                                    <span>87,800+</span> sản phẩm được thêm hôm nay
+                                    Những sản phẩm được thêm gần đây nhất
                                 </span>
                                 <div className="grid lg:grid-cols-2 lg:grid-rows-2 lg:gap-4 lg:px-4 lg:py-4">
-                                    {NewArrivalsToDay.map((newtoday, index) => (
-                                        <img
-                                            data-twe-lazy-load-init
-                                            data-twe-lazy-src
-                                            key={index}
-                                            className="w-[220px] rounded-xl h-[220px] object-cover"
-                                            src={newtoday.image}
-                                            alt="this is image"
-                                        />
-                                    ))}
+                                    {newArrivalsToDay.length > 0 ? (
+                                        newArrivalsToDay.slice(0, 4).map((item, index) =>
+                                            item.images && item.images.length > 0 ? (
+                                                <img
+                                                    key={item.iD_NK}
+                                                    data-twe-lazy-load-init
+                                                    data-twe-lazy-src
+                                                    className="w-[220px] rounded-xl h-[220px] object-cover"
+                                                    src={item.images[0] !== 'string' ? item.images[0] : DefaultImg}
+                                                    alt={`Image of ${item.name}`}
+                                                    onError={(e) => {
+                                                        e.target.src = 'https://via.placeholder.com/220'; // Placeholder image in case of error
+                                                    }}
+                                                />
+                                            ) : (
+                                                <p key={item.iD_NK}>No image available</p>
+                                            ),
+                                        )
+                                    ) : (
+                                        <p>Loading...</p>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center justify-between bg-white rounded-lg lg:gap-4 lg:mt-2 lg:px-4 lg:py-4">
-                                {NewArrivalsWeek.map((newWeek, index) => (
-                                    <img
-                                        data-twe-lazy-load-init
-                                        data-twe-lazy-src
-                                        key={index}
-                                        className="w-[150px] rounded-xl h-[150px] object-cover"
-                                        src={newWeek.image}
-                                    />
-                                ))}
-                                <div>
-                                    <span className="block lg:text-2xl">Mới trong tuần này</span>
-                                    <span className="block font-light">Chỉ sản phẩm từ Nhà cung ứng đã xác minh</span>
-                                </div>
+                                {newArrivalsToDay.length > 4 ? (
+                                    newArrivalsToDay.slice(4, 7).map((item, index) =>
+                                        item.images && item.images.length > 0 ? (
+                                            <img
+                                                key={item.iD_NK}
+                                                data-twe-lazy-load-init
+                                                data-twe-lazy-src
+                                                className="w-[150px] rounded-xl h-[150px] cursor-pointer object-cover"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    // Add your navigation logic here
+                                                }}
+                                                src={item.images[0] !== 'string' ? item.images[0] : DefaultImg}
+                                                alt={`Image of ${item.name}`}
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/150'; // Placeholder image in case of error
+                                                }}
+                                            />
+                                        ) : (
+                                            <p key={item.iD_NK}>No image available</p>
+                                        ),
+                                    )
+                                ) : (
+                                    <p>Loading...</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -208,16 +239,17 @@ const RecommendTop = () => {
                         <div className="lg:py-4">
                             <div className="bg-white rounded-xl">
                                 <div className="flex items-center lg:gap-4 lg:px-4 lg:py-4">
-                                    {SavingSpotlight180day.map((saveSpotlight, index) => (
-                                        <img
-                                            data-twe-lazy-load-init
-                                            data-twe-lazy-src
-                                            key={saveSpotlight.id}
-                                            className="w-[160px] h-[160px] object-cover rounded-xl"
-                                            src={saveSpotlight.image}
-                                            alt="This is image"
-                                        />
-                                    ))}
+                                    <img
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            navigate(`/productdetail/${topViewProducts[0]?.iD_NK}`);
+                                        }}
+                                        data-twe-lazy-load-init
+                                        data-twe-lazy-src
+                                        className="w-[160px] h-[160px] cursor-pointer object-cover rounded-xl"
+                                        src={topViewProducts[0]?.images[0] ? topViewProducts[0]?.images[0] : DefaultImg}
+                                        alt="This is image"
+                                    />
                                     <span className="font-normal lg:text-2xl">
                                         Sản phẩm được quan tâm nhiều nhất ngày hôm qua
                                     </span>
@@ -229,11 +261,37 @@ const RecommendTop = () => {
                                     <span className="block lg:px-4 lg:py-4 lg:text-xl">
                                         Cửa hàng được quan tâm nhiều nhất ngày hôm qua
                                     </span>
+                                    {/* {topSeller?.map((seller) => (
+                                        <img
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate(`/shoppage/${seller?.iD_NK}`);
+                                            }}
+                                            data-twe-lazy-load-init
+                                            data-twe-lazy-src
+                                            className="w-full cursor-pointer h-[450px] object-cover lg:px-4 lg:py-4 rounded-3xl"
+                                            src={
+                                                seller?.imageUrl
+                                                    ? seller?.imageUrl
+                                                    : 'https://vcdn.tikicdn.com/ts/seller/4b/54/1a/f385a79a716cb3505f152e7af8c769aa.png'
+                                            }
+                                            alt="this is image"
+                                        />
+                                    ))} */}
+
                                     <img
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            navigate(`/shoppage/${topSeller[0]?.iD_NK}`);
+                                        }}
                                         data-twe-lazy-load-init
                                         data-twe-lazy-src
-                                        className="w-full h-[450px] object-cover lg:px-4 lg:py-4 rounded-3xl"
-                                        src={HomeBG}
+                                        className="w-full cursor-pointer h-[450px] object-cover lg:px-4 lg:py-4 rounded-3xl"
+                                        src={
+                                            topSeller[0]?.imageUrl
+                                                ? topSeller[0]?.imageUrl
+                                                : 'https://vcdn.tikicdn.com/ts/seller/4b/54/1a/f385a79a716cb3505f152e7af8c769aa.png'
+                                        }
                                         alt="this is image"
                                     />
                                 </div>
