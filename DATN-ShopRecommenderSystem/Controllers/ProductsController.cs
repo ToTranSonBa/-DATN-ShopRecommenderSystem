@@ -294,6 +294,46 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, "Không thể xóa sản phẩm.");
             }
         }
+        [Authorize]
+        [HttpDelete("ProductChild{id}")]
+        public async Task<IActionResult> DeleteProductChild(int id)
+        {
+            try
+            {
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                await _productsService.RemoveProductChild(id, user);
+
+                return Ok(new
+                {
+                    status = 204,
+                    message = "Xóa sản phẩm thành công",
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể xóa sản phẩm.");
+            }
+        }
         // PUT: api/products/5
         [Authorize]
         [HttpPut("{id}")]

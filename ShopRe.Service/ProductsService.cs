@@ -41,6 +41,7 @@ namespace ShopRe.Service
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
         Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
+        Task RemoveProductChild(int id, ApplicationUser user);
     }
     public class ProductService : IProductService
     {
@@ -469,6 +470,23 @@ namespace ShopRe.Service
             return productChild2;
         }
 
+        public async Task RemoveProductChild(int id, ApplicationUser user)
+        {
+            var productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (productChild == null)
+            {
+                throw new ArgumentException("ProductChild không tồn tại. ");
+            }
+
+            var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
+            if (seller == null)
+            {
+                throw new ArgumentException("Seller không tồn tại.");
+            }
+
+            _unitOfWork.ProductChilds.Remove(productChild.Id);
+        }
         public async Task Remove(int id, ApplicationUser user)
         {
             try
