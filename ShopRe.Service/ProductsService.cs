@@ -463,8 +463,9 @@ namespace ShopRe.Service
 
 
 
-            var res = await _unitOfWork.ProductChilds.Update(productChild2);
+            await _unitOfWork.ProductChilds.Update(productChild2);
 
+            //_unitOfWork.Save();
             return productChild2;
         }
 

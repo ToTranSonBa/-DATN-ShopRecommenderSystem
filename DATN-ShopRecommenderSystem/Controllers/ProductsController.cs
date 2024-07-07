@@ -218,7 +218,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
         [Authorize]
-        [HttpPost("UpdateProductChild")]
+        [HttpPut("UpdateProductChild")]
         public async Task<IActionResult> UpdateProductChild([FromBody] UpdateProductChildParameters productchild)
         {
             try
@@ -249,7 +249,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Không thể thêm sản phẩm.");
+                return StatusCode(500, ex);
             }
         }
         //DELETE: api/products/5
