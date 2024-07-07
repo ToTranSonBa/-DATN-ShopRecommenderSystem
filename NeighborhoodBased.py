@@ -220,15 +220,10 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
     return final_predictions
 
 
-def recommend(user_id, final_predictions, user_rating_matrix, top_n=5):
+def recommend(user_id, final_predictions, top_n=100):
     # Sort predicted ratings for the user and get top n recommendations
-    predicted_ratings = final_predictions[user_id]
-    rated_items = user_rating_matrix.iloc[user_id].values
-    unrated_items = np.where(rated_items == 0)[0]
-    top_indices = np.argsort(predicted_ratings[unrated_items])[::-1][:top_n]
-    top_sellers = user_rating_matrix.columns[unrated_items[top_indices]]
-    top_ratings = predicted_ratings[unrated_items[top_indices]]
-    return list(zip(top_sellers, top_ratings))
+    predicted_ratings = final_predictions.loc[user_id].sort_values(ascending=False)
+    return predicted_ratings.head(top_n)
 
 def train():
     global env
@@ -272,4 +267,4 @@ def write_model_to_db():
             conn.commit()
     
 if __name__=="__main__":
-    train()
+    print(1)

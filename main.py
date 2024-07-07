@@ -9,7 +9,10 @@ import UpdateModelEs as up
 import Environments as env
 import os
 import shutil
-
+import schedule
+import pyodbc
+import time
+import pandas as pd
 
 app = FastAPI()
 
@@ -23,9 +26,23 @@ app.add_middleware(
     allow_headers=["*"],  # Or specify the allowed headers
 )
 
+def daily_job():
+    print("training daily")
+    with pyodbc.connect(env.CONN_STR) as conn:
+        cursor = conn.cursor()
+        cursor.execute("EXEC [dbo].[RecommendDaily]")
+
+schedule.every().day.at("00:00").do(daily_job)
+
+def daily():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
 backup_folder = "./backup/"
 training_thread = None
 cbf_thread = None
+daily_thread = None
 
 def backup_files(files):
     os.makedirs(backup_folder, exist_ok=True)
@@ -308,6 +325,45 @@ async def get_status_cbf():
         "cancel": env.cbf_cancel
     }
 
-if __name__ == '__main__':
+final_predictions = pd.DataFrame()
+def load_nb():
+    global final_predictions
+    final_predictions = pickle.load(open(f'artifacts/final_predictions.pkl','rb'))
+
+@app.get('/nbcf/recommend')
+async def nbcf_recommend(userid: int):
+    global final_predictions
+    print(final_predictions.shape)
+    if userid not in final_predictions.index:
+        return {"sellers": {}}
+    result = nb.recommend(userid, final_predictions)
+    return {"sellers": result}
+
+@app.post("/api/dailyjob/start")
+async def daily_job_start():
+    global daily_thread
+    if daily_thread is None:
+        daily_thread = threading.Thread(target=daily)
+        daily_thread.start()
+        return {"message": "Start daily job"}
+    return {"message": "daily job is running"}
+
+@app.post("/api/testmode")
+def testmode():
+    global final_predictions, movies
+    if final_predictions is None:
+        return {"nbcf": 0,
+            "CBF": len(movies[1103])}
+    return {"nbcf": len(final_predictions),
+            "CBF": len(movies[1103])}
+
+@app.on_event("startup")
+async def load_files():
     load_cb()
+    load_nb()
+    global daily_thread
+    daily_thread = threading.Thread(target=daily)
+    daily_thread.start()
+if __name__ == '__main__':
     uvicorn.run(app, port=env.FASTAPI_HOST, host=env.FASTAPI_HOST)
+
