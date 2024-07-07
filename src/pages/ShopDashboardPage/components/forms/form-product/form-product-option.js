@@ -1,38 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DefaultImage from '../../../../../assets/imageDefault.jpg';
 import { cloudinaryConfig } from '../../../../../cloudinaryConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addProductApi, addProductOptionsApi } from '../../../../../services/SellerApi/sellerApi'
+import { addProductApi, addProductOptionsApi, getOptionApi } from '../../../../../services/SellerApi/sellerApi'
 const FormProductOption = ({ action, product, useroption, open, formValues, files, options, setOptions, optionValues, setOptionValues }) => {
 
     const token = localStorage.getItem('token');
-    useEffect(() => {
-        if (action === 2 || action === 1) {
-            // Chế độ xem hoặc sửa
-            const initialOptions = product.options
-                ? product.options.map((option) => ({
+
+    const fetchOptions = useCallback(async () => {
+        try {
+            const response = await getOptionApi(product.product.iD_NK);
+            const initialOptions = response
+                ? response.map((option) => ({
                     name: option.option.name,
-                    values: option.productOptionValues.map((value) => value.name),
+                    values: option.productOptionValues.map((value) => value),
                 }))
                 : [];
 
-            const initialOptionValues = product.options
-                ? product.options.map((option) =>
-                    option.productOptionValues.map((value) => ({ image: value.imagechild }))
+            const initialOptionValues = response
+                ? response?.map((option) =>
+                    option?.productOptionValues?.map((value) => ({ image: { preview: value.imageUrl } }))
                 )
                 : [];
 
             setOptions(initialOptions);
             setOptionValues(initialOptionValues);
+        } catch (error) {
+            console.error('Failed to fetch fetchOptions:', error);
+        }
+    });
+    useEffect(() => {
+        if (action === 2 || action === 1) {
+            // Chế độ xem hoặc sửa
+
+            fetchOptions();
         } else {
             // Chế độ thêm
-            if (!product) {
-                setOptions([{ name: '', values: [''] }]);
+            if (!options) {
+                setOptions([{ name: '', values: [{}] }]);
                 setOptionValues([[]]);
             }
+
         }
-    }, [action, product]);
+    }, []);
 
     const handleOptionNameChange = (e, index) => {
         const newOptions = [...options];
@@ -41,7 +52,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
     };
 
     const handleAddOption = () => {
-        setOptions([...options, { name: '', values: [''] }]);
+        setOptions([...options, { name: '', values: [{}] }]);
         setOptionValues([...optionValues, []]);
     };
 
@@ -52,13 +63,13 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
 
     const handleOptionValueChange = (e, optionIndex, valueIndex) => {
         const newOptions = [...options];
-        newOptions[optionIndex].values[valueIndex] = e.target.value;
+        newOptions[optionIndex].values[valueIndex].name = e.target.value;
         setOptions(newOptions);
     };
 
     const handleAddOptionValue = (index) => {
         const newOptions = [...options];
-        newOptions[index].values.push('');
+        newOptions[index].values.push({});
         setOptions(newOptions);
 
         const newOptionValues = [...optionValues];
@@ -81,6 +92,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
         if (file) {
             const fileURL = URL.createObjectURL(file);
             const newOptionValues = [...optionValues];
+            console.log('newOptionValues: ', newOptionValues);
             if (!newOptionValues[optionIndex][valueIndex]) {
                 newOptionValues[optionIndex][valueIndex] = {}; // Initialize as an object if not already
             }
@@ -100,110 +112,6 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
     const handleOptionClick = (option) => {
         useroption(option);
     };
-
-    const uploadImages = async (files) => {
-        const uploadPromises = Object.values(files).map((file) => {
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('file', file.file); // Sử dụng file thực tế thay vì preview URL
-                formData.append('upload_preset', cloudinaryConfig.upload_preset);
-
-                fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then((response) => response.json())
-                    .then((data) => resolve(data.secure_url))
-                    .catch((error) => reject(error));
-            });
-        });
-
-        return Promise.all(uploadPromises);
-    };
-
-    const uploadImageToCloudinary = async (image) => {
-        try {
-            const formData = new FormData();
-            formData.append('file', image.file); // Sử dụng file thực tế thay vì preview URL
-            formData.append('upload_preset', cloudinaryConfig.upload_preset);
-
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to upload image to Cloudinary');
-            }
-
-            const data = await response.json();
-            return data.secure_url;
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            throw error;
-        }
-    };
-
-
-    const handleAddProduct = async () => {
-        const mergedOptions = [];
-        try {
-            const uploadedImages = await uploadImages(files); // Upload images to Cloudinary
-            const updatedFormValues = {
-                ...formValues,
-                images: uploadedImages
-            };
-            const productData = await addProductApi(updatedFormValues, token);
-
-            if (productData) {
-                if (options) {
-
-                    for (let i = 0; i < options.length; i++) {
-                        const option = options[i];
-                        const values = optionValues[i];
-
-                        const newOption = {
-                            idProduct: productData.iD_NK,
-                            name: option.name,
-                            optionNumber: i + 1,
-                            values: []
-                        };
-
-                        for (let j = 0; j < values.length; j++) {
-                            const valueObj = values[j];
-
-                            // Upload hình ảnh lên Cloudinary
-                            const imageUrl = await uploadImageToCloudinary(valueObj.image);
-
-                            // Thêm vào đối tượng newOption
-                            newOption.values.push({
-                                value: option.values[j], // Lấy giá trị từ options.values
-                                image: imageUrl // Lấy URL của hình ảnh đã upload lên Cloudinary
-                            });
-                        }
-
-                        const productOptionsData = await addProductOptionsApi(newOption);
-                        if (productOptionsData) {
-                            mergedOptions.push(newOption);
-
-                        }
-                    }
-
-
-                }
-            }
-
-            toast.success('Thêm sản phẩm thành công');
-            setTimeout(() => {
-                handleClose();
-            }, 2000);
-
-
-            // // Proceed with form submission logic
-        } catch (error) {
-            console.error('Error uploading images:', error);
-        }
-    }
 
     return (
         <div className="relative h-full max-h-screen overflow-y-scroll placeholder:w-full lg:px-6 lg:pt-4 lg:pb-12">
@@ -225,7 +133,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
             </div>
 
             <div className="w-full h-[95%] max-w-5xl mx-auto overflow-y-scroll">
-                {options.map((option, optionIndex) => (
+                {options && options.length !== 0 ? options?.map((option, optionIndex) => (
                     <div key={optionIndex} className="mb-4 shadow lg:px-6 lg:py-6 rounded-r-md">
                         <div className="flex items-center justify-between lg:mb-4">
                             <div className="w-4/5">
@@ -246,7 +154,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     disabled={action === 2}
                                 />
                             </div>
-                            {action !== 2 && (
+                            {action === 0 && (
                                 <button onClick={() => handleRemoveOption(optionIndex)} className="text-red-500">
                                     Xóa lựa chọn
                                 </button>
@@ -266,7 +174,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                         type="text"
                                         id={`optionValue-${optionIndex}-${valueIndex}`}
                                         name={`optionValue-${optionIndex}-${valueIndex}`}
-                                        value={value}
+                                        value={value.name}
                                         onChange={(e) => handleOptionValueChange(e, optionIndex, valueIndex)}
                                         className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                         required
@@ -298,7 +206,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     </div>
                                 </div>
 
-                                {action !== 2 && (
+                                {action === 0 && (
                                     <button
                                         onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
                                         className="ml-4 text-red-500"
@@ -318,7 +226,9 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                             </button>
                         )}
                     </div>
-                ))}
+                )) : action !== 1 && (<p>
+                    Sản phẩm không có lựa chọn
+                </p>)}
 
                 {action !== 2 && (
                     <button
@@ -337,13 +247,16 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                 >
                     Quay lại
                 </button>
-                {action !== 2 && (
+                {(
                     <>
                         <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
-                            onClick={handleAddProduct}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleOptionClick('formproductchildren');
+                            }}
                         >
 
-                            Đăng kí
+                            Tiếp theo
                         </button>
                         <ToastContainer />
                     </>

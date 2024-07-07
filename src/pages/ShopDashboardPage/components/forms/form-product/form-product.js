@@ -113,10 +113,14 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
         useroption(option);
     };
 
+
+
     const handleClose = () => {
         console.log('Close');
-        open(false); // Call the 'open' function with 'false' to close the form
+
+        open(false); // Đóng form bằng cách gọi hàm 'open' với giá trị 'false'
     };
+
 
 
 

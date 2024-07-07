@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import ApexCharts from 'apexcharts';
 import ReactApexChart from 'react-apexcharts';
 
-const OneLineChart = () => {
+const OneLineChart = ({percent, time}) => {
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
 
-    const percentage = 80;
+    const percentage = percent;
 
     useEffect(() => {
         const handleOutsideClick = (event) => {
@@ -85,10 +85,10 @@ const OneLineChart = () => {
                     <h5 className="pb-2 text-3xl font-bold leading-none text-gray-900 dark:text-white">
                         Tiến trình thực thi
                     </h5>
-                    <p className="text-base font-normal text-gray-500 dark:text-gray-400">20h:20m:20s</p>
+                    <p className="text-base font-normal text-gray-500 dark:text-gray-400">{time}</p>
                 </div>
                 <div className="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
-                    12%
+                    
                 </div>
             </div>
             <div id="area-chart">

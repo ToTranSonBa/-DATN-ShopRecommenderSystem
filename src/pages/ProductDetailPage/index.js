@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 import React, { useState, useCallback, useEffect } from "react";
 
 import renderStars from "./RenderStars";
@@ -6,8 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CommentRating from "./CommentRating";
 import CommentDetail from "./CommentDetail";
 import Default_Avatar from "../../assets/default-avatar.png";
-import { Modal } from "antd";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addCartApi } from "../../services/CartApi/cartApi";
 import MaxWidthWrapper from "../../components/MaxWidthWrapper";
@@ -34,6 +34,7 @@ const ProductDetailPage = () => {
   // const { years, months } = calculateTimeDifference(Seller.createdAt);
 
   const id = parseInt(useParams().id);
+
   const token = localStorage.getItem("token");
   const [productDetail, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -45,18 +46,17 @@ const ProductDetailPage = () => {
   const [idProductOptionValue, setIdProductOptionValue] = useState(null);
   const [productOptionImage, setProductOptionImage] = useState(0);
 
-  const [option1, setOption1] = useState({});
+  const [option1, setOption1] = useState(null);
   const [selectedOption1Index, setSelectedOption1Index] = useState(0);
   const [idProductOption1Value, setIdProductOption1Value] = useState(null);
   const [productOption1Image, setProductOption1Image] = useState(0);
-  const [productOption1Name, setProductOption1Name] = useState('');
+  const [productOption1Name, setProductOption1Name] = useState("");
 
-  const [option2, setOption2] = useState({});
+  const [option2, setOption2] = useState(null);
   const [selectedOption2Index, setSelectedOption2Index] = useState(0);
   const [idProductOption2Value, setIdProductOption2Value] = useState(null);
   const [productOption2Image, setProductOption2Image] = useState(0);
-  const [productOption2Name, setProductOption2Name] = useState('');
-
+  const [productOption2Name, setProductOption2Name] = useState("");
 
   const [quantity, setQuantity] = useState(1);
 
@@ -94,6 +94,10 @@ const ProductDetailPage = () => {
 
       setOption1(response?.[0]);
       if (response.length === 2) setOption2(response?.[1]);
+
+      console.log("response: ", response);
+      console.log("option 1: ", option1);
+      console.log("option 2: ", option2);
     } catch (error) {
       console.error("Failed to fetch product option:", error);
     }
@@ -112,25 +116,32 @@ const ProductDetailPage = () => {
 
   const fetchPrice = useCallback(async () => {
     try {
-      setPrice(productDetail?.product?.price);
+      const response = await axios.get(`/Products/GetPriceAndImageProductChild${id}`, {
+        params: {
+          idOptionValue1: idProductOption1Value,
+          idOptionValue2: idProductOption2Value,
+        },
+      });
+      console.log(response.price);
+      setPrice(response.price);
     } catch (error) {
       console.error("Failed to fetch price:", error);
     }
-  }, [fetchProductDetail]);
+  }, [idProductOption1Value, idProductOption2Value]);
 
   const fetchComments = useCallback(async () => {
     try {
       const response = await axios.get(`/DetailComments/List${id}`, {
         params: {
-          // PageNumber:
+          PageNumber: 0,
           PageSize: 5,
         },
       });
       setComments(response);
     } catch (error) {
-      console.error("Failed to fetch comments:", error);
+      console.error("Failed to fetch comments detail product:", error);
     }
-  }, []);
+  }, [id]);
 
   const fetchAddToCart = useCallback(async () => {
     try {
@@ -175,6 +186,7 @@ const ProductDetailPage = () => {
         const temp = element.image;
         element.image = temp.substring(15, temp.indexOf("'", 15));
       });
+      console.log("RecommendProduct: ", response);
       setRecommendProduct(response);
     } catch (error) {
       console.error("Failed to fetch RecommendProducts:", error);
@@ -229,8 +241,11 @@ const ProductDetailPage = () => {
       console.log("idProductOption1Value: ", idProductOption1Value);
       console.log("idProductOption2Value: ", idProductOption2Value);
       const selectedProductChildren = productDetail.productChildren.find(
-        product => product.optionValuesID1 === idProductOption1Value &&
-          (idProductOption2Value === null || product.optionValuesID2 === idProductOption2Value));
+        (product) =>
+          product.optionValuesID1 === idProductOption1Value &&
+          (idProductOption2Value === null ||
+            product.optionValuesID2 === idProductOption2Value)
+      );
       console.log("selectedProductChildren: ", selectedProductChildren);
 
       if (productDetail?.productChildren?.length !== 0) {
@@ -238,15 +253,17 @@ const ProductDetailPage = () => {
           if (option1 && option1.option && !idProductOption1Value) {
             toast.error(`Hãy chọn ${option1.option.name}`);
             return;
-
           }
           if (option2 && option2.option && !idProductOption2Value) {
             toast.error(`Hãy chọn ${option2.option.name}`);
             return;
           }
 
-          if (!selectedProductChildren && productDetail?.productChildren.length !== 0) {
-            toast.error('Mặt hàng này đã hết. Hãy chọn mặt hàng khác');
+          if (
+            !selectedProductChildren &&
+            productDetail?.productChildren.length !== 0
+          ) {
+            toast.error("Mặt hàng này đã hết. Hãy chọn mặt hàng khác");
             return;
           }
         }
@@ -256,24 +273,28 @@ const ProductDetailPage = () => {
         product: productDetail.product,
         quantity: quantity,
         optionValuesId: idProductOption1Value ? idProductOption1Value : null,
-        optionValues: idProductOption1Value ? {
-          id: idProductOption1Value,
-          name: productOption1Name,
-          option: null,
-          imageUrl: productOption1Image
-        } : null,
+        optionValues: idProductOption1Value
+          ? {
+              id: idProductOption1Value,
+              name: productOption1Name,
+              option: null,
+              imageUrl: productOption1Image,
+            }
+          : null,
         productImgs: selectedProductChildren
           ? selectedProductChildren.thumbnail_url
           : productDetail.images[0].image,
         sellerId: productDetail.seller.iD_NK,
         sellerName: productDetail.seller.name,
         optionValuesId2: idProductOption2Value ? idProductOption2Value : null,
-        optionValues2: idProductOption2Value ? {
-          id: idProductOption2Value,
-          name: productOption2Name,
-          option: null,
-          imageUrl: productOption2Image
-        } : null,
+        optionValues2: idProductOption2Value
+          ? {
+              id: idProductOption2Value,
+              name: productOption2Name,
+              option: null,
+              imageUrl: productOption2Image,
+            }
+          : null,
       };
       navigate("/checkout", {
         state: { selectedItems: [productWithQuantity] },
@@ -287,12 +308,14 @@ const ProductDetailPage = () => {
     if (!token) {
       navigate("/login");
     } else {
-
       console.log("idProductOption1Value: ", idProductOption1Value);
       console.log("idProductOption2Value: ", idProductOption2Value);
       const selectedProductChildren = productDetail?.productChildren.find(
-        product => product?.optionValuesID1 === idProductOption1Value &&
-          (idProductOption2Value === null || product?.optionValuesID2 === idProductOption2Value));
+        (product) =>
+          product?.optionValuesID1 === idProductOption1Value &&
+          (idProductOption2Value === null ||
+            product?.optionValuesID2 === idProductOption2Value)
+      );
       console.log("selectedProductChildren: ", selectedProductChildren);
 
       if (productDetail?.productChildren?.length !== 0) {
@@ -300,26 +323,31 @@ const ProductDetailPage = () => {
           if (option1 && option1.option && !idProductOption1Value) {
             toast.error(`Hãy chọn ${option1.option.name}`);
             return;
-
           }
           if (option2 && option2.option && !idProductOption2Value) {
             toast.error(`Hãy chọn ${option2.option.name}`);
             return;
           }
 
-          if (!selectedProductChildren && productDetail?.productChildren.length !== 0) {
-            toast.error('Mặt hàng này đã hết. Hãy chọn mặt hàng khác');
+          if (
+            !selectedProductChildren &&
+            productDetail?.productChildren.length !== 0
+          ) {
+            toast.error("Mặt hàng này đã hết. Hãy chọn mặt hàng khác");
             return;
           }
         }
       }
 
-
       try {
         const response = await addCartApi(
           productDetail.product.iD_NK,
-          selectedProductChildren && selectedProductChildren.optionValuesID1 ? selectedProductChildren.optionValuesID1 : undefined,
-          selectedProductChildren && selectedProductChildren.optionValuesID2 ? selectedProductChildren.optionValuesID2 : undefined,
+          selectedProductChildren && selectedProductChildren.optionValuesID1
+            ? selectedProductChildren.optionValuesID1
+            : undefined,
+          selectedProductChildren && selectedProductChildren.optionValuesID2
+            ? selectedProductChildren.optionValuesID2
+            : undefined,
           selectedProductChildren
             ? selectedProductChildren.thumbnail_url
             : productDetail.images[0].image,
@@ -335,7 +363,6 @@ const ProductDetailPage = () => {
         console.log("Failed to add to cart: ", error);
       }
     }
-
   };
 
   return (
@@ -485,47 +512,6 @@ const ProductDetailPage = () => {
               </label>
             </form>
 
-            {/* <div className="max-w-full mt-8">
-              <h3 className="font-medium text-gray-600 text-ms">Lựa chọn 1: </h3>
-              <div className="grid grid-cols-6 gap-4 mt-2">
-                {productDetail?.productChildren
-                  ?.slice(0, 6)
-                  .map((option, index) => (
-                    <button
-                      key={option.id}
-                      className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
-                      onClick={() => (
-                        setSelectedOptionIndex(index),
-                        setPrice(option?.price),
-                        setIdProductOptionValue(option?.id),
-                        setProductOptionImage(option?.thumbnail_url)
-                      )}
-                    >
-                      <p className="z-10 pl-16 text-xs text-left pr-2">
-                        {option.option1}
-                      </p>
-                      <span className="absolute inset-0 overflow-hidden rounded-md">
-                        <img
-                          src={option.thumbnail_url}
-                          alt={option.name}
-                          className="z-0 object-cover object-center w-12 h-12 mx-1 mt-1"
-                        />
-                      </span>
-
-                      <span
-                        className={classNames(
-                          selectedOptionIndex === index
-                            ? "ring-indigo-500"
-                            : "ring-transparent",
-                          "absolute inset-0 rounded-md ring-2 ring-offset-2 pointer-events-none"
-                        )}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  ))}
-              </div>
-            </div> */}
-
             {/* Cập nhật option 1 */}
             {option1 ? (
               <div className="max-w-full mt-8">
@@ -542,10 +528,10 @@ const ProductDetailPage = () => {
                         className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
                         onClick={() => (
                           setSelectedOption1Index(index),
-                          // setPrice(option?.price),
                           setIdProductOption1Value(option?.id),
                           setProductOption1Image(option?.imageUrl),
-                          setProductOption1Name(option?.name)
+                          setProductOption1Name(option?.name),
+                          fetchPrice()
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
@@ -592,11 +578,10 @@ const ProductDetailPage = () => {
                         className="relative flex items-center text-sm font-medium text-gray-900 bg-gray-100 rounded-md cursor-pointer h-14 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50"
                         onClick={() => (
                           setSelectedOption2Index(index),
-                          // setPrice(option?.price),
                           setIdProductOption2Value(option?.id),
                           setProductOption2Image(option?.imageUrl),
-                          setProductOption2Name(option?.name)
-
+                          setProductOption2Name(option?.name),
+                          fetchPrice()
                         )}
                       >
                         <p className="z-10 pl-16 text-xs text-left pr-2">
@@ -769,7 +754,7 @@ const ProductDetailPage = () => {
         )}
 
         {comments?.detailComment?.length !== 0 && (
-          <CommentDetail comments={comments?.comment} />
+          <CommentDetail id={id} />
         )}
       </div>
 
@@ -783,7 +768,7 @@ const ProductDetailPage = () => {
               <a
                 href="#a"
                 className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+                // onClick={() => handleViewAll("new")}
               >
                 Xem tất cả{" "}
                 <svg
@@ -822,7 +807,7 @@ const ProductDetailPage = () => {
         <></>
       )}
 
-      <div id="otherProductShop" className="mt-4 mb-8">
+      <div id="otherProductShop" className="w-5/6 mt-4 mb-8">
         <MaxWidthWrapper>
           <div className="flex justify-between">
             <span className="text-xl font-semibold text-black uppercase">
@@ -831,7 +816,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-            // onClick={() => handleViewAll("new")}
+              // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg

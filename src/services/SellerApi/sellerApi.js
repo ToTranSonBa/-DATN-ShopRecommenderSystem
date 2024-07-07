@@ -95,6 +95,29 @@ const addProductOptionsApi = async (productOptionsData) => {
     }
 };
 
+const addProductOptionChildrenApi = async (productOptionChildrenData, token) => {
+    console.log('productOptionsDataAPI: ', productOptionChildrenData);
+
+    try {
+        return axios.post('/Products/AddProductChild', {
+            idProduct: productOptionChildrenData.idProduct,
+            thumbnail_url: productOptionChildrenData.thumbnail_url,
+            price: productOptionChildrenData.price,
+            optionValuesID1: productOptionChildrenData.optionValuesID1,
+            optionValuesID2: productOptionChildrenData.optionValuesID2,
+
+        }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        }
+        );
+    } catch (error) {
+        console.error('Failed to addProductOptionsApi:', error);
+        throw error;
+    }
+};
+
 
 
 const deleteProductApi = async (productId, token) => {
@@ -109,6 +132,7 @@ const deleteProductApi = async (productId, token) => {
         throw error;
     }
 };
+
 const getProductsBySellerApi = async (pageNumber, PageSize, idSeller) => {
     console.log('pageNumber: ', pageNumber);
     console.log('PageSize: ', PageSize);
@@ -123,6 +147,19 @@ const getProductsBySellerApi = async (pageNumber, PageSize, idSeller) => {
     }
 };
 
+const getOptionApi = async (productId) => {
+    try {
+        return axios.get(`/Products/Option/${productId}`);
+    } catch (error) {
+        console.error('Failed to fetch getBrandsApi:', error);
+        throw error;
+    }
+};
 
 
-export { getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi, addProductApi, addProductOptionsApi, getProductsBySellerApi, deleteProductApi };
+
+export {
+    getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi,
+    addProductApi, addProductOptionsApi, getProductsBySellerApi, deleteProductApi,
+    getOptionApi, addProductOptionChildrenApi
+};

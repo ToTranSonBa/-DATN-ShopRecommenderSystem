@@ -22,7 +22,7 @@ const Footer = () => {
                             class="inline-flex items-center"
                         >
                             <img src={Logo} className="size-7" />
-                            <span class="ml-2 text-2xl text-primary font-bold tracking-wide ">ShopLY</span>
+                            <span class="ml-2 text-2xl text-[#1F1F1F] font-bold tracking-wide ">ShopLY</span>
                         </a>
                         <div class="mt-6 ">
                             <p class="text-sm text-gray-800">

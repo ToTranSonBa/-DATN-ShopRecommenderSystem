@@ -23,7 +23,8 @@ const TableProduct = ({ inDoashboard = false }) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [products, setProducts] = useState([]);
-
+    const [productDeleted, setProductDeleted] = useState(false);
+    const [fetchTrigger, setFetchTrigger] = useState(false);
 
 
     const fetchSeller = useCallback(async (page, size) => {
@@ -31,41 +32,44 @@ const TableProduct = ({ inDoashboard = false }) => {
             const seller = await getSellerApi(token);
             if (seller) {
                 const productsbySeller = await getProductsBySellerApi(page, size, seller.iD_NK);
-                console.log('productsbySeller: ', productsbySeller)
+                console.log('productsbySeller: ', productsbySeller);
                 setProducts(productsbySeller.products);
             }
-
-
         } catch (error) {
             console.error('Failed to fetch fetchSeller:', error);
         }
-    });
+    }, [token]);
 
     const handleDeleteProduct = async (productId) => {
         try {
             const deleteProductData = await deleteProductApi(productId, token);
+            if (deleteProductData) {
+                setProducts((prevProducts) => prevProducts.filter(product => product.iD_NK !== productId));
+                setFetchTrigger(prev => !prev); // Cập nhật state để trigger fetch lại
+            }
         } catch (error) {
-            console.log('Failed to call deleteProductApi:', error)
+            console.log('Failed to call deleteProductApi:', error);
         }
-    }
+    };
 
+    const openEditProductForm = (product) => {
+        setSelectedProduct(product);
+        setIsOpenDropdownEditProduct(true);
+        setFetchTrigger(prev => !prev); // Cập nhật state để trigger fetch lại
+    };
+
+    const openDetailProductForm = (product) => {
+        setSelectedProduct(product);
+        setIsOpenDropdownDetailProduct(true);
+        setFetchTrigger(prev => !prev); // Cập nhật state để trigger fetch lại
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             await fetchSeller(pageNumber, pageSize);
         };
         fetchData();
-    }, [pageNumber, pageSize]);
-    // Hàm mở form chỉnh sửa sản phẩm
-    const openEditProductForm = (product) => {
-        setSelectedProduct(product); // Lưu sản phẩm được chọn vào state
-        setIsOpenDropdownEditProduct(true); // Mở form chỉnh sửa
-    };
-    // Hàm mở form chi tiết sản phẩm
-    const openDetailProductForm = (product) => {
-        setSelectedProduct(product); // Lưu sản phẩm được chọn vào state
-        setIsOpenDropdownDetailProduct(true); // Mở form chỉnh sửa
-    };
+    }, [pageNumber, pageSize, fetchTrigger, fetchSeller]);
 
 
     // Pagination handlers
@@ -336,7 +340,7 @@ const TableProduct = ({ inDoashboard = false }) => {
                             <FormProductManager
                                 action={2}
                                 product={selectedProduct}
-                                open={setIsOpenDropdownEditProduct}
+                                open={setIsOpenDropdownDetailProduct}
                             />
                         </div>
                     </MaxWidthWrapper>

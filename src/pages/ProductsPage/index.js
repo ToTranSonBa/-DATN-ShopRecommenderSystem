@@ -15,7 +15,7 @@ const ProductPage = () => {
     const { searchQuery, setSearchQuery } = useContext(SearchContext);
 
     const [productsPerPage, setProductsPerPage] = useState(20);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const [totalProducts, setTotalProducts] = useState(0);
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(100000000);
@@ -118,16 +118,7 @@ const ProductPage = () => {
 
     const handleCategory = (category) => {
         const index = selectedCategories.indexOf(category.iD_NK);
-
-        if (index !== -1) {
-            selectedCategories.splice(index, 1);
-        } else {
-            const updateCaregories = selectedCategories;
-            updateCaregories.push(category.iD_NK);
-            setSelectedCategories(updateCaregories);
-        }
-
-        setCurrentPage(1);
+        setCurrentPage(0);
         fetchProducts();
     };
 
@@ -142,9 +133,36 @@ const ProductPage = () => {
             setSelectedBrands(updateBrands);
         }
 
-        setCurrentPage(1);
+        setCurrentPage(0);
         fetchProducts();
     };
+
+    //     if (index !== -1) {
+    //         selectedCategories.splice(index, 1);
+    //     } else {
+    //         const updateCaregories = selectedCategories;
+    //         updateCaregories.push(category.iD_NK);
+    //         setSelectedCategories(updateCaregories);
+    //     }
+
+    //     setCurrentPage(1);
+    //     fetchProducts();
+    // };
+
+    // const handleBrand = (brand) => {
+    //     const index = selectedBrands.indexOf(brand.iD_NK);
+
+    //     if (index !== -1) {
+    //         selectedBrands.splice(index, 1);
+    //     } else {
+    //         const updateBrands = selectedBrands;
+    //         updateBrands.push(brand.iD_NK);
+    //         setSelectedBrands(updateBrands);
+    //     }
+
+    //     setCurrentPage(1);
+    //     fetchProducts();
+    // };
 
     const handleMinPriceChange = (event) => {
         setMinPrice(event.target.value);
