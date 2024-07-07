@@ -392,7 +392,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("GetTopNew")]
         public async Task<ActionResult> GetToDay()
         {
-            var result = await _elasticSearchService.Get20NewPro();
+            var result = await _productsService.Get20NewPro();
             return Ok(result);
         }
         [HttpGet("GetTopPop")]
