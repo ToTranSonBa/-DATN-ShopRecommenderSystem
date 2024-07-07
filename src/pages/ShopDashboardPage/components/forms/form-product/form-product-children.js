@@ -5,15 +5,15 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { addProductApi, addProductOptionsApi, addProductOptionChildrenApi } from '../../../../../services/SellerApi/sellerApi'
 
-const cartesianProduct = async (formValues, arr1, arr2) => {
+const cartesianProduct = (formValues, arr1, arr2) => {
     let result = [];
     console.log('arr1: ', arr1);
     console.log('arr2: ', arr2);
-    if (arr1 === undefined || arr1 === null) {
+    if (arr1 === undefined) {
         console.log('ar1 null')
         return result;
     }
-    if (arr2 === undefined || arr2 === null) {
+    if (arr2 === undefined) {
         console.log('ar2 null')
 
         for (let i = 0; i < arr1.length; i++) {
@@ -21,7 +21,7 @@ const cartesianProduct = async (formValues, arr1, arr2) => {
             result.push({
                 option1: arr1[i],
                 option2: null,
-                name: `${formValues.productName} - ${arr1[i].name}`,
+                name: `${formValues.productName} - (${arr1[i].name})`,
                 price: "",
                 image: null,
                 option1ValuesId: null,
@@ -36,7 +36,7 @@ const cartesianProduct = async (formValues, arr1, arr2) => {
             result.push({
                 option1: arr1[i],
                 option2: arr2[j],
-                name: `${formValues.productName} - ${arr1[i].name} - ${arr2[j].name}`,
+                name: `${formValues.productName} - (${arr1[i].name} - ${arr2[j].name})`,
                 price: "",
                 image: null,
                 option1ValuesId: null,
@@ -55,9 +55,26 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     console.log('option2Values: ', option2Values);
 
     useEffect(() => {
-        if (!combinations) {
-            setCombinations(cartesianProduct(formValues, option1Values, option2Values));
+        if (action === 1 || action === 2) {
+            if (product.productChildren && product.productChildren.length > 0) {
+                const productChildrenCombinations = product.productChildren.map(product => ({
+                    name: product.name,
+                    option1: product.option1,
+                    option2: product.option2,
+                    price: product.price,
+                    image: { preview: product.thumbnail_url },
+                }));
+                setCombinations(productChildrenCombinations);
+
+            }
         }
+        else {
+            if (!combinations) {
+                const newCombinations = cartesianProduct(formValues, option1Values, option2Values);
+                setCombinations(newCombinations);
+            }
+        }
+
     }, []);
 
     const handleOptionNameChange = (e, combinationIndex) => {
@@ -74,7 +91,12 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     };
 
     const handleRemoveOption = (index) => {
-        setCombinations(combinations.filter((_, i) => i !== index));
+        // Sao chép mảng combinations hiện tại
+        const newCombinations = [...combinations];
+        // Xóa phần tử theo index
+        newCombinations.splice(index, 1);
+        // Cập nhật combinations với mảng mới
+        setCombinations(newCombinations);
     };
 
 
@@ -99,6 +121,8 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
         useroption(option);
     };
 
+
+    const safeCombinations = Array.isArray(combinations) ? combinations : [];
     const uploadImages = async (files) => {
         const uploadPromises = Object.values(files).map((file) => {
             return new Promise((resolve, reject) => {
@@ -144,7 +168,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
 
     // const handleAddProduct = async () => {
     //     console.log('combinations: ', combinations);
-    // }
+    // }    
 
 
     const handleAddProduct = async () => {
@@ -224,14 +248,14 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                         const imageUrl = await uploadImageToCloudinary(valueObj.image);
                         const newOptionChildren = {
                             idProduct: productData.iD_NK,
-                            price: valueObj.valueObj,
+                            price: valueObj.price,
                             optionValuesID1: valueObj.option1ValuesId,
                             optionValuesID2: valueObj.option2ValuesId,
                             thumbnail_url: imageUrl
                         };
                         const productChildren = await addProductOptionChildrenApi(newOptionChildren, token);
                         if (productChildren) {
-                            console.log('thêm option children thành công phần tử: ', newOptionChildren);
+                            console.log('thêm option children thành công phần tử: ', productChildren);
                         }
                         else {
                             console.log('lỗi khi thêm sản phẩm thứ : ', newOptionChildren);
@@ -273,7 +297,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
             </div>
 
             <div className="w-full h-[95%] max-w-5xl mx-auto overflow-y-scroll">
-                {option1Values ? combinations?.map((combination, combinationIndex) => (
+                {safeCombinations.length > 0 ? safeCombinations.map((combination, combinationIndex) => (
                     <div key={combinationIndex} className="mb-4 shadow lg:px-6 lg:py-6 rounded-r-md">
                         <div className="flex items-center justify-between lg:mb-4">
                             <div className="w-4/5">
@@ -291,10 +315,11 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                                     onChange={(e) => handleOptionNameChange(e, combinationIndex)}
                                     className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                     required
+                                    readOnly
                                     disabled={action === 2}
                                 />
                             </div>
-                            {action !== 2 && (
+                            {action === 0 && (
                                 <button onClick={() => handleRemoveOption(combinationIndex)} className="text-red-500">
                                     Xóa sản phẩm
                                 </button>
