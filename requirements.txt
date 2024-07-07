@@ -9,3 +9,4 @@ tqdm
 uvicorn
 schedule
 nltk
+sqlalchemy

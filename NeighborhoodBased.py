@@ -6,7 +6,9 @@ import pyodbc
 import pickle
 from sklearn.cluster import KMeans
 import Environments as env
-
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+import time
+import UpdateModelEs as es
 # Dữ liệu rating
 user = []
 
@@ -79,8 +81,6 @@ def prepare_data():
         df_behavior.loc[int(rate['user']), int(rate['sellerid'])] = float(rate['behavior'])
         
     return df_rate, df_behavior
-
-
 class MatrixFactorization:
     def __init__(self, R, K, alpha, beta, iterations):
         self.R = R
@@ -136,29 +136,39 @@ class MatrixFactorization:
         return self.b + self.b_u[:, np.newaxis] + self.b_s[np.newaxis:, ] + self.P.dot(self.Q.T)
 
 def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=5):
+    global env
     # Train Matrix Factorization model (assuming MatrixFactorization class exists)
     mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=20)
     mf.train()
     predicted_ratings = mf.full_matrix()
-    
+    print("xong mf")
+    print(predicted_ratings.shape)
     # Compute user averages
     user_means = np.mean(predicted_ratings, axis=1, keepdims=True)
     user_means = pd.DataFrame(user_means, index=user_rating_matrix.index)
     # Apply K-means clustering
     user_kmeans = KMeans(n_clusters=n_clusters, random_state=0)
     user_clusters = user_kmeans.fit_predict(predicted_ratings)
-    
+    print("xong trung bình")
 
+    total = predicted_ratings.shape[0] * predicted_ratings.shape[1]
+    newvalue = 0
+    oldvalue = 0
     # Initialize final predictions DataFrame
+    print("xong similarity")
 
     final_predictions = pd.DataFrame(np.zeros_like(predicted_ratings), columns=user_rating_matrix.columns, index=user_rating_matrix.index)
     predicted_ratings = pd.DataFrame(predicted_ratings, columns=user_rating_matrix.columns, index=user_rating_matrix.index)
-
     # Loop through each cluster
-    for cluster_id in range(n_clusters):
+    for cluster_id in range(0, n_clusters):
         # Select users belonging to the current cluster
+
         cluster_users = np.where(user_clusters == cluster_id)[0]
         print(f"cluster length: {len(cluster_users)}")
+
+        if len(cluster_users) < n_neighbors:
+            final_predictions.iloc[cluster_users] = predicted_ratings.iloc[cluster_users]
+            continue
         # Select corresponding predicted ratings and implicit matrix
         cluster_predicted_ratings = predicted_ratings.iloc[cluster_users]
         cluster_user_matrix = user_rating_matrix.iloc[cluster_users]
@@ -174,22 +184,39 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
         cluster_implicit_matrix = None
         cluster_predicted_ratings = None
 
-        df_cluster_similarity = pd.DataFrame(cluster_similarity, columns=cluster_user_matrix.index.tolist(), index=cluster_user_matrix.index.tolist())        
-        for user_id in cluster_user_matrix.index.tolist():
+        df_cluster_similarity = pd.DataFrame(cluster_similarity, columns=cluster_user_matrix.index.tolist(), index=cluster_user_matrix.index.tolist())   
+        user_ids = cluster_user_matrix.index
+        item_ids = cluster_user_matrix.columns    
+        for user_id in user_ids:
             similar_users = df_cluster_similarity.loc[user_id].sort_values(ascending=False)
-
-            for column in cluster_user_matrix.columns.tolist():
+            user_mean = user_means.loc[user_id, 0]
+            print(similar_users)
+            Neighborhood_similarity = similar_users.head(5)
+            for column in item_ids:
                 if cluster_user_matrix.loc[user_id, column] == 0: # Chỉ xét các item mà user chưa đánh giá
                     total_score = 0
                     similarity_sum = 0
-                    for other_user in similar_users.index.tolist():
+                    for other_user in Neighborhood_similarity.index.tolist():
                         if other_user == user_id:
                             continue
                         total_score +=  (predicted_ratings.loc[other_user, column] - user_means.loc[other_user][0])* similar_users[other_user]
                         similarity_sum += similar_users[other_user]
-                    final_predictions.loc[user_id, column] = user_means.loc[user_id, 0] + total_score / similarity_sum
+                    final_predictions.loc[user_id, column] = user_mean + total_score / similarity_sum
                 else:
                     final_predictions.loc[user_id, column] = predicted_ratings.loc[user_id, column]
+                print(f"{cluster_id} -- Similarity: {len(similar_users)}----- {cluster_user_matrix.shape} -------- {user_id} ---- {column}")                
+                if env.training_cancel == 1:
+                    raise
+                newvalue = newvalue + 1
+                if env.training_cancel == 1:
+                    raise
+                persent = int((newvalue) / total * 100)
+                print(persent)
+                if (persent > oldvalue):
+                    oldvalue = persent
+                    env.training_status = persent
+
+
     return final_predictions
 
 
@@ -204,11 +231,18 @@ def recommend(user_id, final_predictions, user_rating_matrix, top_n=5):
     return list(zip(top_sellers, top_ratings))
 
 def train():
+    global env
+    env.training_phase = 1
     df_rate, df_behavior = prepare_data()
-    print("chuan bi xong du lieu")
+    env.training_phase = 2
+
+    print("prepare data success")
+    if env.training_cancel == 1:
+        raise
     final_predictions = knn_with_weights_and_mf(df_rate, df_behavior)
     with open('artifacts/final_predictions.pkl', 'wb') as f:
         pickle.dump(final_predictions, f)
+    es.PushData()
 
 def write_model_to_db():
     conn_str = env.CONN_STR
@@ -238,4 +272,4 @@ def write_model_to_db():
             conn.commit()
     
 if __name__=="__main__":
-    print(1)
+    train()

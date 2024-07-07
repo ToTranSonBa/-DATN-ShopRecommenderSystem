@@ -65,8 +65,10 @@ def training(cate):
         products = fetch_products_by_cate(cate)
 
         if(len(products) == 0):
+            df = pd.DataFrame(columns=['ID_NK', 'Name', 'tags'])
+
             with open(f'artifacts/movie_list_cate_{cate}.pkl', 'wb') as file:
-                pickle.dump([], file)
+                pickle.dump(df, file)
             with open(f'artifacts/similarity_cate_{cate}.pkl', 'wb') as file:
                 pickle.dump([], file)
 
@@ -140,7 +142,7 @@ def get_recommend_for_user(user):
         cursor.execute(f"SELECT [ProductId] ,[CateId] FROM [ShopRecommend].[dbo].[UserRecommend] WHERE UserId = {user} ORDER BY AdDate")
         result = cursor.fetchall()
         for i in result:
-            df.append(i)
+            df.append(i[0])
     return df
 
 if __name__=="__main__":
