@@ -133,15 +133,15 @@ const ProductDetailPage = () => {
     try {
       const response = await axios.get(`/DetailComments/List${id}`, {
         params: {
-          // PageNumber:
+          PageNumber: 0,
           PageSize: 5,
         },
       });
       setComments(response);
     } catch (error) {
-      console.error("Failed to fetch comments:", error);
+      console.error("Failed to fetch comments detail product:", error);
     }
-  }, []);
+  }, [id]);
 
   const fetchAddToCart = useCallback(async () => {
     try {
@@ -186,6 +186,7 @@ const ProductDetailPage = () => {
         const temp = element.image;
         element.image = temp.substring(15, temp.indexOf("'", 15));
       });
+      console.log("RecommendProduct: ", response);
       setRecommendProduct(response);
     } catch (error) {
       console.error("Failed to fetch RecommendProducts:", error);
@@ -753,7 +754,7 @@ const ProductDetailPage = () => {
         )}
 
         {comments?.detailComment?.length !== 0 && (
-          <CommentDetail comments={comments?.comment} />
+          <CommentDetail id={id} />
         )}
       </div>
 
@@ -806,7 +807,7 @@ const ProductDetailPage = () => {
         <></>
       )}
 
-      <div id="otherProductShop" className="mt-4 mb-8">
+      <div id="otherProductShop" className="w-5/6 mt-4 mb-8">
         <MaxWidthWrapper>
           <div className="flex justify-between">
             <span className="text-xl font-semibold text-black uppercase">

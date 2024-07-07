@@ -96,26 +96,28 @@ const Search = () => {
   const handleSubmit = (e, searchKey) => {
     e.preventDefault();
     console.log("search key: ", searchKey);
-
+    
     // Update recent searches
-    const updatedRecentSearch = [...recentSearch];
+    if (searchKey !== "") {
+      const updatedRecentSearch = [...recentSearch];
 
-    if (!updatedRecentSearch.includes(searchKey)) {
-      updatedRecentSearch.push(searchKey);
+      if (!updatedRecentSearch.includes(searchKey)) {
+        updatedRecentSearch.push(searchKey);
+      }
+
+      // Limit recent searches to a maximum number (e.g., 5)
+      const maxRecentSearches = 5;
+      if (updatedRecentSearch.length > maxRecentSearches) {
+        updatedRecentSearch.splice(
+          0,
+          updatedRecentSearch.length - maxRecentSearches
+        );
+      }
+
+      // Update state and local storage
+      setRecentSearch(updatedRecentSearch);
+      localStorage.setItem("recentSearch", JSON.stringify(updatedRecentSearch));
     }
-
-    // Limit recent searches to a maximum number (e.g., 5)
-    const maxRecentSearches = 5;
-    if (updatedRecentSearch.length > maxRecentSearches) {
-      updatedRecentSearch.splice(
-        0,
-        updatedRecentSearch.length - maxRecentSearches
-      );
-    }
-
-    // Update state and local storage
-    setRecentSearch(updatedRecentSearch);
-    localStorage.setItem("recentSearch", JSON.stringify(updatedRecentSearch));
 
     // Set search query and navigate to product page
     setSearchQuery(searchKey);
@@ -138,6 +140,7 @@ const Search = () => {
     // Clear recent searches from local storage and state
     localStorage.removeItem("recentSearch");
     setRecentSearch([]);
+    // console.log(localStorage.getItem("recentSearch"));
   };
   // State for recent searches
   const [recentSearch, setRecentSearch] = useState([]);
@@ -278,7 +281,7 @@ const Search = () => {
               <div
                 className={`${isFocused ? "block" : "hidden"} top-14 lg:py-2`}
               >
-                <div class=" w-full text-sm text-gray-900 lg:pr-4">
+                <div class="w-full text-sm text-gray-900 lg:pr-4">
                   {recentSearch.length !== 0 && (
                     <div className="flex items-center justify-between">
                       <span className="font-semibold lg:ml-10 lg:text-lg">
@@ -288,7 +291,7 @@ const Search = () => {
                         onClick={handleClearRecentSearch}
                         className="text-xs font-light text-red-600 underline cursor-pointer"
                       >
-                        Xoá
+                        Xóa
                       </button>
                     </div>
                   )}
