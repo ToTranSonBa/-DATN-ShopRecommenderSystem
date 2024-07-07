@@ -34,6 +34,7 @@ const ProductDetailPage = () => {
   // const { years, months } = calculateTimeDifference(Seller.createdAt);
 
   const id = parseInt(useParams().id);
+
   const token = localStorage.getItem("token");
   const [productDetail, setProduct] = useState({});
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
