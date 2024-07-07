@@ -57,6 +57,7 @@ namespace ShopRe.Data.Infrastructure
         public async Task<T> UpdateUofW(T entity)
         {
             var result = _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();  
             return entity;
         }
         public Task<int> AddRange(IEnumerable<T> entities)

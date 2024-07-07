@@ -458,17 +458,18 @@ namespace ShopRe.Service
                 throw new ArgumentException("ProductChild not found.");
             }
 
-            var productChild2 = await _productChildRepository.GetById(productChildRes.Id);
+            //var productChild2 = await _productChildRepository.GetById(productChildRes.Id);
 
-            productChild2.Price = entity.Price;
-            productChild2.thumbnail_url = entity.thumbnail_url;
+            //productChild2.Price = entity.Price;
+            //productChild2.thumbnail_url = entity.thumbnail_url;
 
+            productChildRes.Price = entity.Price;
+            productChildRes.thumbnail_url = entity.thumbnail_url;
 
+            var res = await _unitOfWork.ProductChilds.UpdateUofW(productChildRes);
 
-            await _unitOfWork.ProductChilds.Update(productChild2);
-
-            //_unitOfWork.Save();
-            return productChild2;
+            //await _dbContext.SaveChangesAsync();
+            return res;
         }
 
         public async Task RemoveProductChild(int id, ApplicationUser user)
