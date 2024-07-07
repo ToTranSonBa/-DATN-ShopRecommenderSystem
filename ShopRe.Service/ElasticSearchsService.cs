@@ -1256,38 +1256,78 @@ namespace ShopRe.Service
 
             var seller = _mapper.Map<SellerDTO>(res);
 
-            var countResponse = await _elasticClient.CountAsync<object>(c => c
-                .Index("products")
-                .Query(q => q
-                    .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("SellerID_NK").Value(id))
-                        )
-                    )
-                )
-            );
+            var filters = new List<QueryContainer>();
 
-            if (countResponse.IsValid)
+            if (sellerParameters.CategoryIds.Any())
             {
-                seller.Total = Convert.ToInt32(countResponse.Count);
+                filters.Add(new TermsQuery
+                {
+                    Field = "Category_LV0_NK",
+                    Terms = sellerParameters.CategoryIds.Select(id => (object)id)
+                });
             }
-            else
+
+            if (sellerParameters.BrandIds.Any())
             {
-                seller.Total = 0;
+                filters.Add(new TermsQuery
+                {
+                    Field = "BrandID_NK",
+                    Terms = sellerParameters.BrandIds.Select(id => (object)id)
+                });
             }
+
+            if (sellerParameters.MinPrice.HasValue || sellerParameters.MaxPrice.HasValue)
+            {
+                filters.Add(new NumericRangeQuery
+                {
+                    Field = "Price",
+                    GreaterThanOrEqualTo = (double)sellerParameters.MinPrice,
+                    LessThanOrEqualTo = (double)sellerParameters.MaxPrice
+                });
+            }
+
+            if (sellerParameters.MinReviewRating.HasValue)
+            {
+                filters.Add(new NumericRangeQuery
+                {
+                    Field = "RatingAverage",
+                    GreaterThanOrEqualTo = sellerParameters.MinReviewRating
+                });
+            }
+
+            filters.Add(new TermsQuery
+            {
+                Field = "SellerID_NK",
+                Terms = new[] { (object)id }
+            });
 
             var searchResponse = await _elasticClient.SearchAsync<object>(s => s
                 .Index("products")
                 .Query(q => q
                     .Bool(b => b
-                        .Filter(filters => filters
-                            .Term(t => t.Field("SellerID_NK").Value(id))
+                        .Must(mu => mu
+                            .MatchAll()
                         )
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("RatingCount")
+                        .Order(SortOrder.Descending)
                     )
                 )
                 .From(sellerParameters.PageNumber * sellerParameters.PageSize)
                 .Size(sellerParameters.PageSize)
             );
+            var totalProducts = Convert.ToInt32(searchResponse.Aggregations.ValueCount("total_products")?.Value ?? 0);
+
+            seller.Total = totalProducts;
 
             var listProductDetail = new List<ProductDetailDTO>();
 
