@@ -1,17 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ShopRe.Data.Infrastructure;
 using ShopRe.Model.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShopRe.Data.Repositories
 {
     public interface ISellerRepository : IRepository<Seller>
     {
         Task<Seller> GetUserSeller(string userId);
+        Task<List<Seller>> GetSellers(List<int> sellerIds);
     }
     public class SellerRepository : RepositoryBase<Seller>, ISellerRepository
     {
@@ -19,6 +16,12 @@ namespace ShopRe.Data.Repositories
         {
 
         }
+
+        public async Task<List<Seller>> GetSellers(List<int> sellerIds)
+        {
+            return await FindByCondition(exp => sellerIds.Contains(exp.ID_NK), false).ToListAsync();
+        }
+
         public async Task<Seller> GetUserSeller(string userId)
         {
             return FindByCondition(s => s.ApplicationUserId == userId, false).FirstOrDefault();
