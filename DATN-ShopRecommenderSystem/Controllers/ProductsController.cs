@@ -217,6 +217,41 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, "Không thể thêm sản phẩm.");
             }
         }
+        [Authorize]
+        [HttpPost("UpdateProductChild")]
+        public async Task<IActionResult> UpdateProductChild([FromBody] UpdateProductChildParameters productchild)
+        {
+            try
+            {
+                //Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.UpdateProductChild(productchild, user);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể thêm sản phẩm.");
+            }
+        }
         //DELETE: api/products/5
         [Authorize]
         [HttpDelete("{id}")]
@@ -341,14 +376,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var authHeader = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                return Unauthorized();
+                userCode = 0;
             }
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user != null)
+            else
             {
-                userCode = user.TrainCode;
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user != null)
+                {
+                    userCode = user.TrainCode;
+                }
             }
 
 

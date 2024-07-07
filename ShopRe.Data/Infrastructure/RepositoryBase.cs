@@ -68,6 +68,11 @@ namespace ShopRe.Data.Infrastructure
         {
             throw new NotImplementedException();
         }
+        public async Task<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+
         public IQueryable<T> FindByCondition(System.Linq.Expressions.Expression<Func<T, bool>> expression, bool trackChanges)
         {
             return !trackChanges ? _context.Set<T>().Where(expression).AsNoTracking()

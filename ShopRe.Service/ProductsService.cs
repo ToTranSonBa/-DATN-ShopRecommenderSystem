@@ -25,6 +25,7 @@ namespace ShopRe.Service
         Task<int> AddRange(IEnumerable<Product> entities);
         Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser seller);
         Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser seller);
+        Task<ProductChild> UpdateProductChild(UpdateProductChildParameters entity, ApplicationUser seller);
         Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user);
         Task Remove(int id, ApplicationUser user);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
@@ -44,6 +45,7 @@ namespace ShopRe.Service
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IProductChildRepository _productChildRepository;
         private readonly ISellerPriorityRepository _sellerPriorityRepository;
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<ProductService> _logger;
@@ -55,7 +57,7 @@ namespace ShopRe.Service
         public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository,
             ILogger<ProductService> logger, IElasticClient elasticClient,
             ShopRecommenderSystemDbContext dbContext, IMapper mapper, IUnitOfWork unitOfWork,
-            HttpClient httpClient)
+            HttpClient httpClient, IProductChildRepository productChildRepository)
         {
             _mapper = mapper;
             _productRepository = productRepository;
@@ -65,6 +67,7 @@ namespace ShopRe.Service
             _dbContext = dbContext;
             _httpClient = httpClient;
             _unitOfWork = unitOfWork;
+            _productChildRepository = productChildRepository;
         }
         //Elastic Service
 
@@ -435,6 +438,34 @@ namespace ShopRe.Service
             {
                 throw new Exception("Failed to add product child.", ex);
             }
+        }
+
+        public async Task<ProductChild> UpdateProductChild(UpdateProductChildParameters entity, ApplicationUser seller)
+        {
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct && p.IsDeleted == false);
+            if (product == null)
+            {
+                throw new ArgumentException("Invalid Product ID.");
+            }
+
+            var productChildRes = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.ProductID_NK == entity.IdProduct
+            && p.OptionValuesID1 == entity.OptionValuesID1 && p.OptionValuesID2 == entity.OptionValuesID2);
+
+            if (productChildRes == null)
+            {
+                throw new ArgumentException("ProductChild not found.");
+            }
+
+            var productChild2 = await _productChildRepository.GetById(productChildRes.Id);
+
+            productChild2.Price = entity.Price;
+            productChild2.thumbnail_url = entity.thumbnail_url;
+
+
+
+            var res = await _unitOfWork.ProductChilds.Update(productChild2);
+
+            return productChild2;
         }
 
         public async Task Remove(int id, ApplicationUser user)
@@ -925,5 +956,6 @@ namespace ShopRe.Service
             }
             return products.ToList();
         }
+
     }
 }
