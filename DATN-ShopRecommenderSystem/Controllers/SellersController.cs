@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,19 +20,22 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly ShopRecommenderSystemDbContext _context;
         private readonly IElasticSearchService _elasticsearchService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAccountService _accountService;
 
-        public SellersController(ShopRecommenderSystemDbContext context,ISellerService sellerService
-            , IElasticSearchService elasticSearchService, UserManager<ApplicationUser> userManager)
+        public SellersController(ShopRecommenderSystemDbContext context, ISellerService sellerService
+            , IElasticSearchService elasticSearchService, UserManager<ApplicationUser> userManager, IAccountService accountService
+)
         {
             _sellerService = sellerService;
             _context = context;
             _elasticsearchService = elasticSearchService;
             _userManager = userManager;
+            _accountService = accountService;
         }
         // GET: api/sellers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Seller>>> GetSellers()
-        {            
+        {
             var res = await _sellerService.GetAll();
             return Ok(res);
         }
@@ -61,7 +63,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _userManager.FindByEmailAsync(userEmail);
                 var accId = await _context.Accounts
                     .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
-                if((await _context.AccountSeller.FindAsync(accId, id)) != null)
+                if ((await _context.AccountSeller.FindAsync(accId, id)) != null)
                 {
                     follow = true;
                 }
@@ -71,7 +73,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return NotFound();
             }
-            return Ok(new { isFollow = follow, shop =seller});
+            return Ok(new { isFollow = follow, shop = seller });
         }
 
         // GET: api/sellers/5
@@ -150,6 +152,33 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("/foruser/recommend/sellers")]
+        public async Task<IActionResult> RecommendSellerForUser()
+        {
+            int userCode = 0;
+
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                userCode = 0;
+            }
+            else
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user != null)
+                {
+                    userCode = user.TrainCode;
+                }
+            }
+
+            var result = await _elasticsearchService.GetSellerForUser(userCode);
+            if (result.Count == 0)
+                return NoContent();
+            return Ok(result);
         }
     }
 
