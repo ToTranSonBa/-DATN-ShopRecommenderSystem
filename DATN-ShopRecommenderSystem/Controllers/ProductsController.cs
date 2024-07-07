@@ -337,10 +337,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult> RecommendProduct(RecommendParamaters paramaters)
         {
             int userCode = 0;
-            if (_signInManager.IsSignedIn(User))
+
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                var userId = _userManager.GetUserId(User);
-                userCode = (await _userManager.FindByIdAsync(userId)).TrainCode;
+                return Unauthorized();
+            }
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = await _accountService.GetUserFromTokenAsync(token);
+            if (user != null)
+            {
+                userCode = user.TrainCode;
             }
 
 
@@ -356,12 +364,22 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult> RecommendProductForUser(int currentPage = 0)
         {
             int userCode = 0;
-            if (_signInManager.IsSignedIn(User))
-            {
-                var userId = _userManager.GetUserId(User);
-                userCode = (await _userManager.FindByIdAsync(userId)).TrainCode;
-            }
 
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                userCode = 0;
+            }
+            else
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user != null)
+                {
+                    userCode = user.TrainCode;
+                }
+            }
 
             var results = await _productsService.GetRecommendProductForUserAsync(userCode, currentPage);
             if (results.products.Count() == 0)

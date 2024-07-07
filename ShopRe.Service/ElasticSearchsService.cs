@@ -27,6 +27,7 @@ namespace ShopRe.Service
         Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord);
         Task<List<dynamic>> GetBrandsBySearch(string keyWord);
         Task<List<Product>> Get20NewPro();
+        Task<List<Seller>> GetSellerForUser(int usercode);
 
     }
     public class ElasticSearchsService : IElasticSearchService
@@ -458,12 +459,12 @@ namespace ShopRe.Service
             );
             if (!response.IsValid)
             {
-                return ( 0, null);
+                return (0, null);
             }
 
 
             var products = ConvertToProduct(response.Documents.ToList());
-           
+
 
             var sellerIds = products.Select(p => p.SellerID_NK).ToList();
 
@@ -645,7 +646,7 @@ namespace ShopRe.Service
             }
 
             var products = ConvertToProduct(response.Documents.ToList());
-            
+
             return (totalProducts, products);
         }
         public async Task<IEnumerable<Product>> GetByIdAsync(int id)
@@ -973,7 +974,7 @@ namespace ShopRe.Service
         }
         public async Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct)
         {
-            var comments = await _dbContext.DetailComments.Where(c=>c.ProductID == idProduct).ToListAsync();
+            var comments = await _dbContext.DetailComments.Where(c => c.ProductID == idProduct).ToListAsync();
 
             var countResponse1 = 0;
             var countResponse2 = 0;
@@ -985,7 +986,8 @@ namespace ShopRe.Service
                 if (comment.Rating <= 1)
                 {
                     countResponse1 += 1;
-                }else if(comment.Rating <= 2)
+                }
+                else if (comment.Rating <= 2)
                 {
                     countResponse2 += 1;
                 }
@@ -1347,7 +1349,7 @@ namespace ShopRe.Service
 
             return sortedList;
         }
-        public async Task<List<Product>>  Get20NewPro()
+        public async Task<List<Product>> Get20NewPro()
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
                 .Index("products")
@@ -1365,7 +1367,44 @@ namespace ShopRe.Service
                 return new List<Product>();
             }
 
-            return  ConvertToProduct(response.Documents.ToList());
+            return ConvertToProduct(response.Documents.ToList());
+        }
+
+        public async Task<List<Seller>> GetSellerForUser(int usercode)
+        {
+            var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
+                .Index("accselpri")
+                .Query(q => q
+                    .Bool(b =>
+                        b.Filter(f =>
+                            f.Term(t => t.Field("ACCOUNTID").Value(usercode)
+                        )
+                    )
+                )
+            )
+                .Sort(ss => ss
+                    .Field(f => f
+                        .Field("IDX")
+                        .Order(SortOrder.Ascending)
+                    )
+                )
+                .Size(10000)
+            );
+
+            if (!priorityItems.IsValid)
+            {
+                return new List<Seller>();
+            }
+
+
+            var sellerPriority = ConvertToSellerPriority(priorityItems.Documents.ToList());
+            var ids = sellerPriority.OrderBy(e => e.Idx).Select(e => e.SellerID).ToList();
+            var sellers = await _dbContext.Sellers.Where(exp => ids.Contains(exp.ID_NK)).ToListAsync();
+            if (sellers.Count < 20)
+            {
+
+            }
+            return sellers;
         }
     }
 }

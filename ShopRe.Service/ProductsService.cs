@@ -11,7 +11,6 @@ using ShopRe.Data.Infrastructure;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
-using System.Net.WebSockets;
 
 namespace ShopRe.Service
 {
@@ -190,7 +189,7 @@ namespace ShopRe.Service
 
             //Product product = await _productRepository.GetById(idProduct);
             Product product = await _unitOfWork.Products.GetById(idProduct);
-            if (product == null || product.IsDeleted==true)
+            if (product == null || product.IsDeleted == true)
             {
                 return null;
             }
@@ -384,7 +383,7 @@ namespace ShopRe.Service
 
                 if (entity.OptionValuesID1.HasValue)
                 {
-                    var optionValue1 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o=>o.Id == entity.OptionValuesID1);
+                    var optionValue1 = await _dbContext.ProductOptionValues.FirstOrDefaultAsync(o => o.Id == entity.OptionValuesID1);
                     if (optionValue1 == null)
                     {
                         throw new ArgumentException("Invalid OptionValue1 ID.");
@@ -398,11 +397,11 @@ namespace ShopRe.Service
                         }
                         var productChild = new ProductChild
                         {
-                            Name = product.Name + " ("+optionValue1.Name+" - "+ optionValue2.Name+ ")",
+                            Name = product.Name + " (" + optionValue1.Name + " - " + optionValue2.Name + ")",
                             thumbnail_url = entity.thumbnail_url,
                             Price = entity.Price,
                             option1 = optionValue1.Name,
-                            option2= optionValue2.Name,
+                            option2 = optionValue2.Name,
                             OptionValuesID1 = optionValue1.Id,
                             OptionValuesID2 = optionValue2.Id,
                         };
@@ -415,7 +414,7 @@ namespace ShopRe.Service
                     {
                         var productChild = new ProductChild
                         {
-                            Name = product.Name + " (" + optionValue1.Name+ ")",
+                            Name = product.Name + " (" + optionValue1.Name + ")",
                             thumbnail_url = entity.thumbnail_url,
                             Price = entity.Price,
                             option1 = optionValue1.Name,
@@ -719,6 +718,7 @@ namespace ShopRe.Service
             {
                 products = await _productRepository.GetTopView(10);
                 result["total"] = 10;
+                result["products"] = "[]";
                 error = true;
             }
 
@@ -757,6 +757,10 @@ namespace ShopRe.Service
             if (!error)
             {
                 products.AddRange(productDif);
+            }
+            if (products.Count == 0)
+            {
+                products = await _productRepository.GetTopView(10);
             }
             var page = new Common.DTOs.Page(products.Count, 10, CurrentPage);
 
