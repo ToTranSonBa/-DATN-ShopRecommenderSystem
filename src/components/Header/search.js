@@ -23,6 +23,7 @@ const Search = () => {
   const [classNameHidden, setClassNameHidden] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [hideSuggestion, setHideSuggestion] = useState(true);
   const [isChooseCategory, setIsChooseCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All categories");
   const [categories, setCategories] = useState([]);
@@ -94,26 +95,29 @@ const Search = () => {
 
   const handleSubmit = (e, searchKey) => {
     e.preventDefault();
-
+    console.log("search key: ", searchKey);
+    
     // Update recent searches
-    const updatedRecentSearch = [...recentSearch];
+    if (searchKey !== "") {
+      const updatedRecentSearch = [...recentSearch];
 
-    if (!updatedRecentSearch.includes(searchKey)) {
-      updatedRecentSearch.push(searchKey);
+      if (!updatedRecentSearch.includes(searchKey)) {
+        updatedRecentSearch.push(searchKey);
+      }
+
+      // Limit recent searches to a maximum number (e.g., 5)
+      const maxRecentSearches = 5;
+      if (updatedRecentSearch.length > maxRecentSearches) {
+        updatedRecentSearch.splice(
+          0,
+          updatedRecentSearch.length - maxRecentSearches
+        );
+      }
+
+      // Update state and local storage
+      setRecentSearch(updatedRecentSearch);
+      localStorage.setItem("recentSearch", JSON.stringify(updatedRecentSearch));
     }
-
-    // Limit recent searches to a maximum number (e.g., 5)
-    const maxRecentSearches = 5;
-    if (updatedRecentSearch.length > maxRecentSearches) {
-      updatedRecentSearch.splice(
-        0,
-        updatedRecentSearch.length - maxRecentSearches
-      );
-    }
-
-    // Update state and local storage
-    setRecentSearch(updatedRecentSearch);
-    localStorage.setItem("recentSearch", JSON.stringify(updatedRecentSearch));
 
     // Set search query and navigate to product page
     setSearchQuery(searchKey);
@@ -124,10 +128,19 @@ const Search = () => {
     else navigate("/productpage");
   };
 
+  const handleSubmitSuggestion = (event, id) => {
+    event.preventDefault();
+    setHideSuggestion(!hideSuggestion);
+    navigate(`/productDetail/${id}`);
+    if (window.location.href.includes("productDetail"))
+      window.location.reload();
+  };
+
   const handleClearRecentSearch = () => {
     // Clear recent searches from local storage and state
     localStorage.removeItem("recentSearch");
     setRecentSearch([]);
+    // console.log(localStorage.getItem("recentSearch"));
   };
   // State for recent searches
   const [recentSearch, setRecentSearch] = useState([]);
@@ -146,6 +159,7 @@ const Search = () => {
   const handleBlur = () => {
     setIsFocused(false);
   };
+
   useEffect(() => {
     if (debouncedInputValue) {
       const fetchDataProduct = async () => {
@@ -161,8 +175,10 @@ const Search = () => {
       };
 
       fetchDataProduct();
+      setHideSuggestion(true);
     } else {
-      setSuggestions([]); // Clear suggestions when input is empty
+      setSuggestions([]);
+      setHideSuggestion(true); // Clear suggestions when input is empty
     }
   }, [debouncedInputValue]);
 
@@ -259,13 +275,13 @@ const Search = () => {
           </button>
           <div
             id="searchexpand"
-            className={`  ${
-              isFocused ? "block" : "hidden"
-            }  shadow-md absolute left-0 z-20  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 `}
+            className={`shadow-md absolute left-0 z-20  w-full h-auto bg-white border-gray-300 rounded-lg`}
           >
             {inputValue.length === 0 ? (
-              <>
-                <div class=" w-full text-sm text-gray-900 lg:pr-4">
+              <div
+                className={`${isFocused ? "block" : "hidden"} top-14 lg:py-2`}
+              >
+                <div class="w-full text-sm text-gray-900 lg:pr-4">
                   {recentSearch.length !== 0 && (
                     <div className="flex items-center justify-between">
                       <span className="font-semibold lg:ml-10 lg:text-lg">
@@ -275,7 +291,7 @@ const Search = () => {
                         onClick={handleClearRecentSearch}
                         className="text-xs font-light text-red-600 underline cursor-pointer"
                       >
-                        Xoá
+                        Xóa
                       </button>
                     </div>
                   )}
@@ -376,19 +392,21 @@ const Search = () => {
                           />
                         </svg>
                       </div>
-                      <span className="font-light ">{search}</span>
+                      <span className="font-light">{search}</span>
                     </div>
                   ))}
                 </div>
-              </>
+              </div>
             ) : (
-              <>
+              <div className={`${hideSuggestion ? "block" : "hidden"}`}>
                 {suggestions.length > 0 && (
                   <div className="w-full text-sm text-gray-900">
                     {suggestions.map((suggestion) => (
                       <form
                         key={suggestion.iD_NK}
-                        onSubmit={(e) => handleSubmit(e, suggestion.name)}
+                        onSubmit={(e) =>
+                          handleSubmitSuggestion(e, suggestion.iD_NK)
+                        }
                         className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                       >
                         <div className="w-[10px] lg:ml-10">
@@ -409,14 +427,20 @@ const Search = () => {
                             </svg>
                           </div>
                         </div>
-                        <p className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap">
+                        <button
+                          className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap text-left"
+                          type="button"
+                          onClick={(e) =>
+                            handleSubmitSuggestion(e, suggestion.iD_NK)
+                          }
+                        >
                           {suggestion.name}
-                        </p>
+                        </button>
                       </form>
                     ))}
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
