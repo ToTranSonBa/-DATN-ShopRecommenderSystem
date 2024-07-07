@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -779,7 +780,25 @@ namespace ShopRe.Service
         }
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
-            var result = await _productRepository.GetProductPopular(number);
+            var listId = await _productRepository.GetProductPopular(number);
+            var result = new List<Product>();
+            foreach (var item in listId)
+            {
+                var itemPro = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("products")
+                    .From(0)
+                    .Size(10)
+                    .Query(q => q
+                        .Match(m => m
+                        .Field("ID_NK")
+                        .Query(item.ToString())
+                )
+                    )
+                );
+                var res = ConvertToProduct(itemPro.Documents.ToList());
+                //itemPro2 = FunctionCommon.ConvertToProduct(itemPro.Documents.ToList());
+                result.TryAdd(res);
+            }
             var product = await ConvertToProductWithImages(result);
             return product;
         }

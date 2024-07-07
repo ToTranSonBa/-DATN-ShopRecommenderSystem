@@ -37,6 +37,8 @@ namespace ShopRe.Data
         public DbSet<ProductRecommendDaily> productRecommendDailies { get; set; }
         public DbSet<CommentImages> CommentImages { get; set; }
         public DbSet<AccountSeller> AccountSeller { get; set; }
+        public DbSet<TopViewProduct> TopViewProduct { get; set; }
+        public DbSet<TopPopProduct> TopPopProduct { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
