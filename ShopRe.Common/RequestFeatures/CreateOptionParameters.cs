@@ -9,7 +9,7 @@ namespace ShopRe.Common.RequestFeatures
     public class OptionValue
     {
         public string Value { get; set; }
-        public string Image { get; set; }
+        public string? Image { get; set; }
     }
     public class CreateOptionParameters
     {
