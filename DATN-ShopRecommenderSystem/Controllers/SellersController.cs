@@ -154,7 +154,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        [HttpPost("/foruser/recommend/sellers")]
+        [HttpPost("foruser/recommend/sellers")]
         public async Task<IActionResult> RecommendSellerForUser()
         {
             int userCode = 0;

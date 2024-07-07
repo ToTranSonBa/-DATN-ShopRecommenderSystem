@@ -11,6 +11,7 @@ namespace ShopRe.Data.Infrastructure
     {
         IProductRepository Products { get; }
         ISellerRepository Sellers { get; }
+        IProductChildRepository ProductChilds { get; }
         int Save();
 
     }
