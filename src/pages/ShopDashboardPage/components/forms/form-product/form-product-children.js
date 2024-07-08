@@ -3,7 +3,10 @@ import DefaultImage from '../../../../../assets/imageDefault.jpg';
 import { cloudinaryConfig } from '../../../../../cloudinaryConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addProductApi, addProductOptionsApi, addProductOptionChildrenApi } from '../../../../../services/SellerApi/sellerApi'
+import {
+    addProductApi, addProductOptionsApi, addProductOptionChildrenApi
+    , updateProductApi, updateProductOptionChildrenApi, deleteOptionChildApi
+} from '../../../../../services/SellerApi/sellerApi'
 
 const cartesianProduct = (formValues, arr1, arr2) => {
     let result = [];
@@ -50,19 +53,24 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     const token = localStorage.getItem('token');
     const option1Values = options && options[0]?.values;
     const option2Values = options && options[1]?.values;
-
+    const [deleteChildrenOption, setDeleteChildrenOption] = useState([]);
     console.log('option1Values: ', option1Values);
     console.log('option2Values: ', option2Values);
+    console.log('optionValues: ', optionValues);
+    console.log('options: ', options);
 
     useEffect(() => {
         if (action === 1 || action === 2) {
             if (product.productChildren && product.productChildren.length > 0) {
                 const productChildrenCombinations = product.productChildren.map(product => ({
+                    childId: product.id,
                     name: product.name,
                     option1: product.option1,
                     option2: product.option2,
                     price: product.price,
                     image: { preview: product.thumbnail_url },
+                    option1ValuesId: product.optionValuesID1,
+                    option2ValuesId: product.optionValuesID2
                 }));
                 setCombinations(productChildrenCombinations);
 
@@ -93,6 +101,12 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     const handleRemoveOption = (index) => {
         // Sao chép mảng combinations hiện tại
         const newCombinations = [...combinations];
+        // Lấy chilId của phần tử tại index
+        const childIdToRemove = newCombinations[index].childId;
+        // Thêm chilId vào mảng deleteChildrenOption
+        const newDeleteChildrenOption = [...deleteChildrenOption]
+        newDeleteChildrenOption.push(childIdToRemove)
+        setDeleteChildrenOption(newDeleteChildrenOption);
         // Xóa phần tử theo index
         newCombinations.splice(index, 1);
         // Cập nhật combinations với mảng mới
@@ -124,27 +138,39 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
 
     const safeCombinations = Array.isArray(combinations) ? combinations : [];
     const uploadImages = async (files) => {
-        const uploadPromises = Object.values(files).map((file) => {
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('file', file.file); // Sử dụng file thực tế thay vì preview URL
-                formData.append('upload_preset', cloudinaryConfig.upload_preset);
+        if (action === 0) {
+            const uploadPromises = Object.values(files).map((file) => {
+                return new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('file', file.file); // Sử dụng file thực tế thay vì preview URL
+                    formData.append('upload_preset', cloudinaryConfig.upload_preset);
 
-                fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then((response) => response.json())
-                    .then((data) => resolve(data.secure_url))
-                    .catch((error) => reject(error));
+                    fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then((response) => response.json())
+                        .then((data) => resolve(data.secure_url))
+                        .catch((error) => reject(error));
+                });
             });
-        });
 
-        return Promise.all(uploadPromises);
+            return Promise.all(uploadPromises);
+        }
+        const imageUrls = product.images.map(product => product.image);
+        return imageUrls
+
     };
 
     const uploadImageToCloudinary = async (image) => {
         try {
+
+            if (action === 1 && image.file === null || action === 1 && image.file === undefined) {
+                return image.preview;
+            }
+            if (action === 0 && image.file === null || action === 0 && image.file === undefined) {
+                return;
+            }
             const formData = new FormData();
             formData.append('file', image.file); // Sử dụng file thực tế thay vì preview URL
             formData.append('upload_preset', cloudinaryConfig.upload_preset);
@@ -160,6 +186,9 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
 
             const data = await response.json();
             return data.secure_url;
+
+
+
         } catch (error) {
             console.error('Error uploading image:', error);
             throw error;
@@ -168,7 +197,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
 
     // const handleAddProduct = async () => {
     //     console.log('combinations: ', combinations);
-    // }    
+    // }
 
 
     const handleAddProduct = async () => {
@@ -189,7 +218,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                 if (options) {
                     for (let i = 0; i < options.length; i++) {
                         const option = options[i];
-                        const values = optionValues[i];
+                        const values = optionValues[i] || []; // Xử lý khi optionValues[i] không tồn tại hoặc có ít hơn số lượng values
 
                         const newOption = {
                             idProduct: productData.iD_NK,
@@ -199,20 +228,22 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                             values: []
                         };
 
-                        for (let j = 0; j < values.length; j++) {
-                            const valueObj = values[j];
+                        for (let j = 0; j < option.values.length; j++) {
+                            const valueObj = values[j] || {}; // Xử lý khi không có đối tượng tương ứng trong optionValues
 
-                            // Upload hình ảnh lên Cloudinary
-                            const imageUrl = await uploadImageToCloudinary(valueObj.image);
+                            let imageUrl = ''; // Mặc định imageUrl là chuỗi rỗng nếu không có hình ảnh
+
+                            if (valueObj.image) {
+                                // Upload hình ảnh lên Cloudinary
+                                imageUrl = await uploadImageToCloudinary(valueObj.image);
+                            }
 
                             // Thêm vào đối tượng newOption
                             newOption.values.push({
-                                value: option.values[j].name, // Lấy giá trị từ options.values
-                                image: imageUrl // Lấy URL của hình ảnh đã upload lên Cloudinary
+                                value: option.values[j].name,
+                                image: imageUrl
                             });
                         }
-
-                        // mergedOptions.push(newOption);
 
                         const productOptionsData = await addProductOptionsApi(newOption);
                         if (productOptionsData) {
@@ -237,8 +268,8 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                             mergedOptions.push(newOption);
                         }
                     }
-                    console.log('mergedOptions: ', mergedOptions)
 
+                    console.log('mergedOptions: ', mergedOptions);
                 }
 
                 if (combinations) {
@@ -274,6 +305,72 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
             // Proceed with form submission logic
         } catch (error) {
             console.error('Error add product:', error);
+        }
+    }
+
+
+    // const handleUpdateProduct = async () => {
+    //     console.log('combinations: ', combinations);
+
+    // }
+
+    const handleUpdateProduct = async () => {
+        const mergedOptions = [];
+        try {
+            const uploadedImages = await uploadImages(files); // Upload images to Cloudinary
+            const updatedFormValues = {
+                ...formValues,
+                images: uploadedImages
+            };
+            const productData = await updateProductApi(product.product.iD_NK, updatedFormValues, token);
+            // const productData = 1;
+
+
+
+
+            if (productData) {
+
+                if (combinations) {
+                    for (let i = 0; i < combinations.length; i++) {
+
+                        const valueObj = combinations[i];
+                        const imageUrl = await uploadImageToCloudinary(valueObj.image);
+                        const updateOptionChildren = {
+                            idProduct: product.product.iD_NK,
+                            price: valueObj.price,
+                            optionValuesID1: valueObj.option1ValuesId,
+                            optionValuesID2: valueObj.option2ValuesId,
+                            thumbnail_url: imageUrl
+                        };
+                        const productChildren = await updateProductOptionChildrenApi(updateOptionChildren, token);
+                        if (productChildren) {
+                            console.log('Sửa option children thành công phần tử: ', updateOptionChildren);
+                        }
+                        else {
+                            console.log('lỗi khi sửa sản phẩm thứ : ', updateOptionChildren);
+                        }
+
+                    }
+                }
+            }
+            if (deleteChildrenOption.length > 0) {
+                for (let i = 0; i < deleteChildrenOption.length; i++) {
+                    const deleteChildData = await deleteOptionChildApi(deleteChildrenOption[i], token);
+                    if (deleteChildData) {
+                        console.log('xóa thành công child,: ', deleteChildrenOption[i]);
+                    }
+                }
+            }
+
+            toast.success('Sửa sản phẩm thành công');
+            setTimeout(() => {
+                handleClose();
+            }, 2000);
+
+
+            // Proceed with form submission logic
+        } catch (error) {
+            console.error('Error update product:', error);
         }
     }
 
@@ -315,11 +412,10 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                                     onChange={(e) => handleOptionNameChange(e, combinationIndex)}
                                     className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                     required
-                                    readOnly
-                                    disabled={action === 2}
+                                    disabled={action === 2 || action === 1 || action === 0}
                                 />
                             </div>
-                            {action === 0 && (
+                            {action !== 2 && (
                                 <button onClick={() => handleRemoveOption(combinationIndex)} className="text-red-500">
                                     Xóa sản phẩm
                                 </button>
@@ -394,7 +490,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                 {action === 1 && (
                     <>
                         <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
-                            onClick={handleAddProduct}
+                            onClick={handleUpdateProduct}
                         >
 
                             Cập nhật

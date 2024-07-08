@@ -168,7 +168,7 @@ const CartShoppingPage = () => {
                                                         <div className="flex justify-between">
                                                             <h3 className="text-sm">
                                                                 <a className="font-medium text-gray-700 hover:text-gray-800">
-                                                                    {data.product.name}
+                                                                    {data?.product?.name}
                                                                 </a>
                                                             </h3>
                                                         </div>
@@ -181,7 +181,7 @@ const CartShoppingPage = () => {
                                                             </p>
                                                         </div>
                                                         <p className="mt-1 text-sm font-medium text-gray-900">
-                                                            {formatNumber(data.product.price)}
+                                                            {formatNumber(data?.product?.price)}
                                                         </p>
                                                     </div>
 
@@ -190,7 +190,7 @@ const CartShoppingPage = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() =>
-                                                                    handleDecrement(dataId, data.product.iD_NK)
+                                                                    handleDecrement(dataId, data?.product.iD_NK)
                                                                 }
                                                                 className="h-8 p-3 bg-white border border-gray-100 focus:outline-none"
                                                             >
@@ -221,7 +221,7 @@ const CartShoppingPage = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() =>
-                                                                    handleIncrement(dataId, data.product.iD_NK)
+                                                                    handleIncrement(dataId, data?.product.iD_NK)
                                                                 }
                                                                 className="h-8 p-3 bg-white border border-gray-100 focus:outline-none"
                                                             >

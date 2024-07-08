@@ -55,13 +55,11 @@ const TableProduct = ({ inDoashboard = false }) => {
     const openEditProductForm = (product) => {
         setSelectedProduct(product);
         setIsOpenDropdownEditProduct(true);
-        setFetchTrigger(prev => !prev); // Cập nhật state để trigger fetch lại
     };
 
     const openDetailProductForm = (product) => {
         setSelectedProduct(product);
         setIsOpenDropdownDetailProduct(true);
-        setFetchTrigger(prev => !prev); // Cập nhật state để trigger fetch lại
     };
 
     useEffect(() => {
@@ -69,7 +67,7 @@ const TableProduct = ({ inDoashboard = false }) => {
             await fetchSeller(pageNumber, pageSize);
         };
         fetchData();
-    }, [pageNumber, pageSize, fetchTrigger, fetchSeller]);
+    }, [pageNumber, pageSize, fetchTrigger, fetchSeller, isOpenDropdownEditProduct, isOpenDropdownAddProduct]);
 
 
     // Pagination handlers

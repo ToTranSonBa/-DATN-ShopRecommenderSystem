@@ -7,7 +7,7 @@ import { addProductApi, addProductOptionsApi, getOptionApi } from '../../../../.
 const FormProductOption = ({ action, product, useroption, open, formValues, files, options, setOptions, optionValues, setOptionValues }) => {
 
     const token = localStorage.getItem('token');
-
+    const [firstOption, setFirstoption] = useState(0);
     const fetchOptions = useCallback(async () => {
         try {
             const response = await getOptionApi(product.product.iD_NK);
@@ -30,6 +30,11 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
             console.error('Failed to fetch fetchOptions:', error);
         }
     });
+
+    const handleRemoveOption = (index) => {
+        setOptions(options.filter((_, i) => i !== index));
+        setOptionValues(optionValues.filter((_, i) => i !== index));
+    };
     useEffect(() => {
         if (action === 2 || action === 1) {
             // Chế độ xem hoặc sửa
@@ -56,10 +61,6 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
         setOptionValues([...optionValues, []]);
     };
 
-    const handleRemoveOption = (index) => {
-        setOptions(options.filter((_, i) => i !== index));
-        setOptionValues(optionValues.filter((_, i) => i !== index));
-    };
 
     const handleOptionValueChange = (e, optionIndex, valueIndex) => {
         const newOptions = [...options];
@@ -133,7 +134,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
             </div>
 
             <div className="w-full h-[95%] max-w-5xl mx-auto overflow-y-scroll">
-                {options && options.length !== 0 ? options?.map((option, optionIndex) => (
+                {options && options.length > 0 ? options?.map((option, optionIndex) => (
                     <div key={optionIndex} className="mb-4 shadow lg:px-6 lg:py-6 rounded-r-md">
                         <div className="flex items-center justify-between lg:mb-4">
                             <div className="w-4/5">
@@ -151,7 +152,8 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     onChange={(e) => handleOptionNameChange(e, optionIndex)}
                                     className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                     required
-                                    disabled={action === 2}
+                                    disabled={action !== 0}
+
                                 />
                             </div>
                             {action === 0 && (
@@ -178,11 +180,11 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                         onChange={(e) => handleOptionValueChange(e, optionIndex, valueIndex)}
                                         className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                         required
-                                        disabled={action === 2}
+                                        disabled={action !== 0}
                                     />
                                 </div>
                                 <div className="flex items-center space-x-6">
-                                    {action !== 2 && (
+                                    {action === 0 && (
                                         <label className="block">
                                             <input
                                                 type="file"
@@ -217,7 +219,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                             </div>
                         ))}
 
-                        {action !== 2 && (
+                        {action === 0 && (
                             <button
                                 onClick={() => handleAddOptionValue(optionIndex)}
                                 className="flex items-center mb-4 ml-auto text-sm font-light text-white border-1 bg-primary/80 lg:px-4 lg:py-2"
@@ -230,7 +232,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                     Sản phẩm không có lựa chọn
                 </p>)}
 
-                {action !== 2 && (
+                {action === 0 && (
                     <button
                         onClick={handleAddOption}
                         className="flex items-center text-white bg-red-600 border-red-700 border-1 lg:px-4 lg:py-2"

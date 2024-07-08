@@ -254,9 +254,9 @@ const TableOrder = () => {
                                                     </p>
                                                     <div className="text-sm text-gray-400">
                                                         <p>
-                                                            {order.items[0]?.optionValues.option.name +
-                                                                ': ' +
-                                                                order.items[0]?.optionValues.name}
+                                                            {order.items[0]?.optionValues.name +
+                                                                '- ' +
+                                                                order.items[0]?.optionValues2.name}
                                                         </p>
                                                         <p>x{order.items[0]?.quantity}</p>
                                                     </div>
@@ -277,17 +277,16 @@ const TableOrder = () => {
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <div className="w-max">
                                                 <div
-                                                    className={`relative grid items-center px-2 py-1 text-xs font-bold uppercase rounded-md select-none whitespace-nowrap ${
-                                                        order?.status === 0
-                                                            ? 'text-blue-900 bg-blue-500/20'
-                                                            : order?.status === 1
+                                                    className={`relative grid items-center px-2 py-1 text-xs font-bold uppercase rounded-md select-none whitespace-nowrap ${order?.status === 0
+                                                        ? 'text-blue-900 bg-blue-500/20'
+                                                        : order?.status === 1
                                                             ? 'text-green-900 bg-green-500/20'
                                                             : order?.status === 2
-                                                            ? 'text-yellow-900 bg-yellow-500/20'
-                                                            : order?.status === 3
-                                                            ? 'text-gray-900 bg-gray-500/20'
-                                                            : 'text-red-900 bg-red-500/20'
-                                                    }`}
+                                                                ? 'text-yellow-900 bg-yellow-500/20'
+                                                                : order?.status === 3
+                                                                    ? 'text-gray-900 bg-gray-500/20'
+                                                                    : 'text-red-900 bg-red-500/20'
+                                                        }`}
                                                 >
                                                     <span>
                                                         {order?.status === 0 ? 'Vận chuyển' : ''}
@@ -346,9 +345,8 @@ const TableOrder = () => {
                         <button
                             onClick={handlePreviousPage}
                             disabled={pageNumber === 0}
-                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                pageNumber === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${pageNumber === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+                                }`}
                         >
                             Trước
                         </button>
@@ -362,11 +360,8 @@ const TableOrder = () => {
                                     <button
                                         key={index}
                                         onClick={() => handlePageClick(page)}
-                                        className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                            pageNumber === page
-                                                ? 'text-primary border-1 border-primary bg-gray-100'
-                                                : 'text-gray-700 border border-gray-300 hover:bg-gray-100'
-                                        }`}
+                                        className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${pageNumber === page ? 'bg-gray-100' : 'hover:bg-gray-100'
+                                            }`}
                                     >
                                         {page + 1}
                                     </button>
@@ -376,9 +371,8 @@ const TableOrder = () => {
                         <button
                             onClick={handleNextPage}
                             disabled={pageNumber === totalPages - 1}
-                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                pageNumber === totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${pageNumber === totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+                                }`}
                         >
                             Sau
                         </button>
@@ -1171,17 +1165,16 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
                                 <span className="text-sm text-gray-500 uppercase">Chỉnh sửa trạng thái đơn hàng</span>
                                 <div className="w-full h-auto text-sm font-light lg:py-4 lg:px-4 text-end">
                                     <select
-                                        className={`relative grid items-center w-2/3 px-2 py-3 text-base font-bold uppercase rounded-sm select-none whitespace-nowrap ${
-                                            newStatus === '0'
-                                                ? 'text-blue-900 bg-blue-500/20'
-                                                : newStatus === '1'
+                                        className={`relative grid items-center w-2/3 px-2 py-3 text-base font-bold uppercase rounded-sm select-none whitespace-nowrap ${newStatus === '0'
+                                            ? 'text-blue-900 bg-blue-500/20'
+                                            : newStatus === '1'
                                                 ? 'text-green-900 bg-green-500/20'
                                                 : newStatus === '2'
-                                                ? 'text-yellow-900 bg-yellow-500/20'
-                                                : newStatus === '3'
-                                                ? 'text-gray-900 bg-gray-500/20'
-                                                : 'text-red-900 bg-red-500/20'
-                                        }`}
+                                                    ? 'text-yellow-900 bg-yellow-500/20'
+                                                    : newStatus === '3'
+                                                        ? 'text-gray-900 bg-gray-500/20'
+                                                        : 'text-red-900 bg-red-500/20'
+                                            }`}
                                         value={newStatus}
                                         onChange={handleChangeStatus}
                                     >

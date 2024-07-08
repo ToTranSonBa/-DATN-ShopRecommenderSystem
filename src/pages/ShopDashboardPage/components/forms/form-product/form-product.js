@@ -206,7 +206,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                         className={`relative flex flex-col h-full w-full shadow rounded-md`}
                     >
                         <section className="flex flex-col w-full h-full overflow-y-scroll">
-                            {action !== 2 && (
+                            {action === 0 && (
                                 <header className="flex flex-col items-center justify-center w-full py-12 border-2 border-gray-400 border-dashed">
                                     <p className="flex flex-wrap justify-center mb-3 font-semibold text-gray-900">
                                         <span className="text-sm text-center text-gray-500">
@@ -220,7 +220,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                                         multiple
                                         className="hidden"
                                         onChange={handleFileInputChange}
-                                        accept="image/*"
+                                        accept="image/*" disabled={mode === 2}
                                     />
                                     <button
                                         id="button"

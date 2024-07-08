@@ -272,7 +272,7 @@ const Navigation = ({
                                                         <div className="flex justify-between text-base font-medium text-gray-900">
                                                           <h3>
                                                             <a
-                                                              href={`/productdetail/${product.product.iD_NK}`}
+                                                              href={`/productdetail/${product?.product.iD_NK}`}
                                                             >
                                                               {
                                                                 product.product

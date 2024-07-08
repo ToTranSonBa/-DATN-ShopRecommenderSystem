@@ -53,17 +53,17 @@ const updateSellerApi = async (name, imageUrl, address, phone, token) => {
 
 const addProductApi = async (productData, token) => {
     console.log('productDataAPI: ', productData);
+    console.log(' productData.productDescription: ', productData.description);
     try {
         return axios.post('/Products/AddProduct', {
             productName: productData.productName,
-            productDescription: productData.description,
+            productDescription: productData.description.replace(/\n/g, ' ').trim(),
             price: productData.productPrice,
-            shortDescription: productData.shortDescription,
+            shortDescription: productData.shortDescription.replace(/\n/g, ' ').trim(),
             categories: productData.category,
             brandID: productData.brand,
             quantity: productData.productQuantitySold,
             images: productData.images
-
         }, {
             headers: {
                 Authorization: "Bearer " + token,
@@ -72,6 +72,29 @@ const addProductApi = async (productData, token) => {
         );
     } catch (error) {
         console.error('Failed to addProductApi:', error);
+        throw error;
+    }
+};
+
+const updateProductApi = async (productId, productData, token) => {
+    try {
+        return axios.put(`/Products/${productId}`, {
+            productName: productData.productName,
+            productDescription: productData.description.replace(/\n/g, ' ').trim(),
+            price: productData.productPrice,
+            shortDescription: productData.shortDescription.replace(/\n/g, ' ').trim(),
+            categories: String(productData.category),
+            brandId: String(productData.brand),
+            quantity: productData.productQuantitySold,
+            images: productData.images
+        }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        }
+        );
+    } catch (error) {
+        console.error('Failed to updateProductApi:', error);
         throw error;
     }
 };
@@ -113,15 +136,40 @@ const addProductOptionChildrenApi = async (productOptionChildrenData, token) => 
         }
         );
     } catch (error) {
-        console.error('Failed to addProductOptionsApi:', error);
+        console.error('Failed to addProductOptionChildrenApi:', error);
+        throw error;
+    }
+};
+
+const updateProductOptionChildrenApi = async (productOptionChildrenData, token) => {
+    console.log('productOptionsDataAPI: ', productOptionChildrenData);
+
+    try {
+        return axios.put('/Products/UpdateProductChild', {
+            idProduct: productOptionChildrenData.idProduct,
+            thumbnail_url: productOptionChildrenData.thumbnail_url,
+            price: productOptionChildrenData.price,
+            optionValuesID1: productOptionChildrenData.optionValuesID1,
+            optionValuesID2: productOptionChildrenData.optionValuesID2,
+
+        }, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        }
+        );
+    } catch (error) {
+        console.error('Failed to addProductOptionChildrenApi:', error);
         throw error;
     }
 };
 
 
 
+
 const deleteProductApi = async (productId, token) => {
     try {
+        console.log('token: ', token)
         return axios.delete(`/Products/${productId}`, {
             headers: {
                 Authorization: "Bearer " + token,
@@ -156,10 +204,24 @@ const getOptionApi = async (productId) => {
     }
 };
 
+const deleteOptionChildApi = async (childId, token) => {
+    try {
+        return axios.delete(`/Products/ProductChild${childId}`, {
+            headers: {
+                Authorization: "Bearer " + token,
+            }
+        });
+    } catch (error) {
+        console.error('Failed to fetch getBrandsApi:', error);
+        throw error;
+    }
+};
+
 
 
 export {
     getSellerApi, updateSellerApi, getCategoriesApi, getBrandsApi,
     addProductApi, addProductOptionsApi, getProductsBySellerApi, deleteProductApi,
-    getOptionApi, addProductOptionChildrenApi
+    getOptionApi, addProductOptionChildrenApi, updateProductApi, updateProductOptionChildrenApi
+    , deleteOptionChildApi
 };
