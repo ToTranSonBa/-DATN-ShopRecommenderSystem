@@ -84,6 +84,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -162,6 +163,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -228,6 +230,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == Order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -306,6 +309,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -369,12 +373,13 @@ namespace ShopRe.Service
             foreach (var order in listOrder)
             {
                 var orderItems = await _dbContext.OrderItems
-                                                  .Where(o => o.Order.ID == order.ID)
-                                                  .Include(o => o.Product)
-                                                  .Include(o => o.OptionValues)
-                                                  .Include(o => o.optionValues2)
-                                                  .ThenInclude(o => o.Option)
-                                                  .ToListAsync();
+                                                 .Where(o => o.Order.ID == order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;
