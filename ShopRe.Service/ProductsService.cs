@@ -487,7 +487,8 @@ namespace ShopRe.Service
                 throw new ArgumentException("Seller không tồn tại.");
             }
 
-            _unitOfWork.ProductChilds.Remove(productChild.Id);
+            _dbContext.ProductChild.Remove(productChild);
+            await _dbContext.SaveChangesAsync();
         }
         public async Task Remove(int id, ApplicationUser user)
         {
