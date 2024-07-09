@@ -1,0 +1,8 @@
+# bỏ qua thư viện
+.myenv
+# bỏ qua model
+.models
+
+myenv/
+models/
+__pycache__/
