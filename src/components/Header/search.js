@@ -1,21 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-// API
-import { fetchProduct } from '../../services/HomeApi/home';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { SearchContext } from '../searchContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useDebounce from '../useDebounce/useDebounce';
-
-const searchPlaceholders = [
-    {
-        title: 'iphone',
-    },
-    {
-        title: 'điện thoại',
-    },
-    {
-        title: 'quần áo',
-    },
-];
+// API
+import { fetchProduct, fetchTopViewProducts, fetchTop10Seller } from '../../services/HomeApi/home';
 
 const Search = () => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -31,7 +19,7 @@ const Search = () => {
     const location = useLocation();
     //
     const debouncedInputValue = useDebounce(inputValue, 500); // Debounce input value
-    const [seeMore, setSeeMore] = useState(false);
+    const [seeMore, setSeeMore] = useState(true);
     const [suggestions, setSuggestions] = useState([]);
     //
 
@@ -76,15 +64,6 @@ const Search = () => {
         setClassNameHidden(newStates.classNameHidden);
     }, [location.pathname]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const currentPlaceholder = searchPlaceholders[currentPlaceholderIndex];
     const navigate = useNavigate();
 
     function handleChange(e) {
@@ -96,23 +75,21 @@ const Search = () => {
         console.log('search key: ', searchKey);
 
         // Update recent searches
-        if (searchKey !== '') {
-            const updatedRecentSearch = [...recentSearch];
+        const updatedRecentSearch = [...recentSearch];
 
-            if (!updatedRecentSearch.includes(searchKey)) {
-                updatedRecentSearch.push(searchKey);
-            }
-
-            // Limit recent searches to a maximum number (e.g., 5)
-            const maxRecentSearches = 5;
-            if (updatedRecentSearch.length > maxRecentSearches) {
-                updatedRecentSearch.splice(0, updatedRecentSearch.length - maxRecentSearches);
-            }
-
-            // Update state and local storage
-            setRecentSearch(updatedRecentSearch);
-            localStorage.setItem('recentSearch', JSON.stringify(updatedRecentSearch));
+        if (!updatedRecentSearch.includes(searchKey)) {
+            updatedRecentSearch.push(searchKey);
         }
+
+        // Limit recent searches to a maximum number (e.g., 5)
+        const maxRecentSearches = 5;
+        if (updatedRecentSearch.length > maxRecentSearches) {
+            updatedRecentSearch.splice(0, updatedRecentSearch.length - maxRecentSearches);
+        }
+
+        // Update state and local storage
+        setRecentSearch(updatedRecentSearch);
+        localStorage.setItem('recentSearch', JSON.stringify(updatedRecentSearch));
 
         // Set search query and navigate to product page
         setSearchQuery(searchKey);
@@ -133,7 +110,6 @@ const Search = () => {
         // Clear recent searches from local storage and state
         localStorage.removeItem('recentSearch');
         setRecentSearch([]);
-        // console.log(localStorage.getItem("recentSearch"));
     };
     // State for recent searches
     const [recentSearch, setRecentSearch] = useState([]);
@@ -173,6 +149,52 @@ const Search = () => {
             setHideSuggestion(true); // Clear suggestions when input is empty
         }
     }, [debouncedInputValue]);
+    //
+    const [topViewProducts, setTopViewProducts] = useState([]);
+    const [topSeller, setTopSeller] = useState([]);
+    const getTopSeller = useCallback(async () => {
+        try {
+            const response = await fetchTop10Seller();
+            setTopSeller(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+
+    const getTopViewProduct = useCallback(async () => {
+        try {
+            const response = await fetchTopViewProducts();
+            setTopViewProducts(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+    useEffect(() => {
+        const fetchData = async () => {
+            await getTopViewProduct();
+            await getTopSeller();
+        };
+        fetchData();
+    }, []);
+
+    // Tạo mảng các placeholder từ dữ liệu topViewProducts
+    const searchPlaceholders = topViewProducts?.map((product) => ({
+        title: `${product.name}`,
+    }));
+
+    // Đảm bảo currentPlaceholder luôn hợp lệ
+    const currentPlaceholder = searchPlaceholders.length > 0 ? searchPlaceholders[currentPlaceholderIndex]?.title : '';
+
+    // Cập nhật placeholder định kỳ
+    useEffect(() => {
+        if (searchPlaceholders.length > 0) {
+            const interval = setInterval(() => {
+                setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);
+            }, 3000); // Thay đổi sau mỗi 3 giây
+
+            return () => clearInterval(interval);
+        }
+    }, [searchPlaceholders]);
 
     return (
         <form className={`w-full max-w-screen-lg  ${classNameHidden}`} onSubmit={(e) => handleSubmit(e, inputValue)}>
@@ -237,7 +259,7 @@ const Search = () => {
                         type="search"
                         id="search-dropdown"
                         className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
-                        placeholder={searchPlaceholders[currentPlaceholderIndex].title}
+                        placeholder={currentPlaceholder}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         onChange={handleChange}
@@ -268,7 +290,7 @@ const Search = () => {
                     >
                         {inputValue.length === 0 ? (
                             <div className={`${isFocused ? 'block' : 'hidden'} top-14 lg:py-2`}>
-                                <div class="w-full text-sm text-gray-900 lg:pr-4">
+                                <div class=" w-full text-sm text-gray-900 lg:pr-4">
                                     {recentSearch.length !== 0 && (
                                         <div className="flex items-center justify-between">
                                             <span className="font-semibold lg:ml-10 lg:text-lg">Tìm kiếm gần đây</span>
@@ -276,7 +298,7 @@ const Search = () => {
                                                 onClick={handleClearRecentSearch}
                                                 className="text-xs font-light text-red-600 underline cursor-pointer"
                                             >
-                                                Xóa
+                                                Xoá
                                             </button>
                                         </div>
                                     )}
@@ -351,29 +373,69 @@ const Search = () => {
                                     )}
                                 </div>
                                 <div class=" w-full  text-sm text-gray-900  ">
-                                    <span className="font-semibold lg:ml-10 lg:text-lg">Đề xuất cho bạn</span>
-                                    {recentSearch.map((search, index) => (
+                                    <span className="font-semibold lg:ml-10 lg:text-base">Đề xuất cho bạn</span>
+                                    {topViewProducts.slice(0, 3).map((product) => (
                                         <div
                                             className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
-                                            key={index}
+                                            key={product.iD_NK}
                                         >
-                                            <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
+                                            <div className="flex items-center justify-center w-6 h-6 lg:ml-10 ">
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     fill="none"
                                                     viewBox="0 0 24 24"
-                                                    strokeWidth="1.5"
+                                                    stroke-width="1.5"
                                                     stroke="currentColor"
-                                                    className="w-4 h-4"
+                                                    class="size-5 text-red-300"
                                                 >
                                                     <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                                                    />
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
                                                     />
                                                 </svg>
                                             </div>
-                                            <span className="font-light">{search}</span>
+                                            <span className="font-light ">{product.name}</span>
+                                            <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
+                                                sản phẩm
+                                            </span>
+                                        </div>
+                                    ))}
+                                    {topSeller.slice(0, 3).map((seller) => (
+                                        <div
+                                            className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                                            key={seller.iD_NK}
+                                        >
+                                            <div className="flex items-center justify-center w-6 h-6 lg:ml-10 ">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke-width="1.5"
+                                                    stroke="currentColor"
+                                                    class="size-5 text-red-300"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                                                    />
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <span className="font-light ">{seller.name}</span>
+                                            <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
+                                                sửa hàng
+                                            </span>
                                         </div>
                                     ))}
                                 </div>

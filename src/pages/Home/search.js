@@ -3,30 +3,19 @@ import MaxWidthWrapper from '../../components/MaxWidthWrapper/index';
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { SearchContext } from '../../components/searchContext';
 import { useNavigate } from 'react-router-dom';
-import { fetchProduct, fetchTopViewProducts } from '../../services/HomeApi/home';
+import { fetchProduct, fetchTopViewProducts, fetchTop10Seller } from '../../services/HomeApi/home';
 import useDebounce from '../../components/useDebounce/useDebounce';
 
-const searchPlaceholders = [
-    {
-        title: 'iphone',
-    },
-    {
-        title: 'điện thoại',
-    },
-    {
-        title: 'quần áo',
-    },
-];
-
 const Search = () => {
-    const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
     const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const debouncedInputValue = useDebounce(inputValue, 500); // Debounce input value
-    const [seeMore, setSeeMore] = useState(false);
+    const [seeMore, setSeeMore] = useState(true);
     const { setSearchQuery } = useContext(SearchContext);
     const navigate = useNavigate();
+
+    const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
 
     const handleFocus = () => {
         setIsFocused(true);
@@ -77,13 +66,6 @@ const Search = () => {
         const storedRecentSearch = JSON.parse(localStorage.getItem('recentSearch')) || [];
         setRecentSearch(storedRecentSearch);
     }, []);
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         if (debouncedInputValue) {
@@ -111,6 +93,16 @@ const Search = () => {
     };
     //
     const [topViewProducts, setTopViewProducts] = useState([]);
+    const [topSeller, setTopSeller] = useState([]);
+    const getTopSeller = useCallback(async () => {
+        try {
+            const response = await fetchTop10Seller();
+            setTopSeller(response); // Gọi hàm setter với giá trị response
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    });
+
     const getTopViewProduct = useCallback(async () => {
         try {
             const response = await fetchTopViewProducts();
@@ -122,9 +114,28 @@ const Search = () => {
     useEffect(() => {
         const fetchData = async () => {
             await getTopViewProduct();
+            await getTopSeller();
         };
         fetchData();
     }, []);
+    // Tạo mảng các placeholder từ dữ liệu topViewProducts
+    const searchPlaceholders = topViewProducts?.map((product) => ({
+        title: `${product.name}`,
+    }));
+
+    // Đảm bảo currentPlaceholder luôn hợp lệ
+    const currentPlaceholder = searchPlaceholders.length > 0 ? searchPlaceholders[currentPlaceholderIndex]?.title : '';
+
+    // Cập nhật placeholder định kỳ
+    useEffect(() => {
+        if (searchPlaceholders.length > 0) {
+            const interval = setInterval(() => {
+                setCurrentPlaceholderIndex((prevIndex) => (prevIndex + 1) % searchPlaceholders.length);
+            }, 3000); // Thay đổi sau mỗi 3 giây
+
+            return () => clearInterval(interval);
+        }
+    }, [searchPlaceholders]);
     return (
         <div className="relative w-full">
             <img
@@ -154,7 +165,7 @@ const Search = () => {
                                 type="search"
                                 id="default-search"
                                 className="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-primary/50 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder={searchPlaceholders[currentPlaceholderIndex].title}
+                                placeholder={currentPlaceholder}
                                 onFocus={handleFocus}
                                 onBlur={handleBlur}
                                 onChange={handleChange}
@@ -277,29 +288,69 @@ const Search = () => {
                                         )}
                                     </div>
                                     <div class=" w-full  text-sm text-gray-900  ">
-                                        <span className="font-semibold lg:ml-10 lg:text-lg">Đề xuất cho bạn</span>
-                                        {recentSearch.map((search, index) => (
+                                        <span className="font-semibold lg:ml-10 lg:text-base">Đề xuất cho bạn</span>
+                                        {topViewProducts.slice(0, 3).map((product) => (
                                             <div
                                                 className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
-                                                key={index}
+                                                key={product.iD_NK}
                                             >
-                                                <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
+                                                <div className="flex items-center justify-center w-6 h-6 lg:ml-10 ">
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         fill="none"
                                                         viewBox="0 0 24 24"
-                                                        strokeWidth="1.5"
+                                                        stroke-width="1.5"
                                                         stroke="currentColor"
-                                                        className="w-4 h-4"
+                                                        class="size-5 text-red-300"
                                                     >
                                                         <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                                                        />
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
                                                         />
                                                     </svg>
                                                 </div>
-                                                <span className="font-light ">{search}</span>
+                                                <span className="font-light ">{product.name}</span>
+                                                <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
+                                                    sản phẩm
+                                                </span>
+                                            </div>
+                                        ))}
+                                        {topSeller.slice(0, 3).map((seller) => (
+                                            <div
+                                                className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                                                key={seller.iD_NK}
+                                            >
+                                                <div className="flex items-center justify-center w-6 h-6 lg:ml-10 ">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke-width="1.5"
+                                                        stroke="currentColor"
+                                                        class="size-5 text-red-300"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                                                        />
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                                <span className="font-light ">{seller.name}</span>
+                                                <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
+                                                    sửa hàng
+                                                </span>
                                             </div>
                                         ))}
                                     </div>

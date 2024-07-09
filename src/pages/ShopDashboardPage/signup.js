@@ -100,9 +100,6 @@ const SellerSignUp = () => {
         }
     };
 
-    const goToLogin = () => {
-        navigate('/login');
-    };
     return (
         <section className="w-full bg-gray-50">
             <div className="flex flex-col items-center justify-center w-full max-w-screen-xl px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -203,14 +200,16 @@ const SellerSignUp = () => {
                             </button>
 
                             <ToastContainer />
-                            <p className="flex justify-between text-sm font-light text-gray-500 ">
-                                Đã có tài khoản?{' '}
-                                <p
-                                    onClick={goToLogin}
+                            <p className="flex justify-end text-sm font-light text-gray-500 ">
+                                <a
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate('/');
+                                    }}
                                     className="font-medium cursor-pointer hover:underline text-primary-600 "
                                 >
-                                    Đăng nhập
-                                </p>
+                                    Trang chủ
+                                </a>
                             </p>
                         </form>
                     </div>
