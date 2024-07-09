@@ -40,7 +40,7 @@ def prepare_data():
     behavior_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("select ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING")
+        cursor.execute("select ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING where [B_RATING] is not null	")
         result = cursor.fetchall()
         for rating in result:
             behavior_df.append(ParseBehavior(rating))
@@ -48,7 +48,7 @@ def prepare_data():
     ratings_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT ACCOUNTID, SELLERID, RATING FROM AVG_RATING")
+        cursor.execute("SELECT ACCOUNTID, SELLERID, RATING FROM AVG_RATING where [RATING] is not null	")
         result = cursor.fetchall()
         for rating in result:
             ratings_df.append(ParseRating(rating))
@@ -74,12 +74,12 @@ def prepare_data():
 
     # Điền rating và matrix
     for idex, rate in ratings_df.iterrows():
-        df_rate.loc[int(rate['user']), int(rate['sellerid'])] = float(rate['rating'])
-
+        df_rate.loc[int(rate['user']), int(rate['sellerid'])] = round(float(rate['rating']))
     # Điền rating và matrix
     for idex, rate in behavior_df.iterrows():
-        df_behavior.loc[int(rate['user']), int(rate['sellerid'])] = float(rate['behavior'])
-        
+        df_behavior.loc[int(rate['user']), int(rate['sellerid'])] = round(float(rate['behavior']))
+    df_behavior.fillna(0)
+
     return df_rate, df_behavior
 class MatrixFactorization:
     def __init__(self, R, K, alpha, beta, iterations):
@@ -138,7 +138,7 @@ class MatrixFactorization:
 def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=5):
     global env
     # Train Matrix Factorization model (assuming MatrixFactorization class exists)
-    mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=20)
+    mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=40)
     mf.train()
     predicted_ratings = mf.full_matrix()
     print("xong mf")
@@ -230,6 +230,7 @@ def train():
     env.training_phase = 1
     df_rate, df_behavior = prepare_data()
     env.training_phase = 2
+    df_rate.fillna(0)
 
     print("prepare data success")
     if env.training_cancel == 1:
@@ -237,7 +238,7 @@ def train():
     final_predictions = knn_with_weights_and_mf(df_rate, df_behavior)
     with open('artifacts/final_predictions.pkl', 'wb') as f:
         pickle.dump(final_predictions, f)
-    es.PushData()
+    # es.PushData()
 
 def write_model_to_db():
     conn_str = env.CONN_STR
@@ -268,3 +269,4 @@ def write_model_to_db():
     
 if __name__=="__main__":
     print(1)
+    # train()

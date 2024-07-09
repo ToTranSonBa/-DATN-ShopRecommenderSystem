@@ -13,6 +13,7 @@ import schedule
 import pyodbc
 import time
 import pandas as pd
+import predict_coment_real as cmt
 
 app = FastAPI()
 
@@ -43,6 +44,7 @@ backup_folder = "./backup/"
 training_thread = None
 cbf_thread = None
 daily_thread = None
+cmt_thread = None
 
 def backup_files(files):
     os.makedirs(backup_folder, exist_ok=True)
@@ -357,6 +359,60 @@ def testmode():
     return {"nbcf": len(final_predictions),
             "CBF": len(movies[1103])}
 
+
+@app.get("/get/cmt/cancel")
+async def CBF_cancel():
+    env.cmt_cancel = 1
+    return {
+        "cancel": env.cbf_cancel 
+    }
+
+@app.post("/api/get/status/cmt")
+async def get_status_cbf():
+    global env
+    return {
+        "phase": env.CMT_phase,
+        "status": env.CMT_status,
+        "error": env.CMT_error,
+        "end": env.CMT_end,
+    }
+
+def train_cmt():
+    global env, cmt_thread
+    env.CMT_error = 0
+    env.CMT_end = 0
+    env.CMT_phase = 0
+    env.CMT_cancel = 0
+    env.CMT_status = 0
+    try:
+        env.CMT_start = 1
+        if env.CMT_cancel == 1:
+            raise
+        cmt.main()
+        env.CMT_status = 100
+        cmt_thread = None
+        env.CMT_end = 1
+        env.CMT_start = 0
+        env.CMT_phase = 4
+    except Exception as e:
+        print("rollback")
+        env.CMT_cancel = 1
+        env.CMT_error = 1
+        env.CMT_end = 1
+        env.CMT_start = 0
+        cmt_thread = None
+        env.CMT_start = 0
+        return
+
+@app.get("/api/trainingCMT")
+async def train_CBF(background_tasks: BackgroundTasks):
+    global cmt_thread
+    if(env.cbf_start == 0):
+        cmt_thread = threading.Thread(target=train_cmt)
+        cmt_thread.start()
+        return {"message": "start training"}
+    return {"message": "dang training"}
+
 @app.on_event("startup")
 async def load_files():
     load_cb()
@@ -364,6 +420,7 @@ async def load_files():
     global daily_thread
     daily_thread = threading.Thread(target=daily)
     daily_thread.start()
+
 if __name__ == '__main__':
     uvicorn.run(app, port=env.FASTAPI_HOST, host=env.FASTAPI_HOST)
 

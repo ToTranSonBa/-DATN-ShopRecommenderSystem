@@ -24,5 +24,15 @@ cbf_status = 0
 cbf_error = 0
 cbf_end = 0
 cbf_start = 0
+
+
+CMT_cancel = 0
+CMT_phase = 0
+CMT_status = 0
+CMT_error = 0
+CMT_end = 0
+CMT_start = 0
+
+
 if __name__ ==  '__main__':
     print(1)

@@ -10,3 +10,9 @@ uvicorn
 schedule
 nltk
 sqlalchemy
+regex
+pyvi
+tensorflow
+transformers
+plotly
+seaborn

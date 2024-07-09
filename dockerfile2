@@ -1,0 +1,108 @@
+# Sử dụng Python 3.8 làm hình ảnh nền
+FROM python:3.8-slim
+RUN mkdir /app
+WORKDIR /app
+
+# Cài đặt các gói hệ thống cần thiết
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    unixodbc-dev
+
+    # Install dependencies
+RUN apt-get update && apt-get install -y \
+curl \
+apt-transport-https \
+gnupg \
+&& curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+&& curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+&& apt-get update \
+&& ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
+&& apt-get clean -y \
+&& rm -rf /var/lib/apt/lists/*
+
+# Thiết lập thư mục làm việc
+
+# Sao chép tệp yêu cầu vào hình ảnh Docker
+COPY requirements.txt requirements.txt
+
+# Sao chép mã nguồn vào hình ảnh Docker
+RUN mkdir -p ./backup
+COPY main.py .
+COPY NeighborhoodBased.py .
+COPY ContentBased.py .
+COPY Environments.py .
+COPY UpdateModelEs.py .
+COPY ./artifacts/final_predictions.pkl ./artifacts/
+COPY ./artifacts/Knn_List_Seller.pkl ./artifacts/
+COPY ./artifacts/Knn_List_User.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1103.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1104.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1105.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1106.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1107.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1108.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1109.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1110.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1111.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1112.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1113.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1114.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1115.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1116.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1117.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1118.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1119.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1120.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1121.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1122.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1123.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1124.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1125.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1126.pkl ./artifacts/
+COPY ./artifacts/movie_list_cate_1127.pkl ./artifacts/
+
+COPY ./artifacts/similarity_cate_1103.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1104.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1105.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1106.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1107.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1108.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1109.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1110.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1111.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1112.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1113.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1114.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1115.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1116.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1117.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1118.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1119.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1120.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1121.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1122.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1123.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1124.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1125.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1126.pkl ./artifacts/
+COPY ./artifacts/similarity_cate_1127.pkl ./artifacts/
+
+
+COPY ./predict_coment_real.py .
+COPY ./data/ ./data/
+COPY ./models/ ./models/
+COPY ./data_preprocessing.py .
+COPY ./dataLoader.py .
+COPY ./desktop.ini .
+COPY ./model.py .
+COPY ./dataLoader.py .
+COPY ./dataLoader.py .
+
+# Cài đặt các gói yêu cầu
+RUN pip install --no-cache-dir -r requirements.txt
+# # Sao chép cơ sở dữ liệu (nếu có)
+# COPY data/search_data.db data/
+
+# Lệnh chạy script
+CMD ["fastapi", "run", "main.py", "--proxy-headers", "--port", "80"]
+
