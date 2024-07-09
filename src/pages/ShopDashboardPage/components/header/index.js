@@ -15,12 +15,15 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
     const token = localStorage.getItem('token');
     const [avatarFile, setAvatarFile] = useState(null);
     const [shopName, setShopName] = useState('');
+    const [shopPhone, setShopPhone] = useState('');
     //
     const fetchSeller = useCallback(async () => {
         try {
             const response = await getSellerApi(token);
+            console.log('seller data: ', response);
             setAvatarFile(response.imageUrl);
             setShopName(response.name);
+            setShopPhone(response.phone);
         } catch (error) {
             console.error('Failed to fetch sellerProfilePage:', error);
         }
@@ -324,8 +327,8 @@ const DoashboardHeader = ({ useroption, setDropdownDashboardOpen }) => {
                             }}
                         >
                             <span class="hidden text-right lg:block">
-                                <span class="block text-sm font-medium text-black dark:text-white">Hoàng Cầu</span>
-                                <span class="block text-xs font-medium">{shopName}</span>
+                                <span class="block text-sm font-medium text-black dark:text-white">{shopName}</span>
+                                <span class="block text-xs font-medium">{shopPhone}</span>
                             </span>
 
                             <span class="h-12 w-12 rounded-full">

@@ -83,7 +83,6 @@ function ShopPage({}) {
             if (response && response.products) {
                 // Kiểm tra response và response.data có tồn tại
                 setNewProducts(response.products);
-                console.log(' response new product: ', response.products); // Cập nhật sản phẩm
             } else {
                 setNewProducts([]); // Nếu không có dữ liệu, setProducts với một mảng trống
             }
@@ -100,7 +99,6 @@ function ShopPage({}) {
             if (response && response.products) {
                 // Kiểm tra response và response.data có tồn tại
                 setBestSellProduct(response.products);
-                console.log(' response getProductsQuantitySoldMax: ', response.products); // Cập nhật sản phẩm
             } else {
                 setBestSellProduct([]); // Nếu không có dữ liệu, setProducts với một mảng trống
             }
@@ -113,7 +111,7 @@ function ShopPage({}) {
     const fetchAllProducts = useCallback(async () => {
         try {
             const response = await getAllProducts(currentPage, productsPerPage, sellerId); // Thay 'someSellerID' bằng ID hợp lệ
-            console.log('res all product: ', response);
+
             if (response && response.products) {
                 // Kiểm tra response và response.data có tồn tại
                 setAllProducts(response.products);
@@ -487,7 +485,7 @@ function ShopPage({}) {
                             {newProducts.map((product) => (
                                 <ProductCard
                                     key={product?.product.iD_NK}
-                                    image={product?.images[0].image}
+                                    image={product?.images[0]?.image}
                                     product={product?.product}
                                 />
                             ))}
@@ -522,7 +520,7 @@ function ShopPage({}) {
                             {bestSellProduct.map((product) => (
                                 <ProductCard
                                     key={product?.product.iD_NK}
-                                    image={product?.images[0].image}
+                                    image={product?.images[0]?.image}
                                     product={product?.product}
                                 />
                             ))}
@@ -663,7 +661,7 @@ function ShopPage({}) {
                                         {allProducts.map((product) => (
                                             <ProductCard
                                                 key={product?.product.iD_NK}
-                                                image={product?.images[0].image}
+                                                image={product?.images[0]?.image}
                                                 product={product?.product}
                                             />
                                         ))}

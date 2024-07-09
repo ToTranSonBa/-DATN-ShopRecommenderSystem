@@ -376,6 +376,10 @@ const Search = () => {
                                     <span className="font-semibold lg:ml-10 lg:text-base">Đề xuất cho bạn</span>
                                     {topViewProducts.slice(0, 3).map((product) => (
                                         <div
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate(`/productdetail/${product.iD_NK}`);
+                                            }}
                                             className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                             key={product.iD_NK}
                                         >
@@ -408,6 +412,10 @@ const Search = () => {
                                     ))}
                                     {topSeller.slice(0, 3).map((seller) => (
                                         <div
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate(`/shoppage/${seller.iD_NK}`);
+                                            }}
                                             className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                             key={seller.iD_NK}
                                         >
