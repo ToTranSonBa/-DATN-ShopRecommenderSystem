@@ -115,14 +115,17 @@ const Search = () => {
           });
           console.log("response suggestions search key: ", response);
           setSuggestions(response);
+          setIsHideSuggestion(true);
         } catch (error) {
           console.log(error);
         }
       };
 
       fetchDataProduct();
+      setHideSuggestion(true);
     } else {
-      setSuggestions([]); // Clear suggestions when input is empty
+      setSuggestions([]);
+      setHideSuggestion(true);
     }
   }, [debouncedInputValue]);
   const handleClearRecentSearch = () => {
