@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 // API
 import { fetchProduct } from "../../services/HomeApi/home";
 import { SearchContext } from "../searchContext";
@@ -36,6 +36,23 @@ const Search = () => {
   //
 
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const divRef = useRef(null);
+  const [isHideSuggestion, setIsHideSuggestion] = useState(true);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (divRef.current && !divRef.current.contains(event.target)) {
+        console.log("Clicked outside the div");
+        setIsHideSuggestion(false);
+        setHideSuggestion(true);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleScroll = () => {
     if (location.pathname === "/") {
@@ -96,7 +113,7 @@ const Search = () => {
   const handleSubmit = (e, searchKey) => {
     e.preventDefault();
     console.log("search key: ", searchKey);
-    
+
     // Update recent searches
     if (searchKey !== "") {
       const updatedRecentSearch = [...recentSearch];
@@ -169,6 +186,7 @@ const Search = () => {
           });
           console.log("response suggestions search key: ", response);
           setSuggestions(response);
+          setIsHideSuggestion(true);
         } catch (error) {
           console.log(error);
         }
@@ -398,7 +416,12 @@ const Search = () => {
                 </div>
               </div>
             ) : (
-              <div className={`${hideSuggestion ? "block" : "hidden"}`}>
+              <div
+                className={`${hideSuggestion ? "block" : "hidden"} ${
+                  isHideSuggestion ? "block" : "hidden"
+                }`}
+                ref={divRef}
+              >
                 {suggestions.length > 0 && (
                   <div className="w-full text-sm text-gray-900">
                     {suggestions.map((suggestion) => (
@@ -409,7 +432,7 @@ const Search = () => {
                         }
                         className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                       >
-                        <div className="w-[10px] lg:ml-10">
+                        <div className="w-[10px] lg:ml-4">
                           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-300/80">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -428,7 +451,7 @@ const Search = () => {
                           </div>
                         </div>
                         <button
-                          className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap text-left"
+                          className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap text-left limit-text"
                           type="button"
                           onClick={(e) =>
                             handleSubmitSuggestion(e, suggestion.iD_NK)

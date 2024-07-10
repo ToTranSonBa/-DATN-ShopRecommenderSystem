@@ -66,16 +66,16 @@ function SliderShops() {
   }
 
   return (
-    <div className="relative min-h-[500px] w-full m-auto lg:px-4 lg:py-16 group ">
+    <div className="relative min-h-[450px] w-full m-auto lg:py-16 group ">
       <div className="flex items-center justify-around">
         {error && <div className="error">{error}</div>}
         {columns.map((column, columnIndex) => (
-          <div className="w-[200px] h-[200px]" key={columnIndex}>
+          <div className="w-[150px] h-[150px]" key={columnIndex}>
             {column.map((item, index) => (
               <a
                 href={`/shoppage/${item.iD_NK}`}
                 key={index}
-                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
+                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-transparent rounded-full cursor-pointer hover:border-secondary lg:mb-4"
               >
                 <div className="mx-auto size-16">
                   <img
@@ -83,6 +83,7 @@ function SliderShops() {
                     data-twe-lazy-src
                     className="rounded-full"
                     src={item.imageUrl ? item.imageUrl : DefaultAVT}
+                    alt={item.iD_NK}
                   />
                 </div>
 

@@ -32,7 +32,7 @@ const ProductCard = ({ product, image = null }) => {
         <img
           data-twe-lazy-load-init
           data-twe-lazy-src
-          className="p-2 rounded-t-lg sm:p-4 h-72"
+          className="p-2 rounded-t-lg sm:p-4 h-72 m-auto"
           src={image ? image : product.image}
           alt="product image"
         />
