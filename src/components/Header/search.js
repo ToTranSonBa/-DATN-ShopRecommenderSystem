@@ -42,7 +42,6 @@ const Search = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (divRef.current && !divRef.current.contains(event.target)) {
-        console.log("Clicked outside the div");
         setIsHideSuggestion(false);
         setHideSuggestion(true);
       }
@@ -293,7 +292,7 @@ const Search = () => {
           </button>
           <div
             id="searchexpand"
-            className={`shadow-md absolute left-0 z-20  w-full h-auto bg-white border-gray-300 rounded-lg`}
+            className={`shadow-md absolute left-0 z-20 w-full h-auto bg-white border-gray-300 rounded-lg`}
           >
             {inputValue.length === 0 ? (
               <div
@@ -385,7 +384,7 @@ const Search = () => {
                     </button>
                   )}
                 </div>
-                <div class=" w-full  text-sm text-gray-900  ">
+                <div class=" w-full text-sm text-gray-900  ">
                   <span className="font-semibold lg:ml-10 lg:text-lg">
                     Đề xuất cho bạn
                   </span>

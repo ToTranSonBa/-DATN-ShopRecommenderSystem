@@ -1,6 +1,6 @@
 import HomeBG from "../../assets/HomeImg/home.jpg";
 import MaxWidthWrapper from "../../components/MaxWidthWrapper/index";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { SearchContext } from "../../components/searchContext";
 import { useNavigate } from "react-router-dom";
 import { fetchProduct } from "../../services/HomeApi/home";
@@ -27,6 +27,24 @@ const Search = () => {
   const [seeMore, setSeeMore] = useState(false);
   const { setSearchQuery } = useContext(SearchContext);
   const navigate = useNavigate();
+
+  const [hideSuggestion, setHideSuggestion] = useState(true);
+  const [isHideSuggestion, setIsHideSuggestion] = useState(true);
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (divRef.current && !divRef.current.contains(event.target)) {
+        setIsHideSuggestion(false);
+        setHideSuggestion(true);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -112,6 +130,15 @@ const Search = () => {
     localStorage.removeItem("recentSearch");
     setRecentSearch([]);
   };
+
+  const handleSubmitSuggestion = (event, id) => {
+    event.preventDefault();
+    setHideSuggestion(!hideSuggestion);
+    navigate(`/productDetail/${id}`);
+    if (window.location.href.includes("productDetail"))
+      window.location.reload();
+  };
+
   return (
     <div className="relative w-full">
       <img
@@ -132,15 +159,15 @@ const Search = () => {
           >
             <label
               htmlFor="default-search"
-              className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+              className="mt-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
             >
               Tìm kiếm
             </label>
             <div className="relative group">
               <input
                 type="search"
-                id="default-search"
-                className="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-primary/50 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                id="search-dropdown"
+                className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
                 placeholder={searchPlaceholders[currentPlaceholderIndex].title}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
@@ -148,7 +175,7 @@ const Search = () => {
               />
               <button
                 type="submit"
-                className="text-white flex gap-2 items-center absolute end-2.5 bottom-1 bg-primary hover:bg-primary/75 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="text-white flex gap-2 items-center absolute end-2.5 bottom-1 mb-[-4px] mr-[-10px] bg-primary hover:bg-primary/75 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -170,12 +197,12 @@ const Search = () => {
 
             <div
               id="searchexpand"
-              className={`  ${
-                isFocused ? "block" : "hidden"
-              } absolute left-0 z-20  w-full h-auto bg-white border-gray-300 rounded-lg top-14 lg:py-2 `}
+              className={`absolute left-0 z-20 w-full h-auto border-gray-300 rounded-lg top-14`}
             >
               {inputValue.length === 0 ? (
-                <>
+                <div
+                  className={`${isFocused ? "block" : "hidden"} bg-white top-14 lg:py-2 rounded-lg`}
+                >
                   <div class=" w-full text-sm text-gray-900 lg:pr-4">
                     {recentSearch.length !== 0 && (
                       <div className="flex items-center justify-between">
@@ -195,7 +222,7 @@ const Search = () => {
                       .map((search, index) => (
                         <div
                           onSubmit={(e) => handleSubmit(e, search)}
-                          className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                          className="flex rounded-lg items-center cursor-pointer bg-white hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                           key={index}
                         >
                           <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
@@ -221,7 +248,7 @@ const Search = () => {
                     {recentSearch.length >= 5 && (
                       <button
                         onClick={() => setSeeMore(!seeMore)}
-                        className="flex items-center justify-center w-full gap-2 mx-auto text-xs underline lg:leading-10 hover:bg-background"
+                        className="flex rounded-lg bg-white items-center justify-center w-full gap-2 mx-auto text-xs underline lg:leading-10 hover:bg-background"
                       >
                         {seeMore ? (
                           <>
@@ -263,13 +290,13 @@ const Search = () => {
                       </button>
                     )}
                   </div>
-                  <div class=" w-full  text-sm text-gray-900  ">
-                    <span className="font-semibold lg:ml-10 lg:text-lg">
+                  <div class=" w-full text-sm text-gray-900  ">
+                    <span className="font-semibold lg:ml-10 lg:text-lg rounded-lg">
                       Đề xuất cho bạn
                     </span>
                     {recentSearch.map((search, index) => (
                       <div
-                        className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
+                        className="flex bg-white items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                         key={index}
                       >
                         <div className="flex items-center justify-center w-6 h-6 rounded-full lg:ml-10 bg-gray-300/80">
@@ -292,14 +319,21 @@ const Search = () => {
                       </div>
                     ))}
                   </div>
-                </>
+                </div>
               ) : (
-                <>
+                <div
+                  className={`${hideSuggestion ? "block" : "hidden"} ${
+                    isHideSuggestion ? "block" : "hidden"
+                  }`}
+                  ref={divRef}
+                >
                   {suggestions.length > 0 ? (
-                    <div class=" w-full text-sm text-gray-900 ">
+                    <div class=" w-full bg-white text-sm text-gray-900 rounded-lg">
                       {suggestions.map((suggestion) => (
                         <div
-                          onSubmit={(e) => handleSubmit(e, suggestion.name)}
+                          onSubmit={(e) =>
+                            handleSubmitSuggestion(e, suggestion.iD_NK)
+                          }
                           className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                           key={suggestion.iD_NK}
                         >
@@ -321,18 +355,24 @@ const Search = () => {
                               </svg>
                             </div>
                           </div>
-                          <p className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap">
+                          <button
+                            className="w-11/12 overflow-hidden font-light lg:pl-4 text-nowrap text-left limit-text"
+                            type="button"
+                            onClick={(e) =>
+                              handleSubmitSuggestion(e, suggestion.iD_NK)
+                            }
+                          >
                             {suggestion.name}
-                          </p>
+                          </button>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 p-4 text-gray-500">
+                    <div className="flex bg-white items-center gap-2 p-4 text-gray-500 rounded-lg">
                       <span>Không tìm thấy sản phẩm phù hợp</span>
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
           </form>
