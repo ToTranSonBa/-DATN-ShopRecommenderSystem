@@ -117,7 +117,7 @@ namespace ShopRe.Service
                 Status = 1, // 0 Canceled, 1 Pending Confirmation, 2 Waiting for Shipment, 3 Waiting for Pickup, 4 Delivered.
                 Address = shippingAddress.Address,
                 PhoneNumber = shippingAddress.PhoneNumber,
-                TotalPrice = 0, 
+                TotalPrice = orderParameters.TotalPrice, 
                 Email = shippingAddress.Email,
                 Name = shippingAddress.FullName,
                 ShippingAddress = shippingAddress,
