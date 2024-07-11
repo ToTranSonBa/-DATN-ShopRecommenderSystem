@@ -119,6 +119,8 @@ namespace ShopRe.Service
                     if (account == null) throw new Exception("Account not found for user");
 
                     account.Avatar = userInfo.Avatar ?? "No image yet";
+                    account.FullName = userInfo.LastName + userInfo.FirstName;
+                    account.Username = userInfo.Email;
                     _dbContext.Accounts.Update(account);
                     await _dbContext.SaveChangesAsync();
 
