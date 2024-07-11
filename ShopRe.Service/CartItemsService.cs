@@ -104,13 +104,26 @@ namespace ShopRe.Service
                 var productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p=>p.ProductID_NK == item.Product.ID_NK 
                 && p.OptionValuesID1 == item.OptionValuesId && p.OptionValuesID2 == item.OptionValuesId2);
 
-                var temp = new
+                if (productChild != null)
                 {
-                    Items = item,
-                    Price = productChild.Price,
-                };
+                    var temp = new
+                    {
+                        Items = item,
+                        Price = productChild.Price,
+                    };
+                    listCartItem.Add(temp);
+                }
+                else
+                {
+                    var temp = new
+                    {
+                        Items = item,
+                        Price = item.Product.Price,
+                    };
+                    listCartItem.Add(temp);
+                }
 
-                listCartItem.Add(temp);
+               
             }
 
             return listCartItem;
