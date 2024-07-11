@@ -91,12 +91,11 @@ namespace ShopRe.Service
 
         public async Task<UserDTO> UpdateInformation(UserInformationParameters userInfo, ApplicationUser user)
         {
-            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+            if (userInfo == null) throw new ArgumentNullException(nameof(userInfo));
+            if (user == null) throw new ArgumentNullException(nameof(user));
 
-            if (userFromDb == null)
-            {
-                throw new Exception("User not found");
-            }
+            var userFromDb = await _userManager.FindByIdAsync(user.Id);
+            if (userFromDb == null) throw new Exception("User not found");
 
             userFromDb.PhoneNumber = userInfo.PhoneNumber;
             userFromDb.UserName = userInfo.Email;
@@ -104,15 +103,7 @@ namespace ShopRe.Service
             userFromDb.Address = userInfo.Address;
             userFromDb.FirstName = userInfo.FirstName;
             userFromDb.LastName = userInfo.LastName;
-
-            if (userInfo.Avatar == null)
-            {
-                userFromDb.Avatar = "No image yet";
-            }
-            else
-            {
-                userFromDb.Avatar = userInfo.Avatar;
-            }
+            userFromDb.Avatar = userInfo.Avatar ?? "No image yet";
 
             var updateResult = await _userManager.UpdateAsync(userFromDb);
             if (!updateResult.Succeeded)
@@ -120,12 +111,30 @@ namespace ShopRe.Service
                 throw new Exception("Failed to update user: " + string.Join(", ", updateResult.Errors.Select(e => e.Description)));
             }
 
-            await _dbContext.SaveChangesAsync();
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.UserID == userFromDb.TrainCode);
+                    if (account == null) throw new Exception("Account not found for user");
+
+                    account.Avatar = userInfo.Avatar ?? "No image yet";
+                    _dbContext.Accounts.Update(account);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
 
             var accountDTO = _mapper.Map<UserDTO>(userFromDb);
-
             return accountDTO;
         }
+
 
         public async Task<int> ChangePassword(ChangePasswordParameters changePasswordParams, ApplicationUser user)
         {
