@@ -99,7 +99,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             var cartItems = await _cartItemsService.GetAllItemsOfUserInCart(user);
 
-            var response = new Response<CartItem>("Success", "200", cartItems, token);
+
+            var response = new {
+                message = "Success", 
+                status = "200", 
+                Data = cartItems, 
+                token =   token 
+            };
 
             return Ok(response);
         }
