@@ -172,7 +172,7 @@ namespace ShopRe.Service
                 var image = await _dbContext.Images.FirstOrDefaultAsync(i => i.ProductID_NK == id);
                 if (image == null)
                 {
-                    throw new InvalidOperationException("Image not found.");
+                    return (product.Price, null);
                 }
                 return (product.Price, image.Image);
             }

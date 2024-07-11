@@ -24,7 +24,7 @@ namespace ShopRe.Service
             string ProductOptionImage, int Quantity, ApplicationUser user);
         Task<CartItem> DecreaseProductInCart(int idProduct, ApplicationUser user);
         Task<CartItem> IncreaseProductInCart(int idProduct, ApplicationUser user);
-        Task<List<object>> GetAllItemsOfUserInCart(ApplicationUser user);
+        Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user);
         Task<ApplicationUser> GetUserFromTokenAsync(string token);
         Task<bool> DeleteCartItem(int idCartItem, ApplicationUser user);
         Task<CartItem> UpdateQuantityItem(int idProduct, int quantity, ApplicationUser user);
@@ -77,7 +77,7 @@ namespace ShopRe.Service
             return true;
         }
 
-        public async Task<List<object>> GetAllItemsOfUserInCart(ApplicationUser user)
+        public async Task<List<CartItem>> GetAllItemsOfUserInCart(ApplicationUser user)
         {
             var session = await _dbContext.ShoppingSessions
                                           .FirstOrDefaultAsync(s => s.User.Id == user.Id);
@@ -91,42 +91,19 @@ namespace ShopRe.Service
                 };
                 _dbContext.ShoppingSessions.Add(session);
                 await _dbContext.SaveChangesAsync();
-                return new List<object>();
+                return new List<CartItem>();
             }
 
             var cartItems = await _dbContext.CartItem
                                             .Where(c => c.Session.ID == session.ID)
                                             .Include(c => c.Product).Include(c=>c.OptionValues).Include(c=>c.optionValues2)
                                             .ToListAsync();
-            var listCartItem = new List<object>();
-            foreach(var item in cartItems)
+            
+            if(cartItems.Count < 0)
             {
-                var productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p=>p.ProductID_NK == item.Product.ID_NK 
-                && p.OptionValuesID1 == item.OptionValuesId && p.OptionValuesID2 == item.OptionValuesId2);
-
-                if (productChild != null)
-                {
-                    var temp = new
-                    {
-                        Items = item,
-                        Price = productChild.Price,
-                    };
-                    listCartItem.Add(temp);
-                }
-                else
-                {
-                    var temp = new
-                    {
-                        Items = item,
-                        Price = item.Product.Price,
-                    };
-                    listCartItem.Add(temp);
-                }
-
-               
+                cartItems = new List<CartItem>();
             }
-
-            return listCartItem;
+            return cartItems;
         }
 
         public async Task<ApplicationUser> GetUserFromTokenAsync(string token)
