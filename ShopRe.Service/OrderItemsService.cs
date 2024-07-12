@@ -189,11 +189,11 @@ namespace ShopRe.Service
                 await _dbContext.OrderItems.AddAsync(orderItem);
                 await _dbContext.SaveChangesAsync();
 
-                //var check = await UpdateTotalPriceOrder(order, user);
-                //if (!check)
-                //{
-                //    throw new InvalidOperationException("Update Total Price failed.");
-                //}
+                var check = await UpdateTotalPriceOrder(order, user);
+                if (!check)
+                {
+                    throw new InvalidOperationException("Update Total Price failed.");
+                }
 
                 if (order.Seller == null)
                 {

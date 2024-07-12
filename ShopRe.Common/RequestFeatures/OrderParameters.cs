@@ -9,6 +9,5 @@ namespace ShopRe.Common.RequestFeatures
     public class OrderParameters
     {
         public int idShippingAddress { get; set; }
-        public decimal? TotalPrice { get; set; }
     }
 }
