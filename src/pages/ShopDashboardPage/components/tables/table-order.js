@@ -254,9 +254,9 @@ const TableOrder = () => {
                                                     </p>
                                                     <div className="text-sm text-gray-400">
                                                         <p>
-                                                            {order.items[0]?.optionValues.name +
-                                                                '- ' +
-                                                                order.items[0]?.optionValues2.name}
+                                                            {order.items[0]?.optionValues?.name && order.items[0]?.optionValues2?.name
+                                                                ? `${order.items[0].optionValues.name} ${order.items[0].optionValues2.name}`
+                                                                : (order.items[0]?.optionValues?.name || order.items[0]?.optionValues2?.name)}
                                                         </p>
                                                         <p>x{order.items[0]?.quantity}</p>
                                                     </div>
@@ -759,7 +759,9 @@ const DetailOrder = ({ action = 0, order = {}, open }) => {
 
                                                             <div className="flex items-center lg:gap-2">
                                                                 <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                    {product?.optionValues.name}
+                                                                    {product?.optionValues?.name && product?.optionValues2?.name
+                                                                        ? `${product.optionValues.name} ${product.optionValues2.name}`
+                                                                        : (product?.optionValues?.name || product?.optionValues2?.name)}
                                                                 </p>
 
                                                                 <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">
@@ -1231,7 +1233,9 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
 
                                                             <div className="flex items-center lg:gap-2">
                                                                 <p className="hidden text-gray-400 sm:block sm:mt-2">
-                                                                    {product?.optionValues.name}
+                                                                    {product?.optionValues?.name && product?.optionValues2?.name
+                                                                        ? `${product.optionValues.name} ${product.optionValues2.name}`
+                                                                        : (product?.optionValues?.name || product?.optionValues2?.name)}
                                                                 </p>
 
                                                                 <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">

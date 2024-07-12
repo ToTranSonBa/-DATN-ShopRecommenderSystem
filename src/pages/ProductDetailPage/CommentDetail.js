@@ -80,9 +80,10 @@ const CommentDetail = ({ id }) => {
                 {renderStars(item?.rating)}
               </div>
               {item?.content !== "nan" ? (
-                <p className="text-sm mt-2 mb-4 text-gray-700">
-                  {item?.content}
-                </p>
+                <div
+                  className="text-sm mt-2 mb-4 text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: item?.content }}
+                ></div>
               ) : (
                 <p className="text-sm mt-2 mb-4 text-gray-700 italic">
                   Không có đánh giá

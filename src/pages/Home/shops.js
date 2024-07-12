@@ -3,7 +3,7 @@ import SliderShops from './slider_shops';
 
 const Shops = () => {
     return (
-        <div className="w-full h-auto bg-white lg:pt-20">
+        <div className="w-full h-auto bg-[#F7F8FA] lg:pt-20">
             <MaxWidthWrapper className={'flex-row lg:gap-10'}>
                 <div className="flex h-min lg:gap-12">
                     <div className="grid grid-cols-2 grid-rows-2 gap-y-6 basis-7/12">
