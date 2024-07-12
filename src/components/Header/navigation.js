@@ -288,11 +288,9 @@ const Navigation = ({
                                                           </p>
                                                         </div>
                                                         <p className="mt-1 text-sm text-gray-500">
-                                                          {
-                                                            product
-                                                              ?.optionValues
-                                                              ?.name
-                                                          }
+                                                          {product?.optionValues?.name && product?.optionValues2?.name
+                                                            ? `${product.optionValues.name} ${product.optionValues2.name}`
+                                                            : (product?.optionValues?.name || product?.optionValues2?.name)}
                                                         </p>
                                                       </div>
                                                       <div className="flex items-end justify-between flex-1 text-sm">

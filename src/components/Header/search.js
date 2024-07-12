@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
+// API
+import { fetchProduct, fetchTopViewProducts, fetchTop10Seller } from '../../services/HomeApi/home';
 import { SearchContext } from '../searchContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useDebounce from '../useDebounce/useDebounce';
-// API
-import { fetchProduct, fetchTopViewProducts, fetchTop10Seller } from '../../services/HomeApi/home';
 
 const Search = () => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -19,11 +19,27 @@ const Search = () => {
     const location = useLocation();
     //
     const debouncedInputValue = useDebounce(inputValue, 500); // Debounce input value
-    const [seeMore, setSeeMore] = useState(true);
+    const [seeMore, setSeeMore] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     //
 
     const { searchQuery, setSearchQuery } = useContext(SearchContext);
+    const divRef = useRef(null);
+    const [isHideSuggestion, setIsHideSuggestion] = useState(true);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (divRef.current && !divRef.current.contains(event.target)) {
+                setIsHideSuggestion(false);
+                setHideSuggestion(true);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleScroll = () => {
         if (location.pathname === '/') {
@@ -75,21 +91,23 @@ const Search = () => {
         console.log('search key: ', searchKey);
 
         // Update recent searches
-        const updatedRecentSearch = [...recentSearch];
+        if (searchKey !== '') {
+            const updatedRecentSearch = [...recentSearch];
 
-        if (!updatedRecentSearch.includes(searchKey)) {
-            updatedRecentSearch.push(searchKey);
+            if (!updatedRecentSearch.includes(searchKey)) {
+                updatedRecentSearch.push(searchKey);
+            }
+
+            // Limit recent searches to a maximum number (e.g., 5)
+            const maxRecentSearches = 5;
+            if (updatedRecentSearch.length > maxRecentSearches) {
+                updatedRecentSearch.splice(0, updatedRecentSearch.length - maxRecentSearches);
+            }
+
+            // Update state and local storage
+            setRecentSearch(updatedRecentSearch);
+            localStorage.setItem('recentSearch', JSON.stringify(updatedRecentSearch));
         }
-
-        // Limit recent searches to a maximum number (e.g., 5)
-        const maxRecentSearches = 5;
-        if (updatedRecentSearch.length > maxRecentSearches) {
-            updatedRecentSearch.splice(0, updatedRecentSearch.length - maxRecentSearches);
-        }
-
-        // Update state and local storage
-        setRecentSearch(updatedRecentSearch);
-        localStorage.setItem('recentSearch', JSON.stringify(updatedRecentSearch));
 
         // Set search query and navigate to product page
         setSearchQuery(searchKey);
@@ -110,6 +128,7 @@ const Search = () => {
         // Clear recent searches from local storage and state
         localStorage.removeItem('recentSearch');
         setRecentSearch([]);
+        // console.log(localStorage.getItem("recentSearch"));
     };
     // State for recent searches
     const [recentSearch, setRecentSearch] = useState([]);
@@ -137,6 +156,7 @@ const Search = () => {
                     });
                     console.log('response suggestions search key: ', response);
                     setSuggestions(response);
+                    setIsHideSuggestion(true);
                 } catch (error) {
                     console.log(error);
                 }
@@ -149,6 +169,7 @@ const Search = () => {
             setHideSuggestion(true); // Clear suggestions when input is empty
         }
     }, [debouncedInputValue]);
+    //
     //
     const [topViewProducts, setTopViewProducts] = useState([]);
     const [topSeller, setTopSeller] = useState([]);
@@ -164,6 +185,7 @@ const Search = () => {
     const getTopViewProduct = useCallback(async () => {
         try {
             const response = await fetchTopViewProducts();
+            console.log('getTopViewProduct: ', response);
             setTopViewProducts(response); // Gọi hàm setter với giá trị response
         } catch (error) {
             console.error('Failed to fetch categories:', error);
@@ -179,7 +201,7 @@ const Search = () => {
 
     // Tạo mảng các placeholder từ dữ liệu topViewProducts
     const searchPlaceholders = topViewProducts?.map((product) => ({
-        title: `${product.name}`,
+        title: `${product?.name}`,
     }));
 
     // Đảm bảo currentPlaceholder luôn hợp lệ
@@ -195,6 +217,10 @@ const Search = () => {
             return () => clearInterval(interval);
         }
     }, [searchPlaceholders]);
+
+    useEffect(() => {
+        console.log('currentPlaceholder: ', currentPlaceholder);
+    }, [currentPlaceholder]);
 
     return (
         <form className={`w-full max-w-screen-lg  ${classNameHidden}`} onSubmit={(e) => handleSubmit(e, inputValue)}>
@@ -258,7 +284,7 @@ const Search = () => {
                     <input
                         type="search"
                         id="search-dropdown"
-                        className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg  border border-gray-200 focus:ring-primary focus:border-primary  "
+                        className="block p-2.5 w-full z-20 text-sm te bg-gray-50 rounded-lg border border-gray-200 focus:ring-primary focus:border-primary"
                         placeholder={currentPlaceholder}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
@@ -286,11 +312,11 @@ const Search = () => {
                     </button>
                     <div
                         id="searchexpand"
-                        className={`shadow-md absolute left-0 z-20  w-full h-auto bg-white border-gray-300 rounded-lg`}
+                        className={`shadow-md absolute left-0 z-20 w-full h-auto bg-white border-gray-300 rounded-lg`}
                     >
                         {inputValue.length === 0 ? (
                             <div className={`${isFocused ? 'block' : 'hidden'} top-14 lg:py-2`}>
-                                <div class=" w-full text-sm text-gray-900 lg:pr-4">
+                                <div class="w-full text-sm text-gray-900 lg:pr-4">
                                     {recentSearch.length !== 0 && (
                                         <div className="flex items-center justify-between">
                                             <span className="font-semibold lg:ml-10 lg:text-lg">Tìm kiếm gần đây</span>
@@ -298,7 +324,7 @@ const Search = () => {
                                                 onClick={handleClearRecentSearch}
                                                 className="text-xs font-light text-red-600 underline cursor-pointer"
                                             >
-                                                Xoá
+                                                Xóa
                                             </button>
                                         </div>
                                     )}
@@ -372,8 +398,8 @@ const Search = () => {
                                         </button>
                                     )}
                                 </div>
-                                <div class=" w-full  text-sm text-gray-900  ">
-                                    <span className="font-semibold lg:ml-10 lg:text-base">Đề xuất cho bạn</span>
+                                <div class=" w-full text-sm text-gray-900  ">
+                                    <span className="font-semibold lg:ml-10 lg:text-lg">Đề xuất cho bạn</span>
                                     {topViewProducts.slice(0, 3).map((product) => (
                                         <div
                                             onClick={(e) => {
@@ -442,14 +468,19 @@ const Search = () => {
                                             </div>
                                             <span className="font-light ">{seller.name}</span>
                                             <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
-                                                sửa hàng
+                                                cửa hàng
                                             </span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         ) : (
-                            <div className={`${hideSuggestion ? 'block' : 'hidden'}`}>
+                            <div
+                                className={`${hideSuggestion ? 'block' : 'hidden'} ${
+                                    isHideSuggestion ? 'block' : 'hidden'
+                                }`}
+                                ref={divRef}
+                            >
                                 {suggestions.length > 0 && (
                                     <div className="w-full text-sm text-gray-900">
                                         {suggestions.map((suggestion) => (
@@ -458,7 +489,7 @@ const Search = () => {
                                                 onSubmit={(e) => handleSubmitSuggestion(e, suggestion.iD_NK)}
                                                 className="flex items-center cursor-pointer hover:bg-gray-200/55 lg:leading-10 lg:gap-4"
                                             >
-                                                <div className="w-[10px] lg:ml-10">
+                                                <div className="w-[10px] lg:ml-4">
                                                     <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-300/80">
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -477,7 +508,7 @@ const Search = () => {
                                                     </div>
                                                 </div>
                                                 <button
-                                                    className="w-11/12 overflow-hidden font-light text-left lg:pl-4 text-nowrap"
+                                                    className="w-11/12 overflow-hidden font-light text-left lg:pl-4 text-nowrap limit-text"
                                                     type="button"
                                                     onClick={(e) => handleSubmitSuggestion(e, suggestion.iD_NK)}
                                                 >

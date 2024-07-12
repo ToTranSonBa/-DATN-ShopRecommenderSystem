@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DefaultAVT from '../../assets/default-avatar.png';
 
 // API
-import { fetchRecommendSeller } from '../../services/HomeApi/home';
+import { fetchTop10Seller } from '../../services/HomeApi/home';
 
 function SliderShops() {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -13,9 +13,9 @@ function SliderShops() {
     //
 
     useEffect(() => {
-        const getRecommendSeller = async () => {
+        const getTop10Seller = async () => {
             try {
-                const response = await fetchRecommendSeller();
+                const response = await fetchTop10Seller();
                 const top10SellerData = response;
                 createSlides(top10SellerData);
             } catch (error) {
@@ -24,18 +24,18 @@ function SliderShops() {
             }
         };
 
-        getRecommendSeller();
+        getTop10Seller();
     }, []);
 
     const createSlides = (items) => {
         const slidesArray = [];
         let tempArray = [...items]; // Tạo bản sao của danh sách ban đầu
 
-        for (let i = 0; i < items.length; i += 14) {
-            let slide = tempArray.slice(i, i + 14);
-            if (slide.length < 14) {
+        for (let i = 0; i < items.length; i += 16) {
+            let slide = tempArray.slice(i, i + 16);
+            if (slide.length < 16) {
                 // Nếu slide không đủ 16 phần tử, bổ sung từ danh sách ban đầu
-                slide = slide.concat(items.slice(0, 14 - slide.length));
+                slide = slide.concat(items.slice(0, 16 - slide.length));
             }
             slidesArray.push(slide);
         }
@@ -66,27 +66,24 @@ function SliderShops() {
     }
 
     return (
-        <div className="relative min-h-[500px] w-full m-auto lg:px-4 lg:py-16 group ">
+        <div className="relative min-h-[450px] w-full m-auto lg:py-16 group ">
             <div className="flex items-center justify-around">
                 {error && <div className="error">{error}</div>}
                 {columns.map((column, columnIndex) => (
-                    <div className="w-[200px] h-[200px]" key={columnIndex}>
+                    <div className="w-[150px] h-[150px]" key={columnIndex}>
                         {column.map((item, index) => (
                             <a
                                 href={`/shoppage/${item.iD_NK}`}
                                 key={index}
-                                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-gray-200 rounded-full cursor-pointer hover:border-secondary lg:mb-4"
+                                className="flex flex-col items-center justify-center w-full h-full border-2 border-separate border-transparent rounded-full cursor-pointer hover:border-secondary lg:mb-4"
                             >
                                 <div className="mx-auto size-16">
                                     <img
                                         data-twe-lazy-load-init
                                         data-twe-lazy-src
-                                        className="object-cover rounded-full size-16"
-                                        src={
-                                            item.imageUrl
-                                                ? item.imageUrl
-                                                : 'https://vcdn.tikicdn.com/ts/seller/4b/54/1a/f385a79a716cb3505f152e7af8c769aa.png'
-                                        }
+                                        className="rounded-full"
+                                        src={item.imageUrl ? item.imageUrl : DefaultAVT}
+                                        alt={item.iD_NK}
                                     />
                                 </div>
 

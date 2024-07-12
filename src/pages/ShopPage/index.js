@@ -12,7 +12,6 @@ import {
     fetchCategories,
     fetchBrands,
 } from '../../services/ShopPageApi';
-//
 
 const calculateTimeDifference = (date) => {
     const createdDate = new Date(date);
@@ -68,7 +67,7 @@ function ShopPage({}) {
         const fetchSeller = async () => {
             try {
                 const response = await getSellerbyID(sellerId);
-                setSeller(response);
+                setSeller("seller: ",response);
             } catch (error) {
                 setError('Failed to fetch seller');
                 console.error('Failed to fetch seller:', error);
@@ -348,7 +347,7 @@ function ShopPage({}) {
                                     />
                                 </svg>
 
-                                <span> Tỉ Lệ Phản Hồi Chat: </span>
+                                <span> Tỉ lệ phản hồi chat: </span>
                                 <span className="font-light text-red-700">90% (Trong vài giờ)</span>
                             </div>
                             <div className="flex items-center w-full lg:gap-2 lg:py-3">
@@ -367,7 +366,7 @@ function ShopPage({}) {
                                     />
                                 </svg>
 
-                                <span> Tỉ Lệ Shop Huỷ Đơn: </span>
+                                <span> Tỉ lệ shop huỷ đơn: </span>
                                 <span className="font-light text-red-700">33%</span>
                             </div>
                         </div>
@@ -436,7 +435,7 @@ function ShopPage({}) {
                     </div>
                     <ul className="flex justify-between w-full border-t-2 lg:py-4 lg:px-12">
                         <li className="relative group">
-                            <span className="text-red-700 after:absolute after:left-0 after:bottom-0 after:w-full after:h-0.5 after:bg-red-700">
+                            <span className="text-red-700 uppercase after:absolute after:left-0 after:bottom-0 after:w-full after:h-0.5 after:bg-red-700">
                                 Shop
                             </span>
                         </li>
@@ -450,10 +449,10 @@ function ShopPage({}) {
                             <li className="text-lg hover:text-red-700 hover:cursor-pointer">Gợi ý cho bạn</li>
                         </a> */}
                         <a href="#newproduct">
-                            <li className="text-lg hover:text-red-700 hover:cursor-pointer">Sản phẩm mới</li>
+                            <li className="text-lg uppercase hover:text-red-700 hover:cursor-pointer">Sản phẩm mới</li>
                         </a>
                         <a href="#bestsellproduct">
-                            <li className="text-lg hover:text-red-700 hover:cursor-pointer">Sản phẩm bán chạy</li>
+                            <li className="text-lg uppercase hover:text-red-700 hover:cursor-pointer">Sản phẩm bán chạy</li>
                         </a>
                     </ul>
                 </div>

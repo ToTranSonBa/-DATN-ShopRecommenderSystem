@@ -59,36 +59,47 @@ const CommentDetail = ({ id }) => {
         }
     }
 
-    return (
-        <div>
-            <div className="flex flex-col items-start mt-8">
-                {comments.comment?.map((item) => (
-                    <div className="flex flex-row pt-4 mb-4">
-                        <img
-                            src={item.account?.avatar || Default_Avatar}
-                            alt="a"
-                            className="w-12 h-12 border-2 border-white rounded-full"
-                        />
-                        <div className="ml-3">
-                            <h4 className="font-semibold text-gray-700 text">
-                                {item.account?.fullName || 'Default Name'}
-                            </h4>
-                            <div className="flex items-center mt-2 space-x-1">{renderStars(item?.rating)}</div>
-                            {item?.content !== 'nan' ? (
-                                <p className="mt-2 mb-4 text-sm text-gray-700">{item?.content}</p>
-                            ) : (
-                                <p className="mt-2 mb-4 text-sm italic text-gray-700">Không có đánh giá</p>
-                            )}
-                            <div className="grid grid-cols-10 gap-4">
-                                {item?.image &&
-                                    item?.image?.map((imageUrl) => (
-                                        <img alt={item?.account.iD_NK} src={imageUrl} className="w-40 h-40"></img>
-                                    ))}
-                            </div>
-                        </div>
-                    </div>
-                ))}
+  return (
+    <div>
+      <div className="flex flex-col items-start mt-8">
+        {comments.comment?.map((item) => (
+          <div className="flex flex-row pt-4 mb-4">
+            <img
+              src={item.account?.avatar || Default_Avatar}
+              alt="a"
+              className="w-12 h-12 rounded-full border-2 border-white"
+            />
+            <div className="ml-3">
+              <h4 className="text font-semibold text-gray-700">
+                {item.account?.fullName || "Default Name"}
+              </h4>
+              <div className="flex items-center space-x-1 mt-2">
+                {renderStars(item?.rating)}
+              </div>
+              {item?.content !== "nan" ? (
+                <div
+                  className="text-sm mt-2 mb-4 text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: item?.content }}
+                ></div>
+              ) : (
+                <p className="text-sm mt-2 mb-4 text-gray-700 italic">
+                  Không có đánh giá
+                </p>
+              )}
+              <div className="grid grid-cols-10 gap-4">
+                {item.image &&
+                  item.image.map((imageUrl) => (
+                    <img
+                      alt={item.account.iD_NK}
+                      src={imageUrl}
+                      className="h-40 w-40"
+                    ></img>
+                  ))}
+              </div>
             </div>
+          </div>
+        ))}
+      </div>
 
             <div className="flex justify-center m-8">
                 <Pagination

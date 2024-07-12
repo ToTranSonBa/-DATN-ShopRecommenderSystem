@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import React from 'react';
-import ProductRating from './ProductRating';
-import ProductPricing from './ProductPricing';
-import DefaultImg from '../../assets/imageDefault.jpg';
+import React from "react";
+import ProductRating from "./ProductRating";
+import ProductPricing from "./ProductPricing";
+
 const ProductCard = ({ product, image = null }) => {
     return (
         <div
@@ -19,9 +19,7 @@ const ProductCard = ({ product, image = null }) => {
                             Bán chạy
                         </span>
                     </div>
-                ) : (
-                    <></>
-                )}
+                ) : <></>}
 
                 {product?.brandID_NK ? (
                     <div>
@@ -29,26 +27,15 @@ const ProductCard = ({ product, image = null }) => {
                             ✓ Chính hãng
                         </span>
                     </div>
-                ) : (
-                    <></>
-                )}
-                {image ? (
-                    <img
-                        data-twe-lazy-load-init
-                        data-twe-lazy-src
-                        className="p-2 rounded-t-lg sm:p-4 h-72"
-                        src={image ? image : product.image}
-                        alt="product image"
-                    />
-                ) : (
-                    <img
-                        data-twe-lazy-load-init
-                        data-twe-lazy-src
-                        className="p-2 rounded-t-lg sm:p-4 h-72"
-                        src={product.image ? product.image : DefaultImg}
-                        alt="product image"
-                    />
-                )}
+                ) : <></>}
+
+                <img
+                    data-twe-lazy-load-init
+                    data-twe-lazy-src
+                    className="p-2 rounded-t-lg sm:p-4 h-72 m-auto"
+                    src={image ? image : product.image}
+                    alt="product image"
+                />
             </a>
             <div className="items-baseline p-3 sm:p-5 align-bot">
                 <a href={`/productdetail/${product.iD_NK}`}>
@@ -62,7 +49,11 @@ const ProductCard = ({ product, image = null }) => {
                     sort={true}
                 />
 
-                <ProductPricing id={product.iD_NK} originalPrice={product.originalPrice} price={product.price} />
+                <ProductPricing
+                    id={product.iD_NK}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                />
             </div>
         </div>
     );
