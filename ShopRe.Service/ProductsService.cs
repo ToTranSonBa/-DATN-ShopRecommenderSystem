@@ -169,12 +169,7 @@ namespace ShopRe.Service
             }
             else
             {
-                var image = await _dbContext.Images.FirstOrDefaultAsync(i => i.ProductID_NK == id);
-                if (image == null)
-                {
-                    return (product.Price, null);
-                }
-                return (product.Price, image.Image);
+                throw new InvalidOperationException("Product child not found.");
             }
         }
 

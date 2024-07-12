@@ -69,13 +69,19 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("GetPriceAndImageProductChild{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id, int? idOptionValue1, int? idOptionValue2)
         {
-
-            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
-            return Ok(new
+            try
             {
-                Price = price,
-                Image = image
-            });
+
+                var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
+                return Ok(new
+                {
+                    Price = price,
+                    Image = image
+                });
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
