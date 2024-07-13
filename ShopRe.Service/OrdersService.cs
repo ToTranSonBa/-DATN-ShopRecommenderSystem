@@ -187,6 +187,10 @@ namespace ShopRe.Service
             {
                 //Cap nhat status
                 order.Status = status;
+                if(status == 3)
+                    order.UpdatedAt = DateTime.Now;
+                else if(status == 4)
+                    order.DeletedAt= DateTime.Now;
                 _dbContext.Order.Update(order);
                 await _dbContext.SaveChangesAsync();
                 return order;
