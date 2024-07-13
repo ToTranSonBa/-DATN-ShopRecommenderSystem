@@ -34,12 +34,12 @@ namespace ShopRe.Service
         Task<IEnumerable<Product>> SearchProductByUser(ProductParameters productParameters, string keyWord, int user);
         Task<ProductDetailDTO> GetProductDetail(int idProduct);
         public Task<List<object>> GetProductValues(int ProductId);
-        public Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
+        public Task<List<ProductWithImages>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
         public Task<List<ProductWithImages>> Get20NewPro();
         public Task<List<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
-        Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
+        Task<(Common.DTOs.Page paging, List<ProductWithImages> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
     }
     public class ProductService : IProductService
     {
@@ -398,11 +398,11 @@ namespace ShopRe.Service
                         }
                         var productChild = new ProductChild
                         {
-                            Name = product.Name + " ("+optionValue1.Name+" - "+ optionValue2.Name+ ")",
+                            Name = product.Name + " (" + optionValue1.Name + " - " + optionValue2.Name + ")",
                             thumbnail_url = entity.thumbnail_url,
                             Price = entity.Price,
                             option1 = optionValue1.Name,
-                            option2= optionValue2.Name,
+                            option2 = optionValue2.Name,
                             ProductID_NK = entity.IdProduct,
                             OptionValuesID1 = optionValue1.Id,
                             OptionValuesID2 = optionValue2.Id,
@@ -654,7 +654,7 @@ namespace ShopRe.Service
             return selprios.OrderBy(s => s.Idx).ToList();
         }
 
-        public async Task<List<Product>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode)
+        public async Task<List<ProductWithImages>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode)
         {
             var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProduct?userid={userCode}&productId={reParams.productId}&cateid={reParams.CateId}";
 
@@ -669,7 +669,8 @@ namespace ShopRe.Service
             }
             catch
             {
-                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                var proByCate = await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                return await ConvertToProductWithImages(proByCate);
 
             }
 
@@ -677,7 +678,8 @@ namespace ShopRe.Service
 
             if (total == 0)
             {
-                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                var proByCate = await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                return await ConvertToProductWithImages(proByCate);
             }
 
             var productIds = new List<int>();
@@ -692,7 +694,8 @@ namespace ShopRe.Service
             }
             catch
             {
-                return await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                var proByCate = await GetProductByCate(reParams.CateId, new List<int>(), 10);
+                return await ConvertToProductWithImages(proByCate);
             }
 
             var productDif = new List<Product>();
@@ -702,9 +705,11 @@ namespace ShopRe.Service
             }
             products.AddRange(productDif);
 
-            return products;
+            var product_img = await ConvertToProductWithImages(products);
+
+            return product_img;
         }
-        public async Task<(Common.DTOs.Page paging, List<Product> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0)
+        public async Task<(Common.DTOs.Page paging, List<ProductWithImages> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0)
         {
             var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProductForUser?userid={userCode}";
             bool error = false;
@@ -768,7 +773,8 @@ namespace ShopRe.Service
             var page = new Common.DTOs.Page(products.Count, 10, CurrentPage);
 
             products = products.Skip(page.pageSize * CurrentPage).Take(page.pageSize).ToList();
-            return (page, products);
+            var product_img = await ConvertToProductWithImages(products);
+            return (page, product_img);
         }
         public async Task<List<ProductWithImages>> GetTopNew(int number)
         {

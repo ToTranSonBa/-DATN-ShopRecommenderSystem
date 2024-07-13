@@ -102,7 +102,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     // Get user from token
                     var user = await _accountService.GetUserFromTokenAsync(token);
 
-                    var (totalCount, products) = await _elasticSearchService.ProductAfterTraining(productParameters);
+                    var (totalCount, products) = await _elasticSearchService.ProductAfterTraining(productParameters, user.TrainCode);
                     var productResponse = new
                     {
                         TotalCount = totalCount,

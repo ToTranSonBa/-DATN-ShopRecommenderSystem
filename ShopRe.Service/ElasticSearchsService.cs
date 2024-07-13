@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nest;
+using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
+using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
+using System.Text.Json;
 using static ShopRe.Service.ElasticSearchsService;
 
 namespace ShopRe.Service
@@ -13,7 +16,7 @@ namespace ShopRe.Service
     {
         Task<(int TotalCount, List<Product> Products)> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
-        Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters);
+        Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters, int usercode);
         Task<List<BrandDetailDTO>> GetBrands();
         Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId);
         Task<CommentsRatingCountDTO> CommentsRatingCount(int idProduct);
@@ -36,13 +39,15 @@ namespace ShopRe.Service
 
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly HttpClient _httpClient;
 
         public ElasticSearchsService(IElasticClient elasticClient, ShopRecommenderSystemDbContext dbContext,
-            IMapper mapper)
+            IMapper mapper, HttpClient httpClient)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _elasticClient = elasticClient;
+            _httpClient = httpClient;
         }
 
         public class ProductResponse
@@ -356,7 +361,7 @@ namespace ShopRe.Service
                 throw new Exception($"Failed to index document: {ex.Message}");
             }
         }
-        public async Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters)
+        public async Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters, int usercode)
         {
             var filters = new List<QueryContainer>();
 
@@ -468,44 +473,66 @@ namespace ShopRe.Service
 
             var sellerIds = products.Select(p => p.SellerID_NK).ToList();
 
-            var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
-                .Index("accselpri")
-                .Query(q => q
-                    .Terms(t => t
-                        .Field("SELLERID")
-                        .Terms(sellerIds)
-                    )
-                )
-                .Sort(ss => ss
-                    .Field(f => f
-                        .Field("IDX")
-                        .Order(SortOrder.Ascending)
-                    )
-                )
-                .Size(10000)
-            );
+            //var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
+            //    .Index("accselpri")
+            //    .Query(q => q
+            //        .Terms(t => t
+            //            .Field("SELLERID")
+            //            .Terms(sellerIds)
+            //        )
+            //    )
+            //    .Sort(ss => ss
+            //        .Field(f => f
+            //            .Field("IDX")
+            //            .Order(SortOrder.Ascending)
+            //        )
+            //    )
+            //    .Size(10000)
+            //);
 
-            if (!priorityItems.IsValid)
+            //if (!priorityItems.IsValid)
+            //{
+            //    return (0, null);
+            //}
+
+            var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
+
+            SellerRating sellerRating;
+            JObject result;
+            try
             {
-                return (0, null);
+                var s_response = await _httpClient.GetAsync(requestUri);
+                s_response.EnsureSuccessStatusCode();
+                var content = await s_response.Content.ReadAsStringAsync();
+                result = JObject.Parse(content);
+                if (result.GetValue("sellers").Count() == 0)
+                {
+                    var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                    return (products.Count, dynamic_products);
+                }
+                sellerRating = JsonSerializer.Deserialize<SellerRating>(content);
+            }
+            catch
+            {
+                var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                return (products.Count, dynamic_products);
             }
 
-
-            var sellerPriority = ConvertToSellerPriority(priorityItems.Documents.ToList());
+            var selids_order = sellerRating.Sellers.OrderBy(e => e.Value).ToList();
 
             var combinedResults = new List<dynamic>();
 
             foreach (var product in products)
             {
                 var sellerId = product.SellerID_NK;
-                var priority = sellerPriority.FirstOrDefault(p => p.SellerID == sellerId);
+                var priority = sellerRating.Sellers.FirstOrDefault(p => p.Key == sellerId);
 
-                if (priority != null)
+                if (priority.Key != null)
                 {
                     combinedResults.Add(new
                     {
                         Product = product,
-                        IDX = priority.Idx
+                        IDX = priority.Value
                     });
                 }
                 else
@@ -513,12 +540,12 @@ namespace ShopRe.Service
                     combinedResults.Add(new
                     {
                         Product = product,
-                        IDX = 999999
+                        IDX = -1 * 1.0
                     });
                 }
             }
 
-            var sortedResults = combinedResults.OrderBy(r => r.IDX)
+            var sortedResults = combinedResults.OrderByDescending(r => r.IDX)
             .Skip(productParameters.PageNumber * productParameters.PageSize)
             .Take(productParameters.PageSize)
             .ToList();

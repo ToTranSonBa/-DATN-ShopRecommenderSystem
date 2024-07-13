@@ -1,4 +1,6 @@
 ﻿using ShopRe.Model.Models;
+using System.Dynamic;
+using System.Reflection;
 
 namespace ShopRe.Common.FunctionCommon
 {
@@ -35,6 +37,29 @@ namespace ShopRe.Common.FunctionCommon
                 products.Add(product);
             }
             return products.ToList();
+        }
+        public static dynamic ConvertToDynamic(object obj)
+        {
+            IDictionary<string, object> expando = new ExpandoObject();
+
+            foreach (PropertyInfo property in obj.GetType().GetProperties())
+            {
+                expando[property.Name] = property.GetValue(obj);
+            }
+
+            return expando as ExpandoObject;
+        }
+        public static List<dynamic> ConvertToDynamicList(List<Product> products)
+        {
+            List<dynamic> dynamicList = new List<dynamic>();
+
+            foreach (var product in products)
+            {
+                dynamic dynamicProduct = ConvertToDynamic(product);
+                dynamicList.Add(dynamicProduct);
+            }
+
+            return dynamicList;
         }
     }
 }
