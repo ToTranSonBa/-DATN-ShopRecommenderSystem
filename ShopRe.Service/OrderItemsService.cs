@@ -47,7 +47,7 @@ namespace ShopRe.Service
             {
                 if (orderItem.Product != null)
                 {
-                    total += Convert.ToDecimal(orderItem.Quantity * orderItem.Price);
+                    total += Convert.ToDecimal(orderItem.Price);
                 }
             }
 
