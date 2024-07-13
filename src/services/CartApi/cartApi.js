@@ -54,6 +54,26 @@ const updateProduct = async (idProduct, quantity, token) => {
         }
     });
 };
+
+const fetchPriceByChild = async (productId, idOptionValue1, idOptionValue2) => {
+    try {
+        let url = `/Products/GetPriceAndImageProductChild${productId}`;
+        if (idOptionValue1 !== null && idOptionValue1 !== undefined) {
+            url += `?idOptionValue1=${idOptionValue1}`;
+
+        }
+        if (idOptionValue2 !== 'null' && idOptionValue2 !== null && idOptionValue2 !== undefined) {
+            url += `&idOptionValue2=${idOptionValue2}`;
+        }
+
+
+        const response = await axios.get(url);
+        return response;
+    } catch (error) {
+        console.error('Failed to fetch fetchPriceByChild :  ', error);
+        throw error;
+    }
+};
 export {
-    cartsApi, deleteCartItem, increaseProduct, decreaseProduct, updateProduct, addCartApi
+    cartsApi, deleteCartItem, increaseProduct, decreaseProduct, updateProduct, addCartApi, fetchPriceByChild
 };

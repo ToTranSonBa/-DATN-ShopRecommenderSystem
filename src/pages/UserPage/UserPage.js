@@ -8,6 +8,8 @@ import {
     getSellerByIdApi,
     addReviewApi,
 } from '../../services/UserApi/userApi';
+
+import { fetchPriceByChild } from '../../services/CartApi/cartApi'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { cloudinaryConfig } from '../../cloudinaryConfig';
@@ -77,19 +79,38 @@ const UserPage = () => {
         try {
             const response = await getOrdersOfUserApi(token);
 
-            // Duyệt qua từng đơn hàng để thêm trường seller
+            // Duyệt qua từng đơn hàng để thêm trường seller và giá cho từng item
             const updatedOrders = await Promise.all(
                 response.map(async (order) => {
                     if (order.items && order.items.length > 0) {
                         const firstItem = order.items[0];
                         const sellerID = firstItem.product.sellerID_NK;
-                        const sellerResponse = await getSellerByIdApi(sellerID); // Gọi API để lấy tên người bán
-                        const sellerName = sellerResponse.name; // Giả sử API trả về một object với trường 'name'
-                        return { ...order, seller: sellerName };
+                        const sellerResponse = await getSellerByIdApi(sellerID);
+                        const sellerName = sellerResponse.name;
+
+                        // Cập nhật giá cho từng item trong đơn hàng
+                        const updatedItems = await Promise.all(
+                            order.items.map(async (item) => {
+                                try {
+                                    if (item.optionValuesId || item.optionValuesId2) {
+                                        const priceResponse = await fetchPriceByChild(item.product.iD_NK, item.optionValuesId, item.optionValuesId2);
+                                        return { ...item, price: priceResponse.price };
+                                    }
+                                    return { ...item, price: item.product.originalPrice };
+
+                                } catch (priceError) {
+                                    console.error(`Failed to fetch price for item ${item.id}: `, priceError);
+                                    return item; // Giữ nguyên item nếu không thể lấy giá
+                                }
+                            })
+                        );
+
+                        return { ...order, seller: sellerName, items: updatedItems };
                     }
                     return order;
-                }),
+                })
             );
+
             setOrderData(updatedOrders);
         } catch (error) {
             console.error('Failed to fetch getOrdersOfUserApi:', error);
@@ -909,7 +930,7 @@ const UserPage = () => {
                                                                                         <h5>{item.product.name}</h5>
                                                                                         <p className="mt-2 sm:mt-0">
                                                                                             {formatNumber(
-                                                                                                item.product.price,
+                                                                                                item.price,
                                                                                             )}
                                                                                             ₫
                                                                                         </p>
@@ -917,11 +938,11 @@ const UserPage = () => {
                                                                                     <p className="hidden text-gray-400 sm:block sm:mt-2">
                                                                                         Phân loại hàng:{' '}
                                                                                         {item?.optionValues?.name &&
-                                                                                        item?.optionValues2?.name
+                                                                                            item?.optionValues2?.name
                                                                                             ? `${item.optionValues.name}, ${item.optionValues2.name}`
                                                                                             : item?.optionValues
-                                                                                                  ?.name ||
-                                                                                              item?.optionValues2?.name}
+                                                                                                ?.name ||
+                                                                                            item?.optionValues2?.name}
                                                                                     </p>
                                                                                     <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">
                                                                                         X {item.quantity}
@@ -975,58 +996,58 @@ const UserPage = () => {
                                                                         <div className="flex items-center justify-between">
                                                                             {(order.isRated === false ||
                                                                                 order.isRated === null) && (
-                                                                                <>
-                                                                                    <span className="text-sm font-light">
-                                                                                        Đánh giá trước{' '}
-                                                                                        <span className="underline">
-                                                                                            <time
-                                                                                                dateTime={
-                                                                                                    order.createdAt
-                                                                                                }
-                                                                                            >
-                                                                                                {new Date(
-                                                                                                    new Date(
-                                                                                                        order.createdAt,
-                                                                                                    ).setDate(
+                                                                                    <>
+                                                                                        <span className="text-sm font-light">
+                                                                                            Đánh giá trước{' '}
+                                                                                            <span className="underline">
+                                                                                                <time
+                                                                                                    dateTime={
+                                                                                                        order.createdAt
+                                                                                                    }
+                                                                                                >
+                                                                                                    {new Date(
                                                                                                         new Date(
                                                                                                             order.createdAt,
-                                                                                                        ).getDate() + 7,
-                                                                                                    ),
-                                                                                                ).toLocaleDateString(
-                                                                                                    'vi-VN',
-                                                                                                    {
-                                                                                                        year: 'numeric',
-                                                                                                        month: 'long',
-                                                                                                        day: 'numeric',
-                                                                                                    },
-                                                                                                )}
-                                                                                            </time>
+                                                                                                        ).setDate(
+                                                                                                            new Date(
+                                                                                                                order.createdAt,
+                                                                                                            ).getDate() + 7,
+                                                                                                        ),
+                                                                                                    ).toLocaleDateString(
+                                                                                                        'vi-VN',
+                                                                                                        {
+                                                                                                            year: 'numeric',
+                                                                                                            month: 'long',
+                                                                                                            day: 'numeric',
+                                                                                                        },
+                                                                                                    )}
+                                                                                                </time>
+                                                                                            </span>
                                                                                         </span>
-                                                                                    </span>
-                                                                                    <div className="flex lg:py-6 lg:gap-4">
-                                                                                        <button
-                                                                                            onClick={(e) => {
-                                                                                                e.preventDefault();
-                                                                                                handleReviewButtonClick(
-                                                                                                    order.id,
-                                                                                                );
-                                                                                            }}
-                                                                                            className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2"
-                                                                                        >
-                                                                                            Đánh giá
-                                                                                        </button>
-                                                                                        <button className="text-sm font-light bg-white rounded-sm border-1 lg:px-12 lg:py-2">
-                                                                                            Mua lại
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </>
-                                                                            )}
+                                                                                        <div className="flex lg:py-6 lg:gap-4">
+                                                                                            <button
+                                                                                                onClick={(e) => {
+                                                                                                    e.preventDefault();
+                                                                                                    handleReviewButtonClick(
+                                                                                                        order.id,
+                                                                                                    );
+                                                                                                }}
+                                                                                                className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2"
+                                                                                            >
+                                                                                                Đánh giá
+                                                                                            </button>
+                                                                                            <button className="text-sm font-light bg-white rounded-sm border-1 lg:px-12 lg:py-2">
+                                                                                                Mua lại
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </>
+                                                                                )}
                                                                             {(order.isRated === false ||
                                                                                 order.isRated === null) === 1 && (
-                                                                                <button className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2">
-                                                                                    Mua lại
-                                                                                </button>
-                                                                            )}
+                                                                                    <button className="text-sm font-light text-white rounded-sm bg-primary lg:px-12 lg:py-2">
+                                                                                        Mua lại
+                                                                                    </button>
+                                                                                )}
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -1099,11 +1120,10 @@ const UserPage = () => {
                                                                                 star ? star : 5,
                                                                             )
                                                                         }
-                                                                        className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${
-                                                                            review.rating >= star
-                                                                                ? 'text-yellow-400'
-                                                                                : 'text-gray-300 hover:text-yellow-400'
-                                                                        }`}
+                                                                        className={`size-5 inline-flex justify-center items-center text-2xl rounded-full ${review.rating >= star
+                                                                            ? 'text-yellow-400'
+                                                                            : 'text-gray-300 hover:text-yellow-400'
+                                                                            }`}
                                                                     >
                                                                         <svg
                                                                             className="flex-shrink-0 size-5"
@@ -1178,9 +1198,8 @@ const UserPage = () => {
                                                             </div>
                                                             <main className="w-full h-auto lg:py-2">
                                                                 <article
-                                                                    className={`relative h-full flex flex-col ${
-                                                                        isDraggedOver ? 'draggedover' : ''
-                                                                    }`}
+                                                                    className={`relative h-full flex flex-col ${isDraggedOver ? 'draggedover' : ''
+                                                                        }`}
                                                                     onDrop={(event) =>
                                                                         handleDrop(event, order.id, item.id)
                                                                     }
@@ -1259,8 +1278,8 @@ const UserPage = () => {
                                                                             {Object.keys(
                                                                                 files[order.id]?.[item.id] || {},
                                                                             ).length >= 5 ? null : Object.keys(
-                                                                                  files[order.id]?.[item.id] || {},
-                                                                              ).length === 0 ? (
+                                                                                files[order.id]?.[item.id] || {},
+                                                                            ).length === 0 ? (
                                                                                 <div className="px-1">
                                                                                     <input
                                                                                         id={`hidden-input-${order.id}-${item.id}`}

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cartsApi, deleteCartItem, updateProduct } from '../../services/CartApi/cartApi';
+import { cartsApi, deleteCartItem, updateProduct, fetchPriceByChild } from '../../services/CartApi/cartApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MaxWidthWrapper from '../../components/MaxWidthWrapper';
@@ -18,9 +18,34 @@ const CartShoppingPage = () => {
     const fetchCart = useCallback(async () => {
         try {
             const response = await cartsApi(token);
+            const cartItems = response.data;
 
+            // Gọi API lấy giá cho từng phần tử trong giỏ hàng
+            const updatedCartItems = await Promise.all(
+                cartItems.map(async (item) => {
+                    try {
+                        if (item.optionValuesId || item.optionValuesId2) {
+
+                            const data = await fetchPriceByChild(item.product.iD_NK, item.optionValuesId, item.optionValuesId2)
+                            return {
+                                ...item,
+                                price: data.price,
+                            };
+                        }
+                        return {
+                            ...item,
+                            price: item.product.originalPrice,
+                        };
+
+                    } catch (priceError) {
+                        console.error(`Failed to fetch price for item ${item.id}: `, priceError);
+                        return item; // Giữ nguyên item nếu không thể lấy giá
+                    }
+                })
+            );
             setQuantities(response?.data?.map((item) => item.quantity));
-            setCartData(response.data);
+            console.log('updatedCartItems: ', updatedCartItems)
+            setCartData(updatedCartItems);
         } catch (error) {
             console.error('Failed to fetch cart:', error);
         }
@@ -86,9 +111,7 @@ const CartShoppingPage = () => {
         if (selectedItems.length > 0) {
             navigate('/checkout', {
                 state: {
-                    selectedItems,
-                    shippingFee,
-                    shippingMethod,
+                    selectedItems
                 },
             });
         } else {
@@ -116,21 +139,12 @@ const CartShoppingPage = () => {
     const calculateSubtotal = () => {
         return cartData.reduce((total, item) => {
             if (item.checked) {
-                return total + item.product.price * item.quantity;
+                return total + item.price * item.quantity;
             }
             return total;
         }, 0);
     };
     //
-    const [chooseShippingMethod, setChooseShippingMethod] = useState(false);
-    const [shippingMethod, setShippingMethod] = useState('Chọn phương thức vận chuyển');
-    const [shippingFee, setShippingFee] = useState(15000);
-    const [selectedOption, setSelectedOption] = useState(null);
-    const handleOptionClickMeThod = (fee, method) => {
-        setSelectedOption(method);
-        setShippingFee(fee);
-        setShippingMethod(method);
-    };
     return (
         <>
             <MaxWidthWrapper>
@@ -181,7 +195,7 @@ const CartShoppingPage = () => {
                                                             </p>
                                                         </div>
                                                         <p className="mt-1 text-sm font-medium text-gray-900">
-                                                            {formatNumber(data?.product?.price)}
+                                                            {formatNumber(data?.price)}
                                                         </p>
                                                     </div>
 
@@ -292,26 +306,9 @@ const CartShoppingPage = () => {
                                         </dd>
                                     </div>
                                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                                        <dt className="flex-row items-center text-sm text-gray-600 lg:gap-2">
-                                            <span>Phí vận chuyển</span>
-                                            <div
-                                                onClick={() => {
-                                                    setChooseShippingMethod(true);
-                                                }}
-                                                className="flex items-center justify-center text-xs lg:mt-2 hover:cursor-pointer hover:border-primary hover:text-primary lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
-                                            >
-                                                {shippingMethod}
-                                            </div>
-                                        </dt>
-                                        <dd className="text-sm font-medium text-gray-900">
-                                            {formatNumber(shippingFee)}
-                                        </dd>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                                         <dt className="text-base font-medium text-gray-900">Tổng thanh toán</dt>
                                         <dd className="text-base font-medium text-gray-900">
-                                            {formatNumber(calculateSubtotal() + shippingFee)}
+                                            {formatNumber(calculateSubtotal())}
                                         </dd>
                                     </div>
                                 </dl>
@@ -331,64 +328,6 @@ const CartShoppingPage = () => {
                     </main>
                 </div>
             </MaxWidthWrapper>
-            {chooseShippingMethod && (
-                <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
-                    <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
-                        <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
-                            <div className="w-3/4 max-w-screen-sm overflow-auto lg:px-2 lg:py-2">
-                                <div className="bg-background">
-                                    <header className="lg:py-4 lg:px-4">Chọn phương thức vận chuyển</header>
-                                    <div className="lg:px-4 lg:py-4">
-                                        <div
-                                            onClick={() => handleOptionClickMeThod(35000, 'Vận chuyển Nhanh')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Nhanh'
-                                                ? 'border-l-4 border-primary shadow-md my-2'
-                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                                }`}
-                                        >
-                                            <div>Vận chuyển Nhanh</div>
-                                            <div className="font-light text-red-600">{formatNumber(35000)}</div>
-                                        </div>
-                                        <div
-                                            onClick={() => handleOptionClickMeThod(100000, 'Vận chuyển Hoả Tốc')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Hoả Tốc'
-                                                ? 'border-l-4 border-primary shadow-md my-2'
-                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                                }`}
-                                        >
-                                            <div>Vận chuyển Hoả tốc</div>
-                                            <div className="font-light text-red-600">{formatNumber(100000)}</div>
-                                        </div>
-                                        <div
-                                            onClick={() => handleOptionClickMeThod(15000, 'Vận chuyển Tiết Kiệm')}
-                                            className={`flex justify-between shadow-sm border-x-1 rounded-md lg:px-2 lg:py-4 ${selectedOption === 'Vận chuyển Tiết Kiệm'
-                                                ? 'border-l-4 border-primary shadow-md my-2'
-                                                : 'hover:border-l-4 hover:border-primary hover:shadow-md hover:my-2'
-                                                }`}
-                                        >
-                                            <div>Vận chuyển Tiết Kiệm</div>
-                                            <div className="font-light text-red-600">{formatNumber(15000)}</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-end bg-background lg:gap-4 lg:px-4 lg:py-6">
-                                    <button
-                                        onClick={() => {
-                                            if (selectedOption) {
-                                                setChooseShippingMethod(false);
-                                            }
-                                        }}
-                                        className="font-light text-white rounded-sm text-md bg-primary lg:px-12 lg:py-2 h-min"
-                                    >
-                                        Xác nhận
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </MaxWidthWrapper>
-                </div>
-            )}
         </>
     );
 };

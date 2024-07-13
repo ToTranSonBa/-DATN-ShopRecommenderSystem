@@ -275,25 +275,28 @@ const ProductDetailPage = () => {
         optionValuesId: idProductOption1Value ? idProductOption1Value : null,
         optionValues: idProductOption1Value
           ? {
-              id: idProductOption1Value,
-              name: productOption1Name,
-              option: null,
-              imageUrl: productOption1Image,
-            }
+            id: idProductOption1Value,
+            name: productOption1Name,
+            option: null,
+            imageUrl: productOption1Image,
+          }
           : null,
         productImgs: selectedProductChildren
           ? selectedProductChildren.thumbnail_url
           : productDetail.images[0].image,
+        price: selectedProductChildren
+          ? selectedProductChildren.price
+          : productDetail.product.originalPrice,
         sellerId: productDetail.seller.iD_NK,
         sellerName: productDetail.seller.name,
         optionValuesId2: idProductOption2Value ? idProductOption2Value : null,
         optionValues2: idProductOption2Value
           ? {
-              id: idProductOption2Value,
-              name: productOption2Name,
-              option: null,
-              imageUrl: productOption2Image,
-            }
+            id: idProductOption2Value,
+            name: productOption2Name,
+            option: null,
+            imageUrl: productOption2Image,
+          }
           : null,
       };
       navigate("/checkout", {
@@ -768,7 +771,7 @@ const ProductDetailPage = () => {
               <a
                 href="#a"
                 className="flex items-center text-red-700 hover:underline"
-                // onClick={() => handleViewAll("new")}
+              // onClick={() => handleViewAll("new")}
               >
                 Xem tất cả{" "}
                 <svg
@@ -816,7 +819,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+            // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg

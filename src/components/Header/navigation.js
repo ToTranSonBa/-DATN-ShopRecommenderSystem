@@ -18,7 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 // API
-import { fetchCartUser } from "../../services/HeaderApi/index";
+import { fetchCartUser, fetchPriceByChild } from "../../services/HeaderApi/index";
 import { userApi } from "../../services/UserApi/userApi";
 
 function classNames(...classes) {
@@ -119,12 +119,41 @@ const Navigation = ({
   const getCartUser = useCallback(async () => {
     try {
       const response = await fetchCartUser(token);
-      setListsItemCart(response.data);
-      // Lấy chiều dài của mảng trả về từ API
-      const itemInCartAPI = response.data.length;
+      const cartItems = response.data;
 
-      // Gọi hàm setItemInCart để cập nhật trạng thái
+      // Lấy chiều dài của mảng trả về từ API
+      const itemInCartAPI = cartItems.length;
+
+      // Cập nhật trạng thái số lượng sản phẩm trong giỏ hàng
       setItemInCart(itemInCartAPI);
+
+      // Gọi API lấy giá cho từng phần tử trong giỏ hàng
+      const updatedCartItems = await Promise.all(
+        cartItems.map(async (item) => {
+          try {
+            if (item.optionValuesId || item.optionValuesId2) {
+
+              const data = await fetchPriceByChild(item.product.iD_NK, item.optionValuesId, item.optionValuesId2)
+              return {
+                ...item,
+                price: data ? data.price : item.product.originalPrice,
+              };
+            }
+            return {
+              ...item,
+              price: item.product.originalPrice,
+            };
+
+          } catch (priceError) {
+            console.error(`Failed to fetch price for item ${item.id}: `, priceError);
+            return item; // Giữ nguyên item nếu không thể lấy giá
+          }
+        })
+      );
+
+      console.log('updatedCartItems: ', updatedCartItems);
+      // Cập nhật danh sách sản phẩm trong giỏ hàng với giá mới
+      setListsItemCart(updatedCartItems);
     } catch (error) {
       setError("Failed to fetch cart item");
       console.error("Failed to fetch cart item: ", error);
@@ -282,8 +311,7 @@ const Navigation = ({
                                                           </h3>
                                                           <p>
                                                             {formatNumber(
-                                                              product.product
-                                                                .price
+                                                              product.price
                                                             )}
                                                           </p>
                                                         </div>
@@ -299,14 +327,7 @@ const Navigation = ({
                                                           {product.quantity}
                                                         </p>
 
-                                                        <div className="flex">
-                                                          <button
-                                                            type="button"
-                                                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                                                          >
-                                                            Xoá
-                                                          </button>
-                                                        </div>
+
                                                       </div>
                                                     </div>
                                                   </li>
