@@ -17,6 +17,7 @@ namespace ShopRe.Common.DTOs
         public bool? IsRated { get; set; }
         public List<OrderItemsDTO> Items { get; set; } = new List<OrderItemsDTO>();
         public UserOrderDTO? User { get; set; }
+        public ShippingAddressDTO ShippingAddress { get; set; }
 
     }
 }

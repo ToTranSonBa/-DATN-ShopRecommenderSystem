@@ -73,7 +73,7 @@ namespace ShopRe.Service
         {
             // Truy vấn danh sách đơn hàng của người dùng
             var orders = await _dbContext.Order
-                                         .Where(o => o.ApplicationUser.Id == user.Id)
+                                         .Where(o => o.ApplicationUser.Id == user.Id).Include(o => o.ShippingAddress)
                                          .ToListAsync();
 
             List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
