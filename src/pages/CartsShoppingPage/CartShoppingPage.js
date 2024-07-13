@@ -34,7 +34,7 @@ const CartShoppingPage = () => {
                         }
                         return {
                             ...item,
-                            price: item.product.originalPrice,
+                            price: item.product.price,
                         };
 
                     } catch (priceError) {

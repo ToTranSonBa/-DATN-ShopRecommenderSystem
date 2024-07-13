@@ -88,24 +88,8 @@ const UserPage = () => {
                         const sellerResponse = await getSellerByIdApi(sellerID);
                         const sellerName = sellerResponse.name;
 
-                        // Cập nhật giá cho từng item trong đơn hàng
-                        const updatedItems = await Promise.all(
-                            order.items.map(async (item) => {
-                                try {
-                                    if (item.optionValuesId || item.optionValuesId2) {
-                                        const priceResponse = await fetchPriceByChild(item.product.iD_NK, item.optionValuesId, item.optionValuesId2);
-                                        return { ...item, price: priceResponse.price };
-                                    }
-                                    return { ...item, price: item.product.originalPrice };
 
-                                } catch (priceError) {
-                                    console.error(`Failed to fetch price for item ${item.id}: `, priceError);
-                                    return item; // Giữ nguyên item nếu không thể lấy giá
-                                }
-                            })
-                        );
-
-                        return { ...order, seller: sellerName, items: updatedItems };
+                        return { ...order, seller: sellerName };
                     }
                     return order;
                 })
@@ -444,10 +428,18 @@ const UserPage = () => {
     };
 
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const handleReviewButtonClick = (orderId) => {
         setSelectedOrderId(orderId);
         setDropDownRating(true);
     };
+
+    const handleOrderViewButtonClick = (orderId) => {
+        const foundOrder = ordersData.find(o => o.id === orderId);
+        setSelectedOrder(foundOrder);
+        setOrderView(true);
+        setSelectedOrderId(orderId);
+    }
 
     return (
         <>
@@ -865,7 +857,10 @@ const UserPage = () => {
                                                                             <div
                                                                                 onClick={(e) => {
                                                                                     e.preventDefault();
-                                                                                    setOrderView(true);
+                                                                                    handleOrderViewButtonClick(
+                                                                                        order.id,
+                                                                                    );
+
                                                                                 }}
                                                                                 className="flex items-center text-sm font-medium text-green-600 cursor-pointer lg:gap-2 lg:text-md"
                                                                             >
@@ -973,9 +968,9 @@ const UserPage = () => {
                                                                                     Ngày giao hàng thành công
                                                                                 </dt>
                                                                                 <dd className="mt-1 text-gray-500">
-                                                                                    <time dateTime={order.createdAt}>
+                                                                                    <time dateTime={order.updatedAt}>
                                                                                         {new Date(
-                                                                                            order.createdAt,
+                                                                                            order.updatedAt,
                                                                                         ).toLocaleDateString('vi-VN', {
                                                                                             year: 'numeric',
                                                                                             month: 'long',
@@ -1002,15 +997,15 @@ const UserPage = () => {
                                                                                             <span className="underline">
                                                                                                 <time
                                                                                                     dateTime={
-                                                                                                        order.createdAt
+                                                                                                        order.updatedAt
                                                                                                     }
                                                                                                 >
                                                                                                     {new Date(
                                                                                                         new Date(
-                                                                                                            order.createdAt,
+                                                                                                            order.updatedAt,
                                                                                                         ).setDate(
                                                                                                             new Date(
-                                                                                                                order.createdAt,
+                                                                                                                order.updatedAt,
                                                                                                             ).getDate() + 7,
                                                                                                         ),
                                                                                                     ).toLocaleDateString(
@@ -1403,6 +1398,7 @@ const UserPage = () => {
             {orderView && (
                 <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
                     <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
+
                         <div className="w-3/4 overflow-auto bg-white h-3/4 lg:px-2 lg:py-2">
                             <header className="flex items-center justify-between font-light uppercase border-dashed shadow-md border-b-1 lg:px-4 lg:py-3 rounded-b-md">
                                 <button
@@ -1428,9 +1424,11 @@ const UserPage = () => {
                                     </svg>
                                     Trở lại
                                 </button>
+
                                 <div className="flex items-center justify-between text-sm lg:gap-2">
+
                                     <span className="flex items-center lg:gap-1 text-nowrap">
-                                        Mã đơn hàng: 2403264PBJXRP1
+                                        Mã đơn hàng: {selectedOrder.id}
                                     </span>
                                     <div className="text-gray-300 lg:px-6 ">|</div>
                                     <span className="text-primary">ĐƠN HÀNG ĐÃ HOÀN THÀNH</span>
@@ -1459,65 +1457,21 @@ const UserPage = () => {
                                                     </svg>
                                                 </div>
                                                 <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                                    21:10 26-03-2024
+                                                    <time dateTime={selectedOrder.createdAt}>
+                                                        {new Date(selectedOrder.createdAt).toLocaleTimeString('vi-VN', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })} {new Date(selectedOrder.createdAt).toLocaleDateString('vi-VN', {
+                                                            year: 'numeric',
+                                                            month: '2-digit',
+                                                            day: '2-digit',
+                                                        }).replace(/\//g, '-')}
+
+                                                    </time>
                                                 </p>
                                             </div>
                                             <div class="ms-4 mt-2 pb-5 md:ms-0">
                                                 <p class="mb-3 text-sm dark:text-neutral-300">Đơn Hàng Đã Đặt</p>
-                                            </div>
-                                        </li>
-                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
-                                            <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
-                                                <div>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="size-6 top-1 absolute z-20 left-9 text-white bg-green-500 rounded-full"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                        />
-                                                    </svg>
-                                                </div>
-                                                <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                                    21:10 26-03-2024
-                                                </p>
-                                            </div>
-                                            <div class="ms-4 mt-2 pb-5 md:ms-0">
-                                                <p class="mb-3 text-sm dark:text-neutral-300">
-                                                    Đã Xác Nhận Thông Tin Đơn Hàng
-                                                </p>
-                                            </div>
-                                        </li>
-                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
-                                            <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
-                                                <div>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="size-6 top-1 absolute z-20 left-9 text-white bg-green-500 rounded-full"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                        />
-                                                    </svg>
-                                                </div>{' '}
-                                                <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                                    11:31 27-03-2024
-                                                </p>
-                                            </div>
-                                            <div class="ms-4 mt-2 pb-5 md:ms-0">
-                                                <p class="mb-3 text-sm dark:text-neutral-300">Đã Giao Cho ĐVVC</p>
                                             </div>
                                         </li>
 
@@ -1540,33 +1494,17 @@ const UserPage = () => {
                                                     </svg>
                                                 </div>
                                                 <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                                    07:08 07-04-2024
-                                                </p>
-                                            </div>
-                                            <div class="ms-4 mt-2 pb-5 md:ms-0">
-                                                <p class="mb-3 text-sm dark:text-neutral-300">Đã Nhận Được Hàng</p>
-                                            </div>
-                                        </li>
-                                        <li className="flex flex-col items-start flex-1 md:items-center md:text-center">
-                                            <div class="flex items-center pt-2 relative md:flex-col md:pt-0 md:items-center">
-                                                <div>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="size-6 top-1 absolute z-20 left-9 text-white bg-green-500 rounded-full"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                        />
-                                                    </svg>
-                                                </div>
-                                                <p class="mt-12 text-sm text-neutral-500 dark:text-neutral-300">
-                                                    07:08 07-04-2024
+                                                    <time dateTime={selectedOrder.updatedAt}>
+                                                        {new Date(selectedOrder.updatedAt).toLocaleTimeString('vi-VN', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })} {new Date(selectedOrder.updatedAt).toLocaleDateString('vi-VN', {
+                                                            year: 'numeric',
+                                                            month: '2-digit',
+                                                            day: '2-digit',
+                                                        }).replace(/\//g, '-')}
+
+                                                    </time>
                                                 </p>
                                             </div>
                                             <div class="ms-4 mt-2 pb-5 md:ms-0">
@@ -1581,11 +1519,10 @@ const UserPage = () => {
                                     <div className="w-1/3">
                                         <header className="lg:text-xl lg:mb-4">Địa chỉ nhận hàng</header>
                                         <div className="flex-row text-xs font-light">
-                                            <p className="text-base font-medium lg:py-2">Hoàng Cầu</p>
-                                            <p className="lg:py-1">0845718717</p>
+                                            <p className="text-base font-medium lg:py-2">{selectedOrder.shippingAddress.fullName}</p>
+                                            <p className="lg:py-1">{selectedOrder.shippingAddress.phoneNumber}</p>
                                             <p>
-                                                C3/40/3, Phạm Hùng, Ấp 4, Xã Bình Hưng, Huyện Bình Chánh, TP. Hồ Chí
-                                                Minh
+                                                {selectedOrder.shippingAddress.address}
                                             </p>
                                         </div>
                                     </div>
@@ -1593,7 +1530,17 @@ const UserPage = () => {
                                         <>
                                             <div class="ps-2 my-2 first:mt-0">
                                                 <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                                    17:55 30-03-2024
+                                                    <time dateTime={selectedOrder.updatedAt}>
+                                                        {new Date(selectedOrder.updatedAt).toLocaleTimeString('vi-VN', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })} {new Date(selectedOrder.updatedAt).toLocaleDateString('vi-VN', {
+                                                            year: 'numeric',
+                                                            month: '2-digit',
+                                                            day: '2-digit',
+                                                        }).replace(/\//g, '-')}
+
+                                                    </time>
                                                 </h3>
                                             </div>
 
@@ -1629,88 +1576,22 @@ const UserPage = () => {
                                                 </div>
                                             </div>
                                         </>
+
+
                                         <>
                                             <div class="ps-2 my-2 first:mt-0">
                                                 <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                                    17:53 30-03-2024
-                                                </h3>
-                                            </div>
+                                                    <time dateTime={selectedOrder.createdAt}>
+                                                        {new Date(selectedOrder.createdAt).toLocaleTimeString('vi-VN', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })} {new Date(selectedOrder.createdAt).toLocaleDateString('vi-VN', {
+                                                            year: 'numeric',
+                                                            month: '2-digit',
+                                                            day: '2-digit',
+                                                        }).replace(/\//g, '-')}
 
-                                            <div class="flex gap-x-3">
-                                                <div class="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
-                                                    <div class="relative z-10 size-7 flex justify-center items-center">
-                                                        <div class="size-6 border-2 rounded-full bg-tranparent flex justify-center items-center dark:bg-neutral-600">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke-width="1.5"
-                                                                stroke="currentColor"
-                                                                class="size-4"
-                                                            >
-                                                                <path
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
-                                                                />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="grow pt-0.5 pb-8">
-                                                    <h3 class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
-                                                        Đang vận chuyển
-                                                    </h3>
-                                                    <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                                                        Đơn hàng sẽ sớm được giao, vui lòng chú ý điện thoại
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </>
-                                        <>
-                                            <div class="ps-2 my-2 first:mt-0">
-                                                <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                                    08:09 27-03-2024
-                                                </h3>
-                                            </div>
-
-                                            <div class="flex gap-x-3">
-                                                <div class="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
-                                                    <div class="relative z-10 size-7 flex justify-center items-center">
-                                                        <div class="size-6 border-2 rounded-full bg-tranparent flex justify-center items-center dark:bg-neutral-600">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke-width="1.5"
-                                                                stroke="currentColor"
-                                                                class="size-4"
-                                                            >
-                                                                <path
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3"
-                                                                />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="grow pt-0.5 pb-8">
-                                                    <h3 class="flex gap-x-1.5 font-semibold text-gray-800 dark:text-white">
-                                                        Đang được chuẩn bị
-                                                    </h3>
-                                                    <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-                                                        Người gửi đang chuẩn bị hàng
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </>
-                                        <>
-                                            <div class="ps-2 my-2 first:mt-0">
-                                                <h3 class="text-xs font-medium uppercase text-gray-500 dark:text-neutral-400">
-                                                    21:10 26-03-2024
+                                                    </time>
                                                 </h3>
                                             </div>
 
@@ -1751,7 +1632,7 @@ const UserPage = () => {
                                 <main className="w-full bg-background">
                                     <div className="w-full mx-auto">
                                         <div className="max-w-2xl space-y-8 sm:px-4 lg:max-w-full lg:px-0">
-                                            {filteredOrders.map((order) => (
+                                            {filteredOrders.filter((order) => order.id === selectedOrderId).map((order) => (
                                                 <div
                                                     key={order.id}
                                                     className="border-t border-b border-gray-200 shadow-sm sm:rounded-lg sm:border"
@@ -1759,7 +1640,7 @@ const UserPage = () => {
                                                     <div className="flex items-center text-sm font-medium text-gray-500 lg:px-6 lg:py-2 lg:gap-2">
                                                         {order.seller}
                                                         <a
-                                                            href={`/shoppage/${order.seller.iD_NK}`}
+                                                            href={`/shoppage/${order.items[0].product.sellerID_NK}`}
                                                             className="flex items-center justify-center text-xs hover:border-primary hover:text-primary lg:gap-2 bg-slate-50/65 border-1 lg:px-2 lg:py-1"
                                                         >
                                                             <svg
@@ -1797,14 +1678,19 @@ const UserPage = () => {
                                                                         <div className="font-medium text-gray-900 sm:flex sm:justify-between">
                                                                             <h5>{item.product.name}</h5>
                                                                             <p className="mt-2 sm:mt-0">
-                                                                                {formatNumber(item.product.price)}₫
+                                                                                {formatNumber(item.price)}₫
                                                                             </p>
                                                                         </div>
                                                                         {item.optionValues &&
                                                                             item.optionValues.name && (
                                                                                 <p className="hidden text-gray-400 sm:block sm:mt-2">
                                                                                     Phân loại hàng:{' '}
-                                                                                    {item.optionValues.name}
+                                                                                    {item?.optionValues?.name &&
+                                                                                        item?.optionValues2?.name
+                                                                                        ? `${item.optionValues.name}, ${item.optionValues2.name}`
+                                                                                        : item?.optionValues
+                                                                                            ?.name ||
+                                                                                        item?.optionValues2?.name}
                                                                                 </p>
                                                                             )}
                                                                         <p className="hidden text-xs text-gray-400 sm:block sm:mt-2">

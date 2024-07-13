@@ -84,11 +84,12 @@ const SellerSignUp = () => {
                 return;
             }
             const response = await signupSellerApi(shopName, shopPhoneNumber, shopAddress, token);
-            if (response === 'Seller registered successfully') {
-                toast.success('Tạo tài khoản thành công');
-                localStorage.setItem('token', response.accessToken);
+            const accessToken = response.accessToken;
+            if (accessToken) {
+                localStorage.clear();
+                toast.success('Hãy đăng nhập lại ');
                 setTimeout(() => {
-                    navigate('/shopdashboard');
+                    navigate('/login');
                 }, 2000);
             } else {
                 if (response) {
@@ -252,9 +253,8 @@ const SellerSignUp = () => {
                                     </span>
                                 )}
                                 <h3
-                                    className={`${
-                                        isShopInfoFilled() ? 'text-green-700' : ''
-                                    } font-medium leading-tight`}
+                                    className={`${isShopInfoFilled() ? 'text-green-700' : ''
+                                        } font-medium leading-tight`}
                                 >
                                     Thông tin cửa hàng
                                 </h3>

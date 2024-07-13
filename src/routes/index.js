@@ -1,6 +1,4 @@
-//Layouts
 import { HeaderOnly } from '../layouts/index';
-//page
 import LoginPage from '../pages/Login';
 import SignUpPage from '../pages/Signup';
 import Home from '../pages/Home';
@@ -14,19 +12,24 @@ import CheckoutForm from '../pages/CheckoutForm/CheckoutForm';
 import AdminDoashBoardManager from '../pages/AdminDoashboard';
 import SellerSignUp from '../pages/ShopDashboardPage/signup';
 
+import withAuth from '../HOC/withAuth'; // Adjust the import path as needed
+
 const publicRoutes = [
     { path: '/', component: Home },
     { path: '/login', component: LoginPage, layout: HeaderOnly },
     { path: '/signup', component: SignUpPage, layout: HeaderOnly },
     { path: '/productpage', component: ProductsPage },
     { path: '/productdetail/:id', component: ProductDetailPage },
-    { path: '/shopdashboard', component: SellerDashboard, layout: HeaderOnly },
-    { path: '/cartshoppingpage', component: CartShoppingPage },
-    { path: '/userpage', component: UserPage },
     { path: '/shoppage/:id', component: ShopPage },
-    { path: '/checkout', component: CheckoutForm },
-    { path: '/admin', component: AdminDoashBoardManager, layout: HeaderOnly },
     { path: '/signup/seller', component: SellerSignUp, layout: HeaderOnly },
 ];
 
-export { publicRoutes };
+const protectedRoutes = [
+    { path: '/shopdashboard', component: withAuth(SellerDashboard, ['Seller']), layout: HeaderOnly },
+    { path: '/cartshoppingpage', component: withAuth(CartShoppingPage, ['Customer', 'Seller']) },
+    { path: '/userpage', component: withAuth(UserPage, ['Customer', 'Seller']) },
+    { path: '/checkout', component: withAuth(CheckoutForm, ['Customer', 'Seller']) },
+    { path: '/admin', component: withAuth(AdminDoashBoardManager, ['Admin']), layout: HeaderOnly },
+];
+
+export { publicRoutes, protectedRoutes };

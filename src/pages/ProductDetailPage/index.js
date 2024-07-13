@@ -286,7 +286,7 @@ const ProductDetailPage = () => {
           : productDetail.images[0].image,
         price: selectedProductChildren
           ? selectedProductChildren.price
-          : productDetail.product.originalPrice,
+          : productDetail.product.price,
         sellerId: productDetail.seller.iD_NK,
         sellerName: productDetail.seller.name,
         optionValuesId2: idProductOption2Value ? idProductOption2Value : null,

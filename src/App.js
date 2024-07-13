@@ -1,10 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { publicRoutes } from './routes/index';
-
+import { publicRoutes, protectedRoutes } from './routes/index';
 import { DefaultLayout } from './layouts/index';
-// import ShopPage from './pages/ShopPage/ShopPage';
-// import '@fontsource/roboto/300.css';
 
 function App() {
     return (
@@ -12,6 +9,22 @@ function App() {
             <div className="App">
                 <Routes>
                     {publicRoutes.map((route, index) => {
+                        const Page = route.component;
+                        const Layout = route.layout || DefaultLayout;
+
+                        return (
+                            <Route
+                                key={index}
+                                path={route.path}
+                                element={
+                                    <Layout>
+                                        <Page />
+                                    </Layout>
+                                }
+                            />
+                        );
+                    })}
+                    {protectedRoutes.map((route, index) => {
                         const Page = route.component;
                         const Layout = route.layout || DefaultLayout;
 

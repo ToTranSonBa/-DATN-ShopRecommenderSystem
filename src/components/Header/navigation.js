@@ -136,12 +136,12 @@ const Navigation = ({
               const data = await fetchPriceByChild(item.product.iD_NK, item.optionValuesId, item.optionValuesId2)
               return {
                 ...item,
-                price: data ? data.price : item.product.originalPrice,
+                price: data ? data.price : item.product.price,
               };
             }
             return {
               ...item,
-              price: item.product.originalPrice,
+              price: item.product.price,
             };
 
           } catch (priceError) {
