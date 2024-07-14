@@ -863,6 +863,98 @@ namespace ShopRe.Service
 
             return Convert.ToInt32(response.Total);
         }
+        public async Task<List<dynamic>> GetBrandsBySearch(string keyWord)
+        {
+            var filters = new List<QueryContainer>();
+
+            if (!string.IsNullOrEmpty(keyWord))
+            {
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = keyWord,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                {
+                    Field = "Name",
+                    Query = keyWord,
+                    Boost = 2.0
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
+                });
+            }
+
+            // Aggregation to get top 15 brands by product count
+            var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                .Index("products")
+                .Size(0) // We do not need the actual documents
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .Terms("brands", t => t
+                        .Field("BrandID_NK")
+                        .Size(15)
+                        .Order(o => o
+                            .Descending("product_count")
+                        )
+                        .Aggregations(aa => aa
+                            .ValueCount("product_count", v => v.Field("BrandID_NK"))
+                        )
+                    )
+                )
+            );
+
+            if (!searchResponse.IsValid)
+            {
+                return new List<dynamic>();
+            }
+
+            var brandBuckets = searchResponse.Aggregations.Terms("brands").Buckets;
+            var topBrandIds = brandBuckets.Select(b => int.Parse(b.Key)).ToList();
+
+            var brands = await _dbContext.Brands
+                .Where(b => topBrandIds.Contains(b.ID_NK))
+                .ToListAsync();
+
+            if (!brands.Any())
+            {
+                return new List<dynamic>();
+            }
+
+            var brandsResponse = new List<dynamic>();
+
+            foreach (var brand in brands)
+            {
+                var totalProduct = (int)brandBuckets.First(b => int.Parse(b.Key) == brand.ID_NK).ValueCount("product_count").Value;
+
+                var brandDetailDTO = new
+                {
+                    Total = totalProduct,
+                    Brand = brand,
+                };
+
+                brandsResponse.Add(brandDetailDTO);
+            }
+
+            return brandsResponse
+                .OrderByDescending(c => c.Total)
+                .ToList();
+        }
         public async Task<List<BrandDetailDTO>> GetBrands()
         {
 
@@ -927,101 +1019,101 @@ namespace ShopRe.Service
 
             return sortedList;
         }
-        public async Task<List<dynamic>> GetBrandsBySearch(string keyWord)
-        {
-            var filters = new List<QueryContainer>();
+        //public async Task<List<dynamic>> GetBrandsBySearch(string keyWord)
+        //{
+        //    var filters = new List<QueryContainer>();
 
-            if (!string.IsNullOrEmpty(keyWord))
-            {
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = keyWord,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+        //    if (!string.IsNullOrEmpty(keyWord))
+        //    {
+        //        var multiMatchQuery = new MultiMatchQuery
+        //        {
+        //            Query = keyWord,
+        //            Fields = new[] { "Name" },
+        //            Type = TextQueryType.BestFields,
+        //            Fuzziness = Fuzziness.Auto,
+        //            Operator = Operator.And
+        //        };
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
-                {
-                    Field = "Name",
-                    Query = keyWord,
-                    Boost = 2.0
-                };
+        //        var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+        //        {
+        //            Field = "Name",
+        //            Query = keyWord,
+        //            Boost = 2.0
+        //        };
 
-                filters.Add(new BoolQuery
-                {
-                    Should = new List<QueryContainer>
-                    {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
-                    },
-                    MinimumShouldMatch = 1
-                });
-            }
+        //        filters.Add(new BoolQuery
+        //        {
+        //            Should = new List<QueryContainer>
+        //            {
+        //                multiMatchQuery,
+        //                matchPhrasePrefixQuery
+        //            },
+        //            MinimumShouldMatch = 1
+        //        });
+        //    }
 
-            var response = await _elasticClient.SearchAsync<object>(s => s
-                .Index("products")
-                .Query(q => q
-                    .Bool(b => b
-                        .Must(mu => mu
-                            .MatchAll()
-                        )
-                        .Filter(filters.ToArray())
-                    )
-                )
-                .Aggregations(a => a
-                    .ValueCount("total_products", vc => vc
-                            .Field("ID_NK")
-                    )
-                )
-            );
+        //    var response = await _elasticClient.SearchAsync<object>(s => s
+        //        .Index("products")
+        //        .Query(q => q
+        //            .Bool(b => b
+        //                .Must(mu => mu
+        //                    .MatchAll()
+        //                )
+        //                .Filter(filters.ToArray())
+        //            )
+        //        )
+        //        .Aggregations(a => a
+        //            .ValueCount("total_products", vc => vc
+        //                    .Field("ID_NK")
+        //            )
+        //        )
+        //    );
 
-            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+        //    var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
-            var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("products")
-                    .Size(totalProducts)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(mu => mu
-                                .MatchAll()
-                            )
-                            .Filter(filters.ToArray())
-                        )
-                    )
-                );
+        //    var all_response = await _elasticClient.SearchAsync<object>(s => s
+        //            .Index("products")
+        //            .Size(totalProducts)
+        //            .Query(q => q
+        //                .Bool(b => b
+        //                    .Must(mu => mu
+        //                        .MatchAll()
+        //                    )
+        //                    .Filter(filters.ToArray())
+        //                )
+        //            )
+        //        );
 
-            if (!response.IsValid || !all_response.IsValid)
-            {
-                return null;
-            }
+        //    if (!response.IsValid || !all_response.IsValid)
+        //    {
+        //        return null;
+        //    }
 
-            var products_infor = ConvertToProduct(all_response.Documents.ToList());
+        //    var products_infor = ConvertToProduct(all_response.Documents.ToList());
 
-            var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
+        //    var brandIds = products_infor.Select(p => p.BrandID_NK).Distinct().ToList();
 
-            var list_brands_response = new List<dynamic>();
+        //    var list_brands_response = new List<dynamic>();
 
-            var results = await _dbContext.Brands.ToListAsync();
+        //    var results = await _dbContext.Brands.ToListAsync();
 
-            foreach (var brand in results)
-            {
-                var count = products_infor.Where(p => p.BrandID_NK == brand.ID_NK).ToList();
-                var brandObject = new
-                {
-                    Total = count.Count(),
-                    Brand = brand,
-                };
-                list_brands_response.Add(brandObject);
-            }
+        //    foreach (var brand in results)
+        //    {
+        //        var count = products_infor.Where(p => p.BrandID_NK == brand.ID_NK).ToList();
+        //        var brandObject = new
+        //        {
+        //            Total = count.Count(),
+        //            Brand = brand,
+        //        };
+        //        list_brands_response.Add(brandObject);
+        //    }
 
-            var sortedList = list_brands_response
-                .OrderByDescending(c => c.Total).Take(15)
-                .ToList();
+        //    var sortedList = list_brands_response
+        //        .OrderByDescending(c => c.Total).Take(15)
+        //        .ToList();
 
-            return sortedList;
-        }
+        //    return sortedList;
+        //}
         //Comments
         public async Task<List<DetailCommentDTO>> DetailComments(CommentParameters commentParameters, int ProductId)
         {
@@ -1389,6 +1481,98 @@ namespace ShopRe.Service
             return seller;
         }
         //Category
+        public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
+        {
+            var filters = new List<QueryContainer>();
+
+            if (!string.IsNullOrEmpty(keyWord))
+            {
+                var multiMatchQuery = new MultiMatchQuery
+                {
+                    Query = keyWord,
+                    Fields = new[] { "Name" },
+                    Type = TextQueryType.BestFields,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.And
+                };
+
+                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                {
+                    Field = "Name",
+                    Query = keyWord,
+                    Boost = 2.0
+                };
+
+                filters.Add(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                    MinimumShouldMatch = 1
+                });
+            }
+
+            // Aggregation to get top 15 brands by product count
+            var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                .Index("products")
+                .Size(0) // We do not need the actual documents
+                .Query(q => q
+                    .Bool(b => b
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .Terms("categories", t => t
+                        .Field("Category_LV0_NK")
+                        .Size(15)
+                        .Order(o => o
+                            .Descending("product_count")
+                        )
+                        .Aggregations(aa => aa
+                            .ValueCount("product_count", v => v.Field("Category_LV0_NK"))
+                        )
+                    )
+                )
+            );
+
+            if (!searchResponse.IsValid)
+            {
+                return new List<dynamic>();
+            }
+
+            var cateBuckets = searchResponse.Aggregations.Terms("categories").Buckets;
+            var topCateIds = cateBuckets.Select(b => int.Parse(b.Key)).ToList();
+
+            var categories = await _dbContext.Category
+                .Where(b => topCateIds.Contains(b.ID_NK))
+                .ToListAsync();
+
+            if (!categories.Any())
+            {
+                return new List<dynamic>();
+            }
+
+            var categoriesResponse = new List<dynamic>();
+
+            foreach (var category in categories)
+            {
+                var totalProduct = (int)cateBuckets.First(b => int.Parse(b.Key) == category.ID_NK).ValueCount("product_count").Value;
+
+                var cateDTO = new
+                {
+                    Total = totalProduct,
+                    Category = category
+                };
+
+                categoriesResponse.Add(cateDTO);
+            }
+
+            return categoriesResponse
+                .OrderByDescending(c => c.Total)
+                .ToList();
+        }
         public async Task<List<dynamic>> GetCategoryLevel0OfSeller(int id)
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
@@ -1454,101 +1638,101 @@ namespace ShopRe.Service
 
             return sortedList;
         }
-        public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
-        {
-            var filters = new List<QueryContainer>();
+        //public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
+        //{
+        //    var filters = new List<QueryContainer>();
 
-            if (!string.IsNullOrEmpty(keyWord))
-            {
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = keyWord,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+        //    if (!string.IsNullOrEmpty(keyWord))
+        //    {
+        //        var multiMatchQuery = new MultiMatchQuery
+        //        {
+        //            Query = keyWord,
+        //            Fields = new[] { "Name" },
+        //            Type = TextQueryType.BestFields,
+        //            Fuzziness = Fuzziness.Auto,
+        //            Operator = Operator.And
+        //        };
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
-                {
-                    Field = "Name",
-                    Query = keyWord,
-                    Boost = 2.0
-                };
+        //        var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+        //        {
+        //            Field = "Name",
+        //            Query = keyWord,
+        //            Boost = 2.0
+        //        };
 
-                filters.Add(new BoolQuery
-                {
-                    Should = new List<QueryContainer>
-                    {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
-                    },
-                    MinimumShouldMatch = 1
-                });
-            }
+        //        filters.Add(new BoolQuery
+        //        {
+        //            Should = new List<QueryContainer>
+        //            {
+        //                multiMatchQuery,
+        //                matchPhrasePrefixQuery
+        //            },
+        //            MinimumShouldMatch = 1
+        //        });
+        //    }
 
-            var response = await _elasticClient.SearchAsync<object>(s => s
-                .Index("products")
-                .Query(q => q
-                    .Bool(b => b
-                        .Must(mu => mu
-                            .MatchAll()
-                        )
-                        .Filter(filters.ToArray())
-                    )
-                )
-                .Aggregations(a => a
-                    .ValueCount("total_products", vc => vc
-                            .Field("ID_NK")
-                    )
-                )
-            );
+        //    var response = await _elasticClient.SearchAsync<object>(s => s
+        //        .Index("products")
+        //        .Query(q => q
+        //            .Bool(b => b
+        //                .Must(mu => mu
+        //                    .MatchAll()
+        //                )
+        //                .Filter(filters.ToArray())
+        //            )
+        //        )
+        //        .Aggregations(a => a
+        //            .ValueCount("total_products", vc => vc
+        //                    .Field("ID_NK")
+        //            )
+        //        )
+        //    );
 
-            var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
+        //    var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
-            var all_response = await _elasticClient.SearchAsync<object>(s => s
-                    .Index("products")
-                    .Size(totalProducts)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(mu => mu
-                                .MatchAll()
-                            )
-                            .Filter(filters.ToArray())
-                        )
-                    )
-                );
+        //    var all_response = await _elasticClient.SearchAsync<object>(s => s
+        //            .Index("products")
+        //            .Size(totalProducts)
+        //            .Query(q => q
+        //                .Bool(b => b
+        //                    .Must(mu => mu
+        //                        .MatchAll()
+        //                    )
+        //                    .Filter(filters.ToArray())
+        //                )
+        //            )
+        //        );
 
-            if (!response.IsValid || !all_response.IsValid)
-            {
-                return null;
-            }
+        //    if (!response.IsValid || !all_response.IsValid)
+        //    {
+        //        return null;
+        //    }
 
-            var products_infor = ConvertToProduct(all_response.Documents.ToList());
+        //    var products_infor = ConvertToProduct(all_response.Documents.ToList());
 
-            var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
+        //    var categoryIds = products_infor.Select(p => p.Category_LV0_NK).Distinct().ToList();
 
-            var list_categories_response = new List<dynamic>();
+        //    var list_categories_response = new List<dynamic>();
 
-            var results = await _dbContext.Category.Where(p => p.Level == 0).ToListAsync();
+        //    var results = await _dbContext.Category.Where(p => p.Level == 0).ToListAsync();
 
-            foreach (var category in results)
-            {
-                var count = products_infor.Where(p => p.Category_LV0_NK == category.ID_NK).ToList();
-                var categoryObject = new
-                {
-                    Total = count.Count(),
-                    Category = category,
-                };
-                list_categories_response.Add(categoryObject);
-            }
+        //    foreach (var category in results)
+        //    {
+        //        var count = products_infor.Where(p => p.Category_LV0_NK == category.ID_NK).ToList();
+        //        var categoryObject = new
+        //        {
+        //            Total = count.Count(),
+        //            Category = category,
+        //        };
+        //        list_categories_response.Add(categoryObject);
+        //    }
 
-            var sortedList = list_categories_response
-                .OrderByDescending(c => c.Total)
-                .ToList();
+        //    var sortedList = list_categories_response
+        //        .OrderByDescending(c => c.Total)
+        //        .ToList();
 
-            return sortedList;
-        }
+        //    return sortedList;
+        //}
         public async Task<List<Product>> Get20NewPro()
         {
             var response = await _elasticClient.SearchAsync<object>(s => s
