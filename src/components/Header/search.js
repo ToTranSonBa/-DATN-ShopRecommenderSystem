@@ -218,10 +218,6 @@ const Search = () => {
         }
     }, [searchPlaceholders]);
 
-    useEffect(() => {
-        console.log('currentPlaceholder: ', currentPlaceholder);
-    }, [currentPlaceholder]);
-
     return (
         <form className={`w-full max-w-screen-lg  ${classNameHidden}`} onSubmit={(e) => handleSubmit(e, inputValue)}>
             {error && <div className="error">{error}</div>}

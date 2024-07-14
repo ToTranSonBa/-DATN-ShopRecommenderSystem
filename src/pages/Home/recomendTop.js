@@ -113,7 +113,7 @@ const RecommendTop = () => {
                                             {currentProduct.name}
                                         </span>
                                     </div>
-                                    <div className="h-full lg:px-4 lg:pt-3 lg:pb-6">
+                                    <div className="h-full lg:px-4 lg:pt-3 lg:pb-12">
                                         {mainImage && (
                                             <img
                                                 data-twe-lazy-load-init
@@ -200,7 +200,7 @@ const RecommendTop = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between bg-white rounded-lg lg:gap-4 lg:mt-2 lg:px-4 lg:py-4">
+                            <div className="flex items-center justify-between bg-white rounded-lg lg:gap-4 lg:mt-4 lg:px-4 lg:py-4">
                                 {newArrivalsToDay.length > 4 ? (
                                     newArrivalsToDay.slice(4, 7).map((item, index) =>
                                         item.images && item.images.length > 0 ? (
@@ -256,7 +256,7 @@ const RecommendTop = () => {
                                 </div>
                             </div>
 
-                            <div className="lg:mt-8">
+                            <div className="lg:mt-4">
                                 <div className="bg-white rounded-xl">
                                     <span className="block lg:px-4 lg:py-4 lg:text-xl">
                                         Cửa hàng được quan tâm nhiều nhất ngày hôm qua
