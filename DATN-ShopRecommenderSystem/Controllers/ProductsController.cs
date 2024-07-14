@@ -69,13 +69,19 @@ namespace DATN_ShopRecommenderSystem.Controllers
         [HttpGet("GetPriceAndImageProductChild{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id, int? idOptionValue1, int? idOptionValue2)
         {
-
-            var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
-            return Ok(new
+            try
             {
-                Price = price,
-                Image = image
-            });
+
+                var (price, image) = await _productsService.GetPriceAndImageProductChild(id, idOptionValue1, idOptionValue2);
+                return Ok(new
+                {
+                    Price = price,
+                    Image = image
+                });
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         // GET: api/products
         [HttpGet("GetProductsByTrainning")]
@@ -217,6 +223,41 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return StatusCode(500, "Không thể thêm sản phẩm.");
             }
         }
+        [Authorize]
+        [HttpPut("UpdateProductChild")]
+        public async Task<IActionResult> UpdateProductChild([FromBody] UpdateProductChildParameters productchild)
+        {
+            try
+            {
+                //Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                var res = await _productsService.UpdateProductChild(productchild, user);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+        }
         //DELETE: api/products/5
         [Authorize]
         [HttpDelete("{id}")]
@@ -246,6 +287,46 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
                 await _productsService.Remove(id, user);
                 await _elasticSearchService.DeleteDocumentByIDNK(id);
+
+                return Ok(new
+                {
+                    status = 204,
+                    message = "Xóa sản phẩm thành công",
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Không thể xóa sản phẩm.");
+            }
+        }
+        [Authorize]
+        [HttpDelete("ProductChild{id}")]
+        public async Task<IActionResult> DeleteProductChild(int id)
+        {
+            try
+            {
+                // Lấy token từ header Authorization
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized();
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user == null)
+                {
+                    return Unauthorized(new Response<CartItem>()
+                    {
+                        message = "Unauthorized!",
+                        status = "401",
+                        token = token,
+                        Data = null,
+                    });
+                }
+
+                await _productsService.RemoveProductChild(id, user);
 
                 return Ok(new
                 {
@@ -341,14 +422,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var authHeader = Request.Headers["Authorization"].ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                return Unauthorized();
+                userCode = 0;
             }
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
-            var user = await _accountService.GetUserFromTokenAsync(token);
-            if (user != null)
+            else
             {
-                userCode = user.TrainCode;
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                if (user != null)
+                {
+                    userCode = user.TrainCode;
+                }
             }
 
 

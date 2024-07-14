@@ -98,7 +98,11 @@ namespace ShopRe.Service
                                             .Where(c => c.Session.ID == session.ID)
                                             .Include(c => c.Product).Include(c=>c.OptionValues).Include(c=>c.optionValues2)
                                             .ToListAsync();
-
+            
+            if(cartItems.Count < 0)
+            {
+                cartItems = new List<CartItem>();
+            }
             return cartItems;
         }
 

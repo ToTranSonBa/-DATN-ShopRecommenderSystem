@@ -1,11 +1,9 @@
-﻿using ShopRe.Data.Infrastructure;
+﻿using AutoMapper;
+using Newtonsoft.Json.Linq;
+using ShopRe.Common.DTOs;
 using ShopRe.Data.Repositories;
 using ShopRe.Model.Models;
 using System.Linq.Expressions;
-using ShopRe.Common.DTOs;
-using Microsoft.AspNetCore.Identity;
-using AutoMapper;
-using Nest;
 
 namespace ShopRe.Service
 {
@@ -21,17 +19,20 @@ namespace ShopRe.Service
         IEnumerable<Seller> Find(Expression<Func<Seller, bool>> expression);
         Task<SellerInfo> GetUserSerller(string userId);
         Task<SellerInfo> UpdateUserSeller(ChangeUserSeller entity, string userId);
+        Task<List<Seller>> GetSellerSimilarity(int sellerid, int userCode);
     }
     public class SellerService : ISellerService
     {
         private readonly ISellerRepository _sellerRepository;
         private readonly IMapper _mapper;
+        private readonly HttpClient _httpClient;
 
 
-        public SellerService( ISellerRepository sellerRepository, IMapper mapper )
+        public SellerService(ISellerRepository sellerRepository, IMapper mapper, HttpClient httpClient)
         {
             _sellerRepository = sellerRepository;
             _mapper = mapper;
+            _httpClient = httpClient;
         }
 
         public Task<Seller> Add(Seller entity)
@@ -73,23 +74,54 @@ namespace ShopRe.Service
         {
             return _sellerRepository.Update(entity);
         }
-        public async Task<SellerInfo> GetUserSerller(string userId) 
+        public async Task<SellerInfo> GetUserSerller(string userId)
         {
             var info = await _sellerRepository.GetUserSeller(userId);
             var sellerDTO = _mapper.Map<SellerInfo>(info);
             return sellerDTO;
         }
-        public async Task<SellerInfo> UpdateUserSeller(ChangeUserSeller entity,string userId)
+        public async Task<SellerInfo> UpdateUserSeller(ChangeUserSeller entity, string userId)
         {
             var seller = await _sellerRepository.GetUserSeller(userId);
-            seller.Address= entity.Address;
-            seller.Name= entity.Name;
-            seller.ImageUrl= entity.ImageUrl;
-            seller.Phone= entity.Phone;
+            seller.Address = entity.Address;
+            seller.Name = entity.Name;
+            seller.ImageUrl = entity.ImageUrl;
+            seller.Phone = entity.Phone;
 
             var result = await _sellerRepository.Update(seller);
-            var sellerDto= _mapper.Map<SellerInfo>(result);
+            var sellerDto = _mapper.Map<SellerInfo>(result);
             return sellerDto;
+        }
+        public async Task<List<Seller>> GetSellerSimilarity(int sellerid, int userCode)
+        {
+            var requestUri = $"http://127.0.0.1:8000/api/CBF-S/recommend?userid={sellerid}&storeid={sellerid}";
+            //var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProductForUser?userid={userCode}";
+            bool error = false;
+            List<Seller> seller = new List<Seller>();
+            JObject result = new JObject();
+            try
+            {
+                var response = await _httpClient.GetAsync(requestUri);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                result = JObject.Parse(content);
+            }
+            catch
+            {
+                return new List<Seller>();
+            }
+
+            int total = (int)result["total"];
+            if (total == 0)
+            {
+                return seller;
+            }
+
+            List<int> sellerId = result["stores"].ToObject<List<int>>();
+
+            seller = await _sellerRepository.GetSellers(sellerId);
+
+            return seller;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ShopRe.Data.Repositories
         Task<PagedList<Product>?> GetAllProduct(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetPaged(int pageSize, int pageNumber);
         Task<List<Product>> GetTopNew(int number);
-        Task<List<Product>> GetProductPopular(int number);
+        Task<List<int>> GetProductPopular(int number);
         Task<List<Product>> GetProductByCateId(int cateId);
         Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity);
         Task<List<Product>> GetTopView(int number);
@@ -52,37 +52,13 @@ namespace ShopRe.Data.Repositories
                     .Take(number)
                     .ToListAsync();
         }
-        public async Task<List<Product>> GetProductPopular(int number)
+        public async Task<List<int>> GetProductPopular(int number)
         {
-            var firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            // Lấy ngày cuối cùng của tháng hiện tại
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-
-            // Truy vấn lấy ra 10 ProductID_NK xuất hiện nhiều nhất trong tháng hiện tại
-            var topProductIDs = await context.OrderItems
-                .Where(oi => oi.Order.CreatedAt >= firstDayOfMonth && oi.Order.CreatedAt <= lastDayOfMonth)
-                    .GroupBy(oi => oi.ProductID_NK)
-                    .OrderByDescending(g => g.Count())
-                    .Select(g => g.Key)
-                    .Take(number)
-                    .ToListAsync();
-            var numberPro = topProductIDs.Count();
-            var topProducts = await context.Products
-                    .Where(p => topProductIDs.Contains(p.ID_NK))
-                    .ToListAsync();
-            if (numberPro < 10)
-            {
-                var additionalProducts = await context.Products
-                    .Where(p => !topProductIDs.Contains(p.ID_NK))
-                    .OrderByDescending(p=>p.AllTimeQuantitySold)
-                    .Take(number - topProducts.Count) // Lấy số lượng còn thiếu
-                    .ToListAsync();
-
-                topProducts.AddRange(additionalProducts);
-            }
-
+                        
+            var listId= await context.Set<TopPopProduct>().Select(p=>p.ProductID_NK).ToListAsync();
             
-            return topProducts;
+            return listId;
+
         }
         public async Task<List<Product>> GetProductByCateId(int cateId)
         {
@@ -103,30 +79,13 @@ namespace ShopRe.Data.Repositories
         public async Task<List<Product>> GetTopView(int number)
         {
 
-            var firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            // Lấy ngày cuối cùng của tháng hiện tại
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            var topIds = await context.UserLog
-                   .Where(u=>u.DateTime >= firstDayOfMonth && u.DateTime <= lastDayOfMonth)
-                   .GroupBy(u => u.ProductID_NK)
-                    .OrderByDescending(g => g.Count())
-                    .Select(g => g.Key)
-                    .Take(number)
-                    .ToListAsync();
-            var numberPro = topIds.Count();
-            var topViews = await context.Products
-                .Where(p => topIds.Contains(p.ID_NK))
-                .ToListAsync();
-            if (numberPro < 10)
+            var listId = await context.Set<TopViewProduct>().Select(p => p.ProductID_NK).ToListAsync();
+            var listproduct = new List<Product>();
+            foreach (var id in listId)
             {
-                var additionalProducts = await context.Products
-                    .Where(p => !topIds.Contains(p.ID_NK))
-                    .OrderByDescending(p => p.RatingCount)
-                    .Take(number - numberPro +1) // Lấy số lượng còn thiếu
-                    .ToListAsync();
-                topViews.AddRange(additionalProducts);
+                listproduct.Add(await GetById(id));
             }
-            return topViews;    
+            return listproduct;
 
         }
     }

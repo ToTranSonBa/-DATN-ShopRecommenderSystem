@@ -35,6 +35,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 Data = res
             });
         }
+        [HttpGet("CategoriesLV0BySeller")]
+        public async Task<IActionResult> GetCategoriesLV0BySeller(int idSeller)
+        {
+            var categories = await _elasticSearchService.GetCategoryLevel0OfSeller(idSeller);
+            return Ok(new
+            {
+                message = "Success!",
+                status = "200",
+                Categories = categories
+            });
+        }
         // GET: api/categories
         [HttpGet("CategoriesLV0BySearch")]
         public async Task<IActionResult> GetCategoriesLV0BySearching(string? SearchKey)

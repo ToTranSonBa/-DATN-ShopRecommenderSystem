@@ -28,5 +28,7 @@ namespace ShopRe.Model.Models
         public Order? Order { get; set; }
         public Account? Account { get; set; }
         public List<CommentImages>? Images { get; set; }
+        public float? CreditRating { get; set; }
+        public bool? IsCredited { get; set; }
     }
 }

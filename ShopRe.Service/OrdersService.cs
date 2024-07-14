@@ -73,7 +73,8 @@ namespace ShopRe.Service
         {
             // Truy vấn danh sách đơn hàng của người dùng
             var orders = await _dbContext.Order
-                                         .Where(o => o.ApplicationUser.Id == user.Id)
+                                         .Where(o => o.ApplicationUser.Id == user.Id).Include(o => o.ShippingAddress)
+                                         .OrderByDescending(o => o.CreatedAt)
                                          .ToListAsync();
 
             List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
@@ -84,6 +85,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -162,6 +164,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -185,6 +188,10 @@ namespace ShopRe.Service
             {
                 //Cap nhat status
                 order.Status = status;
+                if(status == 3)
+                    order.UpdatedAt = DateTime.Now;
+                else if(status == 4)
+                    order.DeletedAt= DateTime.Now;
                 _dbContext.Order.Update(order);
                 await _dbContext.SaveChangesAsync();
                 return order;
@@ -228,6 +235,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == Order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -306,6 +314,7 @@ namespace ShopRe.Service
                                                  .Where(o => o.Order.ID == order.ID)
                                                  .Include(o => o.Product)
                                                  .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
                                                  .Include(o => o.optionValues2)
                                                  .ThenInclude(o => o.Option)
                                                  .ToListAsync();
@@ -369,12 +378,13 @@ namespace ShopRe.Service
             foreach (var order in listOrder)
             {
                 var orderItems = await _dbContext.OrderItems
-                                                  .Where(o => o.Order.ID == order.ID)
-                                                  .Include(o => o.Product)
-                                                  .Include(o => o.OptionValues)
-                                                  .Include(o => o.optionValues2)
-                                                  .ThenInclude(o => o.Option)
-                                                  .ToListAsync();
+                                                 .Where(o => o.Order.ID == order.ID)
+                                                 .Include(o => o.Product)
+                                                 .Include(o => o.OptionValues)
+                                                 .ThenInclude(o => o.Option)
+                                                 .Include(o => o.optionValues2)
+                                                 .ThenInclude(o => o.Option)
+                                                 .ToListAsync();
 
                 var Items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = Items;

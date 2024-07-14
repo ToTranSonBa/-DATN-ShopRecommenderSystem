@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopRe.Data;
 
@@ -11,9 +12,10 @@ using ShopRe.Data;
 namespace ShopRe.Data.Migrations
 {
     [DbContext(typeof(ShopRecommenderSystemDbContext))]
-    partial class ShopRecommenderSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240707035453_change_comment")]
+    partial class change_comment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,29 +53,29 @@ namespace ShopRe.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1c83569b-a7c7-4ff3-8324-cc1b6561c48e",
-                            ConcurrencyStamp = "78d1839c-1f94-4af6-a633-178788f8b1e5",
+                            Id = "2e687a23-0576-47eb-96a6-044050deec5b",
+                            ConcurrencyStamp = "2f732c20-1acb-45c2-b5f6-29aad7436a75",
                             Name = "Seller",
                             NormalizedName = "SELLER"
                         },
                         new
                         {
-                            Id = "eeff3ecf-836f-43c4-bac0-101cfcba35e9",
-                            ConcurrencyStamp = "0d791772-720f-49f5-9d73-666646746286",
+                            Id = "c1e064e0-ebc7-4859-82cd-09dbb5420e9b",
+                            ConcurrencyStamp = "0066f52b-5cc9-41ef-82a6-4c78cd244eb1",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "c3770f60-d633-4b3c-859e-a53605704a0f",
-                            ConcurrencyStamp = "a80da2d8-c0e3-4002-97d7-b2e98242b460",
+                            Id = "c934a110-fac5-4b76-b53c-0f3d65b287e1",
+                            ConcurrencyStamp = "3e2bbbc3-86f9-4d2a-9d00-96d0ba630a22",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "119e0381-04a4-4114-892c-08ca23d7500e",
-                            ConcurrencyStamp = "958410d8-70e8-4543-864d-136b765af731",
+                            Id = "82e5ef6b-8296-4761-bca0-0f445f1138a8",
+                            ConcurrencyStamp = "2bbb9427-9c69-4547-8033-94dac3a8f485",
                             Name = "Shipper",
                             NormalizedName = "SHIPPER"
                         });
@@ -1115,48 +1117,6 @@ namespace ShopRe.Data.Migrations
                     b.ToTable("shopRecommendDailies");
                 });
 
-            modelBuilder.Entity("ShopRe.Model.Models.TopPopProduct", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductID_NK")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductID_NK");
-
-                    b.ToTable("TopPopProduct");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.TopViewProduct", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductID_NK")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductID_NK");
-
-                    b.ToTable("TopViewProduct");
-                });
-
             modelBuilder.Entity("ShopRe.Model.Models.user_s_log.UserLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1466,28 +1426,6 @@ namespace ShopRe.Data.Migrations
                         .HasForeignKey("SellerID_NK");
 
                     b.Navigation("Seller");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.TopPopProduct", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ShopRe.Model.Models.TopViewProduct", b =>
-                {
-                    b.HasOne("ShopRe.Model.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID_NK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ShopRe.Model.Models.user_s_log.UserLog", b =>

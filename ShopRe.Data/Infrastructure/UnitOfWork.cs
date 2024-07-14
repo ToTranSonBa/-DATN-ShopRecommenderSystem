@@ -14,13 +14,15 @@ namespace ShopRe.Data.Infrastructure
         public IProductRepository Products { get; }
         public IProductOptionRepository ProductOptions { get; }
         public ISellerRepository Sellers { get; }
+        public IProductChildRepository ProductChilds { get; }
         public UnitOfWork(ShopRecommenderSystemDbContext context, IProductRepository products,
-            IProductOptionRepository productOption, ISellerRepository seller)
+            IProductOptionRepository productOption, ISellerRepository seller, IProductChildRepository productChilds)
         {
             _context = context;
             Products = products;
             ProductOptions = productOption;
             Sellers = seller;
+            ProductChilds = productChilds;
         }
         public int Save()
         {

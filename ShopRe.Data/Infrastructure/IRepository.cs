@@ -20,5 +20,6 @@ namespace ShopRe.Data.Infrastructure
         IEnumerable<T> Find(Expression<Func<T, bool>> expression);
         ValueTask<EntityEntry<T>> AddAsync(T entity);
         Task<T> UpdateUofW(T entity);
+        Task<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate);
     }
 }

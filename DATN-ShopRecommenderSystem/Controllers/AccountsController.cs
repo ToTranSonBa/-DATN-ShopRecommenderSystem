@@ -349,7 +349,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return Unauthorized();
             }
         }
-        [HttpPost("Customer/FollowShop")]
+        [HttpPost("Customer/Shop/Follow")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Follow(int shopid)
         {
@@ -384,19 +384,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     }
                 }
                 else
-                {
-                    followExist.UpdatedAt = DateTime.Now;
-                    
-                    if(followExist.DeletedAt != null)
-                    { 
-                        seller.TotalFollower = seller.TotalFollower + 1;
-                        await _unitOfWork.Sellers.Update(seller);
-                        followExist.DeletedAt = null;
-                    }
-                    var res = _context.Set<AccountSeller>().Update(followExist);
-                    await _context.SaveChangesAsync();
-                    
-                    return Ok(res.Entity);
+                {            
+                    return StatusCode(StatusCodes.Status200OK, "Bạn đã theo dõi từ trước");
                 }
             }
             else
@@ -404,7 +393,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 return Unauthorized();
             }
         }
-        [HttpPut("Customer/UnfollowShop")]
+        [HttpDelete("Customer/Shop/Unfollow")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> UnFollow(int shopid)
         {
@@ -414,8 +403,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 .Where(a => a.UserID == user.TrainCode).Select(s => s.ID_NK).FirstOrDefaultAsync();
             var follow = await _context.AccountSeller.FindAsync(accId, shopid);
             var seller = await _context.Sellers.FindAsync(shopid);
-            follow.DeletedAt = DateTime.Now;
-            var res = _context.Set<AccountSeller>().Update(follow);
+            var res = _context.Set<AccountSeller>().Remove(follow);
             await _context.SaveChangesAsync();
             if(res == null)
             {

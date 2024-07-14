@@ -52,7 +52,10 @@ namespace ShopRe.Service
             }
 
             var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.UserID == user.TrainCode);
-
+            if(account == null)
+            {
+                throw new ArgumentException("Tài khoản không tồn tại!");
+            }
             try
             {
                 var detailComment = new DetailComment

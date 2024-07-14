@@ -76,6 +76,7 @@ builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerPriorityRepository, SellerPriorityRepository>();
 builder.Services.AddScoped<IUserLogRepository, UserLogRepository>();
 builder.Services.AddScoped<IShippingAddressRepository, ShippingAddressRepository>();
+builder.Services.AddScoped<IProductChildRepository, ProductChildRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 

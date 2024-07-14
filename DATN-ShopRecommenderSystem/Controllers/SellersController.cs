@@ -154,7 +154,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
             }
         }
 
-        [HttpPost("/foruser/recommend/sellers")]
+        [HttpPost("foruser/recommend/sellers")]
         public async Task<IActionResult> RecommendSellerForUser()
         {
             int userCode = 0;
@@ -178,6 +178,28 @@ namespace DATN_ShopRecommenderSystem.Controllers
             var result = await _elasticsearchService.GetSellerForUser(userCode);
             if (result.Count == 0)
                 return NoContent();
+            return Ok(result);
+        }
+        [HttpGet("recommend-similaryty")]
+        public async Task<IActionResult> RecommendSimilarity(int sellerId)
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            int userCode = 0;
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+
+            }
+            else
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                // Get user from token
+                var user = await _accountService.GetUserFromTokenAsync(token);
+                userCode = user.TrainCode;
+            }
+
+            var result = await _sellerService.GetSellerSimilarity(sellerId, userCode);
+
             return Ok(result);
         }
     }

@@ -179,7 +179,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
         [Authorize]
         [HttpPost("CreatOrderForUser")]
-        public async Task<ActionResult<Order>> CreateOrder([FromQuery] OrderParameters orderParameters)
+        public async Task<ActionResult<Order>> CreateOrder([FromQuery]OrderParameters orderParameters)
         {
             try
             {

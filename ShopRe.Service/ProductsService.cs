@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -25,6 +26,7 @@ namespace ShopRe.Service
         Task<int> AddRange(IEnumerable<Product> entities);
         Task<Product> AddProduct(CreateProductParameters entity, ApplicationUser seller);
         Task<ProductChild> AddProductChild(CreateProductChildPrameters entity, ApplicationUser seller);
+        Task<ProductChild> UpdateProductChild(UpdateProductChildParameters entity, ApplicationUser seller);
         Task<Product> Update(UpdateProductParameters entity, int id, ApplicationUser user);
         Task Remove(int id, ApplicationUser user);
         IEnumerable<Product> Find(Expression<Func<Product, bool>> expression);
@@ -40,10 +42,12 @@ namespace ShopRe.Service
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
         Task<(Common.DTOs.Page paging, List<ProductWithImages> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
+        Task RemoveProductChild(int id, ApplicationUser user);
     }
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IProductChildRepository _productChildRepository;
         private readonly ISellerPriorityRepository _sellerPriorityRepository;
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<ProductService> _logger;
@@ -55,7 +59,7 @@ namespace ShopRe.Service
         public ProductService(IProductRepository productRepository, ISellerPriorityRepository sellerPriorityRepository,
             ILogger<ProductService> logger, IElasticClient elasticClient,
             ShopRecommenderSystemDbContext dbContext, IMapper mapper, IUnitOfWork unitOfWork,
-            HttpClient httpClient)
+            HttpClient httpClient, IProductChildRepository productChildRepository)
         {
             _mapper = mapper;
             _productRepository = productRepository;
@@ -65,6 +69,7 @@ namespace ShopRe.Service
             _dbContext = dbContext;
             _httpClient = httpClient;
             _unitOfWork = unitOfWork;
+            _productChildRepository = productChildRepository;
         }
         //Elastic Service
 
@@ -167,9 +172,10 @@ namespace ShopRe.Service
                 var image = await _dbContext.Images.FirstOrDefaultAsync(i => i.ProductID_NK == id);
                 if (image == null)
                 {
-                    throw new InvalidOperationException("Image not found.");
+                    return (product.Price, null);
                 }
                 return (product.Price, image.Image);
+                //throw new InvalidOperationException("Product child not found.");
             }
         }
 
@@ -437,6 +443,54 @@ namespace ShopRe.Service
             }
         }
 
+        public async Task<ProductChild> UpdateProductChild(UpdateProductChildParameters entity, ApplicationUser seller)
+        {
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ID_NK == entity.IdProduct && p.IsDeleted == false);
+            if (product == null)
+            {
+                throw new ArgumentException("Invalid Product ID.");
+            }
+
+            var productChildRes = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.ProductID_NK == entity.IdProduct
+            && p.OptionValuesID1 == entity.OptionValuesID1 && p.OptionValuesID2 == entity.OptionValuesID2);
+
+            if (productChildRes == null)
+            {
+                throw new ArgumentException("ProductChild not found.");
+            }
+
+            //var productChild2 = await _productChildRepository.GetById(productChildRes.Id);
+
+            //productChild2.Price = entity.Price;
+            //productChild2.thumbnail_url = entity.thumbnail_url;
+
+            productChildRes.Price = entity.Price;
+            productChildRes.thumbnail_url = entity.thumbnail_url;
+
+            var res = await _unitOfWork.ProductChilds.UpdateUofW(productChildRes);
+
+            //await _dbContext.SaveChangesAsync();
+            return res;
+        }
+
+        public async Task RemoveProductChild(int id, ApplicationUser user)
+        {
+            var productChild = await _dbContext.ProductChild.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (productChild == null)
+            {
+                throw new ArgumentException("ProductChild không tồn tại. ");
+            }
+
+            var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ApplicationUser.Id == user.Id);
+            if (seller == null)
+            {
+                throw new ArgumentException("Seller không tồn tại.");
+            }
+
+            _dbContext.ProductChild.Remove(productChild);
+            await _dbContext.SaveChangesAsync();
+        }
         public async Task Remove(int id, ApplicationUser user)
         {
             try
@@ -785,7 +839,25 @@ namespace ShopRe.Service
         }
         public async Task<List<ProductWithImages>> GetPopular(int number)
         {
-            var result = await _productRepository.GetProductPopular(number);
+            var listId = await _productRepository.GetProductPopular(number);
+            var result = new List<Product>();
+            foreach (var item in listId)
+            {
+                var itemPro = await _elasticClient.SearchAsync<object>(s => s
+                    .Index("products")
+                    .From(0)
+                    .Size(10)
+                    .Query(q => q
+                        .Match(m => m
+                        .Field("ID_NK")
+                        .Query(item.ToString())
+                )
+                    )
+                );
+                var res = ConvertToProduct(itemPro.Documents.ToList());
+                //itemPro2 = FunctionCommon.ConvertToProduct(itemPro.Documents.ToList());
+                result.TryAdd(res);
+            }
             var product = await ConvertToProductWithImages(result);
             return product;
         }
@@ -931,5 +1003,6 @@ namespace ShopRe.Service
             }
             return products.ToList();
         }
+
     }
 }
