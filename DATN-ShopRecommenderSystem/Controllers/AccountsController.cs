@@ -375,12 +375,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     {
                         var res = await _context.Set<AccountSeller>().AddAsync(follow);
                         seller.TotalFollower = seller.TotalFollower + 1;
-                        await _unitOfWork.Sellers.Update(seller);
+                        await _unitOfWork.Sellers.UpdateUofW(seller);
                         return StatusCode(StatusCodes.Status200OK);
                     }
                     catch (Exception ex)
                     {
-                        return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
+                        return StatusCode(500, ex);
                     }
                 }
                 else
@@ -409,8 +409,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
-            seller.TotalFollower = -1;
-            await _unitOfWork.Sellers.Update(seller);
+            seller.TotalFollower = seller.TotalFollower - 1;
+            await _unitOfWork.Sellers.UpdateUofW(seller);
             return Ok(res.Entity);
         }
         /*--------------------------Dashboard----------------------*/
