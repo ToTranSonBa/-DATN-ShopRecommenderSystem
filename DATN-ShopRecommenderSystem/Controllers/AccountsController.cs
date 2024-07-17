@@ -376,7 +376,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         var res = await _context.Set<AccountSeller>().AddAsync(follow);
                         seller.TotalFollower = seller.TotalFollower + 1;
                         await _unitOfWork.Sellers.UpdateUofW(seller);
-                        return StatusCode(StatusCodes.Status200OK);
+                        return Ok(res.Entity);
                     }
                     catch (Exception ex)
                     {
@@ -531,6 +531,54 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             // Trả về dữ liệu cho view (hoặc API response)
             return Ok((new { CurrentWeekData = currentWeekData, LastWeekData = lastWeekData }));
+        }
+        [HttpGet("Seller/IncomeDashboard")]
+        //[Authorize(Roles = "Seller")]
+        public async Task<IActionResult> IncomeDashboard(int idseller)
+        {
+            //var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            //var user = await _userManager.FindByEmailAsync(userEmail);
+            //var seller = await _context.Sellers
+            //    .Where(s => s.ApplicationUserId == user.Id)
+            //    .FirstOrDefaultAsync();
+
+            var seller = await _context.Sellers
+                .Where(s => s.ID_NK == idseller)
+                .FirstOrDefaultAsync();
+            int currentYear = DateTime.Now.Year;
+            // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
+            var ordersData = await _context.Order
+                .Where(order => order.CreatedAt.HasValue && order.CreatedAt.Value.Year == currentYear)
+                .GroupBy(order => order.CreatedAt.Value.Month)
+                .Select(group => new
+                {
+                    Month = group.Key,
+                    TotalPrice = group.Sum(order => order.TotalPrice ?? 0)
+                })
+                .ToListAsync();
+
+            // Tạo danh sách đủ 12 tháng với OrderCount = 0
+            var monthlyOrders = Enumerable.Range(1, 12)
+                .Select(month => new MonthlyOrder
+                {
+                    Year = currentYear,
+                    Month = month,
+                    Total = 0m
+                })
+                .ToList();
+
+            // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+            foreach (var orderData in ordersData)
+            {
+                var monthOrder = monthlyOrders.FirstOrDefault(mo => mo.Month == orderData.Month);
+                if (monthOrder != null)
+                {
+                    monthOrder.Total = orderData.TotalPrice;
+                    //monthOrder.Orders = orderData.Orders;
+                }
+            }
+
+            return Ok(monthlyOrders);
         }
     }
 
