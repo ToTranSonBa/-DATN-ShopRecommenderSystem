@@ -533,18 +533,16 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok((new { CurrentWeekData = currentWeekData, LastWeekData = lastWeekData }));
         }
         [HttpGet("Seller/IncomeDashboard")]
-        //[Authorize(Roles = "Seller")]
-        public async Task<IActionResult> IncomeDashboard(int idseller)
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> IncomeDashboard()
         {
-            //var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
-            //var user = await _userManager.FindByEmailAsync(userEmail);
-            //var seller = await _context.Sellers
-            //    .Where(s => s.ApplicationUserId == user.Id)
-            //    .FirstOrDefaultAsync();
-
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
             var seller = await _context.Sellers
-                .Where(s => s.ID_NK == idseller)
+                .Where(s => s.ApplicationUserId == user.Id)
                 .FirstOrDefaultAsync();
+
+
             int currentYear = DateTime.Now.Year;
             // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
             var ordersData = await _context.Order
