@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace ShopRe.Common.DTOs
 {
-    public class MonthlyOrder
+    public class MonthlyFollow
     {
         public int Year { get; set; }
         public int Month { get; set; }
-        public int? OrderCount { get; set; }
-        public decimal? Total { get; set; }
-        public List<Order>? Orders { get; set; }
+        public int? TotalFollow { get; set; }
+        public List<AccountSeller>? Follows { get; set; }
     }
 }

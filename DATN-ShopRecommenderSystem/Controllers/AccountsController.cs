@@ -374,13 +374,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     try
                     {
                         var res = await _context.Set<AccountSeller>().AddAsync(follow);
+                        if(seller.TotalFollower==null)
+                        {
+                            seller.TotalFollower = 0;
+                        }
                         seller.TotalFollower = seller.TotalFollower + 1;
-                        await _unitOfWork.Sellers.Update(seller);
-                        return StatusCode(StatusCodes.Status200OK);
+                        await _unitOfWork.Sellers.UpdateUofW(seller);
+                        return Ok(res.Entity);
                     }
                     catch (Exception ex)
                     {
-                        return StatusCode(500, "Có lỗi xảy ra, vui lòng thử lại sau.");
+                        return StatusCode(500, ex);
                     }
                 }
                 else
@@ -409,8 +413,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
-            seller.TotalFollower = -1;
-            await _unitOfWork.Sellers.Update(seller);
+            if (seller.TotalFollower == null)
+            {
+                seller.TotalFollower = 1;
+            }
+            seller.TotalFollower = seller.TotalFollower - 1;
+            await _unitOfWork.Sellers.UpdateUofW(seller);
             return Ok(res.Entity);
         }
         /*--------------------------Dashboard----------------------*/
@@ -427,7 +435,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 .Where(s => s.ApplicationUserId == user.Id)
                 .FirstOrDefaultAsync(); 
             var sellerID = seller.ID_NK;
-            var totalpro = await _context.Products.CountAsync(p => p.SellerID_NK == sellerID);
+            var totalpro = await _context.Products.CountAsync(p => p.SellerID_NK == sellerID && p.IsDeleted==false);
             var listOrder = await _context.Order.Where(s => s.SellerID_NK == sellerID && (s.CreatedAt >= firstDayOfMonth && s.CreatedAt <= lastDayOfMonth)).ToListAsync();
             var totalOrder = listOrder.Count();
             decimal? interest = 0;
@@ -470,6 +478,27 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     OrderCount=0
                 })
                 .ToList();
+            // lay dwx lieu follow
+            var followData = await _context.AccountSeller
+                .Where(o => o.CreatedAt.Value.Year == currentYear && o.SellerID_NK == seller.ID_NK)
+                .GroupBy(o => o.CreatedAt.Value.Month)
+                .Select(g => new
+                {
+                    Year = currentYear,
+                    Month = g.Key,
+                    OrderCount = g.Count()
+                })
+                .ToListAsync();
+
+            // Tạo danh sách đủ 12 tháng với follow = 0
+            var monthlyFollows= Enumerable.Range(1, 12)
+                .Select(month => new MonthlyFollow
+                {
+                    Year = currentYear,
+                    Month = month,
+                    TotalFollow= 0
+                })
+                .ToList();
 
             // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
             foreach (var orderData in ordersData)
@@ -481,8 +510,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     //monthOrder.Orders = orderData.Orders;
                 }
             }
+            // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+            foreach (var follow in followData)
+            {
+                var monthFollow = monthlyFollows.FirstOrDefault(mo => mo.Month == follow.Month);
+                if (monthFollow != null)
+                {
+                    monthFollow.TotalFollow = follow.OrderCount;
+                    //monthOrder.Orders = orderData.Orders;
+                }
+            }
 
-            return Ok(monthlyOrders);
+            return Ok(new { monthlyOrders, monthlyFollows });
         }
         [HttpGet("Seller/OrderColumnGraph")]
         [Authorize(Roles = "Seller")]
@@ -531,6 +570,52 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
             // Trả về dữ liệu cho view (hoặc API response)
             return Ok((new { CurrentWeekData = currentWeekData, LastWeekData = lastWeekData }));
+        }
+        [HttpGet("Seller/IncomeDashboard")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> IncomeDashboard()
+        {
+            var userEmail = HttpContext.User.Claims.ElementAt(0).Value;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var seller = await _context.Sellers
+                .Where(s => s.ApplicationUserId == user.Id)
+                .FirstOrDefaultAsync();
+
+
+            int currentYear = DateTime.Now.Year;
+            // Lấy dữ liệu đơn hàng theo tháng từ cơ sở dữ liệu
+            var ordersData = await _context.Order
+                .Where(order => order.CreatedAt.HasValue && order.CreatedAt.Value.Year == currentYear)
+                .GroupBy(order => order.CreatedAt.Value.Month)
+                .Select(group => new
+                {
+                    Month = group.Key,
+                    TotalPrice = group.Sum(order => order.TotalPrice ?? 0)
+                })
+                .ToListAsync();
+
+            // Tạo danh sách đủ 12 tháng với OrderCount = 0
+            var monthlyOrders = Enumerable.Range(1, 12)
+                .Select(month => new MonthlyOrder
+                {
+                    Year = currentYear,
+                    Month = month,
+                    Total = 0m
+                })
+                .ToList();
+
+            // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+            foreach (var orderData in ordersData)
+            {
+                var monthOrder = monthlyOrders.FirstOrDefault(mo => mo.Month == orderData.Month);
+                if (monthOrder != null)
+                {
+                    monthOrder.Total = orderData.TotalPrice;
+                    //monthOrder.Orders = orderData.Orders;
+                }
+            }
+
+            return Ok(monthlyOrders);
         }
     }
 
