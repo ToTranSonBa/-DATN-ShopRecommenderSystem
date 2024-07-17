@@ -427,7 +427,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 .Where(s => s.ApplicationUserId == user.Id)
                 .FirstOrDefaultAsync(); 
             var sellerID = seller.ID_NK;
-            var totalpro = await _context.Products.CountAsync(p => p.SellerID_NK == sellerID);
+            var totalpro = await _context.Products.CountAsync(p => p.SellerID_NK == sellerID && p.IsDeleted==false);
             var listOrder = await _context.Order.Where(s => s.SellerID_NK == sellerID && (s.CreatedAt >= firstDayOfMonth && s.CreatedAt <= lastDayOfMonth)).ToListAsync();
             var totalOrder = listOrder.Count();
             decimal? interest = 0;
