@@ -374,6 +374,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     try
                     {
                         var res = await _context.Set<AccountSeller>().AddAsync(follow);
+                        if(seller.TotalFollower==null)
+                        {
+                            seller.TotalFollower = 0;
+                        }
                         seller.TotalFollower = seller.TotalFollower + 1;
                         await _unitOfWork.Sellers.UpdateUofW(seller);
                         return Ok(res.Entity);
@@ -408,6 +412,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
             if(res == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            if (seller.TotalFollower == null)
+            {
+                seller.TotalFollower = 1;
             }
             seller.TotalFollower = seller.TotalFollower - 1;
             await _unitOfWork.Sellers.UpdateUofW(seller);
