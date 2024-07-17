@@ -470,6 +470,27 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     OrderCount=0
                 })
                 .ToList();
+            // lay dwx lieu follow
+            var followData = await _context.AccountSeller
+                .Where(o => o.CreatedAt.Value.Year == currentYear && o.SellerID_NK == seller.ID_NK)
+                .GroupBy(o => o.CreatedAt.Value.Month)
+                .Select(g => new
+                {
+                    Year = currentYear,
+                    Month = g.Key,
+                    OrderCount = g.Count()
+                })
+                .ToListAsync();
+
+            // Tạo danh sách đủ 12 tháng với follow = 0
+            var monthlyFollows= Enumerable.Range(1, 12)
+                .Select(month => new MonthlyFollow
+                {
+                    Year = currentYear,
+                    Month = month,
+                    TotalFollow= 0
+                })
+                .ToList();
 
             // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
             foreach (var orderData in ordersData)
@@ -481,8 +502,18 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     //monthOrder.Orders = orderData.Orders;
                 }
             }
+            // Kết hợp dữ liệu từ cơ sở dữ liệu với danh sách đủ 12 tháng
+            foreach (var follow in followData)
+            {
+                var monthFollow = monthlyFollows.FirstOrDefault(mo => mo.Month == follow.Month);
+                if (monthFollow != null)
+                {
+                    monthFollow.TotalFollow = follow.OrderCount;
+                    //monthOrder.Orders = orderData.Orders;
+                }
+            }
 
-            return Ok(monthlyOrders);
+            return Ok(new { monthlyOrders, monthlyFollows });
         }
         [HttpGet("Seller/OrderColumnGraph")]
         [Authorize(Roles = "Seller")]
