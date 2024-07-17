@@ -94,7 +94,7 @@ namespace ShopRe.Service
         }
         public async Task<List<Seller>> GetSellerSimilarity(int sellerid, int userCode)
         {
-            var requestUri = $"http://127.0.0.1:8000/api/CBF-S/recommend?userid={sellerid}&storeid={sellerid}";
+            var requestUri = $"https://fastapi-2i32.onrender.com/api/CBF-S/recommend?userid={sellerid}&storeid={sellerid}";
             //var requestUri = $"https://fastapi-2i32.onrender.com/get/RecommendProductForUser?userid={userCode}";
             bool error = false;
             List<Seller> seller = new List<Seller>();
