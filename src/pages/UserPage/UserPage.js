@@ -18,6 +18,9 @@ import axios from 'axios';
 import DefaultAVT from '../../assets/default-avatar.png';
 import MaxWidthWrapper from './../../components/MaxWidthWrapper/index';
 //
+import Preloader from '../ShopDashboardPage/components/preloader/index';
+//
+
 const formatNumber = (number) => {
     return new Intl.NumberFormat().format(number);
 };
@@ -64,6 +67,7 @@ const UserPage = () => {
     const [ordersData, setOrderData] = useState([]);
     const [dropDownRating, setDropDownRating] = useState(false);
     const [orderView, setOrderView] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const fetchUser = useCallback(async () => {
         try {
@@ -111,6 +115,7 @@ const UserPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Bắt đầu hiển thị loader
         // Xử lý logic thay đổi mật khẩu ở đây
         try {
             const response = await changePasswordUserApi(oldPassword, newPassword, confirmPassword, token);
@@ -133,11 +138,15 @@ const UserPage = () => {
             }
         } catch (error) {
             console.log('error when call changePasswordApi', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
+        setLoading(true); // Bắt đầu hiển thị loader
+
         try {
             const response = await updateUserApi(
                 userData.firstName,
@@ -152,10 +161,11 @@ const UserPage = () => {
                 toast.success('Thay đổi thành công');
             }
         } catch (error) {
-            console.log('error when call updateUserApi', error);
+            console.log('Error when calling updateUserApi', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
-
     const toggleDropdown = () => {
         if (selectedOption === 'profile' || selectedOption === 'address' || selectedOption === 'changepassword') {
             return;
@@ -198,10 +208,11 @@ const UserPage = () => {
         const file = e.target.files[0];
         if (file) {
             setAvatarFile(file); // Lưu tệp hình ảnh vào state
+            setLoading(true); // Bắt đầu hiển thị loader
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', cloudinaryConfig.upload_preset); // Đảm bảo bạn đã tạo upload preset trong Cloudinary
+            formData.append('upload_preset', cloudinaryConfig.upload_preset);
 
             try {
                 const response = await axios.post(
@@ -209,13 +220,9 @@ const UserPage = () => {
                     formData,
                 );
 
-                // Lấy URL của hình ảnh mới tải lên từ response
                 const fileURL = response.data.secure_url;
 
-                // Tạo một đối tượng userData mới để cập nhật
-                const updatedUserData = { ...userData };
-                // Thêm URL của hình ảnh mới vào userData
-                updatedUserData.avatar = fileURL;
+                const updatedUserData = { ...userData, avatar: fileURL };
                 const updateUser = await updateUserApi(
                     updatedUserData.firstName,
                     updatedUserData.lastName,
@@ -225,17 +232,20 @@ const UserPage = () => {
                     updatedUserData.avatar,
                     token,
                 );
-                if (!response) {
-                    console.log('fail to call updateUserApi');
+
+                if (!updateUser) {
+                    console.log('Failed to call updateUserApi');
                 } else {
-                    // Cập nhật state với thông tin mới của người dùng
                     setUserData(updatedUserData);
                 }
             } catch (error) {
                 console.error('Error uploading the file:', error);
+            } finally {
+                setLoading(false); // Dừng hiển thị loader
             }
         }
     };
+
 
     const [ratingStart, setRatingStart] = useState(5);
 
@@ -357,9 +367,10 @@ const UserPage = () => {
     // };
 
     const handleAddComment = async () => {
-        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`; // URL endpoint tải lên của Cloudinary
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`;
+        setLoading(true); // Bắt đầu hiển thị loader
         try {
-            let updatedReviews = [...reviews]; // Tạo bản sao của mảng reviews để tránh thay đổi trực tiếp
+            let updatedReviews = [...reviews];
             for (const orderId of Object.keys(files)) {
                 for (const itemId of Object.keys(files[orderId])) {
                     const fileObjects = files[orderId][itemId];
@@ -367,10 +378,9 @@ const UserPage = () => {
                     for (const key of Object.keys(fileObjects)) {
                         const file = fileObjects[key];
 
-                        // Tải lên hình ảnh lên Cloudinary
                         const formData = new FormData();
                         formData.append('file', file);
-                        formData.append('upload_preset', cloudinaryConfig.upload_preset); // Thay thế bằng upload preset của Cloudinary
+                        formData.append('upload_preset', cloudinaryConfig.upload_preset);
 
                         const response = await fetch(cloudinaryUrl, {
                             method: 'POST',
@@ -382,20 +392,17 @@ const UserPage = () => {
                         }
 
                         const data = await response.json();
-                        const imageUrl = data.secure_url; // Lấy URL hình ảnh từ Cloudinary
+                        const imageUrl = data.secure_url;
 
-                        // Tìm review tương ứng trong updatedReviews để cập nhật images
                         const reviewToUpdate = updatedReviews.find((review) => {
                             return String(review.orderId) === orderId && String(review.itemId) === itemId;
                         });
                         console.log('reviewToUpdate:', reviewToUpdate);
                         if (reviewToUpdate) {
-                            // Nếu review đã tồn tại, cập nhật images của nó
                             reviewToUpdate.images = reviewToUpdate.images
                                 ? [...reviewToUpdate.images, imageUrl]
                                 : [imageUrl];
                         } else {
-                            // Nếu review chưa tồn tại, thông báo lỗi hoặc xử lý tùy theo logic của bạn
                             console.error(`Review not found for orderId ${orderId} and itemId ${itemId}`);
                         }
                     }
@@ -410,7 +417,7 @@ const UserPage = () => {
                         toast.success('Đánh giá sản phẩm thành công');
                         setTimeout(() => {
                             setDropDownRating(false);
-                        }, 2000);
+                        }, 1000);
                     } else {
                         toast.error('Đánh giá sản phẩm thất bại');
                     }
@@ -423,7 +430,9 @@ const UserPage = () => {
             }
         } catch (error) {
             console.error('Error uploading images:', error);
-            toast.error('lỗi khi thêm hình ảnh.');
+            toast.error('Lỗi khi thêm hình ảnh.');
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -444,6 +453,7 @@ const UserPage = () => {
     return (
         <>
             <div className="relative bg-background">
+                <Preloader loading={loading} />
                 <MaxWidthWrapper>
                     <div className="lg:pt-36  w-full flex flex-col gap-5 md:flex-row text-[#161931]">
                         <aside className="hidden py-4 md:w-1/3 lg:w-1/4 md:block">
@@ -1382,6 +1392,7 @@ const UserPage = () => {
                                 >
                                     Trở lại
                                 </button>
+                                <Preloader loading={loading} />
                                 <button
                                     className="font-light text-white rounded-sm text-md bg-primary lg:px-12 lg:py-2 h-min"
                                     onClick={handleAddComment}

@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { addCartApi } from "../../services/CartApi/cartApi";
 import MaxWidthWrapper from "../../components/MaxWidthWrapper";
 import ProductCard from "../../components/card/ProductCard";
+import Preloader from '../ShopDashboardPage/components/preloader/index';
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -143,29 +144,7 @@ const ProductDetailPage = () => {
     }
   }, [id]);
 
-  const fetchAddToCart = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `/CartItems/AddToCart`,
-        {
-          idProduct: id,
-          idProductOptionValue: idProductOptionValue,
-          ProductOptionImage: productOptionImage,
-          quantity,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setComments(response.data[0]);
-    } catch (error) {
-      console.error("Failed to fetch add to cart:", error);
-    }
-  }, [idProductOptionValue, productOptionImage]);
+
 
   const fetchOtherShopProduct = useCallback(async (id) => {
     try {
@@ -305,6 +284,8 @@ const ProductDetailPage = () => {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleAddCart = async (event) => {
     event.preventDefault();
 
@@ -322,26 +303,25 @@ const ProductDetailPage = () => {
       console.log("selectedProductChildren: ", selectedProductChildren);
 
       if (productDetail?.productChildren?.length !== 0) {
-        {
-          if (option1 && option1.option && !idProductOption1Value) {
-            toast.error(`Hãy chọn ${option1.option.name}`);
-            return;
-          }
-          if (option2 && option2.option && !idProductOption2Value) {
-            toast.error(`Hãy chọn ${option2.option.name}`);
-            return;
-          }
+        if (option1 && option1.option && !idProductOption1Value) {
+          toast.error(`Hãy chọn ${option1.option.name}`);
+          return;
+        }
+        if (option2 && option2.option && !idProductOption2Value) {
+          toast.error(`Hãy chọn ${option2.option.name}`);
+          return;
+        }
 
-          if (
-            !selectedProductChildren &&
-            productDetail?.productChildren.length !== 0
-          ) {
-            toast.error("Mặt hàng này đã hết. Hãy chọn mặt hàng khác");
-            return;
-          }
+        if (
+          !selectedProductChildren &&
+          productDetail?.productChildren.length !== 0
+        ) {
+          toast.error("Mặt hàng này đã hết. Hãy chọn mặt hàng khác");
+          return;
         }
       }
 
+      setLoading(true); // Start the loader
       try {
         const response = await addCartApi(
           productDetail.product.iD_NK,
@@ -364,6 +344,9 @@ const ProductDetailPage = () => {
         }
       } catch (error) {
         console.log("Failed to add to cart: ", error);
+        toast.error("Thêm vào giỏ hàng thất bại!");
+      } finally {
+        setLoading(false); // Stop the loader
       }
     }
   };
@@ -634,6 +617,7 @@ const ProductDetailPage = () => {
                 Mua ngay
               </button>
               {/* <ToastContainer /> */}
+              <Preloader loading={loading} />
               <button
                 type="button"
                 class="px-4 py-2.5 border bg-transparent text-blue-700 hover:border-blue-700 text-xl font-semibold rounded shadow-md"

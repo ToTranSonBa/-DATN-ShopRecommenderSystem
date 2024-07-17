@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SignupApi } from '../../services/SignupApi/SignUpApi';
-
+import Preloader from '../ShopDashboardPage/components/preloader/index'
 const SignUp = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
@@ -16,6 +16,8 @@ const SignUp = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const isPersonalInfoFilled = () => {
         return lastName.trim() !== '' && firstName.trim() !== '' && address.trim() !== '' && phoneNumber.trim() !== '';
     };
@@ -35,6 +37,7 @@ const SignUp = () => {
         setTermsAccepted(e.target.checked);
     };
     const handleClick = async () => {
+        setLoading(true);
         try {
             if (!lastName) {
                 toast.error('Vui lòng nhập họ');
@@ -80,12 +83,15 @@ const SignUp = () => {
                 toast.success('Tạo tài khoản thành công');
                 setTimeout(() => {
                     navigate('/login');
-                }, 2000);
+                }, 1000);
             } else {
                 toast.error('email của tài khoản đã tồn tại');
             }
         } catch (error) {
             console.error('Error submitting form:', error);
+        }
+        finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -102,6 +108,7 @@ const SignUp = () => {
 
                 <div className="flex justify-center w-full bg-white rounded-lg shadow lg:gap-12 md:mt-0 sm:max-w-md md:max-w-screen-md xl:p-0 ">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+                        <Preloader loading={loading} />
                         <form
                             className="space-y-4 md:space-y-6"
                             onSubmit={(e) => {
@@ -123,7 +130,7 @@ const SignUp = () => {
                                                 type="text"
                                                 name="last-name"
                                                 id="last-name"
-                                                placeholder="Nguyễn"
+                                                placeholder="Họ"
                                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
@@ -140,7 +147,7 @@ const SignUp = () => {
                                                 type="text"
                                                 name="first-name"
                                                 id="first-name"
-                                                placeholder="Văn A"
+                                                placeholder="Tên"
                                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
                                                 value={firstName}
                                                 onChange={(e) => setFirstName(e.target.value)}
@@ -177,7 +184,7 @@ const SignUp = () => {
                                             type="tel"
                                             name="phone-number"
                                             id="phone-number"
-                                            placeholder="0123456789"
+                                            placeholder="Số điện thoại"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
                                             value={phoneNumber}
                                             onChange={(e) => setPhoneNumber(e.target.value)}
@@ -199,7 +206,7 @@ const SignUp = () => {
                                             name="email"
                                             id="email"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block min-w-[390px] w-full p-2.5 "
-                                            placeholder="name@company.com"
+                                            placeholder="Email đăng nhập của bạn"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                         />

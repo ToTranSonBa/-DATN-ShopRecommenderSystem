@@ -118,7 +118,7 @@ const LoginPage = () => {
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="mail@loopple.com"
+                                        placeholder="Nhập email của bạn"
                                         className="flex items-center w-full px-5 py-4 mr-2 text-sm font-medium outline-none focus:bg-grey-400 mb-7 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"
                                     />
                                     <label htmlFor="password" className="mb-2 text-sm text-start text-grey-900">
@@ -127,7 +127,7 @@ const LoginPage = () => {
                                     <input
                                         id="password"
                                         type="password"
-                                        placeholder="Enter a password"
+                                        placeholder="Nhập mật khẩu"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="flex items-center w-full px-5 py-4 mb-5 mr-2 text-sm font-medium outline-none focus:bg-grey-400 placeholder:text-grey-700 bg-grey-200 text-dark-grey-900 rounded-2xl"

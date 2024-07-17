@@ -1,10 +1,21 @@
 import { useCallback } from 'react';
 import axios from '../axios-customize';
 
-const getSellerbyID = async (idSeller) => {
+const getSellerbyID = async (idSeller, token) => {
     try {
-        const response = await axios.get(`/Sellers/${idSeller}`);
-        // console.log('Full response getSellerbyID: ', response); // Thêm dòng này để kiểm tra toàn bộ response
+        let response;
+        if (token) {
+            response = await axios.get(
+                `/Sellers/${idSeller}`,
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                    },
+                }
+            );
+        } else {
+            response = await axios.get(`/Sellers/${idSeller}`);
+        }
         return response;
     } catch (error) {
         console.error('Failed to fetch seller:', error);
@@ -73,4 +84,34 @@ const fetchBrands = async () => {
     }
 };
 
-export { getSellerbyID, getProductsQuantitySoldMax, getProductsLastest, getAllProducts, fetchCategories, fetchBrands };
+const followApi = async (shopId, token) => {
+    try {
+        const response = await axios.post(`/Accounts/Customer/Shop/Follow?shopid=${shopId}`, {}, {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        });
+        console.log('Full response getFollowApi : ', response); // Thêm dòng này để kiểm tra toàn bộ response
+        return response;
+    } catch (error) {
+        console.error('Failed to follow: ', error);
+        throw error;
+    }
+};
+
+const unFollowApi = async (shopId, token) => {
+    try {
+        const response = await axios.delete(`/Accounts/Customer/Shop/Unfollow?shopid=${shopId}`, {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        });
+        console.log('Full response get unFollowApi: ', response); // Thêm dòng này để kiểm tra toàn bộ response
+        return response;
+    } catch (error) {
+        console.error('Failed to unFollow: ', error);
+        throw error;
+    }
+};
+
+export { getSellerbyID, getProductsQuantitySoldMax, getProductsLastest, getAllProducts, fetchCategories, fetchBrands, followApi, unFollowApi };

@@ -6,7 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import {
     addProductApi, addProductOptionsApi, addProductOptionChildrenApi
     , updateProductApi, updateProductOptionChildrenApi, deleteOptionChildApi
-} from '../../../../../services/SellerApi/sellerApi'
+} from '../../../../../services/SellerApi/sellerApi';
+import Preloader from '../../preloader/index';
 
 const cartesianProduct = (formValues, arr1, arr2) => {
     let result = [];
@@ -198,10 +199,13 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     // const handleAddProduct = async () => {
     //     console.log('combinations: ', combinations);
     // }
+    const [loading, setLoading] = useState(false);
 
 
     const handleAddProduct = async () => {
+        setLoading(true); // Bắt đầu hiển thị loader
         const mergedOptions = [];
+
         try {
             const uploadedImages = await uploadImages(files); // Upload images to Cloudinary
             const updatedFormValues = {
@@ -209,36 +213,29 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                 images: uploadedImages
             };
             const productData = await addProductApi(updatedFormValues, token);
-            // const productData = 1;
-
-
-
 
             if (productData) {
                 if (options) {
                     for (let i = 0; i < options.length; i++) {
                         const option = options[i];
-                        const values = optionValues[i] || []; // Xử lý khi optionValues[i] không tồn tại hoặc có ít hơn số lượng values
+                        const values = optionValues[i] || [];
 
                         const newOption = {
                             idProduct: productData.iD_NK,
-                            // idProduct: 1,
                             name: option.name,
                             optionNumber: i + 1,
                             values: []
                         };
 
                         for (let j = 0; j < option.values.length; j++) {
-                            const valueObj = values[j] || {}; // Xử lý khi không có đối tượng tương ứng trong optionValues
+                            const valueObj = values[j] || {};
 
-                            let imageUrl = ''; // Mặc định imageUrl là chuỗi rỗng nếu không có hình ảnh
+                            let imageUrl = '';
 
                             if (valueObj.image) {
-                                // Upload hình ảnh lên Cloudinary
                                 imageUrl = await uploadImageToCloudinary(valueObj.image);
                             }
 
-                            // Thêm vào đối tượng newOption
                             newOption.values.push({
                                 value: option.values[j].name,
                                 image: imageUrl
@@ -248,7 +245,6 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                         const productOptionsData = await addProductOptionsApi(newOption);
                         if (productOptionsData) {
                             combinations.forEach(combination => {
-                                // Tìm và cập nhật option1ValuesId
                                 const option1Value = productOptionsData.optionvalue.find(
                                     ov => ov.option.id === 1 && ov.name === combination.option1.name
                                 );
@@ -256,7 +252,6 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                                     combination.option1ValuesId = option1Value.id;
                                 }
 
-                                // Tìm và cập nhật option2ValuesId
                                 const option2Value = productOptionsData.optionvalue.find(
                                     ov => ov.option.id === 2 && ov.name === combination.option2.name
                                 );
@@ -268,13 +263,10 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                             mergedOptions.push(newOption);
                         }
                     }
-
-                    console.log('mergedOptions: ', mergedOptions);
                 }
 
                 if (combinations) {
                     for (let i = 0; i < combinations.length; i++) {
-
                         const valueObj = combinations[i];
                         const imageUrl = await uploadImageToCloudinary(valueObj.image);
                         const newOptionChildren = {
@@ -286,27 +278,25 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                         };
                         const productChildren = await addProductOptionChildrenApi(newOptionChildren, token);
                         if (productChildren) {
-                            console.log('thêm option children thành công phần tử: ', productChildren);
+                            console.log('Thêm option children thành công phần tử: ', productChildren);
+                        } else {
+                            console.log('Lỗi khi thêm sản phẩm thứ: ', newOptionChildren);
                         }
-                        else {
-                            console.log('lỗi khi thêm sản phẩm thứ : ', newOptionChildren);
-                        }
-
                     }
                 }
+
+                toast.success('Thêm sản phẩm thành công');
+                setTimeout(() => {
+                    handleClose();
+                }, 1000);
             }
-
-            toast.success('Thêm sản phẩm thành công');
-            setTimeout(() => {
-                handleClose();
-            }, 2000);
-
-
-            // Proceed with form submission logic
         } catch (error) {
-            console.error('Error add product:', error);
+            console.error('Lỗi thêm sản phẩm:', error);
+            toast.error('Lỗi khi thêm sản phẩm.');
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
-    }
+    };
 
 
     // const handleUpdateProduct = async () => {
@@ -315,7 +305,9 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     // }
 
     const handleUpdateProduct = async () => {
+        setLoading(true); // Bắt đầu hiển thị loader
         const mergedOptions = [];
+
         try {
             const uploadedImages = await uploadImages(files); // Upload images to Cloudinary
             const updatedFormValues = {
@@ -323,16 +315,10 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                 images: uploadedImages
             };
             const productData = await updateProductApi(product.product.iD_NK, updatedFormValues, token);
-            // const productData = 1;
-
-
-
 
             if (productData) {
-
                 if (combinations) {
                     for (let i = 0; i < combinations.length; i++) {
-
                         const valueObj = combinations[i];
                         const imageUrl = await uploadImageToCloudinary(valueObj.image);
                         const updateOptionChildren = {
@@ -345,34 +331,32 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                         const productChildren = await updateProductOptionChildrenApi(updateOptionChildren, token);
                         if (productChildren) {
                             console.log('Sửa option children thành công phần tử: ', updateOptionChildren);
+                        } else {
+                            console.log('Lỗi khi sửa sản phẩm thứ: ', updateOptionChildren);
                         }
-                        else {
-                            console.log('lỗi khi sửa sản phẩm thứ : ', updateOptionChildren);
-                        }
-
                     }
                 }
-            }
-            if (deleteChildrenOption.length > 0) {
-                for (let i = 0; i < deleteChildrenOption.length; i++) {
-                    const deleteChildData = await deleteOptionChildApi(deleteChildrenOption[i], token);
-                    if (deleteChildData) {
-                        console.log('xóa thành công child,: ', deleteChildrenOption[i]);
+
+                if (deleteChildrenOption.length > 0) {
+                    for (let i = 0; i < deleteChildrenOption.length; i++) {
+                        const deleteChildData = await deleteOptionChildApi(deleteChildrenOption[i], token);
+                        if (deleteChildData) {
+                            console.log('Xóa thành công child: ', deleteChildrenOption[i]);
+                        }
                     }
                 }
+
+                toast.success('Sửa sản phẩm thành công');
+                setTimeout(() => {
+                    handleClose();
+                }, 1000);
             }
-
-            toast.success('Sửa sản phẩm thành công');
-            setTimeout(() => {
-                handleClose();
-            }, 2000);
-
-
-            // Proceed with form submission logic
         } catch (error) {
-            console.error('Error update product:', error);
+            console.error('Lỗi cập nhật sản phẩm:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
-    }
+    };
 
     return (
         <div className="relative h-full max-h-screen overflow-y-scroll placeholder:w-full lg:px-6 lg:pt-4 lg:pb-12">
@@ -475,6 +459,7 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                 >
                     Quay lại
                 </button>
+                <Preloader loading={loading} />
                 {action === 0 && (
                     <>
                         <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"

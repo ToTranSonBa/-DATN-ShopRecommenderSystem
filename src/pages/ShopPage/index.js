@@ -1,7 +1,7 @@
 import MaxWidthWrapper from "../../components/MaxWidthWrapper";
 import axios from "../../services/axios-customize";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from 'react-router-dom';
 import ProductCard from "../../components/card/ProductCard";
 import { Pagination as PaginationAntd } from "antd";
 import {
@@ -10,6 +10,8 @@ import {
   getProductsLastest,
   getAllProducts,
   fetchBrands,
+  unFollowApi,
+  followApi
 } from "../../services/ShopPageApi";
 import ProductRating from "../../components/card/ProductRating";
 
@@ -28,11 +30,12 @@ const calculateTimeDifference = (date) => {
   return { years: yearsDifference, months: monthsDifference };
 };
 
-function ShopPage({}) {
+function ShopPage({ }) {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
   const [brands, setBrands] = useState([]);
-
   const [seller, setSeller] = useState([]);
-  const isFollow = undefined;
+  const [isFollow, setIsFollow] = useState(false);;
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
   const [newProducts, setNewProducts] = useState([]);
@@ -42,6 +45,8 @@ function ShopPage({}) {
   const allProductsRef = useRef(null); // ref for all products section
   const [productsPerPage, setProductsPerPage] = useState(20);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [totalFollower, setTotalFollower] = useState(0);
+
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
@@ -50,10 +55,10 @@ function ShopPage({}) {
 
   const sellerId = parseInt(useParams().id);
 
-  const { years, months } = calculateTimeDifference(seller.createdAt);
+  const { years, months } = calculateTimeDifference(seller.shop?.createdAt);
   const getJoinTimeText = (years, months) => {
     if (years < 1 && months < 1) {
-      return "Chưa tới 1 tháng";
+      return 'Chưa tới 1 tháng';
     } else if (years < 1) {
       return `${months} tháng trước`;
     } else {
@@ -66,15 +71,18 @@ function ShopPage({}) {
   useEffect(() => {
     const fetchSeller = async () => {
       try {
-        const response = await getSellerbyID(sellerId);
-        setSeller("seller: ", response);
+        const response = await getSellerbyID(sellerId, token);
+        setSeller(response);
+        console.log('seller: ', response);
+        setIsFollow(response.isFollow)
       } catch (error) {
-        setError("Failed to fetch seller");
-        console.error("Failed to fetch seller:", error);
+        setError('Failed to fetch seller');
+        console.error('Failed to fetch seller:', error);
       }
     };
     fetchSeller();
-  }, [sellerId]);
+  }, [sellerId, isFollow]);
+
 
   const fetchNewProducts = useCallback(async () => {
     try {
@@ -107,23 +115,21 @@ function ShopPage({}) {
     }
   }, [sellerId]);
 
+
   const fetchAllProducts = useCallback(async () => {
     try {
-      const response = await getAllProducts(
-        currentPage,
-        productsPerPage,
-        sellerId
-      ); // Thay 'someSellerID' bằng ID hợp lệ
+      const response = await getAllProducts(currentPage, productsPerPage, sellerId); // Thay 'someSellerID' bằng ID hợp lệ
 
       if (response && response.products) {
         // Kiểm tra response và response.data có tồn tại
         setAllProducts(response.products);
-        setTotalProducts(response.totalProducts); // Cập nhật sản phẩm
+        setTotalProducts(response.total); // Cập nhật sản phẩm
+        setTotalFollower(response.totalFollower)
       } else {
         setAllProducts([]); // Nếu không có dữ liệu, setProducts với một mảng trống
       }
     } catch (error) {
-      setError(error.message || "Something went wrong");
+      setError(error.message || 'Something went wrong');
     } finally {
       setLoading(false); // Kết thúc quá trình loading dữ liệu
     }
@@ -152,25 +158,25 @@ function ShopPage({}) {
   });
 
   const fetchBrands = useCallback(async () => {
-      try {
-        const response = await axios.get("/Brands/BrandsOfSeller", {
-          params: {
-            idSeller: sellerId,
-          },
-        });
-          console.log('brands data: ', response);
-          setBrands(response.brands);
-      } catch (error) {
-          console.error('Failed to fetch brands:', error);
-      }
+    try {
+      const response = await axios.get("/Brands/BrandsOfSeller", {
+        params: {
+          idSeller: sellerId,
+        },
+      });
+      console.log('brands data: ', response);
+      setBrands(response.brands);
+    } catch (error) {
+      console.error('Failed to fetch brands:', error);
+    }
   });
 
   useEffect(() => {
-      const fetchData = async () => {
-          await fetchCategories();
-          await fetchBrands();
-      };
-      fetchData();
+    const fetchData = async () => {
+      await fetchCategories();
+      await fetchBrands();
+    };
+    fetchData();
   }, []);
 
   async function handlePagination(value) {
@@ -233,6 +239,27 @@ function ShopPage({}) {
     }
   };
 
+  const handleFollow = async () => {
+    if (token) {
+      const response = await followApi(seller.shop.iD_NK, token);
+      setIsFollow(true);
+    }
+    else {
+      navigate('/login')
+    }
+
+  }
+  const handleUnFollow = async () => {
+    if (token) {
+      const response = await unFollowApi(seller.shop.iD_NK, token);
+      setIsFollow(false);
+    }
+    else {
+      navigate('/login')
+    }
+
+  }
+
   return (
     <div className="lg:pt-44">
       <MaxWidthWrapper>
@@ -263,11 +290,15 @@ function ShopPage({}) {
               </div>
               <div className="flex items-center justify-around backdrop-blur-3xl lg:py-4 lg:px-4 lg:gap-4">
                 {isFollow ? (
-                  <button className="flex items-center justify-center text-red-700 border-2 border-red-500 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
-                    Đang theo dõi{" "}
+                  <button
+                    onClick={handleUnFollow}
+                    className="flex items-center justify-center text-red-700 border-2 border-red-500 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
+                    Bỏ theo dõi{' '}
                   </button>
                 ) : (
-                  <button className="flex items-center justify-center text-white border-2 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
+                  <button
+                    onClick={handleFollow}
+                    className="flex items-center justify-center text-white border-2 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -282,7 +313,7 @@ function ShopPage({}) {
                         d="M12 4.5v15m7.5-7.5h-15"
                       />
                     </svg>
-                    Theo dõi{" "}
+                    Theo dõi{' '}
                   </button>
                 )}
 
@@ -322,7 +353,7 @@ function ShopPage({}) {
                   />
                 </svg>
                 <span> Sản phẩm: </span>
-                <span className="font-light text-red-700">59</span>
+                <span className="font-light text-red-700">{totalProducts ? totalProducts : 0}</span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -341,7 +372,7 @@ function ShopPage({}) {
                 </svg>
 
                 <span> Đang theo: </span>
-                <span className="font-light text-red-700">9</span>
+                <span className="font-light text-red-700">chưa có thông tin</span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -360,9 +391,7 @@ function ShopPage({}) {
                 </svg>
 
                 <span> Tỉ lệ phản hồi chat: </span>
-                <span className="font-light text-red-700">
-                  90% (Trong vài giờ)
-                </span>
+                <span className="font-light text-red-700">Chưa có thông tin</span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -381,7 +410,7 @@ function ShopPage({}) {
                 </svg>
 
                 <span> Tỉ lệ shop huỷ đơn: </span>
-                <span className="font-light text-red-700">33%</span>
+                <span className="font-light text-red-700">Chưa có thông tin</span>
               </div>
             </div>
             <div>
@@ -402,9 +431,7 @@ function ShopPage({}) {
                 </svg>
 
                 <span> Người theo dõi: </span>
-                <span className="font-light text-red-700">
-                  {seller?.totalFollower}
-                </span>
+                <span className="font-light text-red-700">{totalFollower ? totalFollower : 0}</span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -424,12 +451,8 @@ function ShopPage({}) {
 
                 <span> Đánh giá: </span>
                 <div>
-                  <span className="font-light text-red-700">
-                    {seller?.avgRatingPoint}
-                  </span>
-                  <span className="font-light text-red-700 lg:pl-1">
-                    ({seller?.reviewCount})
-                  </span>
+                  <span className="font-light text-red-700">{seller.avgRatingPoint ? seller.avgRatingPoint : 0}</span>
+                  <span className="font-light text-red-700 lg:pl-1">({seller.reviewCount ? seller.reviewCount : 0})</span>
                 </div>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">

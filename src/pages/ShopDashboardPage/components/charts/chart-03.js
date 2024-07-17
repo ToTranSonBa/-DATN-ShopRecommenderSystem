@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ReactApexChart from 'react-apexcharts';
+//import api
+import { getOrdersAndFollowsForDashboard } from '../../../../services/SellerApi/Dashboard/dashboardApi'
 const ChartThree = () => {
+
     const [chartData, setChartData] = useState({
         series: [
             {
@@ -80,6 +83,43 @@ const ChartThree = () => {
             },
         },
     });
+    const token = localStorage.getItem('token');
+    const fetchOrderAndFollowsForDashboard = useCallback(async () => {
+        try {
+            const response = await getOrdersAndFollowsForDashboard(token);
+            const orderCounts = response.monthlyOrders.map(item => item.orderCount);
+            const followCounts = response.monthlyFollows.map(item => item.totalFollow);
+
+
+            // Cập nhật state với dữ liệu mới
+            setChartData(prevChartData => ({
+                ...prevChartData,
+                series: [
+                    {
+                        ...prevChartData.series[0],
+                        data: orderCounts
+                    },
+                    {
+                        ...prevChartData.series[1],
+                        data: followCounts
+                    }
+                ]
+            }));
+            console.log('OrderAndFollowsForDashboard data in ChartThree: ', response);
+        } catch (error) {
+            console.error('Failed to fetch getOrdersAndFollowsForDashboard:', error);
+        }
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchOrderAndFollowsForDashboard();
+        };
+        fetchData();
+    }, []);
+
+
+
 
     return (
         <div className="col-span-12 px-2 pb-3 bg-white border rounded-sm border-stroke pt-7 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7 xl:col-span-5">

@@ -1,18 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
+import { getRevenueDataForDashboard } from '../../../../services/SellerApi/Dashboard/dashboardApi'
 
 const ChartOne = () => {
+
+    const [chartData, setChartData] = useState([]);
+    const token = localStorage.getItem('token');
+    useEffect(() => {
+        const fetchRevenueData = async () => {
+            try {
+                const response = await getRevenueDataForDashboard(token);
+                const revenueData = response.map(item => item.total || 0);
+                console.log('chartData: ', revenueData);
+                setChartData(revenueData);
+            } catch (error) {
+                console.error('Failed to fetch revenue data:', error);
+            }
+        };
+
+        fetchRevenueData();
+    }, []);
     useEffect(() => {
         const chartOneOptions = {
             series: [
                 {
                     name: 'Doanh thu',
-                    data: [37, 31, 30, 23, 26, 22, 29],
+                    data: chartData,
                 },
-                // {
-                //     name: 'Product Two',
-                //     data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
-                // },
             ],
             legend: {
                 show: false,
@@ -96,7 +110,7 @@ const ChartOne = () => {
             },
             xaxis: {
                 type: 'category',
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
                 axisBorder: {
                     show: false,
                 },
@@ -111,7 +125,7 @@ const ChartOne = () => {
                     },
                 },
                 min: 0,
-                max: 50,
+                max: 150000000, // Adjust this based on your data range
             },
         };
 
@@ -121,7 +135,7 @@ const ChartOne = () => {
             const chartOne = new ApexCharts(chartSelector, chartOneOptions);
             chartOne.render();
         }
-    }, []);
+    }, [chartData]);
 
     return (
         <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
@@ -133,7 +147,7 @@ const ChartOne = () => {
                         </span>
                         <div className="w-full ">
                             <p className="font-semibold text-primary">Tổng doanh thu</p>
-                            <p className="text-sm font-medium text-nowrap">01.01.2024 - 01.07.2024</p>
+                            <p className="text-sm font-medium text-nowrap">01.2024 - 12.2024</p>
                         </div>
                     </div>
                     {/* <div className="flex min-w-47.5">
@@ -148,12 +162,7 @@ const ChartOne = () => {
                 </div>
                 <div className="flex justify-end w-full max-w-44">
                     <div className="inline-flex items-center rounded-md bg-gray-100 p-1.5 dark:bg-meta-4">
-                        <button className="px-3 py-1 text-xs font-medium text-black rounded hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
-                            Day
-                        </button>
-                        <button className="px-3 py-1 text-xs font-medium text-black rounded hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
-                            Week
-                        </button>
+
                         <button className="px-3 py-1 text-xs font-medium text-black bg-white rounded shadow-sm hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
                             Month
                         </button>

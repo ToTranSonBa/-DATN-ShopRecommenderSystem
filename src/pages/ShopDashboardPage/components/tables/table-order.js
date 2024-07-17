@@ -3,7 +3,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import MaxWidthWrapper from '../../../../components/MaxWidthWrapper';
 import { fetchOrder, UpdateStatusOrder } from '../../../../services/SellerApi/seller-order-table/index';
-
+import Preloader from '../preloader/index'
 // format number
 const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -71,11 +71,11 @@ const TableOrder = () => {
     const [pageNumber, setPageNumber] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(110); // State to hold total pages count
-
+    const [fetchTrigger, setFetchTrigger] = useState(false);
     // fetch data order
     useEffect(() => {
         fetchOrderData(pageNumber, pageSize);
-    }, [pageNumber, pageSize]);
+    }, [pageNumber, pageSize, orderEditView, fetchTrigger]);
 
     const fetchOrderData = async (page, size) => {
         try {
@@ -106,6 +106,7 @@ const TableOrder = () => {
         // Cập nhật trạng thái trong đơn hàng được chọn
         const updatedOrder = { ...selectedOrder, status: newStatus };
         setSelectedOrder(updatedOrder);
+        setFetchTrigger((prev) => !prev);
     };
 
     // Pagination handlers
@@ -799,8 +800,10 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
         const statusValue = e.target.value;
         setNewStatus(statusValue);
     };
+    const [loading, setLoading] = useState(false);
 
     const handleConfirmStatusChange = async () => {
+        setLoading(true);
         try {
             console.log('order id when status change: ', order.id);
             console.log('token when status change: ', token);
@@ -813,11 +816,14 @@ const EditOrder = ({ order = {}, open, onStatusChange, token }) => {
         } catch (error) {
             console.error('Failed to update order status: ', error);
             alert('Cập nhật trạng thái đơn hàng thất bại. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600/25">
+            <Preloader loading={loading} />
             <MaxWidthWrapper className={'flex justify-center items-center min-h-screen'}>
                 <div className="w-3/4 overflow-auto bg-white h-3/4 lg:px-2 lg:py-2">
                     <header className="flex items-center justify-between font-light uppercase border-dashed shadow-md border-b-1 lg:px-4 lg:py-3 rounded-b-md">

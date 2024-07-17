@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AddressForm from './AddressForm';
+import Preloader from '../../pages/ShopDashboardPage/components/preloader/index';
 
 import {
     AddressesApi,
@@ -52,7 +53,10 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
         setIsCreating(false);
     };
 
+    const [loading, setLoading] = useState(false);
+
     const handleSubmit = async (newAddress) => {
+        setLoading(true); // Bắt đầu hiển thị loader
         try {
             if (editingAddress) {
                 const addressDefault = newAddress.addressID === newAddress.shippingAddress ? true : false;
@@ -85,7 +89,9 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
 
             handleCancelEdit();
         } catch (error) {
-            console.log('error to update or create address', error);
+            console.log('Error to update or create address', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -95,6 +101,7 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
 
     return (
         <div className={`relative max-w-screen-lg ${className}`}>
+            <Preloader loading={loading} />
             <div className="w-full max-w-screen-md mx-auto my-auto bg-white font-extralight lg:px-6 lg:py-6">
                 <p className="border-b-1 lg:py-3">Địa chỉ của tôi</p>
                 {addresses.map((address, index) => (
@@ -145,7 +152,9 @@ const AddressManager = ({ className, onCancel, onConfirm, isUserPage, selectedAd
                     Thêm địa chỉ mới
                 </button>
                 {!isUserPage && (
+
                     <div className="flex justify-end border-t-1 lg:mt-4 lg:py-4 lg:gap-4">
+
                         <button className="h-10 text-red-600 border-red-600 border-1 w-44" onClick={onCancel}>
                             Huỷ
                         </button>

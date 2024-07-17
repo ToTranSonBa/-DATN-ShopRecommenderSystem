@@ -4,6 +4,7 @@ import { cloudinaryConfig } from '../../../../../cloudinaryConfig';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { getSellerApi, updateSellerApi } from '../../../../../services/SellerApi/sellerApi';
+import Preloader from '../../preloader/index';
 
 const FormLayoutProfile = () => {
     const [avatarFile, setAvatarFile] = useState(null);
@@ -42,15 +43,18 @@ const FormLayoutProfile = () => {
         fileInputRef.current.click();
     };
 
+    const [loading, setLoading] = useState(false);
+
     const handleFileChangeAndSubmitShopInfo = async (e) => {
         e.preventDefault();
         const file = e.target.files[0];
         if (file) {
             setAvatarFile(file); // Lưu tệp hình ảnh vào state
+            setLoading(true); // Bắt đầu hiển thị loader
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', cloudinaryConfig.upload_preset); // Đảm bảo bạn đã tạo upload preset trong Cloudinary
+            formData.append('upload_preset', cloudinaryConfig.upload_preset);
 
             try {
                 const response = await axios.post(
@@ -58,13 +62,9 @@ const FormLayoutProfile = () => {
                     formData,
                 );
 
-                // Lấy URL của hình ảnh mới tải lên từ response
                 const fileURL = response.data.secure_url;
 
-                // Tạo một đối tượng userData mới để cập nhật
-                const updatedSellerData = { ...sellerData };
-                // Thêm URL của hình ảnh mới vào userData
-                updatedSellerData.imageUrl = fileURL;
+                const updatedSellerData = { ...sellerData, imageUrl: fileURL };
                 const updateSeller = await updateSellerApi(
                     updatedSellerData.name,
                     updatedSellerData.imageUrl,
@@ -72,20 +72,24 @@ const FormLayoutProfile = () => {
                     updatedSellerData.phone,
                     token,
                 );
+
                 if (!updateSeller) {
-                    console.log('fail to call updateSellerApi');
+                    console.log('Failed to call updateSellerApi');
                 } else {
-                    // Cập nhật state với thông tin mới của người dùng
                     setSellerData(updatedSellerData);
                 }
             } catch (error) {
                 console.error('Error uploading the file:', error);
+            } finally {
+                setLoading(false); // Dừng hiển thị loader
             }
         }
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
+        setLoading(true); // Bắt đầu hiển thị loader
+
         try {
             const updateSeller = await updateSellerApi(
                 sellerData.name,
@@ -94,11 +98,14 @@ const FormLayoutProfile = () => {
                 sellerData.phone,
                 token,
             );
+
             if (updateSeller) {
                 toast.success('Thay đổi thành công');
             }
         } catch (error) {
-            console.log('error when call updateUserApi', error);
+            console.log('Error when calling updateSellerApi', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -126,6 +133,7 @@ const FormLayoutProfile = () => {
                             <div class="grid grid-cols-1 gap-9 sm:grid-cols-2">
                                 <div class="col-span-2 flex flex-col gap-9">
                                     <div class=" mx-auto w-1/2 rounded-sm border border-stroke ">
+                                        <Preloader loading={loading} />
                                         <form action="#">
                                             <div class="flex flex-col gap-9">
                                                 <div class="rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">

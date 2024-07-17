@@ -1,93 +1,142 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
+import { getOrderColumnGraphForDashboard } from '../../../../services/SellerApi/Dashboard/dashboardApi'
 
 const ChartTwo = () => {
-    useEffect(() => {
-        const chartTwoOptions = {
-            series: [
-                {
-                    name: 'Follower',
-                    data: [44, 55, 41, 67, 22, 43, 65],
-                },
-            ],
-            colors: ['#3056D3', '#80CAEE'],
-            chart: {
-                type: 'bar',
-                height: 335,
-                stacked: true,
-                toolbar: {
-                    show: false,
-                },
-                zoom: {
-                    enabled: false,
-                },
+
+    const [chartTwoOptions, setChartTwoOptions] = useState({
+        series: [
+            {
+                name: 'Orders',
+                data: [],
+            }
+        ],
+        colors: ['#3056D3', '#80CAEE'],
+        chart: {
+            type: 'bar',
+            height: 335,
+            stacked: true,
+            toolbar: {
+                show: false,
             },
-            responsive: [
-                {
-                    breakpoint: 1536,
-                    options: {
-                        plotOptions: {
-                            bar: {
-                                borderRadius: 0,
-                                columnWidth: '25%',
-                            },
+            zoom: {
+                enabled: false,
+            },
+        },
+        responsive: [
+            {
+                breakpoint: 1536,
+                options: {
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 0,
+                            columnWidth: '25%',
                         },
                     },
                 },
-            ],
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    borderRadius: 0,
-                    columnWidth: '25%',
-                    borderRadiusApplication: 'end',
-                    borderRadiusWhenStacked: 'last',
-                },
             },
-            dataLabels: {
-                enabled: false,
+        ],
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                borderRadius: 0,
+                columnWidth: '25%',
+                borderRadiusApplication: 'end',
+                borderRadiusWhenStacked: 'last',
             },
-            xaxis: {
-                categories: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'left',
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        xaxis: {
+            categories: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+        },
 
-                fontWeight: 500,
-                fontSize: '14px',
-                markers: {
-                    radius: 99,
-                },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+            fontWeight: 500,
+            fontSize: '14px',
+            markers: {
+                radius: 99,
             },
-            fill: {
-                opacity: 1,
-            },
+        },
+        fill: {
+            opacity: 1,
+        },
+    });
+
+    const token = localStorage.getItem('token');
+    const [selectedWeek, setSelectedWeek] = useState('thisWeek');
+    const [apiData, setApiData] = useState({ currentWeekData: [], lastWeekData: [] });
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getOrderColumnGraphForDashboard(token); // Replace with your API endpoint
+                setApiData(response);
+                updateChart(response.currentWeekData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         };
 
+        fetchData();
+    }, []);
+
+    const updateChart = (weekData) => {
+        const counts = weekData.map(item => item.count);
+
+        setChartTwoOptions(prevOptions => ({
+            ...prevOptions,
+            series: [
+                {
+                    name: 'Orders',
+                    data: counts,
+                },
+            ],
+        }));
+    };
+
+    useEffect(() => {
         const chartSelector = document.querySelector('#chartTwo');
 
         if (chartSelector) {
             const chartTwo = new ApexCharts(chartSelector, chartTwoOptions);
             chartTwo.render();
+
+            return () => chartTwo.destroy();
         }
-    }, []);
+    }, [chartTwoOptions]);
+
+    const handleWeekChange = (event) => {
+        const week = event.target.value;
+        setSelectedWeek(week);
+        if (week === 'thisWeek') {
+            updateChart(apiData.currentWeekData);
+        } else {
+            updateChart(apiData.lastWeekData);
+        }
+    };
 
     return (
         <div className="col-span-12 bg-white border rounded-sm border-stroke p-7 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
             <div className="justify-between gap-4 mb-4 sm:flex">
                 <div>
-                    <h4 className="text-xl font-bold text-black dark:text-white">Tăng theo dõi tuần này</h4>
+                    <h4 className="text-xl font-bold text-black dark:text-white">Số lượng đơn hàng trong tuần</h4>
                 </div>
                 <div>
                     <div className="relative z-20 inline-block">
                         <select
-                            name="#"
-                            id="#"
+                            name="week"
+                            id="week"
                             className="relative z-20 inline-flex py-1 pl-3 pr-8 text-sm font-medium bg-transparent appearance-none focus:outline-none focus:ring-0"
+                            onChange={handleWeekChange}
+                            value={selectedWeek}
                         >
-                            <option value="">Tuần này</option>
-                            <option value="">Tuần trước</option>
+                            <option value="thisWeek">Tuần này</option>
+                            <option value="lastWeek">Tuần trước</option>
                         </select>
                         <span className="absolute z-10 -translate-y-1/2 right-3 top-1/2">
                             <svg

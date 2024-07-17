@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { signupSellerApi } from '../../services/SignupApi/SignUpApi';
 import { userApi } from '../../services/UserApi/userApi';
+import Preloader from './components/preloader/index'
 const SellerSignUp = () => {
     const navigate = useNavigate();
 
@@ -65,7 +66,9 @@ const SellerSignUp = () => {
     const handleTermsChange = (e) => {
         setTermsAccepted(e.target.checked);
     };
+    const [loading, setLoading] = useState(false);
     const handleClick = async () => {
+        setLoading(true);
         try {
             if (!shopName) {
                 toast.error('Vui lòng nhập tên cửa hàng');
@@ -90,7 +93,7 @@ const SellerSignUp = () => {
                 toast.success('Hãy đăng nhập lại ');
                 setTimeout(() => {
                     navigate('/login');
-                }, 2000);
+                }, 1000);
             } else {
                 if (response) {
                     toast.error(response);
@@ -98,6 +101,8 @@ const SellerSignUp = () => {
             }
         } catch (error) {
             console.error('Error submitting form:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -193,6 +198,7 @@ const SellerSignUp = () => {
                                     </label>
                                 </div>
                             </div>
+                            <Preloader loading={loading} />
                             <button
                                 type="submit"
                                 className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500"

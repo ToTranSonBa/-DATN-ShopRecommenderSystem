@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Preloader from './components/preloader';
 import flatpickr from 'flatpickr';
 import Alpine from 'alpinejs';
@@ -14,6 +14,8 @@ import TableProduct from './components/tables/table-product';
 //
 import DefaultAVT from '../../assets/default-avatar.png';
 import { message } from 'antd';
+//
+import { getSellerInforForDashboard } from '../../services/SellerApi/Dashboard/dashboardApi'
 //
 Alpine.plugin(persist);
 window.Alpine = Alpine;
@@ -58,7 +60,13 @@ const Chats = [
     },
 ];
 
+const formatNumber = (number) => {
+    return new Intl.NumberFormat().format(number);
+};
+
 const ECommerceDoashboard = () => {
+    const token = localStorage.getItem('token');
+    const [sellerInfor, setSellerInfor] = useState({});
     useEffect(() => {
         // Init flatpickr
         flatpickr('.datepicker', {
@@ -93,6 +101,23 @@ const ECommerceDoashboard = () => {
         });
     }, []);
 
+    const fetchSellerInforForDashboard = useCallback(async () => {
+        try {
+            const response = await getSellerInforForDashboard(token);
+            setSellerInfor(response);
+            console.log('SellerInforForDashboard data in ECommerceDoashboard: ', response);
+        } catch (error) {
+            console.error('Failed to fetch getSellerInforForDashboard:', error);
+        }
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchSellerInforForDashboard();
+        };
+        fetchData();
+    }, []);
+
     return (
         <body>
             <div class="flex h-screen overflow-hidden">
@@ -120,27 +145,11 @@ const ECommerceDoashboard = () => {
 
                                     <div class="mt-4 flex items-end justify-between">
                                         <div>
-                                            <h4 class="text-3xl font-medium text-black dark:text-white">342</h4>
+                                            <h4 class="text-3xl font-medium text-black dark:text-white">{sellerInfor && sellerInfor.totalpro ? sellerInfor.totalpro : 0}</h4>
                                             <span class="text-sm font-medium text-gray-400">Tổng sản phẩm</span>
                                         </div>
 
-                                        <span class="flex items-center  gap-1 text-sm font-medium text-green-600">
-                                            0.43%
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                class="size-4"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-                                                />
-                                            </svg>
-                                        </span>
+
                                     </div>
                                 </div>
 
@@ -164,27 +173,11 @@ const ECommerceDoashboard = () => {
 
                                     <div class="mt-4 flex items-end justify-between">
                                         <div>
-                                            <h4 class="text-3xl font-medium text-black dark:text-white">440</h4>
+                                            <h4 class="text-3xl font-medium text-black dark:text-white">{sellerInfor && sellerInfor.totalOrder ? sellerInfor.totalOrder : 0}</h4>
                                             <span class="text-sm font-medium text-gray-400">Tổng đơn hàng</span>
                                         </div>
 
-                                        <span class="flex items-center  gap-1 text-sm font-medium text-green-600">
-                                            4.35%
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                class="size-4"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-                                                />
-                                            </svg>
-                                        </span>
+
                                     </div>
                                 </div>
 
@@ -208,27 +201,11 @@ const ECommerceDoashboard = () => {
 
                                     <div class="mt-4 flex items-end justify-between">
                                         <div>
-                                            <h4 class="text-3xl font-medium text-black dark:text-white">245M</h4>
+                                            <h4 class="text-3xl font-medium text-black dark:text-white">{sellerInfor && sellerInfor.interest ? formatNumber(sellerInfor.interest) : 0}  ₫</h4>
                                             <span class="text-sm font-medium text-gray-400">Tổng doanh thu</span>
                                         </div>
 
-                                        <span class="flex items-center  gap-1 text-sm font-medium text-green-600">
-                                            2.59%
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                class="size-4"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-                                                />
-                                            </svg>
-                                        </span>
+
                                     </div>
                                 </div>
 
@@ -257,27 +234,11 @@ const ECommerceDoashboard = () => {
 
                                     <div class="mt-4 flex items-end justify-between">
                                         <div>
-                                            <h4 class="text-3xl font-medium text-black dark:text-white">13.456</h4>
+                                            <h4 class="text-3xl font-medium text-black dark:text-white">{sellerInfor && sellerInfor.totalFollow ? sellerInfor.totalFollow : 0}</h4>
                                             <span class="text-sm font-medium text-gray-400">Tổng lượt theo dõi</span>
                                         </div>
 
-                                        <span class="flex items-center gap-1 text-sm font-medium text-red-500">
-                                            0.95%
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                class="size-4"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
-                                                />
-                                            </svg>
-                                        </span>
+
                                     </div>
                                 </div>
                             </div>
@@ -288,7 +249,7 @@ const ECommerceDoashboard = () => {
                                 <ChartThree />
                                 <MapOne />
 
-                                <div class="col-span-12 xl:col-span-8">
+                                {/* <div class="col-span-12 xl:col-span-8">
                                     <TableProduct inDoashboard={true} />
                                 </div>
 
@@ -326,7 +287,7 @@ const ECommerceDoashboard = () => {
                                             </a>
                                         ))}
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </main>
