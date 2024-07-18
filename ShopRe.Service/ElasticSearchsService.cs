@@ -369,28 +369,19 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(productParameters.ProductName))
             {
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = productParameters.ProductName,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+                var normalizedProductName = productParameters.ProductName.ToLower();
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                var matchPhraseQuery = new MatchPhraseQuery
                 {
                     Field = "Name",
-                    Query = productParameters.ProductName,
-                    Boost = 2.0 // Trọng số cao cho MatchPhrasePrefixQuery
+                    Query = normalizedProductName
                 };
 
                 filters.Add(new BoolQuery
                 {
                     Should = new List<QueryContainer>
                     {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
+                        matchPhraseQuery
                     },
                     MinimumShouldMatch = 1
                 });
@@ -464,6 +455,108 @@ namespace ShopRe.Service
                     )
                 )
             );
+
+            if (count == 0)
+            {
+                filters.Clear();
+                if (!string.IsNullOrEmpty(productParameters.ProductName))
+                {
+                    var normalizedProductName = productParameters.ProductName.ToLower();
+
+                    var matchQuery = new MatchQuery
+                    {
+                        Field = "Name",
+                        Query = normalizedProductName,
+                        Fuzziness = Fuzziness.Auto,
+                        Operator = Operator.And
+                    };
+
+                    var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                    {
+                        Field = "Name",
+                        Query = normalizedProductName,
+                        Boost = 2.0
+                    };
+
+                    filters.Add(new BoolQuery
+                    {
+                        Should = new List<QueryContainer>
+                        {
+                            matchQuery,
+                            matchPhrasePrefixQuery
+                        },
+                        MinimumShouldMatch = 1
+                    });
+                }
+                if (productParameters.CategoryIds.Any())
+                {
+                    filters.Add(new TermsQuery
+                    {
+                        Field = "Category_LV0_NK",
+                        Terms = productParameters.CategoryIds.Select(id => (object)id)
+                    });
+                }
+
+                if (productParameters.BrandIds.Any())
+                {
+                    filters.Add(new TermsQuery
+                    {
+                        Field = "BrandID_NK",
+                        Terms = productParameters.BrandIds.Select(id => (object)id)
+                    });
+                }
+
+                if (productParameters.MinPrice.HasValue || productParameters.MaxPrice.HasValue)
+                {
+                    filters.Add(new NumericRangeQuery
+                    {
+                        Field = "Price",
+                        GreaterThanOrEqualTo = (double)productParameters.MinPrice,
+                        LessThanOrEqualTo = (double)productParameters.MaxPrice
+                    });
+                }
+
+                if (productParameters.MinReviewRating.HasValue)
+                {
+                    filters.Add(new NumericRangeQuery
+                    {
+                        Field = "RatingAverage",
+                        GreaterThanOrEqualTo = productParameters.MinReviewRating
+                    });
+                }
+                countResponse = await _elasticClient.CountAsync<object>(s => s
+                .Index("products")
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
+                    )
+                )
+                );
+
+                count = Convert.ToInt32(countResponse.Count);
+
+                response = await _elasticClient.SearchAsync<object>(s => s
+                .Index("products")
+                .Size(count)
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(mu => mu
+                            .MatchAll()
+                        )
+                        .Filter(filters.ToArray())
+                    )
+                )
+                .Aggregations(a => a
+                    .ValueCount("total_products", vc => vc
+                            .Field("ID_NK")
+                    )
+                )
+            );
+            }
+
             if (!response.IsValid)
             {
                 return (0, null);
@@ -560,43 +653,23 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(productParameters.ProductName))
             {
-                var matchQuery = new MatchQuery
-                {
-                    Field = "Name",
-                    Query = productParameters.ProductName,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+                var normalizedProductName = productParameters.ProductName.ToLower();
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                var matchPhraseQuery = new MatchPhraseQuery
                 {
                     Field = "Name",
-                    Query = productParameters.ProductName,
-                    Boost = 2.0
-                };
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = productParameters.ProductName,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And,
-                    MinimumShouldMatch = "70%" // Thử điều chỉnh giá trị này
+                    Query = normalizedProductName
                 };
 
                 filters.Add(new BoolQuery
                 {
                     Should = new List<QueryContainer>
                     {
-                        matchQuery,
-                        matchPhrasePrefixQuery,
-                        multiMatchQuery
+                        matchPhraseQuery
                     },
                     MinimumShouldMatch = 1
                 });
             }
-
-
 
             if (productParameters.CategoryIds.Any())
             {
@@ -669,6 +742,107 @@ namespace ShopRe.Service
 
             var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
+            if(totalProducts == 0)
+            {
+                filters.Clear();
+                if (!string.IsNullOrEmpty(productParameters.ProductName))
+                {
+                    var normalizedProductName = productParameters.ProductName.ToLower();
+
+                    var matchQuery = new MatchQuery
+                    {
+                        Field = "Name",
+                        Query = normalizedProductName,
+                        Fuzziness = Fuzziness.Auto,
+                        Operator = Operator.And
+                    };
+
+                    var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                    {
+                        Field = "Name",
+                        Query = normalizedProductName,
+                        Boost = 2.0
+                    };
+
+                    filters.Add(new BoolQuery
+                    {
+                        Should = new List<QueryContainer>
+                        {
+                            matchQuery,
+                            matchPhrasePrefixQuery
+                        },
+                        MinimumShouldMatch = 1
+                    });
+                }
+                if (productParameters.CategoryIds.Any())
+                {
+                    filters.Add(new TermsQuery
+                    {
+                        Field = "Category_LV0_NK",
+                        Terms = productParameters.CategoryIds.Select(id => (object)id)
+                    });
+                }
+
+                if (productParameters.BrandIds.Any())
+                {
+                    filters.Add(new TermsQuery
+                    {
+                        Field = "BrandID_NK",
+                        Terms = productParameters.BrandIds.Select(id => (object)id)
+                    });
+                }
+
+                if (productParameters.MinPrice.HasValue || productParameters.MaxPrice.HasValue)
+                {
+                    filters.Add(new NumericRangeQuery
+                    {
+                        Field = "Price",
+                        GreaterThanOrEqualTo = (double)productParameters.MinPrice,
+                        LessThanOrEqualTo = (double)productParameters.MaxPrice
+                    });
+                }
+
+                if (productParameters.MinReviewRating.HasValue)
+                {
+                    filters.Add(new NumericRangeQuery
+                    {
+                        Field = "RatingAverage",
+                        GreaterThanOrEqualTo = productParameters.MinReviewRating
+                    });
+                }
+                response = await _elasticClient.SearchAsync<object>(s => s
+               .Index("products")
+               .Query(q => q
+                   .Bool(b => b
+                       .Must(mu => mu
+                           .MatchAll()
+                       )
+                       .Filter(filters.ToArray())
+                   )
+               )
+               .Aggregations(a => a
+                   .ValueCount("total_products", vc => vc
+                           .Field("ID_NK")
+                   )
+               )
+               .Sort(ss => ss
+                   .Script(sc => sc
+                       .Type("number")
+                       .Script(script => script
+                           .Source("doc['BrandID_NK'].value == 0 ? 1 : 0")
+                       )
+                       .Order(SortOrder.Ascending)
+                   )
+                   .Field(f => f
+                       .Field("RatingCount")
+                       .Order(SortOrder.Descending)
+                   )
+               )
+               .From(productParameters.PageNumber * productParameters.PageSize)
+               .Size(productParameters.PageSize)
+           );
+            }
+
             if (!response.IsValid)
             {
                 return (0, null);
@@ -699,7 +873,6 @@ namespace ShopRe.Service
             var documents = ConvertToProduct(response.Documents.ToList());
             return documents;
         }
-
         public class ProductRatingCountDTO
         {
             public long RatingLessThan1 { get; set; }
@@ -708,7 +881,6 @@ namespace ShopRe.Service
             public long Rating3To4 { get; set; }
             public long Rating4To5 { get; set; }
         }
-
         public async Task<ProductRatingCountDTO> ProductRatingCount()
         {
             var countResponse1 = await _elasticClient.CountAsync<object>(c => c
@@ -869,37 +1041,27 @@ namespace ShopRe.Service
 
             if (!string.IsNullOrEmpty(keyWord))
             {
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = keyWord,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+                var normalizedProductName = keyWord.ToLower();
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                var matchPhraseQuery = new MatchPhraseQuery
                 {
                     Field = "Name",
-                    Query = keyWord,
-                    Boost = 2.0
+                    Query = normalizedProductName
                 };
 
                 filters.Add(new BoolQuery
                 {
                     Should = new List<QueryContainer>
                     {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
+                        matchPhraseQuery
                     },
                     MinimumShouldMatch = 1
                 });
             }
 
-            // Aggregation to get top 15 brands by product count
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) // We do not need the actual documents
+                .Size(0) 
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -918,6 +1080,61 @@ namespace ShopRe.Service
                     )
                 )
             );
+
+            if(searchResponse.Total == 0)
+            {
+                filters.Clear();
+                if (!string.IsNullOrEmpty(keyWord))
+                {
+                    var multiMatchQuery = new MultiMatchQuery
+                    {
+                        Query = keyWord,
+                        Fields = new[] { "Name" },
+                        Type = TextQueryType.BestFields,
+                        Fuzziness = Fuzziness.Auto,
+                        Operator = Operator.And
+                    };
+
+                    var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                    {
+                        Field = "Name",
+                        Query = keyWord,
+                        Boost = 2.0
+                    };
+
+                    filters.Add(new BoolQuery
+                    {
+                        Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                        MinimumShouldMatch = 1
+                    });
+                }
+
+                searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                    .Index("products")
+                    .Size(0) 
+                    .Query(q => q
+                        .Bool(b => b
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                    .Aggregations(a => a
+                        .Terms("brands", t => t
+                            .Field("BrandID_NK")
+                            .Size(15)
+                            .Order(o => o
+                                .Descending("product_count")
+                            )
+                            .Aggregations(aa => aa
+                                .ValueCount("product_count", v => v.Field("BrandID_NK"))
+                            )
+                        )
+                    )
+                );
+            }
 
             if (!searchResponse.IsValid)
             {
@@ -1484,40 +1701,29 @@ namespace ShopRe.Service
         public async Task<List<dynamic>> GetCategoryLevel0BySearch(string keyWord)
         {
             var filters = new List<QueryContainer>();
-
             if (!string.IsNullOrEmpty(keyWord))
             {
-                var multiMatchQuery = new MultiMatchQuery
-                {
-                    Query = keyWord,
-                    Fields = new[] { "Name" },
-                    Type = TextQueryType.BestFields,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.And
-                };
+                var normalizedProductName = keyWord.ToLower();
 
-                var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                var matchPhraseQuery = new MatchPhraseQuery
                 {
                     Field = "Name",
-                    Query = keyWord,
-                    Boost = 2.0
+                    Query = normalizedProductName
                 };
 
                 filters.Add(new BoolQuery
                 {
                     Should = new List<QueryContainer>
                     {
-                        multiMatchQuery,
-                        matchPhrasePrefixQuery
+                        matchPhraseQuery
                     },
                     MinimumShouldMatch = 1
                 });
             }
 
-            // Aggregation to get top 15 brands by product count
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) // We do not need the actual documents
+                .Size(0) 
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -1536,6 +1742,61 @@ namespace ShopRe.Service
                     )
                 )
             );
+
+            if(searchResponse.Total == 0)
+            {
+                filters.Clear();
+                if (!string.IsNullOrEmpty(keyWord))
+                {
+                    var multiMatchQuery = new MultiMatchQuery
+                    {
+                        Query = keyWord,
+                        Fields = new[] { "Name" },
+                        Type = TextQueryType.BestFields,
+                        Fuzziness = Fuzziness.Auto,
+                        Operator = Operator.And
+                    };
+
+                    var matchPhrasePrefixQuery = new MatchPhrasePrefixQuery
+                    {
+                        Field = "Name",
+                        Query = keyWord,
+                        Boost = 2.0
+                    };
+
+                    filters.Add(new BoolQuery
+                    {
+                        Should = new List<QueryContainer>
+                    {
+                        multiMatchQuery,
+                        matchPhrasePrefixQuery
+                    },
+                        MinimumShouldMatch = 1
+                    });
+                }
+
+                searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
+                    .Index("products")
+                    .Size(0)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Filter(filters.ToArray())
+                        )
+                    )
+                    .Aggregations(a => a
+                        .Terms("categories", t => t
+                            .Field("Category_LV0_NK")
+                            .Size(15)
+                            .Order(o => o
+                                .Descending("product_count")
+                            )
+                            .Aggregations(aa => aa
+                                .ValueCount("product_count", v => v.Field("Category_LV0_NK"))
+                            )
+                        )
+                    )
+                );
+            }
 
             if (!searchResponse.IsValid)
             {
