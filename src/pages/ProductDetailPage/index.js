@@ -174,11 +174,22 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     fetchProductDetail();
-    fetchPrice();
     fetchComments();
     fetchCommentRating();
     fetchProductOption();
   }, []);
+
+  useEffect(() => {
+    if (idProductOption1Value) {
+      fetchPrice();
+    }
+  }, [idProductOption1Value, fetchPrice]);
+
+  useEffect(() => {
+    if (idProductOption2Value) {
+      fetchPrice();
+    }
+  }, [idProductOption2Value, fetchPrice]);
 
   const handleDecrement = () => {
     setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));

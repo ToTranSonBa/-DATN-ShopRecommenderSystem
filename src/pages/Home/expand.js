@@ -25,9 +25,8 @@ const ExpandProduct = () => {
         try {
             const response = await fetchRecommentProduct(currentPage, token);
             response.products.forEach((element) => {
-                if (typeof element.image === 'string') {
-                    const temp = element.image;
-                    element.image = temp.substring(15, temp.indexOf("'", 15));
+                if (Array.isArray(element.images) && element.images.length > 0) {
+                    element.image = element.images[0]; // Lấy hình ảnh đầu tiên từ mảng images
                 }
             });
             setProductForU(response.products);
@@ -101,11 +100,10 @@ const ExpandProduct = () => {
                             ].map((item, index) => (
                                 <li
                                     key={index}
-                                    className={`max-w-52 min-w-52 lg:py-8 lg:px-12 cursor-pointer transition duration-300 ease-in-out transform ${
-                                        selectedIndex === index
+                                    className={`max-w-52 min-w-52 lg:py-8 lg:px-12 cursor-pointer transition duration-300 ease-in-out transform ${selectedIndex === index
                                             ? 'bg-primary/10 border-b-2 border-solid border-primary scale-105 animate-wiggle'
                                             : ''
-                                    }`}
+                                        }`}
                                     onClick={() => handleClick(index)}
                                 >
                                     <img
@@ -137,9 +135,8 @@ const ExpandProduct = () => {
                         <button
                             onClick={handlePreviousPage}
                             disabled={paging.currentPage === 0}
-                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                paging.currentPage === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${paging.currentPage === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+                                }`}
                         >
                             Trước
                         </button>
@@ -153,11 +150,10 @@ const ExpandProduct = () => {
                                     <button
                                         key={index}
                                         onClick={() => handlePageClick(page)}
-                                        className={`px-4 py-2 text-sm font-medium leading-5 ${
-                                            paging.currentPage === page
+                                        className={`px-4 py-2 text-sm font-medium leading-5 ${paging.currentPage === page
                                                 ? 'text-primary border-1 border-primary bg-gray-100'
                                                 : 'text-gray-700 border border-gray-300 hover:bg-gray-100'
-                                        } transition-colors duration-150 rounded-lg`}
+                                            } transition-colors duration-150 rounded-lg`}
                                     >
                                         {page + 1}
                                     </button>
@@ -167,11 +163,10 @@ const ExpandProduct = () => {
                         <button
                             onClick={handleNextPage}
                             disabled={paging.currentPage === paging.totalPages - 1}
-                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${
-                                paging.currentPage === paging.totalPages - 1
+                            className={`px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 bg-white border border-gray-300 rounded-lg ${paging.currentPage === paging.totalPages - 1
                                     ? 'opacity-50 cursor-not-allowed'
                                     : 'hover:bg-gray-100'
-                            }`}
+                                }`}
                         >
                             Sau
                         </button>

@@ -10,6 +10,8 @@ import { addressDefaultApi, AddressesApi } from '../../services/addressApi/addre
 import { deleteCartItem } from '../../services/CartApi/cartApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Preloader from '../ShopDashboardPage/components/preloader/index';
+
 // format number
 const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
@@ -25,6 +27,8 @@ function Checkout() {
 
     const [selectedAddress, setSelectedAddress] = useState({});
     const [addresses, setAddresses] = useState([]);
+    const [loading, setLoading] = useState(false);
+
 
     const subTotal = selectedItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
@@ -94,10 +98,11 @@ function Checkout() {
         e.preventDefault();
     };
 
+
     const handleAddOrders = async (e) => {
         const sellerOrderMap = new Map();
         console.log('selectedItems: ', selectedItems);
-
+        setLoading(true);
         try {
             for (const item of selectedItems) {
                 const sellerId = item.sellerId;
@@ -159,6 +164,9 @@ function Checkout() {
             }, 1000);
         } catch (error) {
             console.error('Error processing orders:', error);
+        }
+        finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
     return (
@@ -250,6 +258,8 @@ function Checkout() {
                                         <CreditCard onCheckFullFill={handleCheckFullFill} />
                                     </section>
                                     <div className={` ${isFullFill ? 'flex' : 'hidden'} flex justify-end w-full`}>
+                                        <Preloader loading={loading} />
+
                                         <button
                                             type="submit"
                                             className="flex px-4 py-3 text-xl font-semibold text-white transition-colors rounded-md bg-blue-600/85 w-max submit-button focus:ring focus:outline-none"

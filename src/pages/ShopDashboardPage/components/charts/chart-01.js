@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import { getRevenueDataForDashboard } from '../../../../services/SellerApi/Dashboard/dashboardApi'
 
@@ -6,6 +6,8 @@ const ChartOne = () => {
 
     const [chartData, setChartData] = useState([]);
     const token = localStorage.getItem('token');
+    const chartRef = useRef(null); // Ref to hold the chart instance
+
     useEffect(() => {
         const fetchRevenueData = async () => {
             try {
@@ -19,7 +21,8 @@ const ChartOne = () => {
         };
 
         fetchRevenueData();
-    }, []);
+    }, [token]);
+
     useEffect(() => {
         const chartOneOptions = {
             series: [
@@ -125,15 +128,20 @@ const ChartOne = () => {
                     },
                 },
                 min: 0,
-                max: 150000000, // Adjust this based on your data range
+                max: 300000000, // Adjust this based on your data range
             },
         };
 
-        const chartSelector = document.querySelector('#chartOne');
-
-        if (chartSelector) {
-            const chartOne = new ApexCharts(chartSelector, chartOneOptions);
-            chartOne.render();
+        if (!chartRef.current) {
+            const chartSelector = document.querySelector('#chartOne');
+            if (chartSelector) {
+                chartRef.current = new ApexCharts(chartSelector, chartOneOptions);
+                chartRef.current.render();
+            }
+        } else {
+            chartRef.current.updateSeries([{
+                data: chartData,
+            }]);
         }
     }, [chartData]);
 

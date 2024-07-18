@@ -114,6 +114,51 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
         useroption(option);
     };
 
+    const validateOptions = () => {
+        // Kiểm tra nếu có lựa chọn
+        if (options.length === 0) {
+            return true; // Nếu không có lựa chọn, đánh dấu là không hợp lệ
+        }
+
+        // Duyệt qua từng lựa chọn
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+
+            // Kiểm tra nếu tên lựa chọn rỗng
+            if (!option.name || option.name.trim() === '') {
+                return false; // Nếu tên lựa chọn rỗng, đánh dấu là không hợp lệ
+            }
+
+            // Kiểm tra nếu không có giá trị lựa chọn hoặc không có giá trị lựa chọn nào hợp lệ
+            if (!option.values || option.values.length === 0) {
+                return false; // Nếu không có giá trị lựa chọn, đánh dấu là không hợp lệ
+            }
+
+            // Duyệt qua từng giá trị của lựa chọn
+            for (let j = 0; j < option.values.length; j++) {
+                const value = option.values[j];
+
+                // Kiểm tra nếu tên giá trị lựa chọn rỗng
+                if (!value.name || value.name.trim() === '') {
+                    return false; // Nếu tên giá trị lựa chọn rỗng, đánh dấu là không hợp lệ
+                }
+            }
+        }
+
+        // Nếu tất cả các kiểm tra đều hợp lệ
+        return true;
+    };
+
+    const handleNext = (e) => {
+        e.preventDefault();
+        if (!validateOptions()) {
+            alert('Vui lòng nhập đủ thông tin cho các lựa chọn và giá trị lựa chọn.');
+            return;
+        }
+        handleOptionClick('formproductchildren');
+        // Tiếp tục xử lý khi các thông tin hợp lệ
+    };
+
     return (
         <div className="relative h-full max-h-screen overflow-y-scroll placeholder:w-full lg:px-6 lg:pt-4 lg:pb-12">
             <div onClick={handleClose} className="absolute top-0 right-0 cursor-pointer">
@@ -134,7 +179,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
             </div>
 
             <div className="w-full h-[95%] max-w-5xl mx-auto overflow-y-scroll">
-                {options && options.length > 0 ? options?.map((option, optionIndex) => (
+                {options && options.length > 0 ? options.map((option, optionIndex) => (
                     <div key={optionIndex} className="mb-4 shadow lg:px-6 lg:py-6 rounded-r-md">
                         <div className="flex items-center justify-between lg:mb-4">
                             <div className="w-4/5">
@@ -153,7 +198,6 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                     className="block w-full p-2 mt-1 border border-gray-300 rounded"
                                     required
                                     disabled={action !== 0}
-
                                 />
                             </div>
                             {action === 0 && (
@@ -206,16 +250,16 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                                             alt="Current profile photo"
                                         />
                                     </div>
-                                </div>
 
-                                {action === 0 && (
-                                    <button
-                                        onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
-                                        className="ml-4 text-red-500"
-                                    >
-                                        Xóa
-                                    </button>
-                                )}
+                                    {action === 0 && (
+                                        <button
+                                            onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
+                                            className="ml-4 text-red-500"
+                                        >
+                                            Xóa
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
 
@@ -228,7 +272,7 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                             </button>
                         )}
                     </div>
-                )) : action !== 1 && (<p>
+                )) : action !== 0 && (<p>
                     Sản phẩm không có lựa chọn
                 </p>)}
 
@@ -253,8 +297,8 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
                     <>
                         <button className="flex items-center ml-auto text-white rounded-lg hover:bg-primary/85 lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
                             onClick={(e) => {
-                                e.preventDefault();
-                                handleOptionClick('formproductchildren');
+
+                                handleNext(e);
                             }}
                         >
 

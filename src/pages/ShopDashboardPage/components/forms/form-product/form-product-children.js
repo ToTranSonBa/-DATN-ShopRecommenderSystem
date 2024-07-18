@@ -61,7 +61,10 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     console.log('options: ', options);
 
     useEffect(() => {
+        console.log('useEffect is running');
         if (action === 1 || action === 2) {
+            console.log('This is not adding a product');
+
             if (product.productChildren && product.productChildren.length > 0) {
                 const productChildrenCombinations = product.productChildren.map(product => ({
                     childId: product.id,
@@ -74,16 +77,12 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
                     option2ValuesId: product.optionValuesID2
                 }));
                 setCombinations(productChildrenCombinations);
-
             }
+        } else {
+            console.log('This is adding a product');
+            const newCombinations = cartesianProduct(formValues, option1Values, option2Values);
+            setCombinations(newCombinations);
         }
-        else {
-            if (!combinations) {
-                const newCombinations = cartesianProduct(formValues, option1Values, option2Values);
-                setCombinations(newCombinations);
-            }
-        }
-
     }, []);
 
     const handleOptionNameChange = (e, combinationIndex) => {
@@ -202,7 +201,26 @@ const FormProductChildren = ({ action, product, useroption, open, formValues, fi
     const [loading, setLoading] = useState(false);
 
 
+    const validateCombinations = () => {
+        for (let i = 0; i < combinations.length; i++) {
+            const combination = combinations[i];
+            if (!combination.price || combination.price <= 0) {
+                alert(`Giá sản phẩm tại sản phẩm thứ ${i + 1} không hợp lệ`);
+                return false;
+            }
+            if (!combination.image || !combination.image.file) {
+                alert(`Hình ảnh tại sản phẩm thứ ${i + 1} không hợp lệ`);
+                return false;
+            }
+        }
+        return true;
+    };
+
     const handleAddProduct = async () => {
+        if (!validateCombinations()) {
+            return;
+        }
+
         setLoading(true); // Bắt đầu hiển thị loader
         const mergedOptions = [];
 

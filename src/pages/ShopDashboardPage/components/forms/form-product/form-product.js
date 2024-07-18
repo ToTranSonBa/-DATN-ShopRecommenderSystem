@@ -170,16 +170,40 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
             setFiles(initialFiles);
         }
     }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log('name: ', name);
-        console.log('value: ', value);
-
-        setFormValues({
-            ...formValues,
-            [name]: value,
-        });
+        const newValue = name === 'productQuantitySold' ? parseInt(value) : value; // Ép kiểu sang số nếu là productQuantitySold
+        setFormValues({ ...formValues, [name]: newValue });
     };
+
+    const validateForm = () => {
+        const { images, productQuantitySold, ...rest } = formValues; // Bỏ qua trường images và productQuantitySold
+        return Object.values(rest).every(value => {
+            if (typeof value === 'number') {
+                return value > 0; // Kiểm tra giá trị số lớn hơn 0
+            }
+            return value.trim() !== ''; // Kiểm tra các giá trị không phải số
+        }) && productQuantitySold > 0; // Kiểm tra productQuantitySold là số và lớn hơn 0
+    };
+
+    const handleNextClick = (e) => {
+        e.preventDefault();
+        if (Object.keys(files).length === 0) {
+            alert('Vui lòng thêm ít nhất một hình ảnh cho sản phẩm.');
+            return;
+        }
+
+        if (!validateForm()) {
+            alert('Vui lòng điền đầy đủ thông tin.');
+            return;
+        }
+
+
+
+        handleOptionClick('formproductoption');
+    };
+
 
     return (
         <div className="relative max-w-screen-2xl">
@@ -376,7 +400,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
                     </div>
                     <div className="mb-4">
                         <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                            Brand
+                            Thương hiệu
                         </label>
                         <select
                             id="brand"
@@ -414,10 +438,7 @@ const FormProduct = ({ action, product, useroption, open, formValues, setFormVal
             </div>
 
             <button
-                onClick={(e) => {
-                    e.preventDefault();
-                    handleOptionClick('formproductoption');
-                }}
+                onClick={handleNextClick}
                 className="flex items-center ml-auto text-white rounded-lg lg:mr-4 bg-primary/70 lg:px-4 lg:py-3"
             >
                 Tiếp theo{' '}
@@ -453,6 +474,8 @@ const AutoResizeTextarea = ({ value, onChange, placeholder, mode }) => {
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
     };
+
+
 
     return (
         <textarea

@@ -6,6 +6,7 @@ import MaxWidthWrapper from '../../../../components/MaxWidthWrapper';
 import { image } from '@cloudinary/url-gen/qualifiers/source';
 import { Value } from 'sass';
 import { getSellerApi, getProductsBySellerApi, deleteProductApi } from '../../../../services/SellerApi/sellerApi';
+import Preloader from '../preloader/index';
 
 const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
@@ -23,6 +24,8 @@ const TableProduct = ({ inDoashboard = false }) => {
     const [products, setProducts] = useState([]);
     const [productDeleted, setProductDeleted] = useState(false);
     const [fetchTrigger, setFetchTrigger] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     const fetchSeller = useCallback(
         async (page, size) => {
@@ -40,7 +43,10 @@ const TableProduct = ({ inDoashboard = false }) => {
         [token],
     );
 
+
     const handleDeleteProduct = async (productId) => {
+        setLoading(true); // Bắt đầu hiển thị loader
+
         try {
             const deleteProductData = await deleteProductApi(productId, token);
             if (deleteProductData) {
@@ -49,6 +55,8 @@ const TableProduct = ({ inDoashboard = false }) => {
             }
         } catch (error) {
             console.log('Failed to call deleteProductApi:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     };
 
@@ -194,9 +202,8 @@ const TableProduct = ({ inDoashboard = false }) => {
                                     >
                                         <th
                                             scope="row"
-                                            class={`${
-                                                inDoashboard === true ? 'max-w-[10rem] overflow-hidden' : ''
-                                            } px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
+                                            class={`${inDoashboard === true ? 'max-w-[10rem] overflow-hidden' : ''
+                                                } px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white`}
                                         >
                                             {product.product.iD_NK}
                                         </th>
@@ -262,6 +269,8 @@ const TableProduct = ({ inDoashboard = false }) => {
                                                         >
                                                             Sửa
                                                         </div>
+                                                        <Preloader loading={loading} />
+
                                                         <div
                                                             onClick={() => handleDeleteProduct(product.product.iD_NK)}
                                                             class="block font-medium hover:cursor-pointer w-[80px] bg-red-600/25  lg:px-3 lg:py-1 mx-auto text-center rounded-sm lg:my-2 text-red-700 dark:text-blue-500 hover:underline"

@@ -25,9 +25,17 @@ const LoginPage = () => {
         }
     }, [localStorage.getItem]);
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleClick();
+        }
+    };
+
     const handleClick = async (event) => {
         event.preventDefault();
         try {
+            console.log('email: ', email);
+            console.log('password: ', password);
             if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
                 toast.error('Vui lòng nhập địa chỉ email của bạn');
                 return;
@@ -76,11 +84,6 @@ const LoginPage = () => {
         }
     };
 
-    useEffect(() => {
-        let token = localStorage.getItem('token');
-        if (token) {
-        }
-    }, []);
     return (
         <>
             <div className="py-5 bg-white rounded-lg">
@@ -88,7 +91,8 @@ const LoginPage = () => {
                     <div className="flex justify-center w-full h-full my-auto xl:gap-14 lg:justify-normal md:gap-5 draggable">
                         <div className="flex items-center justify-center w-full lg:p-12">
                             <div className="flex items-center xl:p-10">
-                                <form className="flex flex-col w-full h-full pb-6 text-center bg-white rounded-3xl">
+                                <form className="flex flex-col w-full h-full pb-6 text-center bg-white rounded-3xl"
+                                    onSubmit={handleClick}>
                                     <h3 className="mb-3 text-4xl font-extrabold text-dark-grey-900">Đăng nhập</h3>
                                     <p className="mb-4 text-grey-700 lg:pb-6">
                                         Đăng nhập với email và mật khẩu của bạn
@@ -141,7 +145,7 @@ const LoginPage = () => {
                                         </button>
                                     </div>
                                     <button
-                                        onClick={handleClick}
+                                        type="submit" // Đổi thành type="submit"
                                         className="w-full px-6 py-5 mb-5 text-sm font-bold leading-none text-white transition duration-300 md:w-96 rounded-2xl hover:bg-purple-blue-600 focus:ring-4 focus:ring-purple-blue-100 bg-purple-blue-500"
                                     >
                                         Đăng nhập
