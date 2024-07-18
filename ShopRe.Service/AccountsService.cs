@@ -256,7 +256,9 @@ namespace ShopRe.Service
                 Address = sellerRegistrationDTO.Address,
                 ImageUrl = sellerRegistrationDTO.ImageUrl,
                 ApplicationUser = sellerRegistrationDTO.user,
-                TotalFollower = sellerRegistrationDTO.totalFollower 
+                TotalFollower = sellerRegistrationDTO.totalFollower,
+                AvgRatingPoint = 0,
+                ReviewCount = 0
             };
             var addingSeller = await _context.Sellers.AddAsync(seller);
             await _context.SaveChangesAsync();
