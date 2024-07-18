@@ -8,6 +8,7 @@ using Nest;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Model.Models;
 using ShopRe.Service;
 
@@ -20,15 +21,20 @@ namespace DATN_ShopRecommenderSystem.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IAccountService _accountService;
+        public IUnitOfWork _unitOfWork;
+        private readonly IOrderItemsService _orderItemsService;
         private readonly ShopRecommenderSystemDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         public OrdersController(IOrderService orderService, IAccountService accountService
-            , ShopRecommenderSystemDbContext dbContext, UserManager<ApplicationUser> userManager)
+            , ShopRecommenderSystemDbContext dbContext, UserManager<ApplicationUser> userManager, 
+            IOrderItemsService orderItemsService, IUnitOfWork unitOfWork)
         {
             _orderService = orderService;
             _accountService = accountService;
             _dbContext = dbContext;
             _userManager = userManager;
+            _orderItemsService = orderItemsService;
+            _unitOfWork = unitOfWork;
         }
         [Authorize]
         [HttpGet("UserOrders")]
@@ -318,9 +324,17 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 }
 
                 var order = await _orderService.UpdateStatus(user, status, id);
-
                 if (order != null)
                 {
+                    if (status == 4)
+                    {    var itemsList = await _dbContext.OrderItems.Where(i => i.OrderId == id).ToListAsync();
+                        foreach (var item in itemsList)
+                        {
+                            var pro = await _unitOfWork.Products.GetById((int)item.ProductID_NK);
+                            pro.AllTimeQuantitySold += item.Quantity;
+                            await _unitOfWork.Products.UpdateUofW(pro);
+                        }
+                    }
                     return Ok(new Response<Order>
                     {
                         message = "Order Successfully!",
