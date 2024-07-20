@@ -29,7 +29,7 @@ const protectedRoutes = [
     { path: '/cartshoppingpage', component: withAuth(CartShoppingPage, ['Customer', 'Seller']) },
     { path: '/userpage', component: withAuth(UserPage, ['Customer', 'Seller']) },
     { path: '/checkout', component: withAuth(CheckoutForm, ['Customer', 'Seller']) },
-    { path: '/admin', component: withAuth(AdminDoashBoardManager, ['Admintrator']), layout: HeaderOnly },
+    { path: '/admin', component: withAuth(AdminDoashBoardManager, ['Administrator']), layout: HeaderOnly },
 ];
 
 export { publicRoutes, protectedRoutes };

@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect, useCallback } from "react";
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Logo from "../../assets/BrandLogos/Logo.png";
 import MaxWidthWrapper from "../MaxWidthWrapper";
 import Search from "./search";
@@ -15,11 +16,13 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 //
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
 
 // API
 import { fetchCartUser, fetchPriceByChild } from "../../services/HeaderApi/index";
 import { userApi } from "../../services/UserApi/userApi";
+
+//EventBus
+import { EventBus } from '../../EventBus/EventBus';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -31,33 +34,6 @@ const formatNumber = (number) => {
     currency: "VND",
   }).format(number);
 };
-const products = [
-  {
-    id: 1,
-    name: "Throwback Hip Bag",
-    href: "#",
-    color: "Salmon",
-    price: "$90.00",
-    quantity: 1,
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg",
-    imageAlt:
-      "Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.",
-  },
-  {
-    id: 2,
-    name: "Medium Stuff Satchel",
-    href: "#",
-    color: "Blue",
-    price: "$32.00",
-    quantity: 1,
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg",
-    imageAlt:
-      "Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.",
-  },
-  // More products...
-];
 const Navigation = ({
   className_bg,
   className_textcolor,
@@ -164,9 +140,25 @@ const Navigation = ({
     const fetchData = async () => {
       await fetchUser();
       await getCartUser();
+      EventBus.on('cartUpdated', getCartUser);
+
+      // Hủy đăng ký sự kiện khi component bị unmount
+      return () => {
+        EventBus.off('cartUpdated', getCartUser);
+      };
     };
     fetchData();
   }, []);
+
+  const roles = JSON.parse(localStorage.getItem('roles')) || [];
+  const location = useLocation();
+
+  const isAdmin = roles.includes('Administrator');
+
+  // Kiểm tra nếu là Admin và đang cố gắng truy cập trang không phải là /admin
+  if (isAdmin && location.pathname !== '/admin') {
+    navigate("/admin");
+  }
   return (
     <div className="inset-x-0 top-8 md:absolute md:z-10">
       <div className={`max-w-full  ${className_bg}`}>
@@ -174,14 +166,16 @@ const Navigation = ({
           <div className="max-w-full mx-auto">
             <div className="relative flex items-center justify-between h-16 lg:gap-8 ">
               <div className="flex items-center justify-center flex-1 lg:gap-12 sm:items-stretch sm:justify-start">
-                <a href="/" className="flex items-center flex-shrink-0">
+                <Link to="/" className="flex items-center flex-shrink-0">
+
                   <img className="w-auto h-5" src={Logo} alt="Your Company" />
                   <span
                     className={`px-1 font-semibold ${className_textcolor} text-md md:text-xl lg:text-xl`}
                   >
                     ShopLY
                   </span>
-                </a>
+                </Link>
+
                 <Search />
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">

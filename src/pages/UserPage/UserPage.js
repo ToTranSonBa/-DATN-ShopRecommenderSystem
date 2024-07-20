@@ -70,16 +70,20 @@ const UserPage = () => {
     const [loading, setLoading] = useState(false);
 
     const fetchUser = useCallback(async () => {
+        setLoading(true); // Bắt đầu hiển thị loader
         try {
             const response = await userApi(token);
             setUserData(response);
             console.log('user data in ussepage: ', response);
         } catch (error) {
             console.error('Failed to fetch userApi:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
     });
 
     const fetchOrders = useCallback(async () => {
+        setLoading(true);
         try {
             const response = await getOrdersOfUserApi(token);
 
@@ -102,7 +106,10 @@ const UserPage = () => {
             setOrderData(updatedOrders);
         } catch (error) {
             console.error('Failed to fetch getOrdersOfUserApi:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loader
         }
+
     });
 
     useEffect(() => {
@@ -371,6 +378,22 @@ const UserPage = () => {
         setLoading(true); // Bắt đầu hiển thị loader
         try {
             let updatedReviews = [...reviews];
+            console.log('vô đây không')
+            const selectedOrder = filteredOrders.find(order => order.id === selectedOrderId);
+            if (!selectedOrder) {
+                toast.error('không có order nào được lựa chọn.');
+                setLoading(false);
+                return;
+            }
+
+            for (const item of selectedOrder.items) {
+                const review = updatedReviews.find(review => review.orderId === selectedOrderId && review.itemId === item.id);
+                if (!review || (!review.rating)) {
+                    alert(`Hãy thêm đánh giá cho tất cả sản phẩm của đơn hàng`);
+                    setLoading(false);
+                    return; // Exit the function if validation fails
+                }
+            }
             for (const orderId of Object.keys(files)) {
                 for (const itemId of Object.keys(files[orderId])) {
                     const fileObjects = files[orderId][itemId];
