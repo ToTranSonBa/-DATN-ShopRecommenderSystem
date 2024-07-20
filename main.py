@@ -13,7 +13,8 @@ import schedule
 import pyodbc
 import time
 import pandas as pd
-import predict_coment_real as cmt
+# import predict_coment_real as cmt
+import Cb_Store as cbs
 
 app = FastAPI()
 
@@ -31,7 +32,9 @@ def daily_job():
     print("training daily")
     with pyodbc.connect(env.CONN_STR) as conn:
         cursor = conn.cursor()
+        cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(4, 1, N'update du lieu hang ngay', SYSDATETIME())")
         cursor.execute("EXEC [dbo].[RecommendDaily]")
+        conn.commit()
 
 schedule.every().day.at("00:00").do(daily_job)
 
@@ -56,9 +59,6 @@ def restore_files(files):
     for file in files:
         shutil.copy(os.path.join(backup_folder, os.path.basename(file)), file)
 
-async def Knn_train(websocket: WebSocket):
-    await nb.train(websocket)
-    await websocket.send_text(f"Kết thúc train")
 
 def trainNBCF():
     global env, training_thread
@@ -78,6 +78,10 @@ def trainNBCF():
         env.training_end = 1
         env.training_start = 0
         env.training_phase = 4
+        with pyodbc.connect(env.CONN_STR) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(1, 4, N'kết thúc huấn luyện', SYSDATETIME())")
+            cursor.commit()
     except Exception as e:
         print("rollback")
         env.training_cancel = 1
@@ -86,6 +90,10 @@ def trainNBCF():
         env.training_start = 0
         training_thread = None
         env.training_start = 0
+        with pyodbc.connect(env.CONN_STR) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(1, -1, N'{e}', SYSDATETIME())")
+            cursor.commit()
         restore_files(files_to_backup) 
         return
 
@@ -215,6 +223,11 @@ def train_model_cbf():
     env.cbf_phase = 1
     env.cbf_cancel = 0
     env.cbf_status = 0
+    with pyodbc.connect(env.CONN_STR) as conn:
+        cursor = conn.cursor()
+        # cursor.execute("delete from TRAIN_LOG where TRAIN_LOG.algorithm = 2")
+        cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(2, 1, N'bắt đầu training CBF', SYSDATETIME())")
+        cursor.commit()
     try:
         env.cbf_start = 1
         if env.cbf_cancel == 1:
@@ -238,6 +251,10 @@ def train_model_cbf():
         env.cbf_status = 0
         cbf_thread = None
         env.cbf_start = 0
+        with pyodbc.connect(env.CONN_STR) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(2, -1, N'Chuẩn bị dữ liệu', SYSDATETIME())")
+            cursor.commit()
         restore_files(files_to_backup) 
         return
 
@@ -295,12 +312,6 @@ async def RecommendProductForUser(userid: int):
         "products": user_log
     }
 
-@app.websocket("/ws/update-es")
-async def UpdateEs(websocket: WebSocket):
-    await websocket.accept()
-    await websocket.send_text(0)
-    await up.PushData(websocket)
-    await websocket.close()
 
 @app.get("/get/nbcf/cancel")
 async def NBCF_cancel():
@@ -337,9 +348,9 @@ async def nbcf_recommend(userid: int):
     global final_predictions
     print(final_predictions.shape)
     if userid not in final_predictions.index:
-        return {"sellers": {}}
+        return []
     result = nb.recommend(userid, final_predictions)
-    return {"sellers": result}
+    return result
 
 @app.post("/api/dailyjob/start")
 async def daily_job_start():
@@ -381,25 +392,28 @@ def train_cmt():
     global env, cmt_thread
     env.CMT_error = 0
     env.CMT_end = 0
-    env.CMT_phase = 0
+    env.CMT_phase = 1
     env.CMT_cancel = 0
     env.CMT_status = 0
     try:
         env.CMT_start = 1
+        print("start")
         if env.CMT_cancel == 1:
             raise
-        cmt.main()
+        # cmt.main()
         env.CMT_status = 100
         cmt_thread = None
         env.CMT_end = 1
+        print("đánh giá cmt xong")
         env.CMT_start = 0
         env.CMT_phase = 4
     except Exception as e:
         print("rollback")
         env.CMT_cancel = 1
-        env.CMT_error = 1
+        env.CMT_error = e
         env.CMT_end = 1
         env.CMT_start = 0
+        env.CMT_phase = 0
         cmt_thread = None
         env.CMT_start = 0
         return
@@ -413,10 +427,106 @@ async def train_CBF(background_tasks: BackgroundTasks):
         return {"message": "start training"}
     return {"message": "dang training"}
 
+@app.get('/api/train/log')
+async def  get_log_train(algorithm: int):
+    response = []
+    with pyodbc.connect(env.CONN_STR) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"select top(1) id, phase, phasename, AD_DATE from TRAIN_LOG where TRAIN_LOG.algorithm = {algorithm} ORDER BY AD_DATE DESC")
+        result = cursor.fetchall()
+        for i in result:
+            d = dict()
+            d['phase'] = i[1]
+            d['message'] = i[2]
+            d['ad_date'] = i[3]
+            response.append(d)
+    return response
+
+store = pd.DataFrame()
+store_similarity = []
+def load_cb_store():
+    global store, store_similarity
+    store = pickle.load(open(f'artifacts/cb_store.pkl','rb'))
+    store_similarity = pickle.load(open(f'artifacts/cb_store_similarity.pkl','rb'))
+
+@app.get("/api/CBF-S/recommend")
+async def CBFS_recommend(userid: int, storeid: int):
+    global store, store_similarity, final_predictions
+    try:
+        store_simi = cbs.recommend(storeid, store, store_similarity)
+        print(store_simi)
+        if(userid == 0):
+            result = store_simi[:10]
+            result = [int(element) for element in result]
+            return {"total": len(result),
+                    "stores": result}
+        else:
+            if (userid in final_predictions.index):
+                print(1)
+                arr2_dict = pd.Series(final_predictions.loc[userid])
+                print(arr2_dict)
+                sorted_arr1 = sorted(store_simi, key=lambda x: arr2_dict.get(x, float('inf')))
+                print(sorted_arr1)
+                print("===============================================")
+                result = sorted_arr1[:10]
+                result = [int(element) for element in result]
+                print(len(result))
+                return {"total": len(result),
+                        "stores": result}
+            else:
+                print(3)
+                result = store_simi[:10]
+                result = [int(element) for element in result]
+
+                return {"total": len(result),
+                        "stores": result}
+    except Exception as e:
+        print(e)
+        return {"total": 0,
+                "stores": [{}]}
+
+
+@app.get("/api/NBCF/InfoMatrix")
+async def CBFS_recommend(userid: int, storeid: int):
+    global final_predictions
+    try:
+        store_simi = cbs.recommend(storeid, store, store_similarity)
+        print(store_simi)
+        if(userid == 0):
+            result = store_simi[:10]
+            result = [int(element) for element in result]
+            return {"total": len(result),
+                    "stores": result}
+        else:
+            if (userid in final_predictions.index):
+                print(1)
+                arr2_dict = pd.Series(final_predictions.loc[userid])
+                print(arr2_dict)
+                sorted_arr1 = sorted(store_simi, key=lambda x: arr2_dict.get(x, float('inf')))
+                print(sorted_arr1)
+                print("===============================================")
+                result = sorted_arr1[:10]
+                result = [int(element) for element in result]
+                print(len(result))
+                return {"total": len(result),
+                        "stores": result}
+            else:
+                print(3)
+                result = store_simi[:10]
+                result = [int(element) for element in result]
+
+                return {"total": len(result),
+                        "stores": result}
+    except Exception as e:
+        print(e)
+        return {"total": 0,
+                "stores": [{}]}
+
 @app.on_event("startup")
 async def load_files():
     load_cb()
     load_nb()
+    load_cb_store()
     global daily_thread
     daily_thread = threading.Thread(target=daily)
     daily_thread.start()

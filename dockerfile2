@@ -1,5 +1,5 @@
-# Sử dụng Python 3.8 làm hình ảnh nền
-FROM python:3.8-slim
+# Sử dụng Python 3.9 làm hình ảnh nền
+FROM python:3.11.6-slim
 RUN mkdir /app
 WORKDIR /app
 
@@ -32,9 +32,12 @@ COPY NeighborhoodBased.py .
 COPY ContentBased.py .
 COPY Environments.py .
 COPY UpdateModelEs.py .
+COPY Cb_Store.py .
 COPY ./artifacts/final_predictions.pkl ./artifacts/
 COPY ./artifacts/Knn_List_Seller.pkl ./artifacts/
 COPY ./artifacts/Knn_List_User.pkl ./artifacts/
+COPY ./artifacts/cb_store.pkl ./artifacts/
+COPY ./artifacts/cb_store_similarity.pkl ./artifacts/
 COPY ./artifacts/movie_list_cate_1103.pkl ./artifacts/
 COPY ./artifacts/movie_list_cate_1104.pkl ./artifacts/
 COPY ./artifacts/movie_list_cate_1105.pkl ./artifacts/
@@ -88,17 +91,18 @@ COPY ./artifacts/similarity_cate_1126.pkl ./artifacts/
 COPY ./artifacts/similarity_cate_1127.pkl ./artifacts/
 
 
-COPY ./predict_coment_real.py .
-COPY ./data/ ./data/
-COPY ./models/ ./models/
-COPY ./data_preprocessing.py .
-COPY ./dataLoader.py .
-COPY ./desktop.ini .
-COPY ./model.py .
-COPY ./dataLoader.py .
-COPY ./dataLoader.py .
+# COPY ./predict_coment_real.py .
+# COPY ./data/ ./data/
+# COPY ./models/ ./models/
+# COPY ./data_preprocessing.py .
+# COPY ./dataLoader.py .
+# COPY ./desktop.ini .
+# COPY ./model.py .
+# COPY ./dataLoader.py .
+# COPY ./dataLoader.py .
 
-# Cài đặt các gói yêu cầu
+# # Cài đặt các gói yêu cầu
+# COPY ./.venv/ ./.venv/
 RUN pip install --no-cache-dir -r requirements.txt
 # # Sao chép cơ sở dữ liệu (nếu có)
 # COPY data/search_data.db data/

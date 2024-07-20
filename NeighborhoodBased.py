@@ -9,6 +9,8 @@ import Environments as env
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 import time
 import UpdateModelEs as es
+import os
+import json
 # Dữ liệu rating
 user = []
 
@@ -31,16 +33,16 @@ def prepare_data():
         return d
     conn_str = env.CONN_STR
 
-    with pyodbc.connect(conn_str) as conn:
-        cursor = conn.cursor()
-        cursor.execute("Exec SetBehaviorRating")
-        cursor.execute("Exec SellerAvg")
-        cursor.execute("Exec SetAvgRating")
-        conn.commit()
+    # with pyodbc.connect(conn_str) as conn:
+    #     cursor = conn.cursor()
+    #     cursor.execute("Exec SetBehaviorRating")
+    #     cursor.execute("Exec SellerAvg")
+    #     cursor.execute("Exec SetAvgRating")
+    #     conn.commit()
     behavior_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("select ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING where [B_RATING] is not null	")
+        cursor.execute("select top(10000) ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING ")
         result = cursor.fetchall()
         for rating in result:
             behavior_df.append(ParseBehavior(rating))
@@ -48,7 +50,7 @@ def prepare_data():
     ratings_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT ACCOUNTID, SELLERID, RATING FROM AVG_RATING where [RATING] is not null	")
+        cursor.execute("SELECT top(10000)  ACCOUNTID, SELLERID, RATING FROM AVG_RATING")
         result = cursor.fetchall()
         for rating in result:
             ratings_df.append(ParseRating(rating))
@@ -135,7 +137,7 @@ class MatrixFactorization:
     def full_matrix(self):
         return self.b + self.b_u[:, np.newaxis] + self.b_s[np.newaxis:, ] + self.P.dot(self.Q.T)
 
-def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=5):
+def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=1):
     global env
     # Train Matrix Factorization model (assuming MatrixFactorization class exists)
     mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=40)
@@ -215,6 +217,7 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
                 if (persent > oldvalue):
                     oldvalue = persent
                     env.training_status = persent
+        os.system("clear")
 
 
     return final_predictions
@@ -223,11 +226,18 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
 def recommend(user_id, final_predictions, top_n=100):
     # Sort predicted ratings for the user and get top n recommendations
     predicted_ratings = final_predictions.loc[user_id].sort_values(ascending=False)
-    return predicted_ratings.head(top_n)
+    top_ratings = predicted_ratings
+    rating_list = [{'seller_id': seller, 'rating': rating} for seller, rating in top_ratings.items()]
+    return rating_list
 
 def train():
     global env
     env.training_phase = 1
+    with pyodbc.connect(env.CONN_STR) as conn:
+        cursor = conn.cursor()
+        cursor.execute("delete from TRAIN_LOG where TRAIN_LOG.algorithm = 1")
+        cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(1, 1, N'Chuẩn bị dữ liệu', SYSDATETIME())")
+        cursor.commit()
     df_rate, df_behavior = prepare_data()
     env.training_phase = 2
     df_rate.fillna(0)
@@ -235,9 +245,14 @@ def train():
     print("prepare data success")
     if env.training_cancel == 1:
         raise
+    with pyodbc.connect(env.CONN_STR) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(1, 2, N'Huấn luyện dữ liệu', SYSDATETIME())")
+        cursor.commit()
     final_predictions = knn_with_weights_and_mf(df_rate, df_behavior)
     with open('artifacts/final_predictions.pkl', 'wb') as f:
         pickle.dump(final_predictions, f)
+    print("xong")
     # es.PushData()
 
 def write_model_to_db():
@@ -268,5 +283,5 @@ def write_model_to_db():
             conn.commit()
     
 if __name__=="__main__":
-    print(1)
-    # train()
+    # print(1)
+    train()
