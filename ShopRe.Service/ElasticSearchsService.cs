@@ -4,12 +4,9 @@ using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
-using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
-using System.Reflection.Metadata;
-using System.Text.Json;
 using static ShopRe.Service.ElasticSearchsService;
 
 namespace ShopRe.Service
@@ -682,8 +679,8 @@ namespace ShopRe.Service
             //    return (0, null);
             //}
 
-            var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
-            //var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
+            //var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
+            var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
 
             List<SellerRating> sellerRating;
             JObject result;
@@ -839,7 +836,7 @@ namespace ShopRe.Service
 
             var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
-            if(totalProducts == 0)
+            if (totalProducts == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(productParameters.ProductName))
@@ -1159,7 +1156,7 @@ namespace ShopRe.Service
 
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) 
+                .Size(0)
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -1179,7 +1176,7 @@ namespace ShopRe.Service
                 )
             );
 
-            if(searchResponse.Total == 0)
+            if (searchResponse.Total == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(keyWord))
@@ -1213,7 +1210,7 @@ namespace ShopRe.Service
 
                 searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                     .Index("products")
-                    .Size(0) 
+                    .Size(0)
                     .Query(q => q
                         .Bool(b => b
                             .Filter(filters.ToArray())
@@ -1821,7 +1818,7 @@ namespace ShopRe.Service
 
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) 
+                .Size(0)
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -1841,7 +1838,7 @@ namespace ShopRe.Service
                 )
             );
 
-            if(searchResponse.Total == 0)
+            if (searchResponse.Total == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(keyWord))
