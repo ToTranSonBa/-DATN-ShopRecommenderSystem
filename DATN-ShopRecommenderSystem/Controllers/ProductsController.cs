@@ -78,7 +78,8 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     Price = price,
                     Image = image
                 });
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

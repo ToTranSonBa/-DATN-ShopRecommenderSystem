@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nest;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
-using System.Text.Json;
 using static ShopRe.Service.ElasticSearchsService;
 
 namespace ShopRe.Service
@@ -497,22 +497,23 @@ namespace ShopRe.Service
             //    return (0, null);
             //}
 
-            var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
+            var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
+            //var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
 
-            SellerRating sellerRating;
+            List<SellerRating> sellerRating;
             JObject result;
             try
             {
                 var s_response = await _httpClient.GetAsync(requestUri);
                 s_response.EnsureSuccessStatusCode();
                 var content = await s_response.Content.ReadAsStringAsync();
-                result = JObject.Parse(content);
-                if (result.GetValue("sellers").Count() == 0)
+                //content = content.Replace("\"", "'");
+                if (string.IsNullOrEmpty(content))
                 {
                     var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
                     return (products.Count, dynamic_products);
                 }
-                sellerRating = JsonSerializer.Deserialize<SellerRating>(content);
+                sellerRating = JsonConvert.DeserializeObject<List<SellerRating>>(content);
             }
             catch
             {
@@ -520,21 +521,21 @@ namespace ShopRe.Service
                 return (products.Count, dynamic_products);
             }
 
-            var selids_order = sellerRating.Sellers.OrderBy(e => e.Value).ToList();
+            var selids_order = sellerRating.OrderBy(e => e.Rating).ToList();
 
             var combinedResults = new List<dynamic>();
 
             foreach (var product in products)
             {
                 var sellerId = product.SellerID_NK;
-                var priority = sellerRating.Sellers.FirstOrDefault(p => p.Key == sellerId);
+                var priority = sellerRating.FirstOrDefault(p => p.SellerId == sellerId);
 
-                if (priority.Key != null)
+                if (priority != null)
                 {
                     combinedResults.Add(new
                     {
                         Product = product,
-                        IDX = priority.Value
+                        IDX = priority.Rating
                     });
                 }
                 else
@@ -551,6 +552,8 @@ namespace ShopRe.Service
             .Skip(productParameters.PageNumber * productParameters.PageSize)
             .Take(productParameters.PageSize)
             .ToList();
+
+            sortedResults = sortedResults.Select(e => e.Product).ToList();
 
             return (count, sortedResults);
         }
