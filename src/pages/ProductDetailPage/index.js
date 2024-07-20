@@ -12,7 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { addCartApi } from "../../services/CartApi/cartApi";
 import MaxWidthWrapper from "../../components/MaxWidthWrapper";
 import ProductCard from "../../components/card/ProductCard";
-import Preloader from '../ShopDashboardPage/components/preloader/index';
+import Preloader from "../ShopDashboardPage/components/preloader/index";
+import Loading from "../../components/Loading";
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -117,12 +118,15 @@ const ProductDetailPage = () => {
 
   const fetchPrice = useCallback(async () => {
     try {
-      const response = await axios.get(`/Products/GetPriceAndImageProductChild${id}`, {
-        params: {
-          idOptionValue1: idProductOption1Value,
-          idOptionValue2: idProductOption2Value,
-        },
-      });
+      const response = await axios.get(
+        `/Products/GetPriceAndImageProductChild${id}`,
+        {
+          params: {
+            idOptionValue1: idProductOption1Value,
+            idOptionValue2: idProductOption2Value,
+          },
+        }
+      );
       console.log(response.price);
       setPrice(response.price);
     } catch (error) {
@@ -263,11 +267,11 @@ const ProductDetailPage = () => {
         optionValuesId: idProductOption1Value ? idProductOption1Value : null,
         optionValues: idProductOption1Value
           ? {
-            id: idProductOption1Value,
-            name: productOption1Name,
-            option: null,
-            imageUrl: productOption1Image,
-          }
+              id: idProductOption1Value,
+              name: productOption1Name,
+              option: null,
+              imageUrl: productOption1Image,
+            }
           : null,
         productImgs: selectedProductChildren
           ? selectedProductChildren.thumbnail_url
@@ -280,11 +284,11 @@ const ProductDetailPage = () => {
         optionValuesId2: idProductOption2Value ? idProductOption2Value : null,
         optionValues2: idProductOption2Value
           ? {
-            id: idProductOption2Value,
-            name: productOption2Name,
-            option: null,
-            imageUrl: productOption2Image,
-          }
+              id: idProductOption2Value,
+              name: productOption2Name,
+              option: null,
+              imageUrl: productOption2Image,
+            }
           : null,
       };
       navigate("/checkout", {
@@ -743,19 +747,21 @@ const ProductDetailPage = () => {
           />
         </div>
 
-        {comments?.detailComment?.length === 0 && (
-          <p className="flex items-center justify-center mt-6">
-            Không có bình luận về sản phẩm
-          </p>
-        )}
-
-        {comments?.detailComment?.length !== 0 && (
-          <CommentDetail id={id} />
+        {comments.comment ? (
+          comments?.detailComment?.length === 0 ? (
+            <p className="flex items-center justify-center mt-6">
+              Không có bình luận về sản phẩm
+            </p>
+          ) : (
+            <CommentDetail id={id} />
+          )
+        ) : (
+          <Loading className="mt-4" />
         )}
       </div>
 
       {otherShopProduct ? (
-        <div id="recommendProduct" className="mt-4 mb-8">
+        <div id="recommendProduct" className="w-5/6 mt-4 mb-8">
           <MaxWidthWrapper>
             <div className="flex justify-between">
               <span className="text-xl font-semibold text-black uppercase">
@@ -764,7 +770,7 @@ const ProductDetailPage = () => {
               <a
                 href="#a"
                 className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+                // onClick={() => handleViewAll("new")}
               >
                 Xem tất cả{" "}
                 <svg
@@ -784,18 +790,19 @@ const ProductDetailPage = () => {
               </a>
             </div>
             <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-                {otherShopProduct &&
-                  otherShopProduct
-                    .slice(0, 5)
-                    .map((product) => (
-                      <ProductCard
-                        key={product.product?.iD_NK}
-                        image={product?.images[0]?.image}
-                        product={product.product}
-                      />
-                    ))}
-              </div>
+              {otherShopProduct.length === 0 ? (
+                <Loading />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                  {otherShopProduct.slice(0, 5).map((product) => (
+                    <ProductCard
+                      key={product.product?.iD_NK}
+                      image={product?.images[0]?.image}
+                      product={product.product}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </MaxWidthWrapper>
         </div>
@@ -812,7 +819,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-            // onClick={() => handleViewAll("new")}
+              // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg
@@ -832,15 +839,19 @@ const ProductDetailPage = () => {
             </a>
           </div>
           <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-              {recommendProduct.map((product) => (
-                <ProductCard
-                  key={product?.iD_NK}
-                  image={product?.image}
-                  product={product}
-                />
-              ))}
-            </div>
+            {recommendProduct.length === 0 ? (
+              <Loading />
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {recommendProduct.map((product) => (
+                  <ProductCard
+                    key={product?.iD_NK}
+                    image={product?.image}
+                    product={product}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </MaxWidthWrapper>
       </div>
