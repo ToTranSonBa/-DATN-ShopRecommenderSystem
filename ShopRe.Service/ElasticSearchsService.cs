@@ -7,6 +7,7 @@ using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using static ShopRe.Service.ElasticSearchsService;
 
@@ -14,7 +15,7 @@ namespace ShopRe.Service
 {
     public interface IElasticSearchService
     {
-        Task<(int TotalCount, List<Product> Products)> GetAllAsync(ProductParameters productParameters);
+        Task<(int TotalCount, List<object> Products)> GetAllAsync(ProductParameters productParameters);
         Task<IEnumerable<Product>> GetByIdAsync(int id);
         Task<(int TotalCount, List<dynamic> Products)> ProductAfterTraining(ProductParameters productParameters, int usercode);
         Task<List<BrandDetailDTO>> GetBrands();
@@ -117,6 +118,96 @@ namespace ShopRe.Service
                     //BrandID_NK = document.ContainsKey("BrandID_NK") ? Convert.ToInt32(document["BrandID_NK"]) : 0,
                     //Category_LV0_NK = document.ContainsKey("Category_LV0_NK") ? Convert.ToInt32(document["Category_LV0_NK"]) : 0,
                     //CreatedAt = DateTime.Parse(document.ContainsKey("CreatedAt") ? document["CreatedAt"].ToString() : "")
+                };
+                products.Add(product);
+            }
+            return products.ToList();
+        }
+        private List<object> ConvertToProductCard(List<object> documents)
+        {
+            var products = new List<object>();
+            foreach (dynamic document in documents)
+            {
+                int sellerID = document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0;
+                var seller = _dbContext.Sellers.FirstOrDefault(s => s.ID_NK == sellerID);
+                var product = new
+                {
+                    ID_NK = document.ContainsKey("ID_NK") && document["ID_NK"] != null ? Convert.ToInt32(document["ID_NK"]) : 0,
+                    ID_SK = document.ContainsKey("ID_SK") && document["ID_SK"] != null ? Convert.ToInt32(document["ID_SK"]) : (int?)null,
+                    Name = document.ContainsKey("Name") && document["Name"] != null ? document["Name"].ToString() : "",
+                    Description = document.ContainsKey("Description") && document["Description"] != null ? document["Description"].ToString() : "",
+                    ShortDescription = document.ContainsKey("ShortDescription") && document["ShortDescription"] != null ? document["ShortDescription"].ToString() : "",
+                    Image = document.ContainsKey("Image") && document["Image"] != null ? document["Image"].ToString() : "",
+                    Price = document.ContainsKey("Price") && document["Price"] != null ? Convert.ToDecimal(document["Price"]) : 0,
+                    ListPrice = document.ContainsKey("ListPrice") && document["ListPrice"] != null ? Convert.ToDecimal(document["ListPrice"]) : (decimal?)null,
+                    OriginalPrice = document.ContainsKey("OriginalPrice") && document["OriginalPrice"] != null ? Convert.ToDecimal(document["OriginalPrice"]) : (decimal?)null,
+                    RatingAverage = document.ContainsKey("RatingAverage") && document["RatingAverage"] != null ? Convert.ToDouble(document["RatingAverage"]) : (double?)null,
+                    RatingCount = document.ContainsKey("RatingCount") && document["RatingCount"] != null ? Convert.ToInt32(document["RatingCount"]) : (int?)null,
+                    MaxSaleQuantity = document.ContainsKey("MaxSaleQuantity") && document["MaxSaleQuantity"] != null ? Convert.ToInt32(document["MaxSaleQuantity"]) : (int?)null,
+                    MinSaleQuantity = document.ContainsKey("MinSaleQuantity") && document["MinSaleQuantity"] != null ? Convert.ToInt32(document["MinSaleQuantity"]) : (int?)null,
+                    Quantity = document.ContainsKey("Quantity") && document["Quantity"] != null ? Convert.ToInt32(document["Quantity"]) : 0,
+                    AllTimeQuantitySold = document.ContainsKey("AllTimeQuantitySold") && document["AllTimeQuantitySold"] != null ? Convert.ToInt32(document["AllTimeQuantitySold"]) : (int?)null,
+                    ShortUrl = document.ContainsKey("ShortUrl") && document["ShortUrl"] != null ? document["ShortUrl"].ToString() : "",
+                    SellerID_NK = document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0,
+                    Seller = seller,
+                    BrandID_NK = document.ContainsKey("BrandID_NK") && document["BrandID_NK"] != null ? Convert.ToInt32(document["BrandID_NK"]) : 0,
+                    Category_LV0_NK = document.ContainsKey("Category_LV0_NK") && document["Category_LV0_NK"] != null ? Convert.ToInt32(document["Category_LV0_NK"]) : 0,
+                    CreatedAt = document.ContainsKey("CreatedAt") && document["CreatedAt"] != null ? DateTime.Parse(document["CreatedAt"].ToString()) : DateTime.MinValue,
+                    UpdatedAt = document.ContainsKey("UpdatedAt") && document["UpdatedAt"] != null ? DateTime.Parse(document["UpdatedAt"].ToString()) : (DateTime?)null,
+                    DeletedAt = document.ContainsKey("DeletedAt") && document["DeletedAt"] != null ? DateTime.Parse(document["DeletedAt"].ToString()) : (DateTime?)null,
+                    Category_LV1_NK = document.ContainsKey("Category_LV1_NK") && document["Category_LV1_NK"] != null ? Convert.ToInt32(document["Category_LV1_NK"]) : 0,
+                    Category_LV2_NK = document.ContainsKey("Category_LV2_NK") && document["Category_LV2_NK"] != null ? Convert.ToInt32(document["Category_LV2_NK"]) : 0,
+                    Category_LV3_NK = document.ContainsKey("Category_LV3_NK") && document["Category_LV3_NK"] != null ? Convert.ToInt32(document["Category_LV3_NK"]) : 0,
+                    Category_LV4_NK = document.ContainsKey("Category_LV4_NK") && document["Category_LV4_NK"] != null ? Convert.ToInt32(document["Category_LV4_NK"]) : 0,
+                    Category_LV5_NK = document.ContainsKey("Category_LV5_NK") && document["Category_LV5_NK"] != null ? Convert.ToInt32(document["Category_LV5_NK"]) : 0,
+                    Category_LV6_NK = document.ContainsKey("Category_LV6_NK") && document["Category_LV6_NK"] != null ? Convert.ToInt32(document["Category_LV6_NK"]) : 0,
+                    IsDeleted = document.ContainsKey("IsDeleted") && document["IsDeleted"] != null ? Convert.ToBoolean(document["IsDeleted"]) : false,
+
+                };
+                products.Add(product);
+            }
+            return products.ToList();
+        }
+        private List<object> ConvertToProductCard2(List<Product> list)
+        {
+            var products = new List<object>();
+            foreach (var pro in list)
+            {
+                int? sellerID = pro.SellerID_NK;
+                var seller = _dbContext.Sellers.FirstOrDefault(s => s.ID_NK == sellerID);
+                var product = new
+                {
+                    ID_NK = pro.ID_NK,
+                    ID_SK = pro.ID_SK,
+                    Name = pro.Name,
+                    Description = pro.Description,
+                    ShortDescription = pro.ShortDescription,
+                    Image = pro.Image,
+                    Price = pro.Price,
+                    ListPrice = pro.ListPrice,
+                    OriginalPrice = pro.OriginalPrice,
+                    RatingAverage = pro.RatingAverage,
+                    RatingCount = pro.RatingCount,
+                    MaxSaleQuantity = pro.MaxSaleQuantity,
+                    MinSaleQuantity = pro.MinSaleQuantity,
+                    Quantity = pro.Quantity,
+                    AllTimeQuantitySold = pro.AllTimeQuantitySold,
+                    ShortUrl = pro.ShortUrl,
+                    SellerID_NK = pro.SellerID_NK,
+                    Seller = seller,
+                    BrandID_NK = pro.BrandID_NK,
+                    Category_LV0_NK = pro.Category_LV0_NK,
+                    CreatedAt = pro.CreatedAt,
+                    UpdatedAt = pro.UpdatedAt,
+                    DeletedAt = pro.DeletedAt,
+                    Category_LV1_NK = pro.Category_LV1_NK,
+                    Category_LV2_NK = pro.Category_LV2_NK,
+                    Category_LV3_NK = pro.Category_LV3_NK,
+                    Category_LV4_NK = pro.Category_LV4_NK,
+                    Category_LV5_NK = pro.Category_LV5_NK,
+                    Category_LV6_NK = pro.Category_LV6_NK,
+                    IsDeleted = pro.IsDeleted,
+
                 };
                 products.Add(product);
             }
@@ -602,14 +693,16 @@ namespace ShopRe.Service
                 result = JObject.Parse(content);
                 if (result.GetValue("sellers").Count() == 0)
                 {
-                    var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                    //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                    var dynamic_products = ConvertToProductCard2(products);
                     return (products.Count, dynamic_products);
                 }
                 sellerRating = JsonSerializer.Deserialize<SellerRating>(content);
             }
             catch
             {
-                var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
+                var dynamic_products = ConvertToProductCard2(products);
                 return (products.Count, dynamic_products);
             }
 
@@ -647,7 +740,7 @@ namespace ShopRe.Service
 
             return (count, sortedResults);
         }
-        public async Task<(int TotalCount, List<Product> Products)> GetAllAsync(ProductParameters productParameters)
+        public async Task<(int TotalCount, List<object> Products)> GetAllAsync(ProductParameters productParameters)
         {
             var filters = new List<QueryContainer>();
 
@@ -848,7 +941,8 @@ namespace ShopRe.Service
                 return (0, null);
             }
 
-            var products = ConvertToProduct(response.Documents.ToList());
+            //var products = ConvertToProduct(response.Documents.ToList());
+            var products = ConvertToProductCard(response.Documents.ToList());
 
             return (totalProducts, products);
         }

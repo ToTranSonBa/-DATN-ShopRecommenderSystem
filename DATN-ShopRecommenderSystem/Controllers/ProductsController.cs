@@ -144,7 +144,6 @@ namespace DATN_ShopRecommenderSystem.Controllers
             return Ok(product);
         }
 
-
         [HttpGet("Option/{id}")]
         public async Task<ActionResult> GetProductOptions(int id)
         {
