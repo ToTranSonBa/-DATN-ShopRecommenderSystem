@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopRe.Common.DTOs;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
+using ShopRe.Data.Infrastructure;
 using ShopRe.Model.Models;
 using ShopRe.Service;
 using System.Text.Json;
@@ -21,13 +22,15 @@ namespace DATN_ShopRecommenderSystem.Controllers
         private readonly IElasticSearchService _elasticsearchService;
         private readonly IAccountService _accountService;
         private readonly ShopRecommenderSystemDbContext _dbContext;
+        public IUnitOfWork _unitOfWork;
         public DetailCommentsController(IDetailCommentService detailCommentService, IElasticSearchService elasticSearchService,
-            IAccountService accountService, ShopRecommenderSystemDbContext dbContext)
+            IAccountService accountService, ShopRecommenderSystemDbContext dbContext, IUnitOfWork unitOfWork )
         {
             _elasticsearchService = elasticSearchService;
             _detailCommentService = detailCommentService;
             _accountService = accountService;
             _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         //[HttpGet("Product{id}")]
@@ -137,6 +140,10 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 {
                     return NotFound();
                 }
+                var sel = await _unitOfWork.Sellers.GetById(detailComment.SellerId);
+                sel.ReviewCount ++;
+                await _unitOfWork.Sellers.UpdateUofW(sel);
+
                 //return CreatedAtAction(nameof(GetDetailComment), new { id = res.ID }, res);
                 return StatusCode(StatusCodes.Status200OK, "Successfully rated");
             }
