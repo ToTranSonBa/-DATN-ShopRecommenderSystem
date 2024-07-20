@@ -121,6 +121,15 @@ const ProductPage = () => {
 
   const handleCategory = (category) => {
     const index = selectedCategories.indexOf(category.iD_NK);
+
+    if (index !== -1) {
+      selectedCategories.splice(index, 1);
+    } else {
+      const updateCaregories = selectedCategories;
+      updateCaregories.push(category.iD_NK);
+      setSelectedCategories(updateCaregories);
+    }
+
     setCurrentPage(0);
     fetchProducts();
   };
@@ -139,33 +148,6 @@ const ProductPage = () => {
     setCurrentPage(0);
     fetchProducts();
   };
-
-  //     if (index !== -1) {
-  //         selectedCategories.splice(index, 1);
-  //     } else {
-  //         const updateCaregories = selectedCategories;
-  //         updateCaregories.push(category.iD_NK);
-  //         setSelectedCategories(updateCaregories);
-  //     }
-
-  //     setCurrentPage(1);
-  //     fetchProducts();
-  // };
-
-  // const handleBrand = (brand) => {
-  //     const index = selectedBrands.indexOf(brand.iD_NK);
-
-  //     if (index !== -1) {
-  //         selectedBrands.splice(index, 1);
-  //     } else {
-  //         const updateBrands = selectedBrands;
-  //         updateBrands.push(brand.iD_NK);
-  //         setSelectedBrands(updateBrands);
-  //     }
-
-  //     setCurrentPage(1);
-  //     fetchProducts();
-  // };
 
   const handleMinPriceChange = (event) => {
     setMinPrice(event.target.value);
