@@ -9,6 +9,8 @@ import { Pagination as PaginationAntd } from "antd";
 import { SearchContext } from "../../components/searchContext";
 import axios from "../../services/axios-customize";
 const ProductPage = () => {
+  const token = localStorage.getItem("token");
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -62,21 +64,48 @@ const ProductPage = () => {
         brandsParam.append("BrandIds", element);
       });
 
-      const response = await axios.get(
-        `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
-        {
-          params: {
-            ProductName: localStorage.getItem("searchQuery"),
-            MinPrice: minPrice,
-            MaxPrice: maxPrice,
-            MinReviewRating: minReview,
-            PageNumber: currentPage,
-            PageSize: productsPerPage,
-          },
-        }
-      );
+      let response;
 
-      response.product.forEach((element) => {
+      if(token) {
+        response = await axios.get(
+          `/Products/GetProductsByTrainning`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+            params: {
+              categoriesParam,
+              brandsParam,
+              ProductName: localStorage.getItem("searchQuery"),
+              MinPrice: minPrice,
+              MaxPrice: maxPrice,
+              MinReviewRating: minReview,
+              PageNumber: currentPage,
+              PageSize: productsPerPage,
+            },
+          }
+        );
+      } else {
+        response = await axios.get(
+          `/Products/GetProductsByTrainning`,
+          {
+            params: {
+              categoriesParam,
+              brandsParam,
+              ProductName: localStorage.getItem("searchQuery"),
+              MinPrice: minPrice,
+              MaxPrice: maxPrice,
+              MinReviewRating: minReview,
+              PageNumber: currentPage,
+              PageSize: productsPerPage,
+            },
+          }
+        );
+      }
+
+      console.log("products: ", response);
+
+      response.product?.forEach((element) => {
         const temp = element.image;
         element.image = temp.substring(15, temp.indexOf("'", 15));
       });
@@ -305,8 +334,11 @@ const ProductPage = () => {
             <div className="flex items-center justify-center bg-background">
               <div className="">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {products.map((product) => (
-                    <ProductCard key={product?.idx} product={product} />
+                  {products?.map((product) => (
+                    <ProductCard 
+                      key={product?.iD_NK}
+                      // image={product?.images[0]?.image}
+                      product={product}/>
                   ))}
                 </div>
               </div>

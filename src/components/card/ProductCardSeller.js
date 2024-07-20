@@ -18,7 +18,13 @@ const defaultSeller = {
   products: null,
 };
 
-const ProductCard = ({ product, image = null }) => {
+const ProductCardSeller = ({
+  product,
+  image = null,
+  sellerId,
+  sellerName,
+  sellerImg,
+}) => {
   return (
     <div
       key={product.iD_NK}
@@ -75,10 +81,18 @@ const ProductCard = ({ product, image = null }) => {
         />
         <div className="w-full border-b-1 my-3"></div>
         <div className="flex flex-row content-center">
-          <img src={product.seller?.imageUrl || defaultSeller.imageUrl} className="w-10 h-10 rounded-full"></img>
+          <img
+            src={sellerImg || defaultSeller.imageUrl}
+            className="w-10 h-10 rounded-full"
+          ></img>
           <div className="ml-2">
-            <p className="w-full text-base h-6 font-medium limit-text">{product.seller?.name || defaultSeller.name}</p>
+            <p className="w-full text-base h-6 font-medium limit-text">
+              {sellerName || defaultSeller.name}
+            </p>
             <div className="flex flex-row w-fit bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+              {/* {seller?.avgRatingPoint
+                ? Math.round(seller.avgRatingPoint * 10) / 10
+                : Math.round(defaultSeller.avgRatingPoint * 10) / 10} */}
               {Math.round(defaultSeller.avgRatingPoint * 10) / 10}
               <svg
                 className="ml-[2px] w-3"
@@ -96,4 +110,4 @@ const ProductCard = ({ product, image = null }) => {
   );
 };
 
-export default ProductCard;
+export default ProductCardSeller;

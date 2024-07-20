@@ -14,6 +14,7 @@ import MaxWidthWrapper from "../../components/MaxWidthWrapper";
 import ProductCard from "../../components/card/ProductCard";
 import Preloader from "../ShopDashboardPage/components/preloader/index";
 import Loading from "../../components/Loading";
+import ProductCardSeller from "../../components/card/ProductCardSeller";
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -42,20 +43,16 @@ const ProductDetailPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const [price, setPrice] = useState(0);
-
   const [option, setOption] = useState([]);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
-  const [idProductOptionValue, setIdProductOptionValue] = useState(null);
-  const [productOptionImage, setProductOptionImage] = useState(0);
 
   const [option1, setOption1] = useState(null);
-  const [selectedOption1Index, setSelectedOption1Index] = useState(0);
+  const [selectedOption1Index, setSelectedOption1Index] = useState(null);
   const [idProductOption1Value, setIdProductOption1Value] = useState(null);
   const [productOption1Image, setProductOption1Image] = useState(0);
   const [productOption1Name, setProductOption1Name] = useState("");
 
   const [option2, setOption2] = useState(null);
-  const [selectedOption2Index, setSelectedOption2Index] = useState(0);
+  const [selectedOption2Index, setSelectedOption2Index] = useState(null);
   const [idProductOption2Value, setIdProductOption2Value] = useState(null);
   const [productOption2Image, setProductOption2Image] = useState(0);
   const [productOption2Name, setProductOption2Name] = useState("");
@@ -69,8 +66,6 @@ const ProductDetailPage = () => {
   const [otherShopProduct, setOtherShopProduct] = useState([]);
 
   const [productOptionValues, setProductOptionValues] = useState([]);
-  const [sellerID, setSellerId] = useState();
-
   const [hiddenDescription, setHiddenDescription] = useState(true);
 
   const fetchProductDetail = useCallback(async () => {
@@ -78,6 +73,7 @@ const ProductDetailPage = () => {
       const response = await axios.get(`/Products/${id}`);
       setProduct(response);
       fetchOtherShopProduct(response.seller?.iD_NK);
+      fetchRecommendShops(response.seller?.iD_NK);
       fetchRecommendProducts(
         response.product?.iD_NK,
         response.product?.category_LV0_NK
@@ -96,7 +92,6 @@ const ProductDetailPage = () => {
 
       setOption1(response?.[0]);
       if (response.length === 2) setOption2(response?.[1]);
-
       console.log("response: ", response);
       console.log("option 1: ", option1);
       console.log("option 2: ", option2);
@@ -127,7 +122,7 @@ const ProductDetailPage = () => {
           },
         }
       );
-      console.log(response.price);
+      // console.log(response.price);
       setPrice(response.price);
     } catch (error) {
       console.error("Failed to fetch price:", error);
@@ -151,7 +146,7 @@ const ProductDetailPage = () => {
   const fetchOtherShopProduct = useCallback(async (id) => {
     try {
       const response = await axios.get(`/Sellers/Products/${id}`);
-      setOtherShopProduct(response.products);
+      setOtherShopProduct(response);
     } catch (error) {
       console.error("Failed to fetch OtherShopProduct:", error);
     }
@@ -159,16 +154,35 @@ const ProductDetailPage = () => {
 
   const fetchRecommendProducts = useCallback(async (productId, cateId) => {
     try {
-      const response = await axios.post(`/Products/RecommendProduct`, {
-        productId: productId,
-        cateId: cateId,
-      });
-      response.forEach((element) => {
-        const temp = element.image;
-        element.image = temp.substring(15, temp.indexOf("'", 15));
-      });
-      console.log("RecommendProduct: ", response);
+      let response;
+      if(token) {
+        response = await axios.post(`/Products/RecommendProduct`, {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          productId: productId,
+          cateId: cateId,
+        });
+      } else {
+        response = await axios.post(`/Products/RecommendProduct`, {
+          productId: productId,
+          cateId: cateId,
+        });
+      }
       setRecommendProduct(response);
+    } catch (error) {
+      console.error("Failed to fetch RecommendProducts:", error);
+    }
+  }, []);
+
+  const fetchRecommendShops = useCallback(async (sellerId) => {
+    try {
+      const response = await axios.get(`/Sellers/recommend-similaryty`, {
+        params: {
+          sellerId: sellerId,
+        },
+      });
+      // setRecommendProduct(response);
     } catch (error) {
       console.error("Failed to fetch RecommendProducts:", error);
     }
@@ -790,18 +804,21 @@ const ProductDetailPage = () => {
               </a>
             </div>
             <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-              {otherShopProduct.length === 0 ? (
-                <Loading />
-              ) : (
+              {otherShopProduct.products  ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-                  {otherShopProduct.slice(0, 5).map((product) => (
-                    <ProductCard
+                  {otherShopProduct.products?.slice(0, 5).map((product) => (
+                    <ProductCardSeller
                       key={product.product?.iD_NK}
                       image={product?.images[0]?.image}
                       product={product.product}
+                      sellerID={otherShopProduct.iD_NK}
+                      sellerName={otherShopProduct.name}
+                      sellerImg={otherShopProduct.imageUrl}
                     />
                   ))}
                 </div>
+              ) : (
+                <Loading />
               )}
             </div>
           </MaxWidthWrapper>
@@ -809,6 +826,49 @@ const ProductDetailPage = () => {
       ) : (
         <></>
       )}
+
+      {/* <div id="otherShop" className="w-5/6 mt-4 mb-8">
+        <MaxWidthWrapper>
+          <div className="flex justify-between">
+            <span className="text-xl font-semibold text-black uppercase">
+              Các cửa hàng liên quan
+            </span>
+            <a
+              href="#a"
+              className="flex items-center text-red-700 hover:underline"
+              // onClick={() => handleViewAll("new")}
+            >
+              Xem tất cả{" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </a>
+          </div>
+          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+            {recommendProduct.length === 0 ? <Loading /> : <div>List Shop</div>}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {recommendProduct.map((product) => (
+                  <ProductCard
+                    key={product?.iD_NK}
+                    image={product?.image}
+                    product={product}
+                  />
+                ))}
+              </div>
+          </div>
+        </MaxWidthWrapper>
+      </div> */}
 
       <div id="otherProductShop" className="w-5/6 mt-4 mb-8">
         <MaxWidthWrapper>
@@ -846,7 +906,7 @@ const ProductDetailPage = () => {
                 {recommendProduct.map((product) => (
                   <ProductCard
                     key={product?.iD_NK}
-                    image={product?.image}
+                    image={product?.images?.[0]}
                     product={product}
                   />
                 ))}
