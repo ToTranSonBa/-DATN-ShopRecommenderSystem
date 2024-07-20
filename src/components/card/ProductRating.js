@@ -40,7 +40,7 @@ const ProductRating = ({ ratingAverage, allTimeQuantitySold, sort = false }) => 
         });
 
     return (
-        <div className="flex justify-between lg:gap-2 items-center mt-2.5 mb-5">
+        <div className="flex justify-between lg:gap-2 items-center my-2.5">
             <div className={`${sort ? '' : 'w-full'} flex `}>
                 <div className="flex">{stars}</div>
                 <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-3 hidden sm:block">

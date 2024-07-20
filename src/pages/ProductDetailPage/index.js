@@ -144,8 +144,6 @@ const ProductDetailPage = () => {
     }
   }, [id]);
 
-
-
   const fetchOtherShopProduct = useCallback(async (id) => {
     try {
       const response = await axios.get(`/Sellers/Products/${id}`);
