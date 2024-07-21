@@ -1,7 +1,13 @@
-﻿namespace ShopRe.Common.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace ShopRe.Common.DTOs
 {
     public class SellerRating
     {
-        public Dictionary<int, double> Sellers { get; set; }
+        [JsonPropertyName("seller_id")]
+        public int SellerId { get; set; }
+
+        [JsonPropertyName("rating")]
+        public double Rating { get; set; }
     }
 }

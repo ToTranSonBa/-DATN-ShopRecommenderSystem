@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nest;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShopRe.Common.DTOs;
-using ShopRe.Common.FunctionCommon;
 using ShopRe.Common.RequestFeatures;
 using ShopRe.Data;
 using ShopRe.Model.Models;
-using System.Reflection.Metadata;
-using System.Text.Json;
 using static ShopRe.Service.ElasticSearchsService;
 
 namespace ShopRe.Service
@@ -654,10 +652,10 @@ namespace ShopRe.Service
             }
 
 
-            var products = ConvertToProduct(response.Documents.ToList());
+            var products = ConvertToProductCard(response.Documents.ToList());
 
 
-            var sellerIds = products.Select(p => p.SellerID_NK).ToList();
+            var sellerIds = products.Select(p => (int)((dynamic)p).SellerID_NK).ToList();
 
             //var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
             //    .Index("accselpri")
@@ -681,46 +679,47 @@ namespace ShopRe.Service
             //    return (0, null);
             //}
 
+            //var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
             var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
 
-            SellerRating sellerRating;
+            List<SellerRating> sellerRating;
             JObject result;
             try
             {
                 var s_response = await _httpClient.GetAsync(requestUri);
                 s_response.EnsureSuccessStatusCode();
                 var content = await s_response.Content.ReadAsStringAsync();
-                result = JObject.Parse(content);
-                if (result.GetValue("sellers").Count() == 0)
+                //content = content.Replace("\"", "'");
+                if (string.IsNullOrEmpty(content))
                 {
                     //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
-                    var dynamic_products = ConvertToProductCard2(products);
-                    return (products.Count, dynamic_products);
+                    //var dynamic_products = ConvertToProductCard2(products);
+                    return (products.Count, products);
                 }
-                sellerRating = JsonSerializer.Deserialize<SellerRating>(content);
+                sellerRating = JsonConvert.DeserializeObject<List<SellerRating>>(content);
             }
             catch
             {
                 //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
-                var dynamic_products = ConvertToProductCard2(products);
-                return (products.Count, dynamic_products);
+                //var dynamic_products = ConvertToProductCard2(products);
+                return (products.Count, products);
             }
 
-            var selids_order = sellerRating.Sellers.OrderBy(e => e.Value).ToList();
+            var selids_order = sellerRating.OrderBy(e => e.Rating).ToList();
 
             var combinedResults = new List<dynamic>();
 
             foreach (var product in products)
             {
-                var sellerId = product.SellerID_NK;
-                var priority = sellerRating.Sellers.FirstOrDefault(p => p.Key == sellerId);
+                var sellerId = (int)((dynamic)product).SellerID_NK;
+                var priority = sellerRating.FirstOrDefault(p => p.SellerId == sellerId);
 
-                if (priority.Key != null)
+                if (priority != null)
                 {
                     combinedResults.Add(new
                     {
                         Product = product,
-                        IDX = priority.Value
+                        IDX = priority.Rating
                     });
                 }
                 else
@@ -738,7 +737,9 @@ namespace ShopRe.Service
             .Take(productParameters.PageSize)
             .ToList();
 
-            return (count, sortedResults);
+            var lstReturn = sortedResults.Select(e => e.Product).ToList();
+
+            return (count, lstReturn);
         }
         public async Task<(int TotalCount, List<object> Products)> GetAllAsync(ProductParameters productParameters)
         {
@@ -835,7 +836,7 @@ namespace ShopRe.Service
 
             var totalProducts = Convert.ToInt32(response.Aggregations.ValueCount("total_products")?.Value ?? 0);
 
-            if(totalProducts == 0)
+            if (totalProducts == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(productParameters.ProductName))
@@ -1155,7 +1156,7 @@ namespace ShopRe.Service
 
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) 
+                .Size(0)
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -1175,7 +1176,7 @@ namespace ShopRe.Service
                 )
             );
 
-            if(searchResponse.Total == 0)
+            if (searchResponse.Total == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(keyWord))
@@ -1209,7 +1210,7 @@ namespace ShopRe.Service
 
                 searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                     .Index("products")
-                    .Size(0) 
+                    .Size(0)
                     .Query(q => q
                         .Bool(b => b
                             .Filter(filters.ToArray())
@@ -1817,7 +1818,7 @@ namespace ShopRe.Service
 
             var searchResponse = await _elasticClient.SearchAsync<dynamic>(s => s
                 .Index("products")
-                .Size(0) 
+                .Size(0)
                 .Query(q => q
                     .Bool(b => b
                         .Filter(filters.ToArray())
@@ -1837,7 +1838,7 @@ namespace ShopRe.Service
                 )
             );
 
-            if(searchResponse.Total == 0)
+            if (searchResponse.Total == 0)
             {
                 filters.Clear();
                 if (!string.IsNullOrEmpty(keyWord))

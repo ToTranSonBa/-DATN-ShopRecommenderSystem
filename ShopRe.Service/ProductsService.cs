@@ -742,7 +742,7 @@ namespace ShopRe.Service
                 foreach (int productId in result["products"])
                 {
                     productIds.Add(productId);
-                    var product = await _productRepository.GetById(productId);
+                    var product = await _dbContext.Products.Where(p => p.ID_NK == productId).Include(p => p.Seller).FirstOrDefaultAsync();
                     products.Add(product);
                 }
             }
@@ -873,6 +873,7 @@ namespace ShopRe.Service
                     Price = document.Price,
                     RatingAverage = document.RatingAverage,
                     RatingCount = document.RatingCount,
+                    Seller = document.Seller
                 };
                 product.Images = await _dbContext.Images.Where(i => i.ProductID_NK == product.ID_NK).Select(i => i.Image).ToListAsync();
                 products.Add(product);
