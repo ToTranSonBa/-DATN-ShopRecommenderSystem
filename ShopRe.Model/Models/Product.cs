@@ -41,5 +41,7 @@ namespace ShopRe.Model.Models
         public int? SellerID_NK { get; set; }
         public string? ShortUrl { get; set; }
         public List<ProductOption> productOptions { get; set; }
+        public Seller? Seller { get; set; }
+
     }
 }

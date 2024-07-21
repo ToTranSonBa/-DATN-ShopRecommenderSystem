@@ -652,10 +652,10 @@ namespace ShopRe.Service
             }
 
 
-            var products = ConvertToProduct(response.Documents.ToList());
+            var products = ConvertToProductCard(response.Documents.ToList());
 
 
-            var sellerIds = products.Select(p => p.SellerID_NK).ToList();
+            var sellerIds = products.Select(p => (int)((dynamic)p).SellerID_NK).ToList();
 
             //var priorityItems = await _elasticClient.SearchAsync<dynamic>(s => s
             //    .Index("accselpri")
@@ -693,16 +693,16 @@ namespace ShopRe.Service
                 if (string.IsNullOrEmpty(content))
                 {
                     //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
-                    var dynamic_products = ConvertToProductCard2(products);
-                    return (products.Count, dynamic_products);
+                    //var dynamic_products = ConvertToProductCard2(products);
+                    return (products.Count, products);
                 }
                 sellerRating = JsonConvert.DeserializeObject<List<SellerRating>>(content);
             }
             catch
             {
                 //var dynamic_products = FunctionCommon.ConvertToDynamicList(products);
-                var dynamic_products = ConvertToProductCard2(products);
-                return (products.Count, dynamic_products);
+                //var dynamic_products = ConvertToProductCard2(products);
+                return (products.Count, products);
             }
 
             var selids_order = sellerRating.OrderBy(e => e.Rating).ToList();
@@ -711,7 +711,7 @@ namespace ShopRe.Service
 
             foreach (var product in products)
             {
-                var sellerId = product.SellerID_NK;
+                var sellerId = (int)((dynamic)product).SellerID_NK;
                 var priority = sellerRating.FirstOrDefault(p => p.SellerId == sellerId);
 
                 if (priority != null)
@@ -737,9 +737,9 @@ namespace ShopRe.Service
             .Take(productParameters.PageSize)
             .ToList();
 
-            sortedResults = sortedResults.Select(e => e.Product).ToList();
+            var lstReturn = sortedResults.Select(e => e.Product).ToList();
 
-            return (count, sortedResults);
+            return (count, lstReturn);
         }
         public async Task<(int TotalCount, List<object> Products)> GetAllAsync(ProductParameters productParameters)
         {
