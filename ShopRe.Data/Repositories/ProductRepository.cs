@@ -55,7 +55,7 @@ namespace ShopRe.Data.Repositories
         public async Task<List<int>> GetProductPopular(int number)
         {
                         
-            var listId= await context.Set<TopPopProduct>().Select(p=>p.ProductID_NK).ToListAsync();
+            var listId= await context.Set<TopPopProduct>().AsNoTracking().Select(p=>p.ProductID_NK).ToListAsync();
             
             return listId;
 

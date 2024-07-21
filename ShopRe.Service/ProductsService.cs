@@ -38,7 +38,7 @@ namespace ShopRe.Service
         public Task<List<object>> GetProductValues(int ProductId);
         public Task<List<ProductWithImages>> GetRecommendProductAsync(RecommendParamaters reParams, int userCode);
         public Task<List<ProductWithImages>> Get20NewPro();
-        public Task<List<ProductWithImages>> GetPopular(int number);
+        public Task<IEnumerable<ProductWithImages>> GetPopular(int number);
         public Task<List<ProductWithImages>> GetTopView(int number);
         Task<(decimal? Price, string Image)> GetPriceAndImageProductChild(int id, int? idOptionValue1, int? idOptionValue2);
         Task<(Common.DTOs.Page paging, List<ProductWithImages> products)> GetRecommendProductForUserAsync(int userCode, int CurrentPage = 0);
@@ -837,7 +837,7 @@ namespace ShopRe.Service
             var product = await ConvertToProductWithImages(result);
             return product;
         }
-        public async Task<List<ProductWithImages>> GetPopular(int number)
+        public async Task<IEnumerable<ProductWithImages>> GetPopular(int number)
         {
             var listId = await _productRepository.GetProductPopular(number);
             var result = new List<Product>();
@@ -856,7 +856,7 @@ namespace ShopRe.Service
                 );
                 var res = ConvertToProduct(itemPro.Documents.ToList());
                 //itemPro2 = FunctionCommon.ConvertToProduct(itemPro.Documents.ToList());
-                result.TryAdd(res);
+                result.Add(res.FirstOrDefault());
             }
             var product = await ConvertToProductWithImages(result);
             return product;

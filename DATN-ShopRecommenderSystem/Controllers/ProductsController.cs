@@ -476,19 +476,37 @@ namespace DATN_ShopRecommenderSystem.Controllers
         public async Task<ActionResult> GetToDay()
         {
             var result = await _productsService.Get20NewPro();
-            return Ok(result);
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(result);
+            return new ContentResult
+            {
+                Content = jsonString,
+                ContentType = "application/json",
+                StatusCode = 200
+            };
         }
         [HttpGet("GetTopPop")]
-        public async Task<ActionResult> GetPopular()
+        public async Task<IActionResult> GetPopular()
         {
             var result = await _productsService.GetPopular(10);
-            return Ok(result);
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(result);
+            return new ContentResult
+            {
+                Content = jsonString,
+                ContentType = "application/json",
+                StatusCode = 200
+            };
         }
         [HttpGet("GetTopView")]
         public async Task<ActionResult> GetTopView()
         {
             var result = await _productsService.GetTopView(10);
-            return Ok(result);
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(result);
+            return new ContentResult
+            {
+                Content = jsonString,
+                ContentType = "application/json",
+                StatusCode = 200
+            };
         }
     }
 

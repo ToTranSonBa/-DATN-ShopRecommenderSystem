@@ -140,7 +140,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
                         LogCount = group.Count()
                     })
                     .OrderByDescending(x => x.LogCount)
-                    .Take(10)
+                    .Take(14)
                     .Select(x => x.SellerId.Value) // We are assuming SellerId is not null
                     .ToList();
                 var topSellers = _context.Sellers
