@@ -169,12 +169,11 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 var user = await _accountService.GetUserFromTokenAsync(token);
                 if (user == null)
                 {
-                    return Unauthorized(new Response<CartItem>()
+                    return Unauthorized(new
                     {
                         message = "Unauthorized!",
                         status = "401",
                         token = token,
-                        Data = null,
                     });
                 }
 

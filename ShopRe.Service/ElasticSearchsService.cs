@@ -126,8 +126,18 @@ namespace ShopRe.Service
             var products = new List<object>();
             foreach (dynamic document in documents)
             {
-                int sellerID = document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0;
-                var seller = _dbContext.Sellers.FirstOrDefault(s => s.ID_NK == sellerID);
+                var seller = new Seller
+                {
+                    ID_NK= document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0,
+                    Name = document.ContainsKey("SellerName") && document["SellerName"] != null ? document["SellerName"].ToString() : "",
+                    IsOfficial = document.ContainsKey("IsOfficial") && document["IsOfficial"] != null ? Convert.ToBoolean(document["IsOfficial"]) : false,
+                    StoreLevel = document.ContainsKey("StoreLevel") && document["StoreLevel"] != null ? document["StoreLevel"].ToString() : "",
+                    AvgRatingPoint = document.ContainsKey("AvgRatingPoint") && document["AvgRatingPoint"] != null ? Convert.ToDouble(document["AvgRatingPoint"]) : 0,
+                    TotalFollower= document.ContainsKey("TotalFollower") && document["TotalFollower"] != null ? Convert.ToInt32(document["TotalFollower"]) : 0,
+                    ReviewCount = document.ContainsKey("ReviewCount") && document["ReviewCount"] != null ? Convert.ToInt32(document["ReviewCount"]) : 0,
+                    ImageUrl= document.ContainsKey("ImageUrl") && document["ImageUrl"] != null ? document["ImageUrl"].ToString() : "",
+
+                };
                 var product = new
                 {
                     ID_NK = document.ContainsKey("ID_NK") && document["ID_NK"] != null ? Convert.ToInt32(document["ID_NK"]) : 0,
@@ -397,6 +407,7 @@ namespace ShopRe.Service
         }
         public async Task AddProductToIndex(Product product)
         {
+            var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s=>s.ID_NK == product.SellerID_NK);
             try
             {
                 var addFields = new Dictionary<string, object>
@@ -418,6 +429,13 @@ namespace ShopRe.Service
                     { "AllTimeQuantitySold", product.AllTimeQuantitySold },
                     { "ShortUrl", product.ShortUrl },
                     { "SellerID_NK", product.SellerID_NK },
+                    { "SellerName", seller.Name },
+                    { "IsOfficial", seller.IsOfficial },
+                    { "StoreLevel", seller.StoreLevel },
+                    { "AvgRatingPoint", seller.AvgRatingPoint },
+                    { "TotalFollower", seller.TotalFollower },
+                    { "ReviewCount", seller.ReviewCount },
+                    { "ImageUrl", seller.ImageUrl },
                     { "BrandID_NK", product.BrandID_NK },
                     { "Category_LV0_NK", product.Category_LV0_NK },
                     { "CreatedAt", product.CreatedAt },
