@@ -19,7 +19,6 @@ const defaultSeller = {
 };
 
 const ProductCard = ({ product, image = null }) => {
-  console.log("recommend: ", product);
   return (
     <div
       key={product.iD_NK}
