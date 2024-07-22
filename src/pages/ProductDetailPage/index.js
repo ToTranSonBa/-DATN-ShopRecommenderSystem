@@ -15,6 +15,22 @@ import ProductCard from "../../components/card/ProductCard";
 import Preloader from "../ShopDashboardPage/components/preloader/index";
 import Loading from "../../components/Loading";
 import ProductCardSeller from "../../components/card/ProductCardSeller";
+import ProductRating from "../../components/card/ProductRating";
+
+const defaultSeller = {
+  iD_NK: 2926,
+  iD_SK: 1,
+  name: "ShopLy",
+  isOfficial: true,
+  storeLevel: null,
+  avgRatingPoint: 4.6718,
+  totalFollower: 500417,
+  reviewCount: 5456753,
+  imageUrl:
+    "https://vcdn.tikicdn.com/ts/seller/21/ce/5c/b52d0b8576680dc3666474ae31b091ec.jpg",
+  total: 1786,
+  products: null,
+};
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -61,9 +77,9 @@ const ProductDetailPage = () => {
 
   const [comments, setComments] = useState([]);
   const [commentRating, setCommentRating] = useState([]);
-  const [productOptions, setProductOptions] = useState([]);
   const [recommendProduct, setRecommendProduct] = useState([]);
   const [otherShopProduct, setOtherShopProduct] = useState([]);
+  const [recommendShop, setRecommendShop] = useState([]);
 
   const [productOptionValues, setProductOptionValues] = useState([]);
   const [hiddenDescription, setHiddenDescription] = useState(true);
@@ -79,6 +95,7 @@ const ProductDetailPage = () => {
         response.product?.category_LV0_NK
       );
       fetchPrice();
+      fetchRecommendShops(response.seller?.iD_NK);
     } catch (error) {
       console.error("Failed to fetch product detail:", error);
     }
@@ -155,14 +172,19 @@ const ProductDetailPage = () => {
   const fetchRecommendProducts = useCallback(async (productId, cateId) => {
     try {
       let response;
-      if(token) {
-        response = await axios.post(`/Products/RecommendProduct`, {
-          headers: {
-            Authorization: "Bearer " + token,
+      if (token) {
+        response = await axios.post(
+          `/Products/RecommendProduct`,
+          {
+            productId: productId,
+            cateId: cateId,
           },
-          productId: productId,
-          cateId: cateId,
-        });
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
       } else {
         response = await axios.post(`/Products/RecommendProduct`, {
           productId: productId,
@@ -182,7 +204,8 @@ const ProductDetailPage = () => {
           sellerId: sellerId,
         },
       });
-      // setRecommendProduct(response);
+      // console.log("shop: ", response);
+      setRecommendShop(response);
     } catch (error) {
       console.error("Failed to fetch RecommendProducts:", error);
     }
@@ -804,7 +827,7 @@ const ProductDetailPage = () => {
               </a>
             </div>
             <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-              {otherShopProduct.products  ? (
+              {otherShopProduct.products ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
                   {otherShopProduct.products?.slice(0, 5).map((product) => (
                     <ProductCardSeller
@@ -814,6 +837,7 @@ const ProductDetailPage = () => {
                       sellerID={otherShopProduct.iD_NK}
                       sellerName={otherShopProduct.name}
                       sellerImg={otherShopProduct.imageUrl}
+                      sellerRating={otherShopProduct.avgRatingPoint}
                     />
                   ))}
                 </div>
@@ -827,7 +851,7 @@ const ProductDetailPage = () => {
         <></>
       )}
 
-      {/* <div id="otherShop" className="w-5/6 mt-4 mb-8">
+      <div id="otherShop" className="w-5/6 mt-4 mb-8">
         <MaxWidthWrapper>
           <div className="flex justify-between">
             <span className="text-xl font-semibold text-black uppercase">
@@ -856,19 +880,31 @@ const ProductDetailPage = () => {
             </a>
           </div>
           <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-            {recommendProduct.length === 0 ? <Loading /> : <div>List Shop</div>}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-                {recommendProduct.map((product) => (
-                  <ProductCard
-                    key={product?.iD_NK}
-                    image={product?.image}
-                    product={product}
-                  />
+            {recommendShop.length === 0 ? (
+              <Loading />
+            ) : (
+              <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {recommendShop.map((shop) => (
+                  <a href={`/shoppage/${shop.iD_NK}`} className="flex flex-row px-4 py-8 content-center max-w-sm bg-white rounded-lg shadow-sm hover:shadow-lg hover:border hover:border-blue-700">
+                    <img
+                      src={shop.imageUrl || defaultSeller.imageUrl}
+                      className="w-10 h-10 rounded-full"
+                    ></img>
+                    <div className="ml-3">
+                      <p className="w-full text-base h-6 font-medium limit-text">
+                        {shop.name || defaultSeller.name}
+                      </p>
+                      <div className="w-5/6">
+                        <ProductRating ratingAverage={shop.avgRatingPoint} />
+                      </div>
+                    </div>
+                  </a>
                 ))}
               </div>
+            )}
           </div>
         </MaxWidthWrapper>
-      </div> */}
+      </div>
 
       <div id="otherProductShop" className="w-5/6 mt-4 mb-8">
         <MaxWidthWrapper>

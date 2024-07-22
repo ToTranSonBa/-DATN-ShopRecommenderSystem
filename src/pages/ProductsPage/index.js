@@ -68,14 +68,9 @@ const ProductPage = () => {
 
       if(token) {
         response = await axios.get(
-          `/Products/GetProductsByTrainning`,
+          `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
           {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
             params: {
-              categoriesParam,
-              brandsParam,
               ProductName: localStorage.getItem("searchQuery"),
               MinPrice: minPrice,
               MaxPrice: maxPrice,
@@ -83,15 +78,17 @@ const ProductPage = () => {
               PageNumber: currentPage,
               PageSize: productsPerPage,
             },
+          }, {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
           }
         );
       } else {
         response = await axios.get(
-          `/Products/GetProductsByTrainning`,
+          `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
           {
             params: {
-              categoriesParam,
-              brandsParam,
               ProductName: localStorage.getItem("searchQuery"),
               MinPrice: minPrice,
               MaxPrice: maxPrice,

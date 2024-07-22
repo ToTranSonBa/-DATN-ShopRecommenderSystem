@@ -44,7 +44,7 @@ const ProductRating = ({ ratingAverage, allTimeQuantitySold, sort = false }) => 
             <div className={`${sort ? '' : 'w-full'} flex `}>
                 <div className="flex">{stars}</div>
                 <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-3 hidden sm:block">
-                    {ratingAverage === 0 ? 'N/A' : ratingAverage}
+                    {ratingAverage === 0 ? 'N/A' : Math.round(ratingAverage * 10) / 10}
                 </span>
             </div>
 

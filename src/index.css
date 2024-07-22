@@ -8,7 +8,7 @@
     margin: 0;
     padding: 0;
     font-family: 'Lexend Deca', sans-serif;
-    scrollbar-width: none;
+    /* scrollbar-width: none; */
 }
 
 .limit-text {

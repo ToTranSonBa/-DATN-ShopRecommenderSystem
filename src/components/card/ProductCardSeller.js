@@ -24,6 +24,7 @@ const ProductCardSeller = ({
   sellerId,
   sellerName,
   sellerImg,
+  sellerRating
 }) => {
   return (
     <div
@@ -90,10 +91,10 @@ const ProductCardSeller = ({
               {sellerName || defaultSeller.name}
             </p>
             <div className="flex flex-row w-fit bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-              {/* {seller?.avgRatingPoint
-                ? Math.round(seller.avgRatingPoint * 10) / 10
-                : Math.round(defaultSeller.avgRatingPoint * 10) / 10} */}
-              {Math.round(defaultSeller.avgRatingPoint * 10) / 10}
+              {sellerRating
+                ? Math.round(sellerRating * 10) / 10
+                : Math.round(defaultSeller.avgRatingPoint * 10) / 10}
+              {/* {Math.round(defaultSeller.avgRatingPoint * 10) / 10} */}
               <svg
                 className="ml-[2px] w-3"
                 fill="currentColor"
