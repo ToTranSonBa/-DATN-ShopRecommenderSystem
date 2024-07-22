@@ -553,6 +553,7 @@ namespace ShopRe.Service
                 product.Category_LV0_NK = category.ID_NK;
                 product.BrandID_NK = Convert.ToInt32(entity.BrandId);
                 product.SellerID_NK = seller.ID_NK;
+                product.Image = "[{'base_url':" + entity.Images[0] + ",}]";
 
                 var product_entity = _dbContext.Products.Update(product);
                 await _dbContext.SaveChangesAsync();

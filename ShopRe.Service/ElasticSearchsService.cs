@@ -347,6 +347,11 @@ namespace ShopRe.Service
                         .Term(t => t.Field("ID_NK").Value(ProductID))
                     )
                 );
+                var image = await _dbContext.Images.Where(i => i.ProductID_NK == ProductID).ToListAsync();
+                if(image.Count() == 0)
+                {
+                    image[0] = null;
+                }
 
                 if (!searchResponse.IsValid || !searchResponse.Documents.Any())
                 {
