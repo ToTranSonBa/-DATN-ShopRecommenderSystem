@@ -54,9 +54,9 @@ namespace ShopRe.Data.Repositories
         }
         public async Task<List<int>> GetProductPopular(int number)
         {
-                        
-            var listId= await context.Set<TopPopProduct>().AsNoTracking().Select(p=>p.ProductID_NK).ToListAsync();
-            
+
+            var listId = await context.Set<TopPopProduct>().AsNoTracking().Select(p => p.ProductID_NK).ToListAsync();
+
             return listId;
 
         }
@@ -71,6 +71,7 @@ namespace ShopRe.Data.Repositories
         public async Task<List<Product>> GetProductByCateId(int cateId, List<int> proIds, int quantity)
         {
             return await context.Products.Where(p => p.Category_LV0_NK == cateId && !proIds.Contains(p.ID_NK))
+                .Include(e => e.Seller)
                 .OrderBy(e => e.RatingCount)
                 .ThenBy(e => e.RatingAverage)
                 .Take(quantity)
@@ -80,13 +81,15 @@ namespace ShopRe.Data.Repositories
         {
 
             var listId = await context.Set<TopViewProduct>().Select(p => p.ProductID_NK).ToListAsync();
-            var listproduct = new List<Product>();
-            foreach (var id in listId)
-            {
-                listproduct.Add(await GetById(id));
-            }
-            return listproduct;
+            List<Product> listproduct;
+            //foreach (var id in listId)
+            //{
+            //    listproduct.Add(await GetById(id));
+            //}
+            //return listproduct;
 
+            listproduct = await context.Products.Where(p => listId.Contains(p.ID_NK)).Include(p => p.Seller).ToListAsync();
+            return listproduct;
         }
     }
 }

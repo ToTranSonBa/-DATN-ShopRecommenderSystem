@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -344,7 +343,7 @@ namespace ShopRe.Service
                     OriginalPrice = entity.Price,
                     BrandID_NK = Convert.ToInt32(entity.BrandID),
                     SellerID_NK = seller.ID_NK,
-                    Image = "[{'base_url':" + entity.Images[0] +",}]"
+                    Image = "[{'base_url':" + entity.Images[0] + ",}]"
                 };
 
                 //var productEntityEntry = await _dbContext.Products.AddAsync(product);
@@ -800,7 +799,7 @@ namespace ShopRe.Service
                 foreach (int productId in result["products"])
                 {
                     productIds.Add(productId);
-                    var product = await _productRepository.GetById(productId);
+                    var product = await _dbContext.Products.Where(p => p.ID_NK == productId).Include(p => p.Seller).FirstOrDefaultAsync();
                     products.Add(product);
                 }
             }
