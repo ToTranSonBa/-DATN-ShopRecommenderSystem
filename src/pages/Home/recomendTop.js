@@ -36,7 +36,7 @@ const RecommendTop = () => {
       console.log("TopNew: ", response);
       setNewArrivalsToDay(response);
     } catch (error) {
-      console.log("Faile to fetch top new product: ", error);
+      console.log("Failed to fetch top new product: ", error);
     }
   });
 
@@ -83,7 +83,7 @@ const RecommendTop = () => {
 
   // Ensure that topPopProducts[currentIndex] exists before trying to access its properties
   const currentProduct = topPopProducts[currentIndex] || {};
-  const images = currentProduct.images || [];
+  const images = currentProduct.Images || [];
   const mainImage = images[0];
   const additionalImages = images.slice(1, 4);
 
@@ -161,11 +161,10 @@ const RecommendTop = () => {
                       <div
                         key={slideIndex}
                         onClick={() => setCurrentIndex(slideIndex)}
-                        className={`cursor-pointer rounded-full ${
-                          currentIndex === slideIndex
-                            ? "bg-gray-500 h-2 w-2 lg:px-3"
-                            : "bg-gray-500 h-2 w-2"
-                        }`}
+                        className={`cursor-pointer rounded-full ${currentIndex === slideIndex
+                          ? "bg-gray-500 h-2 w-2 lg:px-3"
+                          : "bg-gray-500 h-2 w-2"
+                          }`}
                       ></div>
                     ))}
                   </div>
@@ -187,15 +186,15 @@ const RecommendTop = () => {
                 <div className="grid lg:grid-cols-2 lg:grid-rows-2 lg:gap-4 lg:px-4 lg:py-4">
                   {newArrivalsToDay.length > 0 ? (
                     newArrivalsToDay.slice(0, 4).map((item, index) =>
-                      item.images && item.images.length > 0 ? (
+                      item.Images && item.Images.length > 0 ? (
                         <img
                           key={item.iD_NK}
                           data-twe-lazy-load-init
                           data-twe-lazy-src
                           className="w-[220px] rounded-xl h-[220px] object-cover"
                           src={
-                            item.images[0] !== "string"
-                              ? item.images[0]
+                            item.Images[0] !== "string"
+                              ? item.Images[0]
                               : DefaultImg
                           }
                           alt={`Image of ${item.name}`}
@@ -215,7 +214,7 @@ const RecommendTop = () => {
               <div className="flex items-center justify-between bg-white rounded-lg lg:gap-4 lg:mt-4 lg:px-4 lg:py-4">
                 {newArrivalsToDay.length > 4 ? (
                   newArrivalsToDay.slice(4, 7).map((item, index) =>
-                    item.images && item.images.length > 0 ? (
+                    item.Images && item.Images.length > 0 ? (
                       <img
                         key={item.iD_NK}
                         data-twe-lazy-load-init
@@ -226,8 +225,8 @@ const RecommendTop = () => {
                           // Add your navigation logic here
                         }}
                         src={
-                          item.images[0] !== "string"
-                            ? item.images[0]
+                          item.Images[0] !== "string"
+                            ? item.Images[0]
                             : DefaultImg
                         }
                         alt={`Image of ${item.name}`}
@@ -266,8 +265,8 @@ const RecommendTop = () => {
                     data-twe-lazy-src
                     className="w-[160px] h-[160px] cursor-pointer object-cover rounded-xl"
                     src={
-                      topViewProducts[0]?.images[0]
-                        ? topViewProducts[0]?.images[0]
+                      topViewProducts[0]?.Images[0]
+                        ? topViewProducts[0]?.Images[0]
                         : DefaultImg
                     }
                     alt="This is image"

@@ -6,7 +6,8 @@ const withAuth = (Component, allowedRoles) => {
     return (props) => {
         const token = localStorage.getItem('token');
         const roles = JSON.parse(localStorage.getItem('roles')) || [];
-
+        console.log('Token:', token);
+        console.log('Roles:', roles);
         if (!token) {
             return <Navigate to="/login" />;
         }

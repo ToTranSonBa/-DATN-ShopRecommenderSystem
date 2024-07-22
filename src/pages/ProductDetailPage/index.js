@@ -32,6 +32,8 @@ const defaultSeller = {
   products: null,
 };
 
+import { EventBus } from '../../EventBus/EventBus';
+
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
   const currentDate = new Date();
@@ -389,6 +391,7 @@ const ProductDetailPage = () => {
         );
         if (response.status === "201") {
           toast.success("Đã thêm vào giỏ hàng");
+          EventBus.emit('cartUpdated');// Phát sự kiện sau khi thêm sản phẩm vào giỏ hàng
         } else {
           toast.error("Thêm vào giỏ hàng thất bại!");
         }
