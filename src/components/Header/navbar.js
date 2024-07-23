@@ -136,21 +136,21 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
         {
             title: 'Sản phẩm phổ biển nhất',
             submenu: topPopProducts?.map((product) => ({
-                title: `${product?.name}`,
+                title: `${product?.Name}`,
                 url: `/productdetail/${product?.iD_NK}`,
             })),
         },
         {
             title: 'Sản phẩm mới nhất',
             submenu: newArrivalsToDay?.map((product) => ({
-                title: `${product?.name}`,
+                title: `${product?.Name}`,
                 url: `/productdetail/${product?.iD_NK}`,
             })),
         },
         {
             title: 'Những sản phẩm được quan tâm nhiều nhất',
             submenu: topViewProducts?.map((product) => ({
-                title: `${product?.name}`,
+                title: `${product?.Name}`,
                 url: `/productdetail/${product?.iD_NK}`,
             })),
         },
@@ -385,9 +385,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for categories */}
                 <div
                     id="menu-categories-dropdown"
-                    className={`absolute ${
-                        hoveredItem === 'categories' ? 'block fade-down' : 'hidden'
-                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${hoveredItem === 'categories' ? 'block fade-down' : 'hidden'
+                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('categories')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -401,11 +400,10 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                                     <ul className="flex-row">
                                         {Hot.map((menu, index) => (
                                             <li
-                                                className={`font-light text-black border-r-2 lg:px-7 lg:py-1 lg:leading-10 ${
-                                                    hoveredIndex === index || hoveredSubmenu === index
+                                                className={`font-light text-black border-r-2 lg:px-7 lg:py-1 lg:leading-10 ${hoveredIndex === index || hoveredSubmenu === index
                                                         ? 'hover:bg-gray-100 bg-gray-100'
                                                         : 'hover:bg-gray-100'
-                                                }`}
+                                                    }`}
                                                 key={index}
                                                 onMouseEnter={() => handleMouseOverHot(index)}
                                             >
@@ -441,9 +439,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for featured selection */}
                 <div
                     id="menu-categories-dropdown"
-                    className={`absolute ${
-                        hoveredItem === 'featured-selection' ? 'block fade-down' : 'hidden'
-                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${hoveredItem === 'featured-selection' ? 'block fade-down' : 'hidden'
+                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('featured-selection')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -534,9 +531,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for trade assurance */}
                 <div
                     id="menu-trade-assurance-dropdown"
-                    className={`absolute ${
-                        hoveredItem === 'trade-assurance' ? 'block fade-down' : 'hidden'
-                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${hoveredItem === 'trade-assurance' ? 'block fade-down' : 'hidden'
+                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('trade-assurance')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -698,9 +694,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for buyer central */}
                 <div
                     id="menu-buyer-central-dropdown"
-                    className={`absolute ${
-                        hoveredItem === 'buyer-central' ? 'block fade-down' : 'hidden'
-                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[200px] lg:max-h-[600px]`}
+                    className={`absolute ${hoveredItem === 'buyer-central' ? 'block fade-down' : 'hidden'
+                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[200px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('buyer-central')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
@@ -729,9 +724,8 @@ const NavbarCustom = ({ className_bg, className_textcolor, className_dropshadow,
                 {/* Dropdown for help center */}
                 <div
                     id="menu-help-center-dropdown"
-                    className={`absolute ${
-                        hoveredItem === 'help-center' ? 'block fade-down' : 'hidden'
-                    } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
+                    className={`absolute ${hoveredItem === 'help-center' ? 'block fade-down' : 'hidden'
+                        } bg-white border-gray-200 shadow-sm border-y w-full lg:h-auto lg:min-h-[300px] lg:max-h-[600px]`}
                     onMouseOver={() => handleMouseOver('help-center')}
                     onMouseOut={handleMouseOut}
                     onMouseEnter={handleMouseOnUl}
