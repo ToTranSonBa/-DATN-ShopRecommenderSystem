@@ -490,37 +490,24 @@ async def CBFS_recommend(userid: int, storeid: int):
 async def CBFS_recommend(userid: int, storeid: int):
     global final_predictions
     try:
-        store_simi = cbs.recommend(storeid, store, store_similarity)
-        print(store_simi)
-        if(userid == 0):
-            result = store_simi[:10]
-            result = [int(element) for element in result]
-            return {"total": len(result),
-                    "stores": result}
-        else:
-            if (userid in final_predictions.index):
-                print(1)
-                arr2_dict = pd.Series(final_predictions.loc[userid])
-                print(arr2_dict)
-                sorted_arr1 = sorted(store_simi, key=lambda x: arr2_dict.get(x, float('inf')))
-                print(sorted_arr1)
-                print("===============================================")
-                result = sorted_arr1[:10]
-                result = [int(element) for element in result]
-                print(len(result))
-                return {"total": len(result),
-                        "stores": result}
-            else:
-                print(3)
-                result = store_simi[:10]
-                result = [int(element) for element in result]
+        seller = len(final_predictions.columns)
+        user = len(final_predictions.columns)
 
-                return {"total": len(result),
-                        "stores": result}
+        up_date = 0
+        with pyodbc.connect(env.CONN_STR) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"select top(1) AD_DATE from TRAIN_LOG where TRAIN_LOG.algorithm = 1 ORDER BY AD_DATE DESC")
+            result = cursor.fetchone()
+            up_date = i[0]
+
+        return {"seller": seller,
+                "user": user,
+                "up_date": up_date
+
+        }
     except Exception as e:
         print(e)
-        return {"total": 0,
-                "stores": [{}]}
+
 
 @app.on_event("startup")
 async def load_files():

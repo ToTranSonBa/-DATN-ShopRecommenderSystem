@@ -33,16 +33,16 @@ def prepare_data():
         return d
     conn_str = env.CONN_STR
 
-    # with pyodbc.connect(conn_str) as conn:
-    #     cursor = conn.cursor()
-    #     cursor.execute("Exec SetBehaviorRating")
-    #     cursor.execute("Exec SellerAvg")
-    #     cursor.execute("Exec SetAvgRating")
-    #     conn.commit()
+    with pyodbc.connect(conn_str) as conn:
+        cursor = conn.cursor()
+        cursor.execute("Exec SetBehaviorRating")
+        cursor.execute("Exec SellerAvg")
+        cursor.execute("Exec SetAvgRating")
+        conn.commit()
     behavior_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("select top(10000) ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING ")
+        cursor.execute("select ACCOUNTID, SELLERID, B_RATING from ACOOUUNT_BEHAVIOR_RATING ")
         result = cursor.fetchall()
         for rating in result:
             behavior_df.append(ParseBehavior(rating))
@@ -50,7 +50,7 @@ def prepare_data():
     ratings_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT top(10000)  ACCOUNTID, SELLERID, RATING FROM AVG_RATING")
+        cursor.execute("SELECT ACCOUNTID, SELLERID, RATING FROM AVG_RATING")
         result = cursor.fetchall()
         for rating in result:
             ratings_df.append(ParseRating(rating))
@@ -137,7 +137,7 @@ class MatrixFactorization:
     def full_matrix(self):
         return self.b + self.b_u[:, np.newaxis] + self.b_s[np.newaxis:, ] + self.P.dot(self.Q.T)
 
-def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=1):
+def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbors=5, n_clusters=10):
     global env
     # Train Matrix Factorization model (assuming MatrixFactorization class exists)
     mf = MatrixFactorization(user_rating_matrix.values, K=5, alpha=0.01, beta=0.01, iterations=40)
