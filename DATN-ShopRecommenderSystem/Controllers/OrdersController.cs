@@ -66,7 +66,7 @@ namespace DATN_ShopRecommenderSystem.Controllers
 
         [Authorize]
         [HttpGet("UserOrders2")]
-        public async Task<IActionResult> GetOrdersOfUser2()
+        public async Task<IActionResult> GetOrdersOfUser2(int pageNumber, int pageSize)
         {
             // Lấy token từ header Authorization
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -88,13 +88,13 @@ namespace DATN_ShopRecommenderSystem.Controllers
                 });
             }
 
-            var res = await _orderService.GetOrdersOfUser2(user);
-            return Ok(res);
+            var (total,res) = await _orderService.GetOrdersOfUser2(user, pageNumber, pageSize);
+            return Ok(new { total, res });
         }
         // GET: api/orders
         [Authorize]
         [HttpGet("OrdersByStatus")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByStatus(int status)
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByStatus(int status, int pageNumber, int pageSize)
         {
             try
             {
@@ -118,12 +118,12 @@ namespace DATN_ShopRecommenderSystem.Controllers
                     });
                 }
 
-                var orders = await _orderService.GetOrdersByStatus(status, user);
+                var (total,orders) = await _orderService.GetOrdersByStatus(status, user, pageNumber, pageSize);
                 if (orders == null)
                 {
                     return NotFound();
                 }
-                return Ok(orders);
+                return Ok(new { total, orders });
             }
             catch (Exception ex)
             {

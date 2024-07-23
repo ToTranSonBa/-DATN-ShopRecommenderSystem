@@ -24,11 +24,11 @@ namespace ShopRe.Service
         void Remove(int id);
         IEnumerable<Order> Find(Expression<Func<Order, bool>> expression);
         Task<List<OrderDTO>> GetOrdersOfUser(ApplicationUser user);
-        Task<List<OrderDTO>> GetOrdersOfUser2(ApplicationUser user);
+        Task<(int total, List<OrderDTO> result)> GetOrdersOfUser2(ApplicationUser user, int pageNumber, int pageSize);
         Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters);
         Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder);
         Task<int> CreateOrderForNewUser(OrderNewUserPrameters orderParameters);
-        Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user);
+        Task<(int total, List<OrderDTO> result)> GetOrdersByStatus(int status, ApplicationUser user, int pageNumber, int pageSize);
         Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersOfSeller(OrdersParameters ordersParameters, ApplicationUser seller);
         Task<(int total, PagedList<OrderDTO> orderList)> GetOrdersByStatusOfSeller(int status, OrdersParameters ordersParameters, ApplicationUser seller);
     }
@@ -69,12 +69,17 @@ namespace ShopRe.Service
 
             return listOrder;
         }
-        public async Task<List<OrderDTO>> GetOrdersOfUser2(ApplicationUser user)
+        public async Task<(int total, List<OrderDTO> result)> GetOrdersOfUser2(ApplicationUser user, int pageNumber, int pageSize)
         {
-            // Truy vấn danh sách đơn hàng của người dùng
+            var totalCount = await _dbContext.Order
+                                     .Where(o => o.ApplicationUser.Id == user.Id)
+                                     .CountAsync();
+
             var orders = await _dbContext.Order
                                          .Where(o => o.ApplicationUser.Id == user.Id).Include(o => o.ShippingAddress)
                                          .OrderByDescending(o => o.CreatedAt)
+                                         .Skip((pageNumber) * pageSize)
+                                         .Take(pageSize)
                                          .ToListAsync();
 
             List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
@@ -93,8 +98,7 @@ namespace ShopRe.Service
                 var items = _mapper.Map<List<OrderItemsDTO>>(orderItems);
                 order.Items = items;
             }
-
-            return listOrder;
+            return (totalCount, listOrder);
         }
 
         public async Task<Order> CreateOrderForUser(ApplicationUser user, OrderParameters orderParameters)
@@ -150,11 +154,17 @@ namespace ShopRe.Service
 
             return newOrder.Entity.ID;
         }
-        public async Task<List<OrderDTO>> GetOrdersByStatus(int status, ApplicationUser user)
+        public async Task<(int total, List<OrderDTO> result)> GetOrdersByStatus(int status, ApplicationUser user, int pageNumber, int pageSize)
         {
+            var totalCount = await _dbContext.Order
+                                     .Where(o => o.ApplicationUser.Id == user.Id && o.Status == status)
+                                     .CountAsync();
             var orders = await _dbContext.Order
-                                 .Where(o => o.ApplicationUser.Id == user.Id && o.Status == status).ToListAsync();
-
+                                 .Where(o => o.ApplicationUser.Id == user.Id && o.Status == status).Include(o => o.ShippingAddress)
+                                         .OrderByDescending(o => o.CreatedAt)
+                                         .Skip((pageNumber) * pageSize)
+                                         .Take(pageSize)
+                                         .ToListAsync();
 
             List<OrderDTO> listOrder = _mapper.Map<List<OrderDTO>>(orders);
 
@@ -173,7 +183,7 @@ namespace ShopRe.Service
                 order.Items = Items;
             }
 
-            return listOrder;
+            return (totalCount, listOrder);
         }
 
         public async Task<Order> UpdateStatus(ApplicationUser user, int status, int idOrder)
