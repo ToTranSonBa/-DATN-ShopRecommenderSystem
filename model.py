@@ -59,16 +59,29 @@ def create_model(num_labels, learning_rate):
                   metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
     return model
 
+# def train_model(model, train_dataset, val_dataset, epochs=20):
+#     log_dir = './models/logs'
+#     if not os.path.exists(log_dir):
+#         os.makedirs(log_dir)
+    
+#     callbacks = [
+#         tf.keras.callbacks.ModelCheckpoint(filepath='./models/best_model.keras', save_best_only=False),
+#         tf.keras.callbacks.TensorBoard(log_dir=log_dir),
+#         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+#     ]
+#     model.fit(train_dataset, epochs=epochs, validation_data=val_dataset, callbacks=callbacks)
+
 def train_model(model, train_dataset, val_dataset, epochs=1):
     log_dir = './models/logs'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     
     callbacks = [
-        tf.keras.callbacks.ModelCheckpoint(filepath='./models/best_model.keras', save_best_only=True),
+        tf.keras.callbacks.ModelCheckpoint(filepath='./models/model_{epoch}.keras', save_best_only=False),
         tf.keras.callbacks.TensorBoard(log_dir=log_dir),
         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
     ]
+    
     model.fit(train_dataset, epochs=epochs, validation_data=val_dataset, callbacks=callbacks)
 
 def evaluate_model(model, val_dataset):
@@ -121,7 +134,7 @@ def grid_search(df, label_to_encoded):
 def main():
     file_path = get_path('data_processed.csv')
     df = load_data(file_path)
-    
+    df = df.drop(index=df.index[df.index >= 100])
     if not isinstance(df, pd.DataFrame):
         raise ValueError("load_data phải trả về một DataFrame")
     

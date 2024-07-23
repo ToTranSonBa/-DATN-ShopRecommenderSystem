@@ -2,17 +2,19 @@ elasticsearch
 fastapi
 numpy
 pandas
-pyodbc
+pyodbc==5.1.0
 requests
 scikit-learn
 tqdm
 uvicorn
 schedule
 nltk
-sqlalchemy
-regex
-pyvi
-tensorflow
-transformers
-plotly
-seaborn
+# sqlalchemy
+# regex
+# pyvi
+# tensorflow==2.16.1
+# transformers
+# plotly==5.22.0
+# seaborn==0.13.2
+# tf-keras
+unidecode
