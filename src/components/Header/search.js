@@ -201,7 +201,7 @@ const Search = () => {
 
     // Tạo mảng các placeholder từ dữ liệu topViewProducts
     const searchPlaceholders = topViewProducts?.map((product) => ({
-        title: `${product?.name}`,
+        title: `${product?.Name}`,
     }));
 
     // Đảm bảo currentPlaceholder luôn hợp lệ
@@ -426,7 +426,7 @@ const Search = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <span className="font-light ">{product.name}</span>
+                                            <span className="font-light text-nowrap overflow-hidden w-3/4 ">{product.Name}</span>
                                             <span className="ml-auto text-xs font-light text-gray-400 lg:mr-10">
                                                 sản phẩm
                                             </span>
@@ -472,9 +472,8 @@ const Search = () => {
                             </div>
                         ) : (
                             <div
-                                className={`${hideSuggestion ? 'block' : 'hidden'} ${
-                                    isHideSuggestion ? 'block' : 'hidden'
-                                }`}
+                                className={`${hideSuggestion ? 'block' : 'hidden'} ${isHideSuggestion ? 'block' : 'hidden'
+                                    }`}
                                 ref={divRef}
                             >
                                 {suggestions.length > 0 && (
