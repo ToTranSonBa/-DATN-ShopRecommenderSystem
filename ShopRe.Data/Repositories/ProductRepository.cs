@@ -48,6 +48,7 @@ namespace ShopRe.Data.Repositories
         {
             return await context.Products
                     .Where(p => p.CreatedAt.HasValue && p.CreatedAt.Value.Date == (DateTime.Today))
+                    .Include(p => p.Seller)
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(number)
                     .ToListAsync();

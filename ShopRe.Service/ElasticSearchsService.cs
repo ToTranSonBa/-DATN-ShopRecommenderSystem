@@ -128,14 +128,14 @@ namespace ShopRe.Service
             {
                 var seller = new Seller
                 {
-                    ID_NK= document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0,
+                    ID_NK = document.ContainsKey("SellerID_NK") && document["SellerID_NK"] != null ? Convert.ToInt32(document["SellerID_NK"]) : 0,
                     Name = document.ContainsKey("SellerName") && document["SellerName"] != null ? document["SellerName"].ToString() : "",
                     IsOfficial = document.ContainsKey("IsOfficial") && document["IsOfficial"] != null ? Convert.ToBoolean(document["IsOfficial"]) : false,
                     StoreLevel = document.ContainsKey("StoreLevel") && document["StoreLevel"] != null ? document["StoreLevel"].ToString() : "",
                     AvgRatingPoint = document.ContainsKey("AvgRatingPoint") && document["AvgRatingPoint"] != null ? Convert.ToDouble(document["AvgRatingPoint"]) : 0,
-                    TotalFollower= document.ContainsKey("TotalFollower") && document["TotalFollower"] != null ? Convert.ToInt32(document["TotalFollower"]) : 0,
+                    TotalFollower = document.ContainsKey("TotalFollower") && document["TotalFollower"] != null ? Convert.ToInt32(document["TotalFollower"]) : 0,
                     ReviewCount = document.ContainsKey("ReviewCount") && document["ReviewCount"] != null ? Convert.ToInt32(document["ReviewCount"]) : 0,
-                    ImageUrl= document.ContainsKey("ImageUrl") && document["ImageUrl"] != null ? document["ImageUrl"].ToString() : "",
+                    ImageUrl = document.ContainsKey("ImageUrl") && document["ImageUrl"] != null ? document["ImageUrl"].ToString() : "",
 
                 };
                 var product = new
@@ -348,7 +348,7 @@ namespace ShopRe.Service
                     )
                 );
                 var image = await _dbContext.Images.Where(i => i.ProductID_NK == ProductID).ToListAsync();
-                if(image.Count() == 0)
+                if (image.Count() == 0)
                 {
                     image[0] = null;
                 }
@@ -412,7 +412,7 @@ namespace ShopRe.Service
         }
         public async Task AddProductToIndex(Product product)
         {
-            var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s=>s.ID_NK == product.SellerID_NK);
+            var seller = await _dbContext.Sellers.FirstOrDefaultAsync(s => s.ID_NK == product.SellerID_NK);
             try
             {
                 var addFields = new Dictionary<string, object>
