@@ -2,14 +2,15 @@
 import React from "react";
 import ProductRating from "./ProductRating";
 import ProductPricing from "./ProductPricing";
+import defaultAva from "../../assets/default-avatar.png"
 
 const defaultSeller = {
   iD_NK: 2926,
   iD_SK: 1,
-  name: "SHOPLY",
+  name: "",
   isOfficial: true,
   storeLevel: null,
-  avgRatingPoint: 4.6718,
+  avgRatingPoint: 0,
   totalFollower: 500417,
   reviewCount: 5456753,
   imageUrl:
@@ -76,7 +77,7 @@ const ProductCard = ({ product, image = null }) => {
         <div className="w-full border-b-1 my-3"></div>
         <div className="flex flex-row content-center">
           <img
-            src={product.seller?.imageUrl || defaultSeller.imageUrl}
+            src={product.seller?.imageUrl || defaultAva}
             className="w-10 h-10 rounded-full"
           ></img>
           <div className="ml-2">

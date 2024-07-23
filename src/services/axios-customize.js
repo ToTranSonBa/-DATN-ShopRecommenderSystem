@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'https://localhost:7016/api',
-    // baseURL: 'https://shopbe-kb94.onrender.com/api',
+    // baseURL: 'https://localhost:7016/api',
+    baseURL: 'https://shopbe-kb94.onrender.com/api',
 });
 
 instance.interceptors.response.use(

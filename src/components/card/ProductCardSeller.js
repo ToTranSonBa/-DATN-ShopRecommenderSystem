@@ -2,14 +2,15 @@
 import React from "react";
 import ProductRating from "./ProductRating";
 import ProductPricing from "./ProductPricing";
+import defaultAva from "../../assets/default-avatar.png"
 
 const defaultSeller = {
   iD_NK: 2926,
   iD_SK: 1,
-  name: "Tiki Trading",
+  name: "",
   isOfficial: true,
   storeLevel: null,
-  avgRatingPoint: 4.6718,
+  avgRatingPoint: 0,
   totalFollower: 500417,
   reviewCount: 5456753,
   imageUrl:

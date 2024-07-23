@@ -1,7 +1,7 @@
 import MaxWidthWrapper from "../../components/MaxWidthWrapper";
 import axios from "../../services/axios-customize";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from "react-router-dom";
 import ProductCard from "../../components/card/ProductCard";
 import { Pagination as PaginationAntd } from "antd";
 import {
@@ -11,10 +11,11 @@ import {
   getAllProducts,
   fetchBrands,
   unFollowApi,
-  followApi
+  followApi,
 } from "../../services/ShopPageApi";
 import ProductRating from "../../components/card/ProductRating";
 import Loading from "../../components/Loading";
+import ProductCardSeller from "../../components/card/ProductCardSeller";
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -31,12 +32,12 @@ const calculateTimeDifference = (date) => {
   return { years: yearsDifference, months: monthsDifference };
 };
 
-function ShopPage({ }) {
+function ShopPage({}) {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const [brands, setBrands] = useState([]);
   const [seller, setSeller] = useState([]);
-  const [isFollow, setIsFollow] = useState(false);;
+  const [isFollow, setIsFollow] = useState(false);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
   const [newProducts, setNewProducts] = useState([]);
@@ -53,13 +54,12 @@ function ShopPage({ }) {
   const [selectedBrands, setSelectedBrands] = useState([]);
   //
 
-
   const sellerId = parseInt(useParams().id);
 
   const { years, months } = calculateTimeDifference(seller.shop?.createdAt);
   const getJoinTimeText = (years, months) => {
     if (years < 1 && months < 1) {
-      return 'Chưa tới 1 tháng';
+      return "Chưa tới 1 tháng";
     } else if (years < 1) {
       return `${months} tháng trước`;
     } else {
@@ -74,16 +74,15 @@ function ShopPage({ }) {
       try {
         const response = await getSellerbyID(sellerId, token);
         setSeller(response);
-        console.log('seller: ', response);
-        setIsFollow(response.isFollow)
+        console.log("seller: ", response);
+        setIsFollow(response.isFollow);
       } catch (error) {
-        setError('Failed to fetch seller');
-        console.error('Failed to fetch seller:', error);
+        setError("Failed to fetch seller");
+        console.error("Failed to fetch seller:", error);
       }
     };
     fetchSeller();
   }, [sellerId, isFollow]);
-
 
   const fetchNewProducts = useCallback(async () => {
     try {
@@ -116,21 +115,24 @@ function ShopPage({ }) {
     }
   }, [sellerId]);
 
-
   const fetchAllProducts = useCallback(async () => {
     try {
-      const response = await getAllProducts(currentPage, productsPerPage, sellerId); // Thay 'someSellerID' bằng ID hợp lệ
+      const response = await getAllProducts(
+        currentPage,
+        productsPerPage,
+        sellerId
+      ); // Thay 'someSellerID' bằng ID hợp lệ
 
       if (response && response.products) {
         // Kiểm tra response và response.data có tồn tại
         setAllProducts(response.products);
         setTotalProducts(response.total); // Cập nhật sản phẩm
-        setTotalFollower(response.totalFollower)
+        setTotalFollower(response.totalFollower);
       } else {
         setAllProducts([]); // Nếu không có dữ liệu, setProducts với một mảng trống
       }
     } catch (error) {
-      setError(error.message || 'Something went wrong');
+      setError(error.message || "Something went wrong");
     }
   }, [sellerId, currentPage, productsPerPage]);
 
@@ -163,10 +165,10 @@ function ShopPage({ }) {
           idSeller: sellerId,
         },
       });
-      console.log('brands data: ', response);
+      console.log("brands data: ", response);
       setBrands(response.brands);
     } catch (error) {
-      console.error('Failed to fetch brands:', error);
+      console.error("Failed to fetch brands:", error);
     }
   });
 
@@ -242,22 +244,18 @@ function ShopPage({ }) {
     if (token) {
       const response = await followApi(seller.shop.iD_NK, token);
       setIsFollow(true);
+    } else {
+      navigate("/login");
     }
-    else {
-      navigate('/login')
-    }
-
-  }
+  };
   const handleUnFollow = async () => {
     if (token) {
       const response = await unFollowApi(seller.shop.iD_NK, token);
       setIsFollow(false);
+    } else {
+      navigate("/login");
     }
-    else {
-      navigate('/login')
-    }
-
-  }
+  };
 
   return (
     <div className="lg:pt-44">
@@ -280,7 +278,7 @@ function ShopPage({ }) {
                 </div>
                 <div>
                   <span className="flex items-center w-full font-medium text-white lg:gap-2 lg:leading-8 lg:text-lg">
-                    {seller?.shop.name}
+                    {seller.shop?.name}
                   </span>
                   <span className="block font-light text-white lg:text-md">
                     Online <span>1</span> <soan>giờ </soan>trước
@@ -291,13 +289,15 @@ function ShopPage({ }) {
                 {isFollow ? (
                   <button
                     onClick={handleUnFollow}
-                    className="flex items-center justify-center text-red-700 border-2 border-red-500 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
-                    Bỏ theo dõi{' '}
+                    className="flex items-center justify-center text-red-700 border-2 border-red-500 lg:gap-1 lg:rounded-r-sm lg:w-1/2"
+                  >
+                    Bỏ theo dõi{" "}
                   </button>
                 ) : (
                   <button
                     onClick={handleFollow}
-                    className="flex items-center justify-center text-white border-2 lg:gap-1 lg:rounded-r-sm lg:w-1/2">
+                    className="flex items-center justify-center text-white border-2 lg:gap-1 lg:rounded-r-sm lg:w-1/2"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -312,7 +312,7 @@ function ShopPage({ }) {
                         d="M12 4.5v15m7.5-7.5h-15"
                       />
                     </svg>
-                    Theo dõi{' '}
+                    Theo dõi{" "}
                   </button>
                 )}
 
@@ -352,7 +352,9 @@ function ShopPage({ }) {
                   />
                 </svg>
                 <span> Sản phẩm: </span>
-                <span className="font-light text-red-700">{totalProducts ? totalProducts : 0}</span>
+                <span className="font-light text-red-700">
+                  {totalProducts ? totalProducts : 0}
+                </span>
               </div>
 
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
@@ -372,7 +374,9 @@ function ShopPage({ }) {
                 </svg>
 
                 <span> Tỉ lệ phản hồi chat: </span>
-                <span className="font-light text-red-700">Chưa có thông tin</span>
+                <span className="font-light text-red-700">
+                  Chưa có thông tin
+                </span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -391,7 +395,9 @@ function ShopPage({ }) {
                 </svg>
 
                 <span> Tỉ lệ shop huỷ đơn: </span>
-                <span className="font-light text-red-700">Chưa có thông tin</span>
+                <span className="font-light text-red-700">
+                  Chưa có thông tin
+                </span>
               </div>
             </div>
             <div>
@@ -412,7 +418,9 @@ function ShopPage({ }) {
                 </svg>
 
                 <span> Người theo dõi: </span>
-                <span className="font-light text-red-700">{totalFollower ? totalFollower : 0}</span>
+                <span className="font-light text-red-700">
+                  {totalFollower ? totalFollower : 0}
+                </span>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
                 <svg
@@ -432,8 +440,15 @@ function ShopPage({ }) {
 
                 <span> Đánh giá: </span>
                 <div>
-                  <span className="font-light text-red-700">{seller?.shop?.avgRatingPoint ? seller?.shop?.avgRatingPoint : 0}</span>
-                  <span className="font-light text-red-700 lg:pl-1">({seller?.shop?.reviewCount ? seller?.shop?.reviewCount : 0} đánh giá)</span>
+                  <span className="font-light text-red-700">
+                    {seller?.shop?.avgRatingPoint
+                      ? seller?.shop?.avgRatingPoint
+                      : 0}
+                  </span>
+                  <span className="font-light text-red-700 lg:pl-1">
+                    ({seller?.shop?.reviewCount ? seller?.shop?.reviewCount : 0}{" "}
+                    đánh giá)
+                  </span>
                 </div>
               </div>
               <div className="flex items-center w-full lg:gap-2 lg:py-3">
@@ -515,10 +530,14 @@ function ShopPage({ }) {
             <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
                 {newProducts.map((product) => (
-                  <ProductCard
+                  <ProductCardSeller
                     key={product?.product.iD_NK}
                     image={product?.images[0]?.image}
                     product={product?.product}
+                    sellerID={seller.shop?.iD_NK}
+                    sellerName={seller.shop?.name}
+                    sellerImg={seller.shop?.imageUrl}
+                    sellerRating={seller.shop?.avgRatingPoint}
                   />
                 ))}
               </div>
@@ -526,7 +545,6 @@ function ShopPage({ }) {
           ) : (
             <Loading />
           )}
-
         </MaxWidthWrapper>
       </div>
       <div id="bestsellproduct" className="bg-gray-100 lg:py-8">
@@ -555,21 +573,25 @@ function ShopPage({ }) {
               </svg>
             </a>
           </div>
-          {bestSellProduct.length > 0 ?
-            (<div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+          {bestSellProduct.length > 0 ? (
+            <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
                 {bestSellProduct.map((product) => (
-                  <ProductCard
+                  <ProductCardSeller
                     key={product?.product.iD_NK}
                     image={product?.images[0]?.image}
                     product={product?.product}
+                    sellerID={seller.shop?.iD_NK}
+                    sellerName={seller.shop?.name}
+                    sellerImg={seller.shop?.imageUrl}
+                    sellerRating={seller.shop?.avgRatingPoint}
                   />
                 ))}
               </div>
-            </div>) : (
-              <Loading />
-            )}
-
+            </div>
+          ) : (
+            <Loading />
+          )}
         </MaxWidthWrapper>
       </div>
       <div id="allproduct" className="bg-gray-100 lg:py-8">
@@ -726,10 +748,14 @@ function ShopPage({ }) {
                   <div className="flex items-center justify-between lg:rounded-md lg:gap-2">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
                       {allProducts.map((product) => (
-                        <ProductCard
+                        <ProductCardSeller
                           key={product?.product.iD_NK}
                           image={product?.images[0]?.image}
                           product={product?.product}
+                          sellerID={seller.shop?.iD_NK}
+                          sellerName={seller.shop?.name}
+                          sellerImg={seller.shop?.imageUrl}
+                          sellerRating={seller.shop?.avgRatingPoint}
                         />
                       ))}
                     </div>
@@ -749,7 +775,6 @@ function ShopPage({ }) {
               ) : (
                 <Loading />
               )}
-
             </div>
           </div>
         </MaxWidthWrapper>
