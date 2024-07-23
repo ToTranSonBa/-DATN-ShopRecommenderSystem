@@ -66,7 +66,7 @@ const ProductPage = () => {
 
       let response;
 
-      if(token) {
+      if (token) {
         response = await axios.get(
           `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
           {
@@ -79,10 +79,10 @@ const ProductPage = () => {
               PageSize: productsPerPage,
             },
           }, {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
         );
       } else {
         response = await axios.get(
@@ -118,32 +118,25 @@ const ProductPage = () => {
     await fetchProducts();
     await fetchCategories();
     await fetchBrands();
-  }, []);
+  }, [fetchProducts]);
   const storedSearchQuery = localStorage.getItem("searchQuery");
   useEffect(() => {
     if (storedSearchQuery) setSearchQuery(storedSearchQuery);
 
     fetchData();
   }, [storedSearchQuery]);
+  useEffect(() => {
+    fetchProducts(); // Fetch lại sản phẩm khi currentPage hoặc productsPerPage thay đổi
+  }, [currentPage, productsPerPage, fetchProducts]);
 
-  async function handlePagination(value) {
-    try {
-      setCurrentPage(value - 1);
-      console.log(value);
-      fetchProducts();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const handlePagination = (page) => {
+    setCurrentPage(page - 1); // Điều chỉnh currentPage
+  };
 
-  async function handleSizePagination(current, pageSize) {
-    try {
-      setProductsPerPage(pageSize);
-      fetchProducts();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const handleSizePagination = (current, pageSize) => {
+    setProductsPerPage(pageSize);
+    setCurrentPage(0); // Reset về trang đầu khi thay đổi số lượng sản phẩm mỗi trang
+  };
 
   const handleCategory = (category) => {
     const index = selectedCategories.indexOf(category.iD_NK);
@@ -332,10 +325,10 @@ const ProductPage = () => {
               <div className="">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {products?.map((product) => (
-                    <ProductCard 
+                    <ProductCard
                       key={product?.iD_NK}
                       // image={product?.images[0]?.image}
-                      product={product}/>
+                      product={product} />
                   ))}
                 </div>
               </div>
@@ -346,7 +339,7 @@ const ProductPage = () => {
           <div className="flex justify-center m-8">
             <PaginationAntd
               defaultPageSize={20}
-              defaultCurrent={1}
+              current={currentPage + 1}
               total={totalProducts}
               onChange={handlePagination}
               onShowSizeChange={handleSizePagination}

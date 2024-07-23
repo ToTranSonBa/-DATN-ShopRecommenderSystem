@@ -14,60 +14,71 @@ import {
   fetchTopViewProducts,
 } from "../../services/HomeApi/home";
 
-const RecommendTop = () => {
+
+const RecommendTop = ({ onFetchComplete }) => {
   const navigate = useNavigate();
   const [topPopProducts, setTopPopProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [newArrivalsToDay, setNewArrivalsToDay] = useState([]);
   const [topSeller, setTopSeller] = useState([]);
   const [topViewProducts, setTopViewProducts] = useState([]);
-  const getTopPopProducts = useCallback(async () => {
-    try {
-      const response = await fetchTopPopProducts();
-      setTopPopProducts(response);
-    } catch (error) {
-      console.error("Failed to fetch top popular products:", error);
-    }
+
+
+  const getTopPopProducts = useCallback(() => {
+    return fetchTopPopProducts()
+      .then(response => {
+        setTopPopProducts(response);
+        return response;
+      })
+      .catch(error => console.error('Failed to fetch top popular products:', error));
   }, []);
 
-  const fetchDataTopNewProduct = useCallback(async () => {
-    try {
-      const response = await fetchTopNewProducts();
-      console.log("TopNew: ", response);
-      setNewArrivalsToDay(response);
-    } catch (error) {
-      console.log("Failed to fetch top new product: ", error);
-    }
-  });
+  const fetchDataTopNewProduct = useCallback(() => {
+    return fetchTopNewProducts()
+      .then(response => {
+        setNewArrivalsToDay(response);
+        return response;
+      })
+      .catch(error => console.log('Failed to fetch top new product: ', error));
+  }, []);
 
-  const getTopSeller = useCallback(async () => {
-    try {
-      const response = await fetchTop10Seller();
-      setTopSeller(response); // Gọi hàm setter với giá trị response
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
-  });
+  const getTopSeller = useCallback(() => {
+    return fetchTop10Seller()
+      .then(response => {
+        setTopSeller(response);
+        return response;
+      })
+      .catch(error => console.error('Failed to fetch top sellers:', error));
+  }, []);
 
-  const getTopViewProduct = useCallback(async () => {
-    try {
-      const response = await fetchTopViewProducts();
-
-      setTopViewProducts(response); // Gọi hàm setter với giá trị response
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
-  });
+  const getTopViewProduct = useCallback(() => {
+    return fetchTopViewProducts()
+      .then(response => {
+        setTopViewProducts(response);
+        return response;
+      })
+      .catch(error => console.error('Failed to fetch top view products:', error));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      await getTopPopProducts();
-      await fetchDataTopNewProduct();
-      await getTopSeller();
-      await getTopViewProduct();
+      try {
+        await Promise.all([
+          getTopPopProducts(),
+          fetchDataTopNewProduct(),
+          getTopSeller(),
+          getTopViewProduct()
+        ]);
+        if (onFetchComplete) onFetchComplete();
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
     };
+
     fetchData();
-  }, []);
+  }, [getTopPopProducts, fetchDataTopNewProduct, getTopSeller, getTopViewProduct, onFetchComplete]);
+
+
 
   const prevSlide = () => {
     setCurrentIndex((prevIndex) =>

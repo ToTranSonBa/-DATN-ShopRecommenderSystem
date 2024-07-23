@@ -2,27 +2,26 @@ import renderStars from "./RenderStars";
 import Default_Avatar from "../../assets/default-avatar.png";
 import { useCallback, useEffect, useState } from "react";
 import { Modal, Pagination } from "antd";
-import axios from "axios";
+import axios from "../../services/axios-customize";
 
 const CommentDetail = ({ id }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [comments, setComments] = useState([]);
   const [productsPerPage, setProductsPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalComments, setTotalComments] = useState(0);
 
   const fetchComments = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `https://localhost:7016/api/DetailComments/List${id}`,
-        {
-          params: {
-            PageNumber: currentPage,
-            PageSize: productsPerPage,
-          },
-        }
-      );
+      const response = await axios.get(`/DetailComments/List${id}`, {
+        params: {
+          PageNumber: currentPage,
+          PageSize: productsPerPage,
+        },
+      });
       console.log("all comments: ", response);
-      setComments(response.data);
+      setComments(response.comment); // Giả sử dữ liệu comments nằm trong `items`
+      setTotalComments(response.total); // Giả sử tổng số comments nằm trong `totalCount`
     } catch (error) {
       console.error("Failed to fetch comments component:", error);
     }
@@ -30,7 +29,16 @@ const CommentDetail = ({ id }) => {
 
   useEffect(() => {
     fetchComments();
-  }, []);
+  }, [fetchComments]);
+
+  const handlePagination = (page, pageSize) => {
+    setCurrentPage(page);
+  };
+
+  const handleSizePagination = (current, pageSize) => {
+    setProductsPerPage(pageSize);
+    setCurrentPage(0); // Reset về trang đầu khi thay đổi số lượng sản phẩm mỗi trang
+  };
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -43,29 +51,10 @@ const CommentDetail = ({ id }) => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
-  async function handlePagination(value) {
-    try {
-      setCurrentPage(value - 1);
-      fetchComments();
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function handleSizePagination(current, pageSize) {
-    try {
-      setProductsPerPage(pageSize);
-      fetchComments();
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   return (
     <div>
       <div className="flex flex-col items-start mt-8">
-        {comments.comment?.map((item) => (
+        {comments && comments?.map((item) => (
           <div className="flex flex-row pt-4 mb-4">
             <img
               src={item.account?.avatar || Default_Avatar}
@@ -107,8 +96,8 @@ const CommentDetail = ({ id }) => {
       <div className="flex justify-center m-8">
         <Pagination
           defaultPageSize={5}
-          defaultCurrent={0}
-          total={comments.total}
+          current={currentPage}
+          total={totalComments}
           onChange={handlePagination}
           onShowSizeChange={handleSizePagination}
           showSizeChanger={false}
@@ -131,7 +120,7 @@ const CommentDetail = ({ id }) => {
         className="overflow-scroll rounded-sm h-5/6"
       >
         <div className="flex flex-col items-start mt-8">
-          {comments.comment?.map((item) => (
+          {comments?.comment?.map((item) => (
             <div className="flex flex-row pt-4 mb-4">
               <img
                 src={item.account?.avatar || Default_Avatar}

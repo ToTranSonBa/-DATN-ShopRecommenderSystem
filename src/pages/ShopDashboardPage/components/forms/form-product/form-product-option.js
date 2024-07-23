@@ -57,8 +57,13 @@ const FormProductOption = ({ action, product, useroption, open, formValues, file
     };
 
     const handleAddOption = () => {
-        setOptions([...options, { name: '', values: [{}] }]);
-        setOptionValues([...optionValues, []]);
+        if (options.length < 2) {
+            setOptions([...options, { name: '', values: [{}] }]);
+            setOptionValues([...optionValues, []]);
+        } else {
+            // Optional: show a message or alert to the user
+            console.log('Cannot add more than 2 options');
+        }
     };
 
 

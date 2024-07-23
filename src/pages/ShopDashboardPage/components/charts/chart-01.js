@@ -128,7 +128,7 @@ const ChartOne = () => {
                     },
                 },
                 min: 0,
-                max: 300000000, // Adjust this based on your data range
+                max: 1000000000, // Adjust this based on your data range
             },
         };
 

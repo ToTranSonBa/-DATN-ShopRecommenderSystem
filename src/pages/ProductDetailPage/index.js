@@ -16,7 +16,7 @@ import Preloader from "../ShopDashboardPage/components/preloader/index";
 import Loading from "../../components/Loading";
 import ProductCardSeller from "../../components/card/ProductCardSeller";
 import ProductRating from "../../components/card/ProductRating";
-
+import { EventBus } from '../../EventBus/EventBus';
 const defaultSeller = {
   iD_NK: 2926,
   iD_SK: 1,
@@ -32,7 +32,7 @@ const defaultSeller = {
   products: null,
 };
 
-import { EventBus } from '../../EventBus/EventBus';
+
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -187,6 +187,7 @@ const ProductDetailPage = () => {
             },
           }
         );
+
       } else {
         response = await axios.post(`/Products/RecommendProduct`, {
           productId: productId,
@@ -306,11 +307,11 @@ const ProductDetailPage = () => {
         optionValuesId: idProductOption1Value ? idProductOption1Value : null,
         optionValues: idProductOption1Value
           ? {
-              id: idProductOption1Value,
-              name: productOption1Name,
-              option: null,
-              imageUrl: productOption1Image,
-            }
+            id: idProductOption1Value,
+            name: productOption1Name,
+            option: null,
+            imageUrl: productOption1Image,
+          }
           : null,
         productImgs: selectedProductChildren
           ? selectedProductChildren.thumbnail_url
@@ -323,11 +324,11 @@ const ProductDetailPage = () => {
         optionValuesId2: idProductOption2Value ? idProductOption2Value : null,
         optionValues2: idProductOption2Value
           ? {
-              id: idProductOption2Value,
-              name: productOption2Name,
-              option: null,
-              imageUrl: productOption2Image,
-            }
+            id: idProductOption2Value,
+            name: productOption2Name,
+            option: null,
+            imageUrl: productOption2Image,
+          }
           : null,
       };
       navigate("/checkout", {
@@ -810,7 +811,7 @@ const ProductDetailPage = () => {
               <a
                 href="#a"
                 className="flex items-center text-red-700 hover:underline"
-                // onClick={() => handleViewAll("new")}
+              // onClick={() => handleViewAll("new")}
               >
                 Xem tất cả{" "}
                 <svg
@@ -863,7 +864,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+            // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg
@@ -918,7 +919,7 @@ const ProductDetailPage = () => {
             <a
               href="#a"
               className="flex items-center text-red-700 hover:underline"
-              // onClick={() => handleViewAll("new")}
+            // onClick={() => handleViewAll("new")}
             >
               Xem tất cả{" "}
               <svg

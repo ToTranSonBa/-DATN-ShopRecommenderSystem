@@ -68,6 +68,8 @@ const UserPage = () => {
     const [dropDownRating, setDropDownRating] = useState(false);
     const [orderView, setOrderView] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [fetchTrigger, setFetchTrigger] = useState(false);
+
 
     const fetchUser = useCallback(async () => {
         setLoading(true); // Bắt đầu hiển thị loader
@@ -118,7 +120,7 @@ const UserPage = () => {
             await fetchOrders();
         };
         fetchData();
-    }, []);
+    }, [fetchTrigger]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -378,7 +380,6 @@ const UserPage = () => {
         setLoading(true); // Bắt đầu hiển thị loader
         try {
             let updatedReviews = [...reviews];
-            console.log('vô đây không')
             const selectedOrder = filteredOrders.find(order => order.id === selectedOrderId);
             if (!selectedOrder) {
                 toast.error('không có order nào được lựa chọn.');
@@ -436,14 +437,7 @@ const UserPage = () => {
             for (const review of updatedReviews) {
                 try {
                     const addReviewResponse = await addReviewApi(review, token);
-                    if (addReviewResponse) {
-                        toast.success('Đánh giá sản phẩm thành công');
-                        setTimeout(() => {
-                            setDropDownRating(false);
-                        }, 1000);
-                    } else {
-                        toast.error('Đánh giá sản phẩm thất bại');
-                    }
+
                 } catch (error) {
                     console.error(
                         `Error adding review for orderId ${review.orderId} and itemId ${review.itemId}:`,
@@ -451,9 +445,15 @@ const UserPage = () => {
                     );
                 }
             }
+            setFetchTrigger((prev) => !prev)
+            toast.success('Đánh giá sản phẩm thành công');
+            setTimeout(() => {
+                setDropDownRating(false);
+            }, 1000);
+
         } catch (error) {
             console.error('Error uploading images:', error);
-            toast.error('Lỗi khi thêm hình ảnh.');
+            toast.error('Thêm đánh giá sản phẩm thất bại.');
         } finally {
             setLoading(false); // Dừng hiển thị loader
         }

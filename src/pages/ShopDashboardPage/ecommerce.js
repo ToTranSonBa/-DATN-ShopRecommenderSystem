@@ -247,7 +247,7 @@ const ECommerceDoashboard = () => {
                                 <ChartOne />
                                 <ChartTwo />
                                 <ChartThree />
-                                <MapOne />
+                                {/* <MapOne /> */}
 
                                 {/* <div class="col-span-12 xl:col-span-8">
                                     <TableProduct inDoashboard={true} />

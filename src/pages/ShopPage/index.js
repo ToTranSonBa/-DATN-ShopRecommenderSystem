@@ -14,6 +14,7 @@ import {
   followApi
 } from "../../services/ShopPageApi";
 import ProductRating from "../../components/card/ProductRating";
+import Loading from "../../components/Loading";
 
 const calculateTimeDifference = (date) => {
   const createdDate = new Date(date);
@@ -51,7 +52,7 @@ function ShopPage({ }) {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   //
-  const [loading, setLoading] = useState(true);
+
 
   const sellerId = parseInt(useParams().id);
 
@@ -130,8 +131,6 @@ function ShopPage({ }) {
       }
     } catch (error) {
       setError(error.message || 'Something went wrong');
-    } finally {
-      setLoading(false); // Kết thúc quá trình loading dữ liệu
     }
   }, [sellerId, currentPage, productsPerPage]);
 
@@ -512,17 +511,22 @@ function ShopPage({ }) {
               </svg>
             </a>
           </div>
-          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-              {newProducts.map((product) => (
-                <ProductCard
-                  key={product?.product.iD_NK}
-                  image={product?.images[0]?.image}
-                  product={product?.product}
-                />
-              ))}
+          {newProducts.length > 0 ? (
+            <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {newProducts.map((product) => (
+                  <ProductCard
+                    key={product?.product.iD_NK}
+                    image={product?.images[0]?.image}
+                    product={product?.product}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <Loading />
+          )}
+
         </MaxWidthWrapper>
       </div>
       <div id="bestsellproduct" className="bg-gray-100 lg:py-8">
@@ -551,17 +555,21 @@ function ShopPage({ }) {
               </svg>
             </a>
           </div>
-          <div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
-              {bestSellProduct.map((product) => (
-                <ProductCard
-                  key={product?.product.iD_NK}
-                  image={product?.images[0]?.image}
-                  product={product?.product}
-                />
-              ))}
-            </div>
-          </div>
+          {bestSellProduct.length > 0 ?
+            (<div className="flex items-center justify-between flex-nowrap lg:py-4 lg:rounded-md lg:gap-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5">
+                {bestSellProduct.map((product) => (
+                  <ProductCard
+                    key={product?.product.iD_NK}
+                    image={product?.images[0]?.image}
+                    product={product?.product}
+                  />
+                ))}
+              </div>
+            </div>) : (
+              <Loading />
+            )}
+
         </MaxWidthWrapper>
       </div>
       <div id="allproduct" className="bg-gray-100 lg:py-8">
@@ -710,33 +718,38 @@ function ShopPage({ }) {
                 </div>
               </div>
               {/* cột phải 4/5 chứa products */}
-              <div
-                ref={allProductsRef}
-                className="flex-1 bg-gray-100 md:flex-none md:w-4/5"
-              >
-                <div className="flex items-center justify-between lg:rounded-md lg:gap-2">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
-                    {allProducts.map((product) => (
-                      <ProductCard
-                        key={product?.product.iD_NK}
-                        image={product?.images[0]?.image}
-                        product={product?.product}
-                      />
-                    ))}
+              {allProducts.length > 0 ? (
+                <div
+                  ref={allProductsRef}
+                  className="flex-1 bg-gray-100 md:flex-none md:w-4/5"
+                >
+                  <div className="flex items-center justify-between lg:rounded-md lg:gap-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
+                      {allProducts.map((product) => (
+                        <ProductCard
+                          key={product?.product.iD_NK}
+                          image={product?.images[0]?.image}
+                          product={product?.product}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* phân trang */}
+                  <div className="flex justify-center m-8">
+                    <PaginationAntd
+                      defaultPageSize={20}
+                      defaultCurrent={1}
+                      total={totalProducts}
+                      onChange={handlePagination}
+                      onShowSizeChange={handleSizePagination}
+                    />
                   </div>
                 </div>
+              ) : (
+                <Loading />
+              )}
 
-                {/* phân trang */}
-                <div className="flex justify-center m-8">
-                  <PaginationAntd
-                    defaultPageSize={20}
-                    defaultCurrent={1}
-                    total={totalProducts}
-                    onChange={handlePagination}
-                    onShowSizeChange={handleSizePagination}
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </MaxWidthWrapper>
