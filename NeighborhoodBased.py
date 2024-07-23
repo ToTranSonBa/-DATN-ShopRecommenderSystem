@@ -33,12 +33,12 @@ def prepare_data():
         return d
     conn_str = env.CONN_STR
 
-    with pyodbc.connect(conn_str) as conn:
-        cursor = conn.cursor()
-        cursor.execute("Exec SetBehaviorRating")
-        cursor.execute("Exec SellerAvg")
-        cursor.execute("Exec SetAvgRating")
-        conn.commit()
+    # with pyodbc.connect(conn_str) as conn:
+    #     cursor = conn.cursor()
+    #     cursor.execute("Exec SetBehaviorRating")
+    #     cursor.execute("Exec SellerAvg")
+    #     cursor.execute("Exec SetAvgRating")
+    #     conn.commit()
     behavior_df = []
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
@@ -189,10 +189,13 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
         df_cluster_similarity = pd.DataFrame(cluster_similarity, columns=cluster_user_matrix.index.tolist(), index=cluster_user_matrix.index.tolist())   
         user_ids = cluster_user_matrix.index
         item_ids = cluster_user_matrix.columns    
+        i = 0
+        total = len(user_ids)
+        oldvalue = 0
         for user_id in user_ids:
             similar_users = df_cluster_similarity.loc[user_id].sort_values(ascending=False)
             user_mean = user_means.loc[user_id, 0]
-            print(similar_users)
+            # print(similar_users)
             Neighborhood_similarity = similar_users.head(5)
             for column in item_ids:
                 if cluster_user_matrix.loc[user_id, column] == 0: # Chỉ xét các item mà user chưa đánh giá
@@ -206,20 +209,21 @@ def knn_with_weights_and_mf(user_rating_matrix, user_implicit_matrix, n_neighbor
                     final_predictions.loc[user_id, column] = user_mean + total_score / similarity_sum
                 else:
                     final_predictions.loc[user_id, column] = predicted_ratings.loc[user_id, column]
-                print(f"{cluster_id} -- Similarity: {len(similar_users)}----- {cluster_user_matrix.shape} -------- {user_id} ---- {column}")                
+                # print(f"{cluster_id} -- Similarity: {len(similar_users)}----- {cluster_user_matrix.shape} -------- {user_id} ---- {column}")                
                 if env.training_cancel == 1:
                     raise
                 newvalue = newvalue + 1
                 if env.training_cancel == 1:
                     raise
                 persent = int((newvalue) / total * 100)
-                print(persent)
+                # print(persent)
                 if (persent > oldvalue):
                     oldvalue = persent
                     env.training_status = persent
-        os.system("clear")
-
-
+            i = i + 1
+            if (int(i % total * 100) > oldvalue):
+                oldvalue = int(i % total * 100)
+                print(oldvalue)
     return final_predictions
 
 
