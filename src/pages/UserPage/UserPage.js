@@ -72,15 +72,12 @@ const UserPage = () => {
 
 
     const fetchUser = useCallback(async () => {
-        setLoading(true); // Bắt đầu hiển thị loader
         try {
             const response = await userApi(token);
             setUserData(response);
             console.log('user data in ussepage: ', response);
         } catch (error) {
             console.error('Failed to fetch userApi:', error);
-        } finally {
-            setLoading(false); // Dừng hiển thị loader
         }
     });
 
