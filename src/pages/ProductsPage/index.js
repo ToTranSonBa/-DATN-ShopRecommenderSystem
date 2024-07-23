@@ -67,13 +67,11 @@ const ProductPage = () => {
       let response;
 
       if (token) {
-        response = await axios.get("/Products/GetProductsByTrainning", {
+        response = await axios.get(`/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`, {
           headers: {
             Authorization: "Bearer " + token,
           },
           params: {
-            categoriesParam,
-            brandsParam,
             ProductName: localStorage.getItem("searchQuery"),
             MinPrice: minPrice,
             MaxPrice: maxPrice,
@@ -83,10 +81,8 @@ const ProductPage = () => {
           },
         });
       } else {
-        response = await axios.get("/Products/GetProductsByTrainning", {
+        response = await axios.get(`/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`, {
           params: {
-            categoriesParam,
-            brandsParam,
             ProductName: localStorage.getItem("searchQuery"),
             MinPrice: minPrice,
             MaxPrice: maxPrice,
