@@ -30,8 +30,8 @@ const updateUserApi = async (firstName, lastName, email, phoneNumber, address, a
     }
 };
 
-const getOrdersOfUserApi = async (token) => {
-    return axios.get(`/Orders/UserOrders2`, {
+const getOrdersOfUserApi = async (pageNumber, ordersPerPage, token) => {
+    return axios.get(`/Orders/UserOrders2?pageNumber=${pageNumber}&pageSize=${ordersPerPage}`, {
         headers: {
             Authorization: 'Bearer ' + token,
         },

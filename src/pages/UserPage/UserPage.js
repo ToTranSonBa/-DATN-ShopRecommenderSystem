@@ -14,6 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { cloudinaryConfig } from '../../cloudinaryConfig';
 import axios from 'axios';
+import { Pagination as PaginationAntd } from "antd";
 //
 import DefaultAVT from '../../assets/default-avatar.png';
 import MaxWidthWrapper from './../../components/MaxWidthWrapper/index';
@@ -69,6 +70,9 @@ const UserPage = () => {
     const [orderView, setOrderView] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fetchTrigger, setFetchTrigger] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [ordersPerPage, setOrdersPerPage] = useState(5);
 
 
     const fetchUser = useCallback(async () => {
@@ -84,11 +88,11 @@ const UserPage = () => {
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await getOrdersOfUserApi(token);
+            const response = await getOrdersOfUserApi(currentPage, ordersPerPage, token);
 
             // Duyệt qua từng đơn hàng để thêm trường seller và giá cho từng item
             const updatedOrders = await Promise.all(
-                response.map(async (order) => {
+                response.res.map(async (order) => {
                     if (order.items && order.items.length > 0) {
                         const firstItem = order.items[0];
                         const sellerID = firstItem.product.sellerID_NK;
@@ -101,15 +105,17 @@ const UserPage = () => {
                     return order;
                 })
             );
-
+            console.log('total: ', response.total);
+            setTotalOrders(response.total)
             setOrderData(updatedOrders);
         } catch (error) {
             console.error('Failed to fetch getOrdersOfUserApi:', error);
-        } finally {
+        }
+        finally {
             setLoading(false); // Dừng hiển thị loader
         }
 
-    });
+    }, [currentPage, ordersPerPage]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -118,6 +124,21 @@ const UserPage = () => {
         };
         fetchData();
     }, [fetchTrigger]);
+
+    useEffect(() => {
+        fetchOrders(); // Fetch lại đơn hàng khi currentPage hoặc ordersPerPage thay đổi
+    }, [currentPage, ordersPerPage, fetchOrders]);
+
+
+    const handlePagination = (page) => {
+        setCurrentPage(page - 1); // Điều chỉnh currentPage
+    };
+
+    const handleSizePagination = (current, pageSize) => {
+        setOrdersPerPage(pageSize);
+        setCurrentPage(0); // Reset về trang đầu khi thay đổi số lượng sản phẩm mỗi trang
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -1082,6 +1103,16 @@ const UserPage = () => {
                                                 </div>
                                             </section>
                                         </main>
+
+                                        <div className="flex justify-center m-8">
+                                            <PaginationAntd
+                                                defaultPageSize={5}
+                                                current={currentPage + 1}
+                                                total={totalOrders}
+                                                onChange={handlePagination}
+                                                onShowSizeChange={handleSizePagination}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             </main>

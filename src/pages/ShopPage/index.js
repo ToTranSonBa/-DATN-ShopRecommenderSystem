@@ -280,7 +280,7 @@ function ShopPage({ }) {
                 </div>
                 <div>
                   <span className="flex items-center w-full font-medium text-white lg:gap-2 lg:leading-8 lg:text-lg">
-                    {seller?.name}
+                    {seller?.shop.name}
                   </span>
                   <span className="block font-light text-white lg:text-md">
                     Online <span>1</span> <soan>giờ </soan>trước

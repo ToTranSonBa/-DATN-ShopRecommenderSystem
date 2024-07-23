@@ -67,37 +67,34 @@ const ProductPage = () => {
       let response;
 
       if (token) {
-        response = await axios.get(
-          `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
-          {
-            params: {
-              ProductName: localStorage.getItem("searchQuery"),
-              MinPrice: minPrice,
-              MaxPrice: maxPrice,
-              MinReviewRating: minReview,
-              PageNumber: currentPage,
-              PageSize: productsPerPage,
-            },
-          }, {
+        response = await axios.get("/Products/GetProductsByTrainning", {
           headers: {
             Authorization: "Bearer " + token,
           },
-        }
-        );
+          params: {
+            categoriesParam,
+            brandsParam,
+            ProductName: localStorage.getItem("searchQuery"),
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+            MinReviewRating: minReview,
+            PageNumber: currentPage,
+            PageSize: productsPerPage,
+          },
+        });
       } else {
-        response = await axios.get(
-          `/Products/GetProductsByTrainning?${categoriesParam}${brandsParam}`,
-          {
-            params: {
-              ProductName: localStorage.getItem("searchQuery"),
-              MinPrice: minPrice,
-              MaxPrice: maxPrice,
-              MinReviewRating: minReview,
-              PageNumber: currentPage,
-              PageSize: productsPerPage,
-            },
-          }
-        );
+        response = await axios.get("/Products/GetProductsByTrainning", {
+          params: {
+            categoriesParam,
+            brandsParam,
+            ProductName: localStorage.getItem("searchQuery"),
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+            MinReviewRating: minReview,
+            PageNumber: currentPage,
+            PageSize: productsPerPage,
+          },
+        });
       }
 
       console.log("products: ", response);
