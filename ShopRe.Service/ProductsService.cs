@@ -863,7 +863,7 @@ namespace ShopRe.Service
         private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
         {
             var products = new List<ProductWithImages>();
-            foreach (dynamic document in documents)
+            foreach (var document in documents)
             {
                 var product = new ProductWithImages
                 {
@@ -872,7 +872,9 @@ namespace ShopRe.Service
                     Price = document.Price,
                     RatingAverage = document.RatingAverage,
                     RatingCount = document.RatingCount,
-                    Seller = document.Seller
+                    Seller = document.Seller,
+                    OriginalPrice = document.OriginalPrice,
+                    AllTimeQuantitySold = document.AllTimeQuantitySold
                 };
                 product.Images = await _dbContext.Images.Where(i => i.ProductID_NK == product.ID_NK).Select(i => i.Image).ToListAsync();
                 products.Add(product);
