@@ -343,7 +343,7 @@ namespace ShopRe.Service
                     OriginalPrice = entity.Price,
                     BrandID_NK = Convert.ToInt32(entity.BrandID),
                     SellerID_NK = seller.ID_NK,
-                    Image = "[{'base_url':" + entity.Images[0] + ",}]"
+                    Image = "[{ 'base_url': '" + entity.Images[0] + "',}]"
                 };
 
                 //var productEntityEntry = await _dbContext.Products.AddAsync(product);
@@ -552,8 +552,7 @@ namespace ShopRe.Service
                 product.Category_LV0_NK = category.ID_NK;
                 product.BrandID_NK = Convert.ToInt32(entity.BrandId);
                 product.SellerID_NK = seller.ID_NK;
-                product.Image = "[{'base_url':" + entity.Images[0] + ",}]";
-
+                product.Image = "[{ 'base_url': '" + entity.Images[0] + "',}]";
                 var product_entity = _dbContext.Products.Update(product);
                 await _dbContext.SaveChangesAsync();
 
@@ -864,7 +863,7 @@ namespace ShopRe.Service
         private async Task<List<ProductWithImages>> ConvertToProductWithImages(List<Product> documents)
         {
             var products = new List<ProductWithImages>();
-            foreach (dynamic document in documents)
+            foreach (var document in documents)
             {
                 var product = new ProductWithImages
                 {
@@ -873,7 +872,9 @@ namespace ShopRe.Service
                     Price = document.Price,
                     RatingAverage = document.RatingAverage,
                     RatingCount = document.RatingCount,
-                    Seller = document.Seller
+                    Seller = document.Seller,
+                    OriginalPrice = document.OriginalPrice,
+                    AllTimeQuantitySold = document.AllTimeQuantitySold
                 };
                 product.Images = await _dbContext.Images.Where(i => i.ProductID_NK == product.ID_NK).Select(i => i.Image).ToListAsync();
                 products.Add(product);

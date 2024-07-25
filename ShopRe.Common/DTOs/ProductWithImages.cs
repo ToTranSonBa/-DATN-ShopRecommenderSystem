@@ -11,6 +11,9 @@ namespace ShopRe.Common.DTOs
         public int? RatingCount { get; set; } // Số lượng đánh giá
         public List<string>? Images { get; set; }
         public Seller? Seller { get; set; }
+        public decimal? OriginalPrice { get; set; } // Giá gốc
+        public int? AllTimeQuantitySold { get; set; } // Tổng số lượng đã bán từ khi bắt đầu
+
     }
 }
 
