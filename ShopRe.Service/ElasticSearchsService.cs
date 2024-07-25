@@ -702,10 +702,10 @@ namespace ShopRe.Service
             //    return (0, null);
             //}
 
-            //var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
-            var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
+            var requestUri = $"http://127.0.0.1:8000/nbcf/recommend?userid={usercode}";
+            //var requestUri = $"https://fastapi-2i32.onrender.com/nbcf/recommend?userid={usercode}";
 
-            List<SellerRating> sellerRating;
+            List<SellerRating> sellerRating = new List<SellerRating>();
             JObject result;
             try
             {
@@ -719,7 +719,16 @@ namespace ShopRe.Service
                     //var dynamic_products = ConvertToProductCard2(products);
                     return (products.Count, products);
                 }
-                sellerRating = JsonConvert.DeserializeObject<List<SellerRating>>(content);
+                dynamic sellerRatingsDynamic = JsonConvert.DeserializeObject(content);
+                foreach (var item in sellerRatingsDynamic)
+                {
+                    SellerRating sel = new SellerRating
+                    {
+                        SellerId = item.seller_id,
+                        Rating = item.rating
+                    };
+                    sellerRating.Add(sel);
+                }
             }
             catch
             {
