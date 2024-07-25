@@ -70,9 +70,9 @@ namespace ShopRe.Service
             _sellerRepository.Remove(id);
         }
 
-        public Task<Seller> Update(Seller entity)
+        public async Task<Seller> Update(Seller entity)
         {
-            return _sellerRepository.Update(entity);
+            return await _sellerRepository.Update(entity);
         }
         public async Task<SellerInfo> GetUserSerller(string userId)
         {
@@ -88,7 +88,8 @@ namespace ShopRe.Service
             seller.ImageUrl = entity.ImageUrl;
             seller.Phone = entity.Phone;
 
-            var result = await _sellerRepository.Update(seller);
+            var result = await _sellerRepository.UpdateUofW(seller);
+             
             var sellerDto = _mapper.Map<SellerInfo>(result);
             return sellerDto;
         }
