@@ -396,66 +396,64 @@ const UserPage = () => {
     const handleAddComment = async () => {
         const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`;
         setLoading(true); // Bắt đầu hiển thị loader
+
         try {
-            let updatedReviews = [...reviews];
             const selectedOrder = filteredOrders.find(order => order.id === selectedOrderId);
             if (!selectedOrder) {
-                toast.error('không có order nào được lựa chọn.');
+                toast.error('Không có order nào được lựa chọn.');
                 setLoading(false);
                 return;
             }
 
             for (const item of selectedOrder.items) {
-                const review = updatedReviews.find(review => review.orderId === selectedOrderId && review.itemId === item.id);
+                const review = reviews.find(review => review.orderId === selectedOrderId && review.itemId === item.id);
                 if (!review || (!review.rating)) {
                     alert(`Hãy thêm đánh giá cho tất cả sản phẩm của đơn hàng`);
                     setLoading(false);
                     return; // Exit the function if validation fails
                 }
             }
-            for (const orderId of Object.keys(files)) {
-                for (const itemId of Object.keys(files[orderId])) {
-                    const fileObjects = files[orderId][itemId];
 
-                    for (const key of Object.keys(fileObjects)) {
-                        const file = fileObjects[key];
+            // Upload images and update reviews with image URLs
+            const updatedReviewsWithImages = await Promise.all(
+                reviews.map(async review => {
+                    const orderId = review.orderId;
+                    const itemId = review.itemId;
+                    if (files[orderId] && files[orderId][itemId]) {
+                        const fileObjects = files[orderId][itemId];
+                        const imageUrls = [];
 
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        formData.append('upload_preset', cloudinaryConfig.upload_preset);
+                        for (const key of Object.keys(fileObjects)) {
+                            const file = fileObjects[key];
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            formData.append('upload_preset', cloudinaryConfig.upload_preset);
 
-                        const response = await fetch(cloudinaryUrl, {
-                            method: 'POST',
-                            body: formData,
-                        });
+                            const response = await fetch(cloudinaryUrl, {
+                                method: 'POST',
+                                body: formData,
+                            });
 
-                        if (!response.ok) {
-                            throw new Error('Failed to upload image to Cloudinary');
+                            if (!response.ok) {
+                                throw new Error('Failed to upload image to Cloudinary');
+                            }
+
+                            const data = await response.json();
+                            imageUrls.push(data.secure_url);
                         }
 
-                        const data = await response.json();
-                        const imageUrl = data.secure_url;
-
-                        const reviewToUpdate = updatedReviews.find((review) => {
-                            return String(review.orderId) === orderId && String(review.itemId) === itemId;
-                        });
-                        console.log('reviewToUpdate:', reviewToUpdate);
-                        if (reviewToUpdate) {
-                            reviewToUpdate.images = reviewToUpdate.images
-                                ? [...reviewToUpdate.images, imageUrl]
-                                : [imageUrl];
-                        } else {
-                            console.error(`Review not found for orderId ${orderId} and itemId ${itemId}`);
-                        }
+                        return { ...review, images: [...(review.images || []), ...imageUrls] };
                     }
-                }
-            }
-            setReviews(updatedReviews);
+                    return review;
+                })
+            );
 
-            for (const review of updatedReviews) {
+            setReviews(updatedReviewsWithImages);
+
+            // Call addReviewApi for each review
+            for (const review of updatedReviewsWithImages) {
                 try {
-                    const addReviewResponse = await addReviewApi(review, token);
-
+                    await addReviewApi(review, token);
                 } catch (error) {
                     console.error(
                         `Error adding review for orderId ${review.orderId} and itemId ${review.itemId}:`,
@@ -463,7 +461,8 @@ const UserPage = () => {
                     );
                 }
             }
-            setFetchTrigger((prev) => !prev)
+
+            setFetchTrigger((prev) => !prev);
             toast.success('Đánh giá sản phẩm thành công');
             setTimeout(() => {
                 setDropDownRating(false);
@@ -476,6 +475,7 @@ const UserPage = () => {
             setLoading(false); // Dừng hiển thị loader
         }
     };
+
 
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
