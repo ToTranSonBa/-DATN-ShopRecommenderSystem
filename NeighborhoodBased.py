@@ -36,7 +36,7 @@ def prepare_data():
     # with pyodbc.connect(conn_str) as conn:
     #     cursor = conn.cursor()
     #     cursor.execute("Exec SetBehaviorRating")
-    #     cursor.execute("Exec SellerAvg")
+    #     # cursor.execute("Exec SellerAvg")
     #     cursor.execute("Exec SetAvgRating")
     #     conn.commit()
     behavior_df = []
@@ -231,7 +231,7 @@ def recommend(user_id, final_predictions, top_n=100):
     # Sort predicted ratings for the user and get top n recommendations
     predicted_ratings = final_predictions.loc[user_id].sort_values(ascending=False)
     top_ratings = predicted_ratings
-    rating_list = [{'seller_id': seller, 'rating': rating} for seller, rating in top_ratings.items()]
+    rating_list = [{'seller_id': int(seller), 'rating': float(rating)} for seller, rating in top_ratings.items()]
     return rating_list
 
 def train():

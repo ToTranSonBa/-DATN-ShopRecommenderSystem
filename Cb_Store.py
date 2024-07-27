@@ -88,7 +88,7 @@ def recommend(seller, new_df, similarity):
         distances = sorted(list(enumerate(similarity[index[0]])),reverse=True,key = lambda x: x[1])
         result = []
         for i in distances[1:100]:
-            result.append(new_df.iloc[i[0]].SELLERID)
+            result.append(int(new_df.iloc[i[0]].SELLERID))
         return result
     except:
         return []

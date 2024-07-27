@@ -113,7 +113,7 @@ async def recommend(productid, new_df, similarity, lenght=10):
         distances = sorted(list(enumerate(similarity[index[0]])),reverse=True,key = lambda x: x[1])
         result = []
         for i in distances[:lenght]:
-            result.append(new_df.iloc[i[0]].ID_NK)
+            result.append(int(new_df.iloc[i[0]].ID_NK))
         return result
     except:
         return []
@@ -123,13 +123,13 @@ def write_recommend(user, cateid, result):
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
         for row in result:
-            cursor.execute(f"SELECT COUNT(*) FROM UserRecommend WHERE UserId = {user} and ProductId = {row}")
+            cursor.execute(f"SELECT COUNT(*) FROM UserRecommend WHERE UserId = {int(user)} and ProductId = {int(row)}")
             fetch = cursor.fetchone()
             if(fetch[0] == 0):
-                cursor.execute(f"INSERT INTO UserRecommend (AdDate, UserId, ProductId, CateId) VALUES (SYSDATETIME(), {user}, {row}, {cateid})")
+                cursor.execute(f"INSERT INTO UserRecommend (AdDate, UserId, ProductId, CateId) VALUES (SYSDATETIME(), {int(user)}, {int(row)}, {int(cateid)})")
             else:
-                cursor.execute(f"update UserRecommend set AdDate = SYSDATETIME() where UserId = {user} and ProductId = {row}")
-        cursor.execute(f"exec DropLastRecommend @N__USER_ID = {user}")
+                cursor.execute(f"update UserRecommend set AdDate = SYSDATETIME() where UserId = {int(user)} and ProductId = {int(row)}")
+        cursor.execute(f"exec DropLastRecommend @N__USER_ID = {int(user)}")
 
 
         conn.commit()
@@ -139,11 +139,12 @@ def get_recommend_for_user(user):
     conn_str = env.CONN_STR
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT [ProductId] ,[CateId] FROM [ShopRecommend].[dbo].[UserRecommend] WHERE UserId = {user} ORDER BY AdDate")
+        cursor.execute(f"SELECT [ProductId] ,[CateId] FROM [ShopRecommend].[dbo].[UserRecommend] WHERE UserId = {user} ORDER BY AdDate desc")
         result = cursor.fetchall()
         for i in result:
-            df.append(i[0])
+            df.append(int(i[0]))
     return df
 
 if __name__=="__main__":
     print(1)
+                

@@ -154,17 +154,16 @@ async def training_nbcf(background_tasks: BackgroundTasks):
 #         env.training_cancel = 0
 #         await websocket.close()
 
-cate = env.CONTENT_BASED_CLUSTER
 movies = {}
 similarites = {}
-for i in cate:
-    movies[i] = pickle.load(open(f'artifacts/movie_list_cate_{i}.pkl','rb'))
-    similarites[i] = pickle.load(open(f'artifacts/similarity_cate_{i}.pkl','rb'))
 
 def load_cb():
+    global movies, similarites, env
+    cate = env.CONTENT_BASED_CLUSTER
     for i in cate:
         movies[i] = pickle.load(open(f'artifacts/movie_list_cate_{i}.pkl','rb'))
         similarites[i] = pickle.load(open(f'artifacts/similarity_cate_{i}.pkl','rb'))
+
 def train_model_cbf():
     global env, cbf_thread
     files_to_backup = [ "movie_list_cate_1103.pkl", 
@@ -229,6 +228,7 @@ def train_model_cbf():
         cursor.execute(f"insert TRAIN_LOG (algorithm, phase, phasename, AD_DATE) values(2, 1, N'bắt đầu training CBF', SYSDATETIME())")
         cursor.commit()
     try:
+        cate = env.CONTENT_BASED_CLUSTER
         env.cbf_start = 1
         if env.cbf_cancel == 1:
             raise
@@ -284,6 +284,8 @@ async def train_CBF(background_tasks: BackgroundTasks):
 #         print(1)
 @app.get("/get/RecommendProduct")
 async def RecommendProduct(userid: int, productId: int, cateid: int):
+    global env, similarites, movies
+    cate = env.CONTENT_BASED_CLUSTER
     movie = []
     similarity = []
     if(cateid in cate):
